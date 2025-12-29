@@ -1,9 +1,27 @@
 "use client";
+
 import { motion } from "framer-motion";
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex items-center justify-center px-6 pt-32">
+    <main
+      style={{
+        minHeight: "100vh",
+        backgroundImage: `
+          url("/pottery-pattern.png"),
+          radial-gradient(circle at top left,
+  #FFF4E6 0%,
+  #EDD8B4 45%,
+  #D2B48C 100%
+      )
+        `,
+        backgroundRepeat: "repeat, no-repeat",
+        backgroundSize: "220px 220px, cover",
+        backgroundPosition: "center, center",
+        backgroundBlendMode: "soft-light",
+      }}
+      className="flex items-center justify-center px-6 pt-32"
+    >
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
@@ -15,7 +33,8 @@ export default function Home() {
         </h1>
 
         <p className="text-lg md:text-xl text-ink/80 mb-10">
-          Japanese-inspired handcrafted pottery, studio experiences, and soulful tableware.
+          Japanese-inspired handcrafted pottery, studio experiences,
+          and soulful tableware.
         </p>
 
         <button className="bg-clay text-white px-8 py-3 rounded-full hover:opacity-90 transition">
