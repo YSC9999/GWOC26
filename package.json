@@ -23,5 +23,19 @@
     "eslint-config-next": "16.1.1",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "description": "<<<<<<< HEAD\r # GWOC26\r #hello --> Sreeshanth\r #Hello --> Sarath\r #hello --> Ashwith\r =======\r This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YSC9999/GWOC26.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/YSC9999/GWOC26/issues"
+  },
+  "homepage": "https://github.com/YSC9999/GWOC26#readme"
 }
