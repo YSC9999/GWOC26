@@ -16,6 +16,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-[#1f1f1f]">
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
         {/* NAVBAR fixed to viewport */}
         <Navbar />
 
