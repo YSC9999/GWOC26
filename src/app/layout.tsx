@@ -1,12 +1,6 @@
 import "./globals.css";
-import "@fontsource/inter/400.css";
-import "@fontsource/playfair-display/600.css";
-import Navbar from "@/components/Navbar";
-
-export const metadata = {
-  title: "Basho by Shivangi",
-  description: "Japanese-inspired handcrafted pottery & studio experiences",
-};
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 export default function RootLayout({
   children,
@@ -15,16 +9,23 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-[#1f1f1f]">
-        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-        {/* NAVBAR fixed to viewport */}
+      <body className="scroll-smooth">
+        {/* Global Background */}
+        <div
+          className="fixed inset-0 -z-50"
+          style={{
+            backgroundImage: "url('/background.jpeg')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            backgroundColor: "#efe5d8",
+            backgroundBlendMode: "overlay",
+          }}
+        />
         <Navbar />
-
-        {/* MAIN SITE CARD */}
-        <div className="max-w-[1100px] mx-auto bg-[#F4EADB] min-h-screen rounded-[40px] mt-32 overflow-hidden shadow-xl pointer-events-auto">
-
-          {children}
+        <div className="relative z-10">
+          <main className="px-4 md:px-12 pt-20">{children}</main>
+          <Footer />
         </div>
       </body>
     </html>
