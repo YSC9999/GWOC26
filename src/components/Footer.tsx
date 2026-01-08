@@ -142,17 +142,23 @@ export default function Footer() {
         </div>
 
         {/* Instagram Section */}
-        <div className="border-t border-soil/20 pt-12 mb-12">
-          <h4 className="font-serif text-xl font-bold text-soil mb-6 text-center">
-            Follow us on Instagram
-          </h4>
-          <div className="flex justify-center gap-4">
-            <Instagram
-              size={24}
-              className="text-clay cursor-pointer hover:scale-110 transition"
-            />
-          </div>
-        </div>
+      <div className="border-t border-soil/20 pt-12 mb-12">
+  <h4 className="font-serif text-xl font-bold text-soil mb-6 text-center">
+    Follow us on Instagram
+  </h4>
+
+  <div className="flex justify-center gap-4">
+    <a
+      href="https://www.instagram.com/bashobyyshivangi?igsh=dzk3cTNsYTAzeGt6"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-clay hover:scale-110 transition inline-block"
+    >
+      <Instagram size={24} className="cursor-pointer" />
+    </a>
+  </div>
+</div>
+
 
         {/* Bottom Section */}
         <div className="border-t border-soil/20 pt-8 flex flex-col md:flex-row justify-between items-center">
