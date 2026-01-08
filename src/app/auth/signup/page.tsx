@@ -36,7 +36,7 @@ export default function Signup() {
         return;
       }
 
-      router.push("auth/login");
+      router.push("login");
     } catch (err) {
       setError("An error occurred. Please try again.");
     } finally {
@@ -125,7 +125,7 @@ export default function Signup() {
         <p className="text-center mt-6 text-gray-600">
           Already have an account?{" "}
           <Link
-            href="/auth/login"
+            href="/login"
             className="text-clay font-semibold hover:underline"
           >
             Login
