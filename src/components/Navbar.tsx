@@ -34,7 +34,7 @@ export default function Navbar() {
       <div className="bg-sand/80 backdrop-blur rounded-2xl border-4 border-soil w-11/12 max-w-6xl px-6 py-4 flex justify-between items-center gap-4">
         {/* Logo - Bigger */}
         <Link
-          href="/main"
+          href="/"
           className="font-serif text-3xl font-bold text-soil flex-shrink-0 whitespace-nowrap"
         >
           Basho
@@ -44,23 +44,23 @@ export default function Navbar() {
         <div className="hidden min-[1100px]:flex items-center gap-4 flex-1 ml-8">
           {/* Navigation Links */}
           <div className="flex gap-4 uppercase text-sm tracking-widest">
-            <Link href="/main" className="nav-link hover:text-clay transition">
+            <Link href="/" className="nav-link hover:text-clay transition">
               Home
             </Link>
             <Link
-              href="/main/about"
+              href="/about"
               className="nav-link hover:text-clay transition"
             >
               About
             </Link>
             <Link
-              href="/main/products"
+              href="/products"
               className="nav-link hover:text-clay transition"
             >
               Collection
             </Link>
             <Link
-              href="/main/workshops"
+              href="/workshops"
               className="nav-link hover:text-clay transition"
             >
               Workshop
@@ -69,7 +69,7 @@ export default function Navbar() {
               Blog
             </Link>
             <Link
-              href="/main/contact"
+              href="/contact"
               className="nav-link hover:text-clay transition"
             >
               Contact

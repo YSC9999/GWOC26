@@ -104,13 +104,13 @@ export default function MainHome() {
                 transition={{ delay: 0.6, duration: 0.8 }}
                 className="flex flex-col sm:flex-row gap-6 items-start"
               >
-                <Link href="/main/products">
+                <Link href="/products">
                   <button className="btn-primary flex items-center gap-2 px-8 py-4 text-lg hover:scale-105 transition-transform">
                     SHOP NOW
                     <ShoppingBag size={20} />
                   </button>
                 </Link>
-                <Link href="/main/about">
+                <Link href="/about">
                   <button className="btn-secondary flex items-center gap-2 px-8 py-4 text-lg hover:scale-105 transition-transform">
                     OUR STORY
                     <ArrowRight size={20} />
@@ -186,7 +186,7 @@ export default function MainHome() {
                 }}
                 className="card p-6 group cursor-pointer"
               >
-                <Link href={`/main/products/${product.id}`}>
+                <Link href={`/products/${product.id}`}>
                   <div className="text-6xl mb-4 text-center group-hover:scale-110 transition-transform">
                     {product.image}
                   </div>
@@ -210,7 +210,7 @@ export default function MainHome() {
           </div>
 
           <div className="text-center mt-16">
-            <Link href="/main/products">
+            <Link href="/products">
               <button className="btn-outline px-10 py-3 text-lg">
                 View All Products
               </button>

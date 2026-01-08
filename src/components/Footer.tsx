@@ -28,7 +28,7 @@ export default function Footer() {
             <ul className="space-y-3">
               <li>
                 <Link
-                  href="/main"
+                  href="/"
                   className="text-soil/80 hover:text-clay transition nav-link"
                 >
                   Home
@@ -36,7 +36,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/main/products"
+                  href="/products"
                   className="text-soil/80 hover:text-clay transition nav-link"
                 >
                   Collections
@@ -44,7 +44,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/main/about"
+                  href="/about"
                   className="text-soil/80 hover:text-clay transition nav-link"
                 >
                   About Us
@@ -52,7 +52,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/main/contact"
+                  href="/contact"
                   className="text-soil/80 hover:text-clay transition nav-link"
                 >
                   Contact us
@@ -85,7 +85,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/main/cart"
+                  href="/cart"
                   className="text-soil/80 hover:text-clay transition nav-link"
                 >
                   Shopping Cart
