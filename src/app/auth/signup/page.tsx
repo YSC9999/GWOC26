@@ -36,7 +36,7 @@ export default function Signup() {
         return;
       }
 
-      router.push("/login");
+      router.push("auth/login");
     } catch (err) {
       setError("An error occurred. Please try again.");
     } finally {
