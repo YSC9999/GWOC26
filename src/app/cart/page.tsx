@@ -2,8 +2,11 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Trash2, Plus, Minus, ShoppingBag } from "lucide-react";
+import { useState } from "react";
 
 export default function Cart() {
+  const [loading, setLoading] = useState(false);
+
   // Mock cart data
   const cartItems = [
     {
@@ -29,14 +32,49 @@ export default function Cart() {
   const tax = subtotal * 0.1;
   const shipping = subtotal > 100 ? 0 : 10;
   const total = subtotal + tax + shipping;
+ 
+  const handlePayment = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/razorpay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: total }) // send INR to backend
+      });
+  
+      const data = await res.json();
+      if (!data.orderId) throw new Error("Order creation failed");
+  
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
+        amount: Math.round(total * 100), // INR → paisa for checkout
+        currency: "INR",
+        name: "My Shop",
+        description: "Order Payment",
+        order_id: data.orderId,
+        handler: function (response: any) {
+          alert("Payment Successful!");
+          console.log(response);
+        },
+      };
+  
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error(err);
+      alert("Payment failed. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
 
   if (cartItems.length === 0) {
     return (
       <div className="py-20 text-center">
         <ShoppingBag className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-        <h1 className="text-3xl font-bold text-soil mb-2">
-          Your cart is empty
-        </h1>
+        <h1 className="text-3xl font-bold text-soil mb-2">Your cart is empty</h1>
         <p className="text-gray-600 mb-8">
           Start shopping to add items to your cart
         </p>
@@ -85,9 +123,7 @@ export default function Cart() {
 
               {/* Details */}
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-soil mb-1">
-                  {item.name}
-                </h3>
+                <h3 className="text-xl font-bold text-soil mb-1">{item.name}</h3>
                 <p className="text-2xl font-bold text-clay">${item.price}</p>
               </div>
 
@@ -149,9 +185,14 @@ export default function Cart() {
             <span className="text-clay">${total.toFixed(2)}</span>
           </div>
 
-          <Link href="/checkout" className="btn-primary w-full text-center">
-            Proceed to Checkout
-          </Link>
+          {/* 🔗 Razorpay Pay Now button */}
+          <button
+            onClick={handlePayment}
+            disabled={loading}
+            className="btn-primary w-full text-center"
+          >
+            {loading ? "Processing..." : "Pay Now"}
+          </button>
 
           <Link
             href="/main/products"

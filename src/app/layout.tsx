@@ -1,7 +1,8 @@
 import "./globals.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import CartButton from "../components/CartButton";
+ 
+import Script from "next/script";
 
 export default function RootLayout({
   children,
@@ -12,27 +13,30 @@ export default function RootLayout({
     <html lang="en">
       <head>
         {/* Razorpay Checkout Script */}
-          <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
+        <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="afterInteractive"
+        />
       </head>
       <body className="scroll-smooth">
         {/* Global Background */}
         <div
           className="fixed inset-0 -z-50"
           style={{
-        minHeight: "100vh",
-        backgroundImage: `
-          url("/pottery-pattern.png"),
-          radial-gradient(circle at top left,
-  #f2e3cbff 0%,
-  #f2e3cbff 45%,
-  #f2e3cbff 100%
-      )
-        `,
-        backgroundRepeat: "repeat, no-repeat",
-        backgroundSize: "220px 220px, cover",
-        backgroundPosition: "center, center",
-        backgroundBlendMode: "soft-light",
-      }}
+            minHeight: "100vh",
+            backgroundImage: `
+              url("/pottery-pattern.png"),
+              radial-gradient(circle at top left,
+                #f2e3cbff 0%,
+                #f2e3cbff 45%,
+                #f2e3cbff 100%
+              )
+            `,
+            backgroundRepeat: "repeat, no-repeat",
+            backgroundSize: "220px 220px, cover",
+            backgroundPosition: "center, center",
+            backgroundBlendMode: "soft-light",
+          }}
         />
 
         <Navbar />
@@ -42,8 +46,7 @@ export default function RootLayout({
           <Footer />
         </div>
 
-        {/* Floating Cart Button */}
-        <CartButton />
+         
       </body>
     </html>
   );
