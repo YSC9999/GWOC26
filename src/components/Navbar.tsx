@@ -9,10 +9,31 @@ export default function Navbar() {
   const [searchActive, setSearchActive] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
+  const [admin,setadmin] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    fetch("/api/auth/me").then((res) => setLoggedIn(res.ok));
-  }, []);
+  const fetchUser = async () => {
+    try {
+      const res = await fetch("/api/auth/me");
+      if (res.ok) {
+        const userData = await res.json();
+        setLoggedIn(true);
+        setUser(userData);
+        setadmin(userData.tier === "tier-1");
+      } else {
+        setLoggedIn(false);
+        setUser(null);
+        setadmin(false);
+      }
+    } catch {
+      setLoggedIn(false);
+      setUser(null);
+      setadmin(false);
+    }
+  };
+  fetchUser();
+}, []);
 
   // Close profile dropdown when clicking outside
   useEffect(() => {
@@ -111,7 +132,7 @@ export default function Navbar() {
               >
                 <User size={20} />
               </button>
-
+              <p>{admin && <Link href="/admin">ADMIN</Link>}</p>
               {profileOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-gray-200 py-2 z-50">
                   <Link
@@ -229,8 +250,10 @@ export default function Navbar() {
                 </Link>
                 <button
                   onClick={async () => {
-                    await fetch("/api/auth/logout", { method: "POST" });
-                    window.location.href = "/";
+                  await fetch("/api/auth/logout", { method: "POST" });
+                  setLoggedIn(false);
+                  setUser(null);
+                  setadmin(false);
                   }}
                   className="nav-link hover:text-clay"
                 >
