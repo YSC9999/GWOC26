@@ -1,28 +1,32 @@
-import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
 
 export async function GET() {
+  await connectDB();
+
+  const token = (await cookies()).get("basho_token")?.value;
+  if (!token) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("basho_token")?.value;
-    if (!token) return NextResponse.json({ loggedIn: false }, { status: 401 });
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET!
+    ) as { id: string };
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    const user = await User.findById(decoded.id)
+      .select("-password")
+      .lean();
 
-    await connectDB();
-    const user = await User.findOne({ _id: decoded.id } as any).lean();
-    if (!user) return NextResponse.json({ loggedIn: false }, { status: 401 });
+    if (!user) {
+      return new Response("User not found", { status: 404 });
+    }
 
-    return NextResponse.json({
-      loggedIn: true,
-      name: user.name,
-      email: user.email,
-      tier: user.tier,
-    });
+    return Response.json(user);
   } catch {
-    return NextResponse.json({ loggedIn: false }, { status: 401 });
+    return new Response("Invalid token", { status: 401 });
   }
 }

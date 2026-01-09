@@ -1,18 +1,24 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, model, models, InferSchemaType } from "mongoose";
 
-const UserSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, unique: true, required: true },
-  password: String,
-  tier: { 
-    type: String, 
-    enum: ["tier-0", "tier-1", "tier-2", "tier-3"],
-    default: "tier-0"
+const UserSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+
+    tier: {
+      type: String,
+      enum: ["tier-0", "tier-1", "tier-2", "tier-3"],
+      default: "tier-0",
+    },
+
+    subscriptionActive: { type: Boolean, default: false },
+    tierUpgradeDate: { type: Date },
   },
-  tierUpgradeDate: { type: Date },
-  subscriptionActive: { type: Boolean, default: false },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-});
+  { timestamps: true }
+);
 
-export default mongoose.models.User || mongoose.model("User", UserSchema);
+export type UserDocument = InferSchemaType<typeof UserSchema>;
+
+const User = models.User || model<UserDocument>("User", UserSchema);
+export default User;
