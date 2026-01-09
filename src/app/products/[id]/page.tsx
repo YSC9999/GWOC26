@@ -78,11 +78,6 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
         animate={{ opacity: 1 }}
         className="flex items-center gap-2 text-sm text-gray-600"
       >
-        <Link href="/main/products" className="hover:text-clay">
-          Products
-        </Link>
-        <span>/</span>
-        <span className="text-soil font-semibold">{product.name}</span>
       </motion.div>
 
       {/* Product Section */}
@@ -265,90 +260,6 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
               )}
             </tbody>
           </table>
-        </div>
-      </motion.section>
-
-      {/* Related Products */}
-      <motion.section
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-      >
-        <h2 className="section-title">Related Products</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {relatedProducts.map((prod, idx) => (
-            <motion.div
-              key={prod.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className="card overflow-hidden hover:shadow-2xl group"
-            >
-              <div className="bg-sand h-40 flex items-center justify-center text-6xl group-hover:scale-110 transition-transform">
-                {prod.image}
-              </div>
-              <div className="p-6">
-                <h3 className="font-bold text-soil mb-2">{prod.name}</h3>
-                <div className="flex items-center gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={14}
-                      className={
-                        i < Math.floor(prod.rating)
-                          ? "fill-clay text-clay"
-                          : "text-gray-300"
-                      }
-                    />
-                  ))}
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-2xl font-bold text-clay">
-                    ${prod.price}
-                  </span>
-                  <Link
-                    href={`/products/${prod.id}`}
-                    className="bg-soil text-white p-2 rounded hover:bg-clay transition-colors"
-                  >
-                    <ShoppingCart size={16} />
-                  </Link>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.section>
-
-      {/* Related Products Section */}
-      <motion.section
-        className="py-20"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-      >
-        <h2 className="font-serif text-4xl text-center mb-16 text-[#1f1f1f]">
-          Related Products
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {[1, 2, 3].map((i) => (
-            <motion.div
-              key={i}
-              whileHover={{ y: -8 }}
-              transition={{ duration: 0.3 }}
-              className="bg-white rounded-lg overflow-hidden shadow-lg"
-            >
-              <div className="aspect-square bg-gradient-to-br from-[#efe5d8] to-[#e0d5c7] flex items-center justify-center text-6xl">
-                🍯
-              </div>
-              <div className="p-6">
-                <h3 className="font-serif text-xl mb-2">Related Product {i}</h3>
-                <p className="text-[#6d4c3d] mb-4">₹2,500</p>
-                <button className="w-full bg-[#c97c5d] text-white py-2 rounded-full hover:bg-[#b66a4a] transition">
-                  View Details
-                </button>
-              </div>
-            </motion.div>
-          ))}
         </div>
       </motion.section>
     </div>

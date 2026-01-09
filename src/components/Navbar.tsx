@@ -132,9 +132,26 @@ export default function Navbar() {
               >
                 <User size={20} />
               </button>
-              <p>{admin && <Link href="/admin">ADMIN</Link>}</p>
               {profileOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-gray-200 py-2 z-50">
+                  {
+                    admin &&(
+                      <Link
+                        href="/account/dashboard"
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-sm"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-bold">
+                          🪴
+                        </div>
+                        <div className="text-left">
+                          <div className="font-semibold text-gray-800">Admin Panel</div>
+                          <div className="text-xs text-gray-500">
+                            Manage through Dashboard
+                          </div>
+                        </div>
+                      </Link>
+                    )
+                  }
                   <Link
                     href="/account/profile"
                     className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-sm"
