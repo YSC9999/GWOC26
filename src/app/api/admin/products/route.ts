@@ -11,14 +11,11 @@ export async function GET() {
 
     const products = await Product.find({})
       .sort({ createdAt: -1 })
-      .lean();
+      .exec();
 
     return NextResponse.json(products);
-  } catch (err: any) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 }
 
@@ -28,43 +25,38 @@ export async function POST(req: Request) {
     await requireAdmin();
     await connectDB();
 
-    const { name, price, stock } = await req.json();
+    const { name, price, stock, images = [] } = await req.json();
 
     const product = await Product.create({
       name,
       price,
       stock,
+      images,
     });
 
     return NextResponse.json(product);
   } catch {
-    return NextResponse.json(
-      { error: "Failed to add product" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Create failed" }, { status: 400 });
   }
 }
 
-/* EDIT PRODUCT */
+/* UPDATE PRODUCT */
 export async function PATCH(req: Request) {
   try {
     await requireAdmin();
     await connectDB();
 
-    const { id, name, price, stock } = await req.json();
+    const { id, ...data } = await req.json();
 
     const updated = await Product.findByIdAndUpdate(
       id,
-      { name, price, stock },
-      { new: true }
-    );
+      data,
+      { returnDocument: "after" } // ✅ MONGOOSE 8+
+    ).exec();
 
     return NextResponse.json(updated);
   } catch {
-    return NextResponse.json(
-      { error: "Update failed" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Update failed" }, { status: 400 });
   }
 }
 
@@ -75,13 +67,11 @@ export async function DELETE(req: Request) {
     await connectDB();
 
     const { id } = await req.json();
-    await Product.findByIdAndDelete(id);
+
+    await Product.findByIdAndDelete(id).exec();
 
     return NextResponse.json({ success: true });
   } catch {
-    return NextResponse.json(
-      { error: "Delete failed" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Delete failed" }, { status: 400 });
   }
 }

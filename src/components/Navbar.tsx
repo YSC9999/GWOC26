@@ -137,7 +137,7 @@ export default function Navbar() {
                   {
                     admin &&(
                       <Link
-                        href="/account/dashboard"
+                        href="/admin"
                         className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-sm"
                       >
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-bold">

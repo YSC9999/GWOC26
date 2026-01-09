@@ -10,7 +10,8 @@ export async function GET() {
     stock: { $gt: 0 },
   })
     .sort({ createdAt: -1 })
-    .lean();
+    .lean()
+    .exec(); // ✅ REQUIRED in mongoose v8
 
   return NextResponse.json(products);
 }

@@ -1,17 +1,14 @@
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
+import jwt from "jsonwebtoken";
 
-export async function GET() {
-  await connectDB();
-
-  const token = (await cookies()).get("basho_token")?.value;
-  if (!token) {
-    return new Response("Unauthorized", { status: 401 });
-  }
-
+export async function GET(req: Request) {
   try {
+    await connectDB();
+
+    const token = req.headers.get("cookie")?.split("token=")[1];
+    if (!token) throw new Error();
+
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET!
@@ -19,14 +16,12 @@ export async function GET() {
 
     const user = await User.findById(decoded.id)
       .select("-password")
-      .lean();
+      .exec(); // ✅ FIX
 
-    if (!user) {
-      return new Response("User not found", { status: 404 });
-    }
+    if (!user) throw new Error();
 
     return Response.json(user);
   } catch {
-    return new Response("Invalid token", { status: 401 });
+    return new Response("Unauthorized", { status: 401 });
   }
 }
