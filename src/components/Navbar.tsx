@@ -129,7 +129,7 @@ export default function Navbar() {
                     </div>
                   </Link>
                   <Link
-                    href="/main/cart"
+                    href="/cart"
                     className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-sm"
                   >
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white text-xs">
@@ -174,22 +174,22 @@ export default function Navbar() {
       {open && (
         <div className="min-[1100px]:hidden bg-sand border-4 border-soil rounded-2xl mt-1 mx-auto w-11/12 max-w-6xl px-6 py-8">
           <div className="flex flex-col items-center space-y-4 uppercase tracking-widest text-sm">
-            <Link href="/main" className="nav-link hover:text-clay">
+            <Link href="/" className="nav-link hover:text-clay">
               Home
             </Link>
-            <Link href="/main/about" className="nav-link hover:text-clay">
+            <Link href="/about" className="nav-link hover:text-clay">
               About
             </Link>
-            <Link href="/main/products" className="nav-link hover:text-clay">
+            <Link href="/products" className="nav-link hover:text-clay">
               Collection
             </Link>
-            <Link href="/main/workshops" className="nav-link hover:text-clay">
+            <Link href="/workshops" className="nav-link hover:text-clay">
               Workshop
             </Link>
             <Link href="/blog" className="nav-link hover:text-clay">
               Blog
             </Link>
-            <Link href="/main/contact" className="nav-link hover:text-clay">
+            <Link href="/contact" className="nav-link hover:text-clay">
               Contact
             </Link>
             <div className="w-full flex items-center bg-white rounded-full px-4 py-2 mt-4 border border-soil/20 justify-center gap-2">
@@ -219,7 +219,7 @@ export default function Navbar() {
             {loggedIn && (
               <>
                 <Link
-                  href="/main/cart"
+                  href="/cart"
                   className="nav-link hover:text-clay mt-4"
                 >
                   Cart
