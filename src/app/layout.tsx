@@ -23,9 +23,9 @@ export default function RootLayout({
         backgroundImage: `
           url("/pottery-pattern.png"),
           radial-gradient(circle at top left,
-  #EDD8B4 0%,
-  #EDD8B4 45%,
-  #EDD8B4 100%
+  #f2e3cbff 0%,
+  #f2e3cbff 45%,
+  #f2e3cbff 100%
       )
         `,
         backgroundRepeat: "repeat, no-repeat",
