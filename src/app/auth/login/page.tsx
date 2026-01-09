@@ -26,9 +26,8 @@ export default function Login() {
         const data = await response.json();
         setError(data.error || "Login failed");
         return;
-      }
-
-      router.push("/main");
+      }    
+      window.location.href='/'
     } catch (err) {
       setError("An error occurred. Please try again.");
     } finally {
