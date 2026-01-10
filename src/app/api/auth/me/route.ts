@@ -1,28 +1,37 @@
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("basho_token")?.value;
-    if (!token) return NextResponse.json({ loggedIn: false }, { status: 401 });
+    const token = cookieStore.get("token")?.value;
+
+    if (!token) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
 
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-
     await connectDB();
-    const user = await User.findOne({ _id: decoded.id } as any).lean();
-    if (!user) return NextResponse.json({ loggedIn: false }, { status: 401 });
+
+    // Select specific fields for session
+    const user = await User.findById(decoded.userId).select("-password");
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
     return NextResponse.json({
-      loggedIn: true,
+      _id: user._id,
       name: user.name,
       email: user.email,
-      tier: user.tier,
+      role: user.role,
+      tier: user.tier, // Assuming tier exists on User model if used in Navbar
     });
-  } catch {
-    return NextResponse.json({ loggedIn: false }, { status: 401 });
+
+  } catch (error) {
+    return NextResponse.json({ error: "Invalid token" }, { status: 401 });
   }
 }

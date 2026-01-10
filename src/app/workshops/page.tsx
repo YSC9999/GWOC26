@@ -1,204 +1,311 @@
 "use client";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Calendar, Users, Clock, ArrowRight } from "lucide-react";
+import { Calendar, Users, Clock, MapPin, ArrowRight, Loader2, Check } from "lucide-react";
+
+interface Workshop {
+  _id: string;
+  title: string;
+  slug: string;
+  description: string;
+  type: string;
+  image: string;
+  date: string;
+  time: string;
+  duration: string;
+  maxParticipants: number;
+  enrolledCount: number;
+  price: number;
+  includes: string[];
+  location: string;
+  level: string;
+  status: string;
+}
+
+const typeLabels: Record<string, string> = {
+  group: "Group Workshop",
+  "one-on-one": "Private Session",
+  couples: "Couples Class",
+  corporate: "Corporate Event",
+};
+
+const levelColors: Record<string, string> = {
+  beginner: "bg-green-100 text-green-700",
+  intermediate: "bg-yellow-100 text-yellow-700",
+  "all-levels": "bg-blue-100 text-blue-700",
+};
 
 export default function Workshops() {
-  const workshops = [
-    {
-      id: 1,
-      title: "Web Development Fundamentals",
-      instructor: "Sarah Chen",
-      date: "Jan 15, 2024",
-      time: "6:00 PM - 8:00 PM",
-      duration: "8 weeks",
-      participants: 45,
-      level: "Beginner",
-      price: 99,
-      image: "💻",
-      description:
-        "Learn the foundations of modern web development with HTML, CSS, and JavaScript.",
-    },
-    {
-      id: 2,
-      title: "Advanced React Mastery",
-      instructor: "Mike Johnson",
-      date: "Jan 20, 2024",
-      time: "7:00 PM - 9:00 PM",
-      duration: "10 weeks",
-      participants: 32,
-      level: "Advanced",
-      price: 149,
-      image: "⚛️",
-      description:
-        "Master advanced React patterns, hooks, and performance optimization techniques.",
-    },
-    {
-      id: 3,
-      title: "UI/UX Design Principles",
-      instructor: "Emma Wilson",
-      date: "Jan 22, 2024",
-      time: "5:00 PM - 7:00 PM",
-      duration: "6 weeks",
-      participants: 58,
-      level: "Beginner",
-      price: 89,
-      image: "🎨",
-      description:
-        "Learn the principles of user interface and user experience design.",
-    },
-    {
-      id: 4,
-      title: "Full Stack Development",
-      instructor: "James Brown",
-      date: "Jan 25, 2024",
-      time: "7:00 PM - 9:00 PM",
-      duration: "12 weeks",
-      participants: 28,
-      level: "Intermediate",
-      price: 199,
-      image: "🚀",
-      description:
-        "Complete guide to building full-stack applications from frontend to backend.",
-    },
-    {
-      id: 5,
-      title: "Business Communication",
-      instructor: "Lisa Anderson",
-      date: "Feb 01, 2024",
-      time: "6:00 PM - 7:30 PM",
-      duration: "4 weeks",
-      participants: 65,
-      level: "Beginner",
-      price: 59,
-      image: "💬",
-      description:
-        "Enhance your professional communication and leadership skills.",
-    },
-    {
-      id: 6,
-      title: "Data Analytics Bootcamp",
-      instructor: "David Lee",
-      date: "Feb 05, 2024",
-      time: "7:00 PM - 9:00 PM",
-      duration: "8 weeks",
-      participants: 35,
-      level: "Intermediate",
-      price: 129,
-      image: "📊",
-      description:
-        "Master data analysis tools and techniques for business intelligence.",
-    },
-  ];
+  const [workshops, setWorkshops] = useState<Workshop[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedType, setSelectedType] = useState("all");
 
-  const levelColors = {
-    Beginner: "bg-green-100 text-green-800",
-    Intermediate: "bg-yellow-100 text-yellow-800",
-    Advanced: "bg-red-100 text-red-800",
+  useEffect(() => {
+    fetchWorkshops();
+  }, [selectedType]);
+
+  const fetchWorkshops = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (selectedType !== "all") params.append("type", selectedType);
+      params.append("status", "upcoming");
+      
+      const res = await fetch(`/api/workshops?${params}`);
+      const data = await res.json();
+      setWorkshops(data.workshops || []);
+    } catch (error) {
+      console.error("Failed to fetch workshops:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-IN", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  const getAvailableSpots = (workshop: Workshop) => {
+    return workshop.maxParticipants - workshop.enrolledCount;
   };
 
   return (
-    <div className="space-y-12 pt-12">
-      {/* Header */}
+    <div className="min-h-screen py-12">
+      {/* Hero Section */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
+        className="text-center mb-16"
       >
-        <h1 className="text-5xl font-bold text-soil mb-4">Expert Workshops</h1>
-        <p className="text-xl text-gray-700">
-          Learn from industry experts and level up your skills with our
-          comprehensive workshop programs.
+        <span className="inline-block text-clay font-medium mb-4 tracking-wider uppercase">
+          Learn the Art
+        </span>
+        <h1 className="text-5xl md:text-6xl font-bold text-soil mb-6 font-serif">
+          Pottery Workshops
+        </h1>
+        <p className="text-xl text-soil/70 max-w-3xl mx-auto leading-relaxed">
+          Discover the meditative joy of working with clay. From beginner wheel-throwing 
+          to advanced techniques, find the perfect workshop for your journey.
         </p>
       </motion.section>
 
-      {/* Workshops Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {workshops.map((workshop, idx) => (
-          <motion.div
-            key={workshop.id}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.1 }}
-            className="card overflow-hidden hover:shadow-2xl group"
+      {/* Filter */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="flex flex-wrap justify-center gap-3 mb-12"
+      >
+        {[
+          { id: "all", label: "All Workshops" },
+          { id: "group", label: "Group Classes" },
+          { id: "one-on-one", label: "Private Sessions" },
+          { id: "couples", label: "Couples" },
+          { id: "corporate", label: "Corporate" },
+        ].map((type) => (
+          <button
+            key={type.id}
+            onClick={() => setSelectedType(type.id)}
+            className={`px-6 py-2.5 rounded-full font-medium transition-all duration-300 ${
+              selectedType === type.id
+                ? "bg-clay text-white shadow-lg shadow-clay/30"
+                : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+            }`}
           >
-            {/* Image */}
-            <div className="bg-sand h-40 flex items-center justify-center text-5xl overflow-hidden group-hover:scale-110 transition-transform duration-300">
-              {workshop.image}
-            </div>
+            {type.label}
+          </button>
+        ))}
+      </motion.div>
 
-            {/* Content */}
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <h3 className="text-2xl font-bold text-soil mb-1">
+      {/* Workshops Grid */}
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-clay" />
+          <span className="ml-3 text-soil/70">Loading workshops...</span>
+        </div>
+      ) : workshops.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center py-20"
+        >
+          <div className="text-6xl mb-4">🎨</div>
+          <h3 className="text-2xl font-bold text-soil mb-2">No upcoming workshops</h3>
+          <p className="text-soil/60 mb-6">
+            New workshops are added regularly. Check back soon!
+          </p>
+        </motion.div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {workshops.map((workshop, idx) => (
+            <motion.div
+              key={workshop._id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              className="group"
+            >
+              <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
+                {/* Image Header */}
+                <div className="relative h-48 bg-gradient-to-br from-clay/20 to-sand overflow-hidden">
+                  <div className="absolute inset-0 flex items-center justify-center text-8xl opacity-50 group-hover:scale-110 transition-transform duration-500">
+                    {workshop.type === "couples" ? "💑" : 
+                     workshop.type === "corporate" ? "🏢" : 
+                     workshop.type === "one-on-one" ? "🎯" : "🎨"}
+                  </div>
+                  
+                  {/* Type Badge */}
+                  <div className="absolute top-4 left-4">
+                    <span className="bg-soil text-white text-sm font-medium px-4 py-1.5 rounded-full">
+                      {typeLabels[workshop.type] || workshop.type}
+                    </span>
+                  </div>
+                  
+                  {/* Level Badge */}
+                  <div className="absolute top-4 right-4">
+                    <span className={`text-sm font-medium px-3 py-1 rounded-full ${levelColors[workshop.level] || levelColors["all-levels"]}`}>
+                      {workshop.level === "all-levels" ? "All Levels" : workshop.level}
+                    </span>
+                  </div>
+                  
+                  {/* Spots indicator */}
+                  <div className="absolute bottom-4 right-4">
+                    {getAvailableSpots(workshop) <= 3 && getAvailableSpots(workshop) > 0 ? (
+                      <span className="bg-orange-500 text-white text-sm font-bold px-3 py-1 rounded-full animate-pulse">
+                        Only {getAvailableSpots(workshop)} spots left!
+                      </span>
+                    ) : getAvailableSpots(workshop) === 0 ? (
+                      <span className="bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full">
+                        Fully Booked
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-6">
+                  <h3 className="text-2xl font-bold text-soil mb-3 font-serif group-hover:text-clay transition-colors">
                     {workshop.title}
                   </h3>
-                  <p className="text-clay font-semibold">
-                    {workshop.instructor}
+                  
+                  <p className="text-soil/60 mb-4 line-clamp-2">
+                    {workshop.description}
                   </p>
-                </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-bold ${
-                    levelColors[workshop.level as keyof typeof levelColors]
-                  }`}
-                >
-                  {workshop.level}
-                </span>
-              </div>
 
-              <p className="text-gray-600 mb-4">{workshop.description}</p>
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-2 gap-4 mb-6 py-4 border-y border-soil/10">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Calendar size={16} className="text-clay" />
+                      <span className="text-soil/70">{formatDate(workshop.date)}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Clock size={16} className="text-clay" />
+                      <span className="text-soil/70">{workshop.time}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Clock size={16} className="text-clay" />
+                      <span className="text-soil/70">{workshop.duration}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Users size={16} className="text-clay" />
+                      <span className="text-soil/70">
+                        {workshop.enrolledCount}/{workshop.maxParticipants} enrolled
+                      </span>
+                    </div>
+                  </div>
 
-              {/* Details */}
-              <div className="grid grid-cols-2 gap-4 mb-6 py-4 border-y border-gray-200">
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar size={16} className="text-clay" />
-                  <span className="text-gray-700">{workshop.date}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Clock size={16} className="text-clay" />
-                  <span className="text-gray-700">{workshop.time}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Clock size={16} className="text-clay" />
-                  <span className="text-gray-700">{workshop.duration}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Users size={16} className="text-clay" />
-                  <span className="text-gray-700">
-                    {workshop.participants} enrolled
-                  </span>
+                  {/* Includes */}
+                  {workshop.includes && workshop.includes.length > 0 && (
+                    <div className="mb-6">
+                      <div className="text-sm font-medium text-soil mb-2">What's included:</div>
+                      <div className="flex flex-wrap gap-2">
+                        {workshop.includes.slice(0, 4).map((item, i) => (
+                          <span
+                            key={i}
+                            className="inline-flex items-center gap-1 text-xs text-soil/60 bg-sand px-2 py-1 rounded-full"
+                          >
+                            <Check size={12} className="text-green-500" />
+                            {item}
+                          </span>
+                        ))}
+                        {workshop.includes.length > 4 && (
+                          <span className="text-xs text-clay">
+                            +{workshop.includes.length - 4} more
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Price & CTA */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-3xl font-bold text-clay">
+                        ₹{workshop.price.toLocaleString()}
+                      </span>
+                      <span className="text-soil/50 text-sm ml-1">
+                        {workshop.type === "corporate" ? "for group" : "/person"}
+                      </span>
+                    </div>
+                    
+                    <Link
+                      href={`/workshops/${workshop.slug || workshop._id}`}
+                      className={`inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all ${
+                        getAvailableSpots(workshop) === 0
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : "bg-clay text-white hover:bg-clay/90 hover:scale-105"
+                      }`}
+                    >
+                      {getAvailableSpots(workshop) === 0 ? "Sold Out" : "Book Now"}
+                      {getAvailableSpots(workshop) > 0 && <ArrowRight size={18} />}
+                    </Link>
+                  </div>
                 </div>
               </div>
-
-              {/* Price and Button */}
-              <div className="flex justify-between items-center">
-                <div className="text-3xl font-bold text-clay">
-                  ${workshop.price}
-                </div>
-                <button className="btn-primary">
-                  Enroll Now <ArrowRight size={16} className="inline ml-2" />
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
 
       {/* CTA Section */}
       <motion.section
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="bg-gradient-soil text-white rounded-2xl p-12 text-center"
+        className="mt-20 bg-gradient-to-br from-sand to-sand/50 rounded-3xl p-12 text-center text-soil border border-soil/10 relative overflow-hidden"
       >
-        <h2 className="text-4xl font-bold mb-4">
-          Can't find what you're looking for?
+        <div className="absolute inset-0 bg-[url('/pottery-pattern.png')] opacity-10 bg-repeat bg-[length:400px_auto]" />
+        <div className="relative z-10">
+        <h2 className="text-3xl md:text-4xl font-bold mb-4 font-serif">
+          Looking for a private experience?
         </h2>
-        <p className="text-lg mb-8 text-sand">
-          Let us know what workshops you'd like to see and we'll make it happen!
+        <p className="text-lg text-soil/70 mb-8 max-w-2xl mx-auto">
+          Book a one-on-one session tailored to your interests, or organize a 
+          corporate team-building event for your company.
         </p>
-        <button className="btn-primary bg-clay">Request a Workshop</button>
+        <div className="flex flex-wrap justify-center gap-4">
+          <Link
+            href="/contact"
+            className="inline-block bg-clay text-white font-semibold px-8 py-4 rounded-full hover:scale-105 transition-transform"
+          >
+            Contact Us
+          </Link>
+          <Link
+            href="/corporate"
+            className="inline-block bg-white border-2 border-clay text-clay font-semibold px-8 py-4 rounded-full hover:scale-105 transition-transform"
+          >
+            Corporate Inquiries
+          </Link>
+        </div>
+        </div>
       </motion.section>
     </div>
   );

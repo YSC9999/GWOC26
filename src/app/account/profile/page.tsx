@@ -1,189 +1,326 @@
 "use client";
-
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { useAuth } from "@/lib/auth";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Settings, LogOut } from "lucide-react";
+import { MapPin, Plus, Trash2, Save, Loader2 } from "lucide-react";
 
-export default function ProfilePage() {
-  const [user, setUser] = useState<any>(null);
+interface Address {
+  _id?: string;
+  label: string;
+  name: string;
+  phone: string;
+  street: string;
+  city: string;
+  state: string;
+  pincode: string;
+  country: string;
+  isDefault: boolean;
+}
+
+export default function Profile() {
+  const { user: authUser } = useAuth();
+  const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [editing, setEditing] = useState(false);
+  
+  // Form states
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [addresses, setAddresses] = useState<Address[]>([]);
+
+  // New Address State
+  const [showAddAddr, setShowAddAddr] = useState(false);
+  const [newAddr, setNewAddr] = useState<Address>({
+    label: "Home",
+    name: "",
+    phone: "",
+    street: "",
+    city: "",
+    state: "",
+    pincode: "",
+    country: "India",
+    isDefault: false
+  });
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch("/api/auth/me");
-        if (res.ok) {
-          const userData = await res.json();
-          setUser(userData);
-        }
-      } catch (error) {
-        console.error("Error fetching user:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUser();
+    fetchProfile();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="w-full flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-soil"></div>
-      </div>
-    );
-  }
+  const fetchProfile = async () => {
+    try {
+      const res = await fetch("/api/users/profile");
+      if (res.ok) {
+        const data = await res.json();
+        setProfile(data.user);
+        setName(data.user.name);
+        setPhone(data.user.phone || "");
+        setAddresses(data.user.addresses || []);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateProfile = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/users/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone }),
+      });
+      if (res.ok) {
+        setEditing(false);
+        const data = await res.json();
+        setProfile(data.user);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAddAddress = async () => {
+    setSaving(true);
+    try {
+      const updatedAddresses = [...addresses, newAddr];
+      const res = await fetch("/api/users/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ addresses: updatedAddresses }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAddresses(data.user.addresses);
+        setShowAddAddr(false);
+        setNewAddr({
+          label: "Home",
+          name: "",
+          phone: "",
+          street: "",
+          city: "",
+          state: "",
+          pincode: "",
+          country: "India",
+          isDefault: false
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+  
+  const handleRemoveAddress = async (id: string) => {
+    if(!confirm("Delete this address?")) return;
+    const updatedAddresses = addresses.filter(a => a._id !== id);
+    try {
+        await fetch("/api/users/profile", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ addresses: updatedAddresses }),
+        });
+        setAddresses(updatedAddresses);
+    } catch(err) { console.error(err); }
+  };
+
+  if (loading) return <div className="text-center py-20">Loading profile...</div>;
 
   return (
-    <div className="relative w-full min-h-screen px-4 md:px-12 pb-20">
-      {/* Background accent */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-sand/30 via-transparent to-clay/10"></div>
+    <div className="min-h-screen py-12 px-4 md:px-8 max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold text-soil font-serif mb-8">Profile & Addresses</h1>
 
-      <div className="max-w-7xl mx-auto">
-        {/* Profile Header Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="bg-white rounded-3xl shadow-xl border border-soil/10 p-8 md:p-12 mb-8"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-            {/* Profile Avatar */}
-            <div className="flex flex-col items-center md:col-span-1">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2, duration: 0.5, type: "spring" }}
-                className="w-32 h-32 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 flex items-center justify-center text-white text-6xl font-bold shadow-lg mb-4"
-              >
-                {user?.name?.charAt(0) || "U"}
-              </motion.div>
-              <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold">
-                👤 Member
-              </div>
-            </div>
-
-            {/* User Info */}
-            <div className="md:col-span-2">
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3, duration: 0.6 }}
-              >
-                <h1 className="text-3xl md:text-4xl font-bold text-soil mb-1">
-                  {user?.name || "User"}
-                </h1>
-                <p className="text-gray-500 text-lg mb-6">{user?.email}</p>
-
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <Mail size={20} className="text-clay" />
-                    <span>{user?.email}</span>
-                  </div>
-                  {user?.phone && (
-                    <div className="flex items-center gap-3 text-gray-700">
-                      <Phone size={20} className="text-clay" />
-                      <span>{user.phone}</span>
-                    </div>
-                  )}
-                  {user?.address && (
-                    <div className="flex items-center gap-3 text-gray-700">
-                      <MapPin size={20} className="text-clay" />
-                      <span>{user.address}</span>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Menu Items Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {/* Profile Option */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            className="bg-white rounded-2xl border border-soil/10 p-6 hover:shadow-lg transition-shadow cursor-pointer group"
-          >
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-2xl mb-4 group-hover:scale-110 transition-transform">
-              👤
-            </div>
-            <h3 className="text-lg font-bold text-soil mb-1">Profile</h3>
-            <p className="text-sm text-gray-500">Manage your account</p>
-          </motion.div>
-
-          {/* My Orders Option */}
-          <Link href="/account/orders">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-              className="bg-white rounded-2xl border border-soil/10 p-6 hover:shadow-lg transition-shadow cursor-pointer group h-full"
+      {/* Personal Info */}
+      <section className="bg-white rounded-2xl p-8 mb-8 shadow-sm">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-soil">Personal Information</h2>
+          {!editing ? (
+            <button 
+              onClick={() => setEditing(true)}
+              className="text-clay font-medium hover:underline"
             >
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white text-2xl mb-4 group-hover:scale-110 transition-transform">
-                🛒
-              </div>
-              <h3 className="text-lg font-bold text-soil mb-1">My Orders</h3>
-              <p className="text-sm text-gray-500">Track your purchases</p>
-            </motion.div>
-          </Link>
-
-          {/* My Avatars Option */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-            className="bg-white rounded-2xl border border-soil/10 p-6 hover:shadow-lg transition-shadow cursor-pointer group"
-          >
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-2xl mb-4 group-hover:scale-110 transition-transform">
-              ⭐
+              Edit
+            </button>
+          ) : (
+            <div className="flex gap-4">
+              <button 
+                onClick={() => setEditing(false)}
+                className="text-soil/40 hover:text-soil"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleUpdateProfile}
+                disabled={saving}
+                className="flex items-center gap-2 bg-soil text-white px-4 py-2 rounded-lg text-sm"
+              >
+                {saving ? <Loader2 className="animate-spin w-4 h-4" /> : <Save size={16} />} Save
+              </button>
             </div>
-            <h3 className="text-lg font-bold text-soil mb-1">My Avatars</h3>
-            <p className="text-sm text-gray-500">Express yourself in 3D</p>
-          </motion.div>
-
-          {/* My Blogs Option */}
-          <Link href="/account/blogs">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7, duration: 0.5 }}
-              className="bg-white rounded-2xl border border-soil/10 p-6 hover:shadow-lg transition-shadow cursor-pointer group h-full"
-            >
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-2xl mb-4 group-hover:scale-110 transition-transform">
-                ⚙️
-              </div>
-              <h3 className="text-lg font-bold text-soil mb-1">My Blogs</h3>
-              <p className="text-sm text-gray-500">Your published content</p>
-            </motion.div>
-          </Link>
+          )}
         </div>
 
-        {/* Action Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.5 }}
-          className="flex flex-col sm:flex-row gap-4"
-        >
-          <button className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-3 px-6 rounded-xl hover:shadow-lg transition-shadow flex items-center justify-center gap-2">
-            <Settings size={20} />
-            Settings
-          </button>
-          <button
-            onClick={async () => {
-              await fetch("/api/auth/logout", { method: "POST" });
-              window.location.href = "/";
-            }}
-            className="flex-1 bg-red-500 text-white font-semibold py-3 px-6 rounded-xl hover:shadow-lg transition-shadow flex items-center justify-center gap-2"
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm text-soil/60 mb-1">Full Name</label>
+            {editing ? (
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="input-field w-full border border-soil/20 rounded-lg px-3 py-2"
+              />
+            ) : (
+              <div className="font-medium text-soil">{profile.name}</div>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm text-soil/60 mb-1">Email</label>
+            <div className="font-medium text-soil">{profile.email}</div>
+          </div>
+          <div>
+            <label className="block text-sm text-soil/60 mb-1">Phone</label>
+            {editing ? (
+              <input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="input-field w-full border border-soil/20 rounded-lg px-3 py-2"
+                placeholder="+91..."
+              />
+            ) : (
+              <div className="font-medium text-soil">{profile.phone || "Not set"}</div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Addresses */}
+      <section>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-soil">Saved Addresses</h2>
+          <button 
+            onClick={() => setShowAddAddr(true)}
+            className="flex items-center gap-2 bg-clay text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-clay/90 transition-colors"
           >
-            <LogOut size={20} />
-            Log out
+            <Plus size={16} /> Add New
           </button>
-        </motion.div>
-      </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {addresses.map((addr: any, idx) => (
+            <motion.div 
+              key={addr._id || idx}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white p-6 rounded-2xl border border-soil/10 relative group"
+            >
+              <button 
+                onClick={() => handleRemoveAddress(addr._id)}
+                className="absolute top-4 right-4 text-soil/20 hover:text-red-500 transition-colors"
+              >
+                <Trash2 size={18} />
+              </button>
+              <div className="flex items-center gap-2 mb-2">
+                <MapPin size={16} className="text-clay" />
+                <span className="font-bold text-soil">{addr.label}</span>
+                {addr.isDefault && (
+                  <span className="text-[10px] bg-sand px-2 py-0.5 rounded-full uppercase tracking-wider font-bold text-soil/60">
+                    Default
+                  </span>
+                )}
+              </div>
+              <p className="font-medium text-soil mb-1">{addr.name}</p>
+              <p className="text-sm text-soil/70 whitespace-pre-line leading-relaxed">
+                {addr.street}
+                <br />
+                {addr.city}, {addr.state} - {addr.pincode}
+                <br />
+                Ph: {addr.phone}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+
+        {addresses.length === 0 && !showAddAddr && (
+            <div className="text-center py-12 bg-sand/20 rounded-2xl text-soil/60">
+                No addresses saved. Add one for faster checkout.
+            </div>
+        )}
+
+        {/* Add Address Form */}
+        {showAddAddr && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }} 
+            animate={{ opacity: 1, height: "auto" }}
+            className="bg-white p-8 rounded-2xl mt-6 border-2 border-clay/10"
+          >
+            <h3 className="font-bold text-soil mb-6">New Address</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <input 
+                placeholder="Label (e.g. Home, Office)" 
+                value={newAddr.label}
+                onChange={(e) => setNewAddr({...newAddr, label: e.target.value})}
+                className="px-4 py-3 bg-sand/30 rounded-xl"
+              />
+              <input 
+                placeholder="Receiver Name" 
+                value={newAddr.name}
+                onChange={(e) => setNewAddr({...newAddr, name: e.target.value})}
+                className="px-4 py-3 bg-sand/30 rounded-xl"
+              />
+              <input 
+                placeholder="Street Address" 
+                value={newAddr.street}
+                onChange={(e) => setNewAddr({...newAddr, street: e.target.value})}
+                className="px-4 py-3 bg-sand/30 rounded-xl md:col-span-2"
+              />
+              <input 
+                placeholder="City" 
+                value={newAddr.city}
+                onChange={(e) => setNewAddr({...newAddr, city: e.target.value})}
+                className="px-4 py-3 bg-sand/30 rounded-xl"
+              />
+              <input 
+                placeholder="State" 
+                value={newAddr.state}
+                onChange={(e) => setNewAddr({...newAddr, state: e.target.value})}
+                className="px-4 py-3 bg-sand/30 rounded-xl"
+              />
+              <input 
+                placeholder="Pincode" 
+                value={newAddr.pincode}
+                onChange={(e) => setNewAddr({...newAddr, pincode: e.target.value})}
+                className="px-4 py-3 bg-sand/30 rounded-xl"
+              />
+               <input 
+                placeholder="Phone" 
+                value={newAddr.phone}
+                onChange={(e) => setNewAddr({...newAddr, phone: e.target.value})}
+                className="px-4 py-3 bg-sand/30 rounded-xl"
+              />
+            </div>
+            <div className="flex gap-4 mt-6">
+              <button 
+                onClick={handleAddAddress}
+                disabled={saving}
+                className="bg-clay text-white px-6 py-3 rounded-xl font-bold hover:bg-clay/90 flex items-center gap-2"
+              >
+                {saving ? <Loader2 className="animate-spin" /> : "Save Address"}
+              </button>
+              <button 
+                onClick={() => setShowAddAddr(false)}
+                className="text-soil/60 hover:text-soil px-4"
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </section>
     </div>
   );
 }

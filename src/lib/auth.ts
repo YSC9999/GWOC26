@@ -1,15 +1,31 @@
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
+"use client";
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-export async function getUser() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("basho_token")?.value;
-
-  if (!token) return null;
-
-  try {
-    return jwt.verify(token, "SECRETKEY") as any;
-  } catch {
-    return null;
-  }
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
 }
+
+interface AuthStore {
+  user: User | null;
+  isAuthenticated: boolean;
+  login: (user: User) => void;
+  logout: () => void;
+}
+
+export const useAuth = create<AuthStore>()(
+  persist(
+    (set) => ({
+      user: null,
+      isAuthenticated: false,
+      login: (user) => set({ user, isAuthenticated: true }),
+      logout: () => set({ user: null, isAuthenticated: false }),
+    }),
+    {
+      name: "basho-auth",
+    }
+  )
+);

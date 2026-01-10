@@ -1,137 +1,120 @@
 "use client";
-import Link from "next/link";
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { useAuth } from "@/lib/auth";
+import { Loader2 } from "lucide-react";
 
 export default function Signup() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     setError("");
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
-    setLoading(true);
-
     try {
-      const response = await fetch("/api/auth/signup", {
+      const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
       });
 
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.error || "Signup failed");
-        return;
-      }
+      const data = await res.json();
 
-      router.push("login");
-    } catch (err) {
-      setError("An error occurred. Please try again.");
+      if (!res.ok) throw new Error(data.error);
+
+      login(data.user);
+      router.push("/");
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-md card p-8 shadow-xl">
-        <h1 className="text-3xl font-bold text-soil mb-2 text-center">
-          Create Account
-        </h1>
-        <p className="text-center text-gray-600 mb-6">Join Basho today</p>
+    <div className="min-h-screen pt-20 pb-12 flex items-center justify-center px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white rounded-3xl shadow-xl w-full max-w-md overflow-hidden"
+      >
+        <div className="bg-sand/30 p-8 text-center border-b border-soil/5">
+          <h1 className="text-3xl font-bold text-soil font-serif mb-2">Join Basho</h1>
+          <p className="text-soil/60">Start your journey with us</p>
+        </div>
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
-            {error}
+        <div className="p-8">
+          {error && (
+            <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl mb-6 text-sm flex items-center gap-2">
+              ⚠️ {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-soil mb-2">Full Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors"
+                placeholder="John Doe"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-soil mb-2">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors"
+                placeholder="you@example.com"
+                required
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-soil mb-2">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors"
+                placeholder="Min. 8 characters"
+                minLength={8}
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-clay text-white font-bold py-4 rounded-xl hover:bg-clay/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {loading ? <Loader2 className="animate-spin" /> : "Create Account"}
+            </button>
+          </form>
+
+          <div className="mt-8 text-center text-sm text-soil/60">
+            Already have an account?{" "}
+            <Link href="/auth/login" className="text-clay font-bold hover:underline">
+              Log In
+            </Link>
           </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-soil font-semibold mb-2">
-              Full Name
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="input-field"
-              placeholder="Enter your full name"
-            />
-          </div>
-
-          <div>
-            <label className="block text-soil font-semibold mb-2">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="input-field"
-              placeholder="Enter your email"
-            />
-          </div>
-
-          <div>
-            <label className="block text-soil font-semibold mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="input-field"
-              placeholder="Create a password"
-            />
-          </div>
-
-          <div>
-            <label className="block text-soil font-semibold mb-2">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              className="input-field"
-              placeholder="Confirm your password"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-primary w-full mt-6"
-          >
-            {loading ? "Creating account..." : "Sign Up"}
-          </button>
-        </form>
-
-        <p className="text-center mt-6 text-gray-600">
-          Already have an account?{" "}
-          <Link
-            href="/login"
-            className="text-clay font-semibold hover:underline"
-          >
-            Login
-          </Link>
-        </p>
-      </div>
+        </div>
+      </motion.div>
     </div>
   );
 }

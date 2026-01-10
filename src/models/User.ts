@@ -1,18 +1,64 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Model, Schema } from "mongoose";
 
-const UserSchema = new mongoose.Schema({
+export interface IAddress {
+  label: string;
+  name: string;
+  phone: string;
+  street: string;
+  city: string;
+  state: string;
+  pincode: string;
+  country: string;
+  isDefault: boolean;
+}
+
+export interface IUser extends Document {
+  name: string;
+  email: string;
+  password?: string;
+  phone?: string;
+  role: "customer" | "admin";
+  gstNumber?: string;
+  addresses: IAddress[];
+  wishlist: mongoose.Types.ObjectId[];
+  tier: "tier-0" | "tier-1" | "tier-2" | "tier-3";
+  subscriptionActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const AddressSchema = new Schema({
+  label: { type: String, default: 'Home' },
+  name: String,
+  phone: String,
+  street: String,
+  city: String,
+  state: String,
+  pincode: String,
+  country: { type: String, default: 'India' },
+  isDefault: { type: Boolean, default: false }
+}, { _id: true });
+
+const UserSchema = new Schema<IUser>({
   name: { type: String, required: true },
   email: { type: String, unique: true, required: true },
   password: String,
-  tier: { 
-    type: String, 
+  phone: String,
+  role: {
+    type: String,
+    enum: ['customer', 'admin'],
+    default: 'customer'
+  },
+  gstNumber: String,
+  addresses: [AddressSchema],
+  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+  tier: {
+    type: String,
     enum: ["tier-0", "tier-1", "tier-2", "tier-3"],
     default: "tier-0"
   },
-  tierUpgradeDate: { type: Date },
   subscriptionActive: { type: Boolean, default: false },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-});
+}, { timestamps: true });
 
-export default mongoose.models.User || mongoose.model("User", UserSchema);
+const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+export default User;

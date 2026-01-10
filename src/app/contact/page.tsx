@@ -1,231 +1,381 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Send } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, Instagram, Send, Check, Loader2, Info } from "lucide-react";
+
+interface StudioInfo {
+  name: string;
+  tagline: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  phone: string;
+  email: string;
+  whatsapp: string;
+  instagram: string;
+  visitingHours: Record<string, string>;
+  visitPolicy: string;
+  collectionPolicy: string;
+  aboutText: string;
+  mapUrl: string;
+}
 
 export default function Contact() {
+  const [studioInfo, setStudioInfo] = useState<StudioInfo | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     subject: "",
     message: "",
   });
-  const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetchStudioInfo();
+  }, []);
+
+  const fetchStudioInfo = async () => {
+    try {
+      const res = await fetch("/api/studio");
+      const data = await res.json();
+      if (data.studioInfo) {
+        setStudioInfo(data.studioInfo);
+      }
+    } catch (error) {
+      console.error("Failed to fetch studio info:", error);
+    }
+  };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
     try {
-      // Simulate form submission
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setSent(true);
-      setFormData({ name: "", email: "", subject: "", message: "" });
-      setTimeout(() => setSent(false), 5000);
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+
+      setSubmitted(true);
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const contactInfo = [
-    {
-      icon: Mail,
-      label: "Email",
-      value: "support@basho.com",
-      link: "mailto:support@basho.com",
-    },
-    {
-      icon: Phone,
-      label: "Phone",
-      value: "+1 (555) 123-4567",
-      link: "tel:+15551234567",
-    },
-    {
-      icon: MapPin,
-      label: "Address",
-      value: "123 Creative Street, Tech City, TC 12345",
-      link: "#",
-    },
+  const subjectOptions = [
+    "General Inquiry",
+    "Product Question",
+    "Workshop Information",
+    "Custom Order",
+    "Corporate Inquiry",
+    "Collaboration",
+    "Other",
   ];
 
   return (
-    <div className="space-y-12 pt-12">
-      {/* Header */}
+    <div className="min-h-screen py-12">
+      {/* Hero Section */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
+        className="text-center mb-16"
       >
-        <h1 className="text-5xl font-bold text-soil mb-4">Get In Touch</h1>
-        <p className="text-xl text-gray-700">
-          Have questions? We'd love to hear from you. Send us a message and
-          we'll respond as soon as possible.
+        <span className="inline-block text-clay font-medium mb-4 tracking-wider uppercase">
+          Get in Touch
+        </span>
+        <h1 className="text-5xl md:text-6xl font-bold text-soil mb-6 font-serif">
+          Visit & Contact Us
+        </h1>
+        <p className="text-xl text-soil/70 max-w-2xl mx-auto">
+          We'd love to hear from you. Visit our studio or send us a message.
         </p>
       </motion.section>
 
-      {/* Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Contact Info */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 max-w-7xl mx-auto px-4 md:px-8 mb-20">
+        {/* Contact Info Sidebar */}
         <motion.div
           initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
           className="space-y-6"
         >
-          <h2 className="text-3xl font-bold text-soil mb-8">
-            Contact Information
-          </h2>
-
-          {contactInfo.map((info, idx) => (
-            <motion.a
-              key={idx}
-              href={info.link}
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className="card p-6 hover:shadow-lg group"
-            >
-              <div className="flex gap-4">
-                <div className="text-clay group-hover:scale-110 transition-transform">
-                  <info.icon size={32} />
+          {/* Quick Contact */}
+          <div className="bg-white rounded-3xl p-8 shadow-sm border border-soil/10">
+            <h3 className="text-2xl font-bold text-soil mb-6 font-serif">
+              Contact Info
+            </h3>
+            
+            <div className="space-y-6">
+              <a
+                href={`mailto:${studioInfo?.email || "hello@basho.com"}`}
+                className="flex items-start gap-4 group"
+              >
+                <div className="p-3 bg-clay/10 rounded-full text-clay group-hover:bg-clay group-hover:text-white transition-colors">
+                  <Mail size={20} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-soil mb-1">{info.label}</h3>
-                  <p className="text-gray-600">{info.value}</p>
+                  <div className="font-semibold text-soil">Email</div>
+                  <div className="text-soil/60 group-hover:text-clay transition-colors break-all">
+                    {studioInfo?.email || "hello@basho.com"}
+                  </div>
+                </div>
+              </a>
+
+              <a
+                href={`tel:${studioInfo?.phone || "+919876543210"}`}
+                className="flex items-start gap-4 group"
+              >
+                <div className="p-3 bg-clay/10 rounded-full text-clay group-hover:bg-clay group-hover:text-white transition-colors">
+                  <Phone size={20} />
+                </div>
+                <div>
+                  <div className="font-semibold text-soil">Phone</div>
+                  <div className="text-soil/60 group-hover:text-clay transition-colors">
+                    {studioInfo?.phone || "+91 98765 43210"}
+                  </div>
+                </div>
+              </a>
+
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-clay/10 rounded-full text-clay">
+                  <MapPin size={20} />
+                </div>
+                <div>
+                  <div className="font-semibold text-soil">Studio Location</div>
+                  <div className="text-soil/60 whitespace-pre-line">
+                    {studioInfo ? (
+                      <>
+                        {studioInfo.address}
+                        <br/>
+                        {studioInfo.city}, {studioInfo.state}
+                      </>
+                    ) : (
+                      "Ahmedabad, Gujarat"
+                    )}
+                  </div>
                 </div>
               </div>
-            </motion.a>
-          ))}
-
-          {/* Hours */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="card p-6"
-          >
-            <h3 className="font-bold text-soil mb-3">Business Hours</h3>
-            <div className="space-y-2 text-sm text-gray-600">
-              <p>
-                <span className="font-semibold">Monday - Friday:</span> 9:00 AM
-                - 6:00 PM
-              </p>
-              <p>
-                <span className="font-semibold">Saturday:</span> 10:00 AM - 4:00
-                PM
-              </p>
-              <p>
-                <span className="font-semibold">Sunday:</span> Closed
-              </p>
             </div>
-          </motion.div>
+          </div>
+
+          {/* Social */}
+          <div className="bg-gradient-to-br from-pink-500/5 to-purple-500/5 rounded-3xl p-8 text-center border border-pink-100">
+            <h3 className="text-lg font-bold text-soil mb-2">Follow Our Journey</h3>
+            <a
+              href="https://www.instagram.com/bashobyyshivangi/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-pink-600 font-semibold hover:underline mt-2"
+            >
+              <Instagram size={18} />
+              @bashobyyshivangi
+            </a>
+          </div>
         </motion.div>
 
         {/* Contact Form */}
         <motion.div
           initial={{ opacity: 0, x: 30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
           className="lg:col-span-2"
         >
-          <div className="card p-8">
-            <h2 className="text-3xl font-bold text-soil mb-6">
-              Send us a Message
-            </h2>
-
-            {sent && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6"
-              >
-                Thank you for your message! We'll get back to you soon.
-              </motion.div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-soil font-semibold mb-2">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="input-field"
-                    placeholder="Your name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-soil font-semibold mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="input-field"
-                    placeholder="your@email.com"
-                  />
-                </div>
+          {submitted ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-3xl p-12 text-center shadow-sm h-full flex flex-col items-center justify-center border border-soil/10"
+            >
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Check className="w-10 h-10 text-green-500" />
               </div>
-
-              <div>
-                <label className="block text-soil font-semibold mb-2">
-                  Subject
-                </label>
-                <input
-                  type="text"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  required
-                  className="input-field"
-                  placeholder="What is this about?"
-                />
-              </div>
-
-              <div>
-                <label className="block text-soil font-semibold mb-2">
-                  Message
-                </label>
-                <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
-                  rows={6}
-                  className="input-field resize-none"
-                  placeholder="Your message here..."
-                />
-              </div>
-
+              <h2 className="text-3xl font-bold text-soil mb-4 font-serif">
+                Message Sent!
+              </h2>
+              <p className="text-soil/70 mb-8 max-w-md">
+                We'll get back to you shortly.
+              </p>
               <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary w-full"
+                onClick={() => {
+                  setSubmitted(false);
+                  setFormData((prev) => ({ ...prev, message: "", subject: "" }));
+                }}
+                className="bg-clay text-white px-8 py-3 rounded-full font-semibold hover:bg-clay/90 transition-colors"
               >
-                {loading ? "Sending..." : "Send Message"}
-                <Send size={18} className="inline ml-2" />
+                Send Another
               </button>
-            </form>
-          </div>
+            </motion.div>
+          ) : (
+            <div className="bg-white rounded-3xl p-8 shadow-sm border border-soil/10">
+              <h2 className="text-2xl font-bold text-soil mb-6 font-serif">
+                Send Us a Message
+              </h2>
+
+              {error && (
+                <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl mb-6 text-sm">
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-soil mb-2">Name *</label>
+                    <input
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      required
+                      className="input-field w-full px-4 py-3 bg-sand/20 rounded-xl"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-soil mb-2">Email *</label>
+                    <input
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      className="input-field w-full px-4 py-3 bg-sand/20 rounded-xl"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                     <label className="block text-sm font-medium text-soil mb-2">Phone</label>
+                     <input
+                       name="phone"
+                       value={formData.phone}
+                       onChange={handleChange}
+                       className="input-field w-full px-4 py-3 bg-sand/20 rounded-xl"
+                     />
+                   </div>
+                   <div>
+                    <label className="block text-sm font-medium text-soil mb-2">Subject *</label>
+                    <select
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      required
+                      className="input-field w-full px-4 py-3 bg-sand/20 rounded-xl"
+                    >
+                      <option value="">Select a topic</option>
+                      {subjectOptions.map((opt) => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-soil mb-2">Message *</label>
+                  <textarea
+                    name="message"
+                    rows={5}
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
+                    className="input-field w-full px-4 py-3 bg-sand/20 rounded-xl resize-none"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full flex items-center justify-center gap-2 bg-clay text-white py-4 rounded-xl font-bold hover:bg-clay/90 transition-colors disabled:opacity-50"
+                >
+                  {loading ? <Loader2 className="animate-spin" /> : <Send size={18} />}
+                  Send Message
+                </button>
+              </form>
+            </div>
+          )}
         </motion.div>
+      </div>
+
+      {/* Merged Studio Sections */}
+      <div className="bg-sand/30 py-20">
+        <div className="max-w-7xl mx-auto px-4 md:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-soil font-serif mb-4">Our Studio</h2>
+            <p className="max-w-2xl mx-auto text-soil/70">
+              {studioInfo?.aboutText || "A creative space for pottery and art."}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+             {/* Hours */}
+             <div className="bg-white rounded-2xl p-8 shadow-sm">
+                <Clock className="w-10 h-10 text-clay mb-4" />
+                <h3 className="text-xl font-bold text-soil mb-4">Visiting Hours</h3>
+                <ul className="space-y-3 text-soil/70">
+                  {studioInfo?.visitingHours ? (
+                    Object.entries(studioInfo.visitingHours).map(([day, time]) => (
+                      <li key={day} className="flex justify-between border-b border-soil/10 pb-2">
+                        <span className="capitalize">{day}</span>
+                        <span className="font-medium text-soil">{time}</span>
+                      </li>
+                    ))
+                  ) : (
+                    <li>Loading hours...</li>
+                  )}
+                </ul>
+             </div>
+
+             {/* Policies */}
+             <div className="bg-white rounded-2xl p-8 shadow-sm">
+                <Info className="w-10 h-10 text-clay mb-4" />
+                <h3 className="text-xl font-bold text-soil mb-4">Space & Policies</h3>
+                <div className="space-y-4 text-sm text-soil/70">
+                   <p><strong className="text-soil">Eco-Friendly:</strong> We use sustainable clay and recycle materials.</p>
+                   <p><strong className="text-soil">Visit Policy:</strong> {studioInfo?.visitPolicy || "By appointment."}</p>
+                   <p><strong className="text-soil">Collection:</strong> {studioInfo?.collectionPolicy || "Pick up within 30 days."}</p>
+                </div>
+             </div>
+
+             {/* Map / Directions */}
+             <div className="bg-white rounded-2xl p-8 shadow-sm flex flex-col justify-center text-center">
+                 <div className="w-16 h-16 bg-sand rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                    📍
+                 </div>
+                 <h3 className="text-xl font-bold text-soil mb-2">Find Us</h3>
+                 <p className="text-soil/70 mb-6">
+                    {studioInfo?.address}, {studioInfo?.city}
+                 </p>
+                 <a 
+                   href={studioInfo?.mapUrl || "https://maps.google.com"}
+                   target="_blank"
+                   className="inline-block bg-clay text-white px-6 py-2 rounded-full font-semibold hover:bg-clay/90"
+                 >
+                    Get Directions
+                 </a>
+             </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,119 +1,315 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ShoppingCart, Star } from "lucide-react";
-import { TierBadge } from "@/components/TierBadge";
-import { UserTier } from "@/lib/tiers";
+import { ShoppingCart, Filter, Search, Loader2 } from "lucide-react";
+import { useCart } from "@/lib/cart";
 
 interface Product {
-  id: number;
+  _id: string;
   name: string;
+  slug: string;
+  description: string;
   price: number;
-  img: string;
+  originalPrice?: number;
+  category: string;
+  images: string[];
+  material: string;
+  isFoodSafe: boolean;
+  isMicrowaveSafe: boolean;
+  isDishwasherSafe: boolean;
+  inStock: boolean;
+  rating: number;
+  reviewCount: number;
+  featured: boolean;
 }
 
+const categories = [
+  { id: "all", label: "All Products" },
+  { id: "bowls", label: "Bowls" },
+  { id: "cups", label: "Cups & Mugs" },
+  { id: "plates", label: "Plates" },
+  { id: "platters", label: "Platters" },
+  { id: "vases", label: "Vases" },
+  { id: "decor", label: "Decor" },
+  { id: "sets", label: "Sets" },
+];
+
+// Emoji fallbacks for products without images
+const categoryEmojis: Record<string, string> = {
+  bowls: "🥣",
+  cups: "🍵",
+  plates: "🍽️",
+  platters: "🍱",
+  vases: "🏺",
+  decor: "🕯️",
+  sets: "🎁",
+};
+
 export default function Products() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const cart = useCart();
 
-  const products: Product[] = [
-    {
-      id: 1,
-      name: "Stoneware Bowl",
-      price: 899,
-      img: "/products/bowl.jpg",
-    },
-    {
-      id: 2,
-      name: "Tea Cup Set",
-      price: 1299,
-      img: "/products/teacup.jpg",
-    },
-    {
-      id: 3,
-      name: "Serving Platter",
-      price: 1599,
-      img: "/products/platter.jpg",
-    },
-    {
-      id: 4,
-      name: "Sake Cups",
-      price: 699,
-      img: "/products/sake.jpg",
-    },
-  ];
+  useEffect(() => {
+    fetchProducts();
+  }, [selectedCategory, searchQuery]);
 
-  const filteredProducts = products;
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (selectedCategory !== "all") params.append("category", selectedCategory);
+      if (searchQuery) params.append("search", searchQuery);
+      
+      const res = await fetch(`/api/products?${params}`);
+      const data = await res.json();
+      setProducts(data.products || []);
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddToCart = (product: Product) => {
+    cart.add({
+      id: product._id as any,
+      name: product.name,
+      price: product.price,
+      qty: 1,
+    });
+  };
+
+  const getProductImage = (product: Product) => {
+    if (product.images && product.images.length > 0 && product.images[0].startsWith("/")) {
+      return product.images[0];
+    }
+    return null;
+  };
 
   return (
-    <div className="space-y-12 pt-12">
-      {/* Header */}
+    <div className="min-h-screen py-12">
+      {/* Hero Section */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
+        className="text-center mb-12"
       >
-        <h1 className="text-5xl font-bold text-soil mb-4">Our Products</h1>
-        <p className="text-xl text-gray-700">
-          Discover our curated collection of handcrafted ceramic pieces designed
-          to enhance your life.
+        <h1 className="text-5xl md:text-6xl font-bold text-soil mb-4 font-serif">
+          Our Collection
+        </h1>
+        <p className="text-xl text-soil/70 max-w-2xl mx-auto">
+          Handcrafted Japanese-inspired pottery. Each piece tells a story of 
+          tradition, craftsmanship, and the beauty of imperfection.
         </p>
       </motion.section>
 
-      {/* Category Filter removed, no categories in Product */}
+      {/* Search & Filter Bar */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.6 }}
+        className="mb-8"
+      >
+        {/* Search */}
+        <div className="relative max-w-md mx-auto mb-6">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-soil/50" size={20} />
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 bg-white border-2 border-soil/20 rounded-full focus:border-clay focus:outline-none transition-colors"
+          />
+        </div>
+
+        {/* Category Pills */}
+        <div className="flex flex-wrap justify-center gap-3">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`px-5 py-2 rounded-full font-medium transition-all duration-300 ${
+                selectedCategory === cat.id
+                  ? "bg-clay text-white shadow-lg shadow-clay/30"
+                  : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+      </motion.div>
 
       {/* Products Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredProducts.map((product, idx) => (
-          <motion.div
-            key={product.id}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.1 }}
-            className="card overflow-hidden hover:shadow-2xl group"
-          >
-            {/* Product Image */}
-            <div className="bg-sand h-48 flex items-center justify-center text-6xl overflow-hidden group-hover:scale-110 transition-transform duration-300">
-              {product.img}
-            </div>
-
-            {/* Product Info */}
-            <div className="p-6">
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <h3 className="text-xl font-bold text-soil flex-1">
-                  {product.name}
-                </h3>
-                {/* Removed TierBadge, no tier property in Product */}
-              </div>
-              {/* Description removed, no des property in Product */}
-
-              {/* Rating removed, no rating or reviews property in Product */}
-
-              {/* Price and Button */}
-              <div className="flex justify-between items-center">
-                <div className="text-3xl font-bold text-clay">
-                  ${product.price}
-                </div>
-                <Link
-                  href={`/products/${product.id}`}
-                  className="bg-soil text-white p-3 rounded-lg hover:bg-clay transition-colors"
-                >
-                  <ShoppingCart size={20} />
-                </Link>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Empty State */}
-      {filteredProducts.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-xl text-gray-600">
-            No products found in this category.
-          </p>
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-clay" />
+          <span className="ml-3 text-soil/70">Loading products...</span>
         </div>
+      ) : products.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center py-20"
+        >
+          <div className="text-6xl mb-4">🏺</div>
+          <h3 className="text-2xl font-bold text-soil mb-2">No products found</h3>
+          <p className="text-soil/60">
+            Try adjusting your search or filter criteria.
+          </p>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        >
+          {products.map((product, idx) => (
+            <motion.div
+              key={product._id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.05 }}
+              whileHover={{ y: -8 }}
+              className="group"
+            >
+              <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
+                {/* Image */}
+                <Link href={`/products/${product.slug || product._id}`}>
+                  <div className="relative h-56 bg-gradient-to-br from-sand to-sand/50 overflow-hidden">
+                    {getProductImage(product) ? (
+                      <img
+                        src={getProductImage(product)!}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-7xl group-hover:scale-110 transition-transform duration-500">
+                        {categoryEmojis[product.category] || "🏺"}
+                      </div>
+                    )}
+                    
+                    {/* Badges */}
+                    <div className="absolute top-3 left-3 flex flex-col gap-2">
+                      {product.featured && (
+                        <span className="bg-clay text-white text-xs font-bold px-3 py-1 rounded-full">
+                          Featured
+                        </span>
+                      )}
+                      {product.originalPrice && product.originalPrice > product.price && (
+                        <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                          {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
+                        </span>
+                      )}
+                    </div>
+                    
+                    {/* Quick Add */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleAddToCart(product);
+                      }}
+                      className="absolute bottom-3 right-3 bg-soil text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:bg-clay"
+                    >
+                      <ShoppingCart size={18} />
+                    </button>
+                  </div>
+                </Link>
+
+                {/* Content */}
+                <div className="p-5">
+                  {/* Category & Material */}
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-medium text-clay uppercase tracking-wide">
+                      {product.category}
+                    </span>
+                    <span className="text-soil/30">•</span>
+                    <span className="text-xs text-soil/50 capitalize">
+                      {product.material}
+                    </span>
+                  </div>
+
+                  {/* Name */}
+                  <Link href={`/products/${product.slug || product._id}`}>
+                    <h3 className="text-lg font-bold text-soil mb-2 group-hover:text-clay transition-colors line-clamp-1">
+                      {product.name}
+                    </h3>
+                  </Link>
+
+                  {/* Description */}
+                  <p className="text-sm text-soil/60 mb-3 line-clamp-2">
+                    {product.description}
+                  </p>
+
+                  {/* Care Icons */}
+                  <div className="flex gap-2 mb-3">
+                    {product.isFoodSafe && (
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                        Food Safe
+                      </span>
+                    )}
+                    {product.isMicrowaveSafe && (
+                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                        Microwave Safe
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Price */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-clay">
+                        ₹{product.price.toLocaleString()}
+                      </span>
+                      {product.originalPrice && product.originalPrice > product.price && (
+                        <span className="text-sm text-soil/40 line-through">
+                          ₹{product.originalPrice.toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {/* Rating */}
+                    {product.rating > 0 && (
+                      <div className="flex items-center gap-1 text-sm">
+                        <span className="text-yellow-500">★</span>
+                        <span className="text-soil/70">{product.rating}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
       )}
+
+      {/* Bottom CTA */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="mt-20 text-center bg-gradient-to-r from-soil to-soil/90 rounded-3xl p-12 text-white"
+      >
+        <h2 className="text-3xl md:text-4xl font-bold mb-4 font-serif">
+          Looking for something unique?
+        </h2>
+        <p className="text-lg text-sand/80 mb-8 max-w-2xl mx-auto">
+          We create custom pieces tailored to your vision. From personalized gifts 
+          to bespoke tableware sets, let's craft something special together.
+        </p>
+        <Link
+          href="/custom-orders"
+          className="inline-block bg-clay hover:bg-clay/90 text-white font-semibold px-8 py-4 rounded-full transition-all hover:scale-105"
+        >
+          Request Custom Order
+        </Link>
+      </motion.section>
     </div>
   );
 }
