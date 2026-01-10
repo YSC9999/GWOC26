@@ -7,32 +7,35 @@ export async function POST(req: Request) {
   try {
     await connectDB();
 
-    const { name, email, password } = await req.json();
+    const { firstName, lastName, email, password, emailVerified } = await req.json();
 
-    if (!name || !email || !password) {
+    if (!firstName || !lastName || !email || !password) {
       return NextResponse.json(
         { error: "All fields required" },
         { status: 400 }
       );
     }
 
-    const exists = await User.findOne({ email: email } as any).lean();
-    if (exists) {
-      return NextResponse.json(
-        { error: "Email already registered" },
-        { status: 400 }
-      );
-    }
-
     const hashed = await bcrypt.hash(password, 10);
+    const fullName = `${firstName} ${lastName}`;
 
-    await User.create({
-      name,
-      email,
-      password: hashed,
-      tier: "tier-0",
-      subscriptionActive: false,
-    });
+    // Create or update user - no duplicate email check here since it was done at signup page
+    await User.findOneAndUpdate(
+      { email },
+      {
+        name: fullName,
+        firstName,
+        lastName,
+        email,
+        password: hashed,
+        tier: "tier-0",
+        subscriptionActive: false,
+        emailVerified: true,
+        emailVerificationOTP: undefined,
+        otpExpiry: undefined,
+      },
+      { upsert: true, new: true }
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

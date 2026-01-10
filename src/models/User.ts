@@ -14,15 +14,22 @@ export interface IAddress {
 
 export interface IUser extends Document {
   name: string;
+  firstName?: string;
+  lastName?: string;
   email: string;
   password?: string;
   phone?: string;
+  googleId?: string;
+  picture?: string;
   role: "customer" | "admin";
   gstNumber?: string;
   addresses: IAddress[];
   wishlist: mongoose.Types.ObjectId[];
   tier: "tier-0" | "tier-1" | "tier-2" | "tier-3";
   subscriptionActive: boolean;
+  emailVerified: boolean;
+  emailVerificationOTP?: string;
+  otpExpiry?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -41,9 +48,13 @@ const AddressSchema = new Schema({
 
 const UserSchema = new Schema<IUser>({
   name: { type: String, required: true },
+  firstName: String,
+  lastName: String,
   email: { type: String, unique: true, required: true },
   password: String,
   phone: String,
+  googleId: String,
+  picture: String,
   role: {
     type: String,
     enum: ['customer', 'admin'],
@@ -57,7 +68,11 @@ const UserSchema = new Schema<IUser>({
     enum: ["tier-0", "tier-1", "tier-2", "tier-3"],
     default: "tier-0"
   },
+
   subscriptionActive: { type: Boolean, default: false },
+  emailVerified: { type: Boolean, default: false },
+  emailVerificationOTP: String,
+  otpExpiry: Date,
 }, { timestamps: true });
 
 const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);

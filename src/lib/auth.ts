@@ -7,6 +7,9 @@ interface User {
   name: string;
   email: string;
   role: string;
+  firstName?: string;
+  lastName?: string;
+  tier?: string;
 }
 
 interface AuthStore {
@@ -21,11 +24,14 @@ export const useAuth = create<AuthStore>()(
     (set) => ({
       user: null,
       isAuthenticated: false,
-      login: (user) => set({ user, isAuthenticated: true }),
+      login: (user: User) => {
+        set({ user, isAuthenticated: true });
+      },
       logout: () => set({ user: null, isAuthenticated: false }),
     }),
     {
       name: "basho-auth",
+      skipHydration: false,
     }
   )
 );

@@ -23,6 +23,8 @@ export async function GET(req: Request) {
     return NextResponse.json({
       _id: user._id,
       name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
       role: user.role,
       tier: user.tier,

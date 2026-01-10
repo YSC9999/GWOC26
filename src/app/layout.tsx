@@ -1,14 +1,16 @@
 import "./globals.css";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import ConditionalLayout from "../components/ConditionalLayout";
+import ConditionalFooter from "../components/ConditionalFooter";
+import ConditionalBackground from "../components/ConditionalBackground";
 import Script from "next/script";
+import { ReactNode } from "react";
 
 export default function RootLayout({
   children,
   modal
 }: {
-  children: React.ReactNode;
-  modal: React.ReactNode;
+  children: ReactNode;
+  modal: ReactNode;
 }) {
   return (
     <html lang="en">
@@ -17,34 +19,20 @@ export default function RootLayout({
           src="https://checkout.razorpay.com/v1/checkout.js"
           strategy="afterInteractive"
         />
-      </head>
-      <body className="scroll-smooth">
-        {/* Global Background */}
-        <div
-          className="fixed inset-0 -z-50"
-          style={{
-            minHeight: "100vh",
-            backgroundImage: `
-              url("/pottery-pattern.png"),
-              radial-gradient(circle at top left,
-                #f2e3cbff 0%,
-                #f2e3cbff 45%,
-                #f2e3cbff 100%
-              )
-            `,
-            backgroundRepeat: "repeat, no-repeat",
-            backgroundSize: "220px 220px, cover",
-            backgroundPosition: "center, center",
-            backgroundBlendMode: "soft-light",
-          }}
+        <Script
+          src="https://accounts.google.com/gsi/client"
+          strategy="afterInteractive"
         />
-        
-        <Navbar />
+      </head>
+      <body className="scroll-smooth flex flex-col min-h-screen">
+        <ConditionalBackground />
+        <ConditionalLayout />
 
-        <div className="relative z-10">
+        <div className="relative z-10 flex-1">
           <main className="px-4 md:px-12 pt-20">{children}</main>
-          <Footer />
         </div>
+
+        <ConditionalFooter />
       </body>
     </html>
   );

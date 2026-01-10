@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { Menu, X, Search, User, LogOut, ShoppingBag } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useCart } from "@/lib/cart";
@@ -10,28 +11,41 @@ export default function Navbar() {
   const { items } = useCart();
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
-  
+  const pathname = usePathname();
+
   // Calculate cart count
   const cartCount = items.reduce((acc, item) => acc + item.qty, 0);
 
-  // Check auth on mount
+  // Handle client-side mounting and auth check
   useEffect(() => {
+    setMounted(true);
+
     const checkAuth = async () => {
       try {
         const res = await fetch("/api/auth/me");
         if (res.ok) {
           const userData = await res.json();
+          // Always update with server state if endpoint succeeds
           login(userData);
         } else {
+          // If server says not authenticated, clear local state
           logout();
         }
-      } catch {
-        logout();
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        // On error, keep local state as-is
       }
     };
-    checkAuth();
-  }, [login, logout]);
+
+    // Add small delay to let zustand hydrate from localStorage
+    const timer = setTimeout(() => {
+      checkAuth();
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Close profile dropdown when clicking outside
   useEffect(() => {
@@ -64,6 +78,11 @@ export default function Navbar() {
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
   ];
+
+  // Hide navbar on auth pages (after all hooks are called)
+  if (pathname?.includes("/auth/") || pathname === "/login" || pathname === "/signup") {
+    return null;
+  }
 
   return (
     <nav className="fixed w-full top-1 z-50 left-0 right-0 flex justify-center">
@@ -118,16 +137,16 @@ export default function Navbar() {
             {!isAuthenticated ? (
               <div className="flex gap-2 items-center flex-shrink-0">
                 <Link
-                  href="/auth/login"
+                  href="/login"
                   className="text-xs uppercase tracking-widest px-3 py-2 border-2 border-soil rounded-lg hover:bg-soil hover:text-sand transition text-soil font-semibold whitespace-nowrap"
                 >
-                  Login
+                  LOGIN
                 </Link>
                 <Link
-                  href="/auth/signup"
+                  href="/signup"
                   className="text-xs uppercase tracking-widest px-3 py-2 bg-soil text-sand rounded-lg hover:bg-soil/80 transition font-semibold whitespace-nowrap"
                 >
-                  Signup
+                  SIGNUP
                 </Link>
               </div>
             ) : (

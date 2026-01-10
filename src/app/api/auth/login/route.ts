@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
     // 3. Generate JWT
     const token = jwt.sign(
-      { userId: user._id, role: user.role },
+      { id: user._id, email: user.email, tier: user.tier },
       process.env.JWT_SECRET!,
       { expiresIn: "7d" }
     );
@@ -32,8 +32,11 @@ export async function POST(req: Request) {
     const userWithoutPassword = {
       _id: user._id,
       name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
       role: user.role,
+      tier: user.tier,
     };
 
     const response = NextResponse.json({
@@ -43,7 +46,7 @@ export async function POST(req: Request) {
     });
 
     // Set cookie
-    response.cookies.set("token", token, {
+    response.cookies.set("basho_token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 7 * 24 * 60 * 60, // 7 days
