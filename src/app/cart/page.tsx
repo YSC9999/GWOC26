@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Script from "next/script";
 import { motion } from "framer-motion";
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Loader2, Check } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Loader2, Check, MoreVertical, Edit2 } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import { useRouter } from "next/navigation";
@@ -17,6 +17,8 @@ export default function Cart() {
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | "new">("new");
   const [fetchingAddresses, setFetchingAddresses] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null); // For three-dots menu
 
   // OTP State
   const [otp, setOtp] = useState("");
@@ -51,9 +53,12 @@ export default function Cart() {
         const data = await res.json();
         setSavedAddresses(data.addresses || []);
         if (data.addresses && data.addresses.length > 0) {
-          setSelectedAddressId(data.addresses[0]._id);
-          fillFormWithAddress(data.addresses[0]);
-          setPhoneVerified(true); // Assume saved address phone is verified? Or maybe not. Let's assume yes for UX.
+          // Default to first address if not editing
+          if (!editingAddressId) {
+            setSelectedAddressId(data.addresses[0]._id);
+            fillFormWithAddress(data.addresses[0]);
+            setPhoneVerified(true);
+          }
         }
       }
     } catch (err) {
@@ -66,7 +71,7 @@ export default function Cart() {
   const fillFormWithAddress = (addr: any) => {
     setFormData({
       name: addr.name || "",
-      email: "", // Keep current email or user email
+      email: formData.email, // Keep current email
       phone: addr.phone || "",
       street: addr.street || "",
       city: addr.city || "",
@@ -77,6 +82,7 @@ export default function Cart() {
   };
 
   const handleAddressSelect = (id: string) => {
+    if (editingAddressId) return; // Disable selection while editing
     setSelectedAddressId(id);
     if (id === "new") {
       setFormData({ ...formData, street: "", city: "", state: "", pincode: "", phone: "", name: "" });
@@ -92,9 +98,74 @@ export default function Cart() {
     }
   };
 
+  const handleEditAddress = (e: React.MouseEvent, addr: any) => {
+    e.stopPropagation();
+    setEditingAddressId(addr._id);
+    setSelectedAddressId("new"); // Use the "new" form UI for editing
+    fillFormWithAddress(addr);
+    setPhoneVerified(true); // Assume trusted if editing existing
+    setOtpSent(false); // Reset OTP state for editing
+    setShowOtpInput(false);
+    setOpenMenuId(null);
+  };
+
+  const handleDeleteAddress = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this address?")) return;
+
+    try {
+      const res = await fetch(`/api/user/addresses?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        const data = await res.json();
+        setSavedAddresses(data.addresses || []);
+        if (selectedAddressId === id) {
+          setSelectedAddressId("new");
+          setFormData({ ...formData, street: "", city: "", state: "", pincode: "", phone: "", name: "" });
+          setPhoneVerified(false);
+        }
+        alert("Address deleted successfully!");
+      } else {
+        alert("Failed to delete address");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete address");
+    }
+    setOpenMenuId(null);
+  };
+
+  const handleSaveEditedAddress = async () => {
+    if (!editingAddressId) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/user/addresses", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          _id: editingAddressId,
+          ...formData
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSavedAddresses(data.addresses || []);
+        setEditingAddressId(null);
+        setSelectedAddressId(editingAddressId); // Select the updated address
+        alert("Address updated");
+      } else {
+        alert("Failed to update address");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error updating address");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (e.target.name === 'phone' && selectedAddressId === 'new') {
+    if (e.target.name === 'phone' && selectedAddressId === 'new' && !editingAddressId) {
       setPhoneVerified(false);
       setOtpSent(false);
       setShowOtpInput(false);
@@ -123,6 +194,7 @@ export default function Cart() {
       }
     } catch (err) {
       console.error(err);
+      alert("Failed to send OTP");
     } finally {
       setSendingOtp(false);
     }
@@ -145,6 +217,7 @@ export default function Cart() {
       }
     } catch (err) {
       console.error(err);
+      alert("Failed to verify OTP");
     } finally {
       setVerifyingOtp(false);
     }
@@ -166,8 +239,8 @@ export default function Cart() {
 
     setLoading(true);
     try {
-      // 0. Save Address if New
-      if (selectedAddressId === "new") {
+      // 0. Save Address if New (and not editing)
+      if (selectedAddressId === "new" && !editingAddressId) {
         await fetch("/api/user/addresses", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -295,7 +368,7 @@ export default function Cart() {
   }
 
   return (
-    <div className="min-h-screen py-12 px-4 md:px-8 max-w-7xl mx-auto">
+    <div className="min-h-screen py-12 px-4 md:px-8 max-w-7xl mx-auto" onClick={() => setOpenMenuId(null)}>
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
 
       {checkoutStep === 3 ? (
@@ -369,18 +442,51 @@ export default function Cart() {
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
 
                 {/* Saved Addresses Section */}
-                {savedAddresses.length > 0 && (
+                {savedAddresses.length > 0 && !editingAddressId && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     {savedAddresses.map((addr) => (
                       <div
                         key={addr._id}
+                        className={`p-4 rounded-xl border-2 transition-all relative group ${selectedAddressId === addr._id ? 'border-clay bg-clay/5' : 'border-gray-100 hover:border-gray-200'}`}
                         onClick={() => handleAddressSelect(addr._id)}
-                        className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedAddressId === addr._id ? 'border-clay bg-clay/5' : 'border-gray-100 hover:border-gray-200'}`}
                       >
-                        <div className="font-bold text-soil mb-1">{addr.name}</div>
-                        <div className="text-sm text-soil/70">{addr.street}, {addr.city}</div>
-                        <div className="text-sm text-soil/70">{addr.state} - {addr.pincode}</div>
-                        <div className="text-sm text-soil/70 mt-1">Phone: {addr.phone}</div>
+                        <div className="flex justify-between items-start">
+                          <div className="cursor-pointer flex-1">
+                            <div className="font-bold text-soil mb-1">{addr.name}</div>
+                            <div className="text-sm text-soil/70">{addr.street}, {addr.city}</div>
+                            <div className="text-sm text-soil/70">{addr.state} - {addr.pincode}</div>
+                            <div className="text-sm text-soil/70 mt-1">Phone: {addr.phone}</div>
+                          </div>
+
+                          {/* Three Dots Menu */}
+                          <div className="relative">
+                            <button
+                              className="p-1 rounded-full hover:bg-gray-200"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenMenuId(openMenuId === addr._id ? null : addr._id);
+                              }}
+                            >
+                              <MoreVertical size={16} className="text-soil/60" />
+                            </button>
+                            {openMenuId === addr._id && (
+                              <div className="absolute right-0 top-full mt-1 bg-white shadow-xl rounded-lg py-1 w-32 z-10 border border-gray-100">
+                                <button
+                                  onClick={(e) => handleEditAddress(e, addr)}
+                                  className="w-full text-left px-4 py-2 text-sm text-soil hover:bg-gray-50 flex items-center gap-2"
+                                >
+                                  <Edit2 size={14} /> Edit
+                                </button>
+                                <button
+                                  onClick={(e) => handleDeleteAddress(e, addr._id)}
+                                  className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 flex items-center gap-2"
+                                >
+                                  <Trash2 size={14} /> Delete
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     ))}
                     <div
@@ -393,7 +499,14 @@ export default function Cart() {
                 )}
 
                 {/* Shared Form */}
-                <div className={`space-y-6 ${selectedAddressId !== 'new' ? 'opacity-80 pointer-events-none grayscale' : ''}`}> {/* Disable form if saved address selected */}
+                <div className={`space-y-6 ${!editingAddressId && selectedAddressId !== 'new' ? 'opacity-80 pointer-events-none grayscale' : ''}`}> {/* Disable form if saved address selected */}
+                  {editingAddressId && (
+                    <div className="flex justify-between items-center bg-yellow-50 p-4 rounded-lg">
+                      <span className="text-soil font-bold flex items-center gap-2"><Edit2 size={16} /> Editing Address</span>
+                      <button onClick={() => { setEditingAddressId(null); setSelectedAddressId("new"); setFormData({ ...formData, street: "", city: "", state: "", pincode: "", phone: "", name: "" }); }} className="text-sm text-red-500 hover:underline">Cancel</button>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-soil mb-2">Full Name</label>
@@ -431,7 +544,7 @@ export default function Cart() {
                         className="flex-1 px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none"
                         required
                       />
-                      {selectedAddressId === 'new' && (
+                      {(selectedAddressId === 'new' && !editingAddressId) && (
                         <button
                           type="button"
                           onClick={sendOtp}
@@ -465,7 +578,7 @@ export default function Cart() {
                         </button>
                       </motion.div>
                     )}
-                    {phoneVerified && selectedAddressId === 'new' && (
+                    {(phoneVerified && selectedAddressId === 'new' && !editingAddressId) && (
                       <div className="text-green-600 text-sm flex items-center gap-1">
                         <Check size={14} /> Phone verified successfully
                       </div>
@@ -566,6 +679,7 @@ export default function Cart() {
                 </div>
               )}
 
+              {/* Dynamic Action Button */}
               {checkoutStep === 1 ? (
                 <button
                   onClick={() => setCheckoutStep(2)}
@@ -573,10 +687,18 @@ export default function Cart() {
                 >
                   Checkout <ArrowRight size={20} />
                 </button>
+              ) : editingAddressId ? (
+                <button
+                  onClick={handleSaveEditedAddress}
+                  disabled={loading}
+                  className="w-full bg-clay text-white py-4 rounded-full font-bold hover:bg-clay/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Update Address"}
+                </button>
               ) : (
                 <button
                   onClick={handleCheckout}
-                  disabled={loading || !formData.email || !formData.phone || !formData.street || !phoneVerified}
+                  disabled={loading || !formData.name || !formData.email || !formData.phone || !formData.street || !formData.city || !formData.state || !formData.pincode || !phoneVerified}
                   className="w-full bg-soil text-white py-4 rounded-full font-bold hover:bg-soil/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
@@ -587,6 +709,13 @@ export default function Cart() {
                     "Pay Now"
                   )}
                 </button>
+              )}
+
+              {checkoutStep === 2 && !editingAddressId && !phoneVerified && (
+                <p className="text-sm text-red-500 text-center mt-2">Please verify your phone number to proceed.</p>
+              )}
+              {checkoutStep === 2 && !editingAddressId && phoneVerified && (!formData.name || !formData.street || !formData.city || !formData.state || !formData.pincode) && (
+                <p className="text-sm text-red-500 text-center mt-2">Please fill in all address details.</p>
               )}
 
               <div className="mt-6 flex items-center justify-center gap-2 text-xs text-soil/40">

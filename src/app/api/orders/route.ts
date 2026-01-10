@@ -118,6 +118,6 @@ export async function POST(req: Request) {
 
     } catch (error: any) {
         console.error("Order creation error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: error.message || "Unknown error occurred" }, { status: 500 });
     }
 }
