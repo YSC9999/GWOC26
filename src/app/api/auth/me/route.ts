@@ -17,7 +17,10 @@ export async function GET(req: Request) {
     const user = await User.findById(authUser.id).select("-password");
 
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      // User deleted from DB but has valid token -> Clear cookie
+      const response = NextResponse.json({ error: "User not found" }, { status: 401 });
+      response.cookies.delete("basho_token");
+      return response;
     }
 
     return NextResponse.json({

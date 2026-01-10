@@ -25,6 +25,11 @@ export default function Cart() {
   const [otpSent, setOtpSent] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
+  
+  // Shipping State
+  const [shippingCost, setShippingCost] = useState<number | null>(null);
+  const [calculatingShipping, setCalculatingShipping] = useState(false);
+  const [shippingError, setShippingError] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -152,8 +157,42 @@ export default function Cart() {
 
   const calculateTotal = () => {
     const subtotal = total();
-    const shipping = subtotal > 2000 ? 0 : 150;
-    return { subtotal, shipping, total: subtotal + shipping };
+    const finalShipping = shippingCost !== null ? shippingCost : (subtotal > 2000 ? 0 : 150);
+    return { subtotal, shipping: finalShipping, total: subtotal + finalShipping };
+  };
+
+  // Fetch Shipping Rates
+  React.useEffect(() => {
+    if (formData.pincode.length === 6) {
+      updateShippingRate(formData.pincode);
+    }
+  }, [formData.pincode]);
+
+  const updateShippingRate = async (pincode: string) => {
+    setCalculatingShipping(true);
+    setShippingError("");
+    try {
+      const res = await fetch(`/api/shiprocket/serviceability?pincode=${pincode}`);
+      const data = await res.json();
+      if (res.ok && data.data?.available_courier_companies) {
+        const couriers = data.data.available_courier_companies;
+        if (couriers.length > 0) {
+          const cheapest = couriers.reduce((prev: any, curr: any) => 
+            (Number(prev.rate) < Number(curr.rate)) ? prev : curr
+          );
+          setShippingCost(Math.ceil(Number(cheapest.rate)));
+        } else {
+          setShippingError("No delivery service for this pincode.");
+          setShippingCost(150); // Fallback
+        }
+      } else {
+        setShippingError(data.error || "Could not calculate shipping.");
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCalculatingShipping(false);
+    }
   };
 
   const { subtotal, shipping, total: finalTotal } = calculateTotal();
@@ -547,12 +586,17 @@ export default function Cart() {
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
-                  {shipping === 0 ? (
+                  {calculatingShipping ? (
+                    <Loader2 className="animate-spin w-4 h-4 text-clay" />
+                  ) : shipping === 0 ? (
                     <span className="text-green-600 font-medium">Free</span>
                   ) : (
                     <span>₹{shipping}</span>
                   )}
                 </div>
+                {shippingError && (
+                  <div className="text-[10px] text-red-500 mt-1">{shippingError}</div>
+                )}
               </div>
 
               <div className="flex justify-between text-xl font-bold text-soil mb-8">

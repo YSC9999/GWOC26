@@ -1,9 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { ArrowRight, ShoppingBag, Star, Calendar, Quote, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  ShoppingBag,
+  Star,
+  Calendar,
+  Quote,
+  Sparkles,
+} from "lucide-react";
 
 interface Product {
   _id: string;
@@ -51,10 +59,10 @@ export default function Home() {
         fetch("/api/products/featured"),
         fetch("/api/testimonials?featured=true&limit=3"),
       ]);
-      
+
       const productsData = await productsRes.json();
       const testimonialsData = await testimonialsRes.json();
-      
+
       setFeaturedProducts(productsData.products || []);
       setTestimonials(testimonialsData.testimonials || []);
     } catch (error) {
@@ -215,17 +223,26 @@ export default function Home() {
                     <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
                       <div className="h-56 bg-gradient-to-br from-sand to-sand/50 flex items-center justify-center overflow-hidden relative">
                         {product.images?.[0]?.startsWith("/") ? (
-                          <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                          <img
+                            src={product.images[0]}
+                            alt={product.name}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                          />
                         ) : (
                           <div className="text-7xl group-hover:scale-110 transition-transform duration-500">
                             {categoryEmojis[product.category] || "🏺"}
                           </div>
                         )}
-                        {product.originalPrice && product.originalPrice > product.price && (
-                          <div className="absolute top-3 left-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                            {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
-                          </div>
-                        )}
+                        {product.originalPrice &&
+                          product.originalPrice > product.price && (
+                            <div className="absolute top-3 left-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                              {Math.round(
+                                (1 - product.price / product.originalPrice) *
+                                  100
+                              )}
+                              % OFF
+                            </div>
+                          )}
                       </div>
                       <div className="p-6">
                         <span className="text-xs font-medium text-clay uppercase tracking-wide">
@@ -250,8 +267,13 @@ export default function Home() {
                           </div>
                           {product.rating > 0 && (
                             <div className="flex items-center gap-1">
-                              <Star size={14} className="fill-yellow-400 text-yellow-400" />
-                              <span className="text-sm text-soil/60">{product.rating}</span>
+                              <Star
+                                size={14}
+                                className="fill-yellow-400 text-yellow-400"
+                              />
+                              <span className="text-sm text-soil/60">
+                                {product.rating}
+                              </span>
                             </div>
                           )}
                         </div>
@@ -272,7 +294,10 @@ export default function Home() {
           <Link href="/products">
             <button className="group inline-flex items-center gap-2 bg-soil text-white px-8 py-4 rounded-full font-semibold hover:bg-clay transition-colors">
               View All Products
-              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              <ArrowRight
+                size={20}
+                className="group-hover:translate-x-1 transition-transform"
+              />
             </button>
           </Link>
         </div>
@@ -285,45 +310,52 @@ export default function Home() {
         transition={{ duration: 0.8 }}
         className="py-20 bg-gradient-to-br from-sand/50 to-transparent rounded-3xl mx-4 md:mx-12"
       >
-        <div className="text-center mb-12">
-          <span className="inline-block text-clay font-medium mb-4 tracking-wider uppercase">
-            The Basho Philosophy
-          </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-soil font-serif">
-            Why Choose Handcrafted?
-          </h2>
-        </div>
+        <div className="max-w-7xl mx-auto p-8 md:p-12 bg-white/95 rounded-2xl border-4 border-[#2b1b14]">
+          <div className="text-center mb-12">
+            <span className="inline-block text-clay font-medium mb-4 tracking-wider uppercase">
+              The Basho Philosophy
+            </span>
+            <h2 className="text-4xl md:text-5xl font-bold text-soil font-serif">
+              Why Choose Handcrafted?
+            </h2>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-8 max-w-6xl mx-auto">
-          {[
-            {
-              icon: "🎋",
-              title: "Japanese Inspiration",
-              description: "Each piece embodies the philosophy of Matsuo Bashō – finding profound beauty in simplicity and the natural world."
-            },
-            {
-              icon: "🤲",
-              title: "Handmade with Care",
-              description: "Every item is wheel-thrown or hand-built in our studio, ensuring each piece carries the warmth of human touch."
-            },
-            {
-              icon: "♻️",
-              title: "Sustainable Craft",
-              description: "We use locally-sourced clay and eco-friendly glazes, creating pieces that are kind to both you and the earth."
-            }
-          ].map((item, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.15 }}
-              className="bg-white rounded-2xl p-8 text-center hover:shadow-lg transition-shadow"
-            >
-              <div className="text-5xl mb-4">{item.icon}</div>
-              <h3 className="text-xl font-bold text-soil mb-3">{item.title}</h3>
-              <p className="text-soil/60">{item.description}</p>
-            </motion.div>
-          ))}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4 md:px-8">
+            {[
+              {
+                icon: "🎋",
+                title: "Japanese Inspiration",
+                description:
+                  "Each piece embodies the philosophy of Matsuo Bashō – finding profound beauty in simplicity and the natural world.",
+              },
+              {
+                icon: "🤲",
+                title: "Handmade with Care",
+                description:
+                  "Every item is wheel-thrown or hand-built in our studio, ensuring each piece carries the warmth of human touch.",
+              },
+              {
+                icon: "♻️",
+                title: "Sustainable Craft",
+                description:
+                  "We use locally-sourced clay and eco-friendly glazes, creating pieces that are kind to both you and the earth.",
+              },
+            ].map((item, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.15 }}
+                className="bg-sand/10 rounded-2xl p-8 text-center hover:shadow-lg transition-shadow border-2 border-[#2b1b14]/20"
+              >
+                <div className="text-5xl mb-4">{item.icon}</div>
+                <h3 className="text-xl font-bold text-soil mb-3">
+                  {item.title}
+                </h3>
+                <p className="text-[#2b1b14]/80">{item.description}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </motion.section>
 
@@ -345,8 +377,8 @@ export default function Home() {
                 Experience the Joy of Making
               </h2>
               <p className="text-lg text-soil/70 mb-8 leading-relaxed">
-                From romantic couple dates to team-building workshops, 
-                discover the meditative art of pottery in our cozy studio.
+                From romantic couple dates to team-building workshops, discover
+                the meditative art of pottery in our cozy studio.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link href="/workshops">
@@ -362,7 +394,15 @@ export default function Home() {
               </div>
             </div>
             <div className="hidden lg:flex items-center justify-center bg-sand/50 p-12">
-              <div className="text-[120px]">✨🎨</div>
+              <div className="w-80 h-80">
+                <Image
+                  src="/Home-Page-icon1.jpeg"
+                  alt="Experience icon"
+                  width={600}
+                  height={600}
+                  className="w-full h-full object-contain"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -394,20 +434,33 @@ export default function Home() {
                 transition={{ delay: idx * 0.1 }}
                 className="bg-white rounded-2xl p-8 relative"
               >
-                <Quote size={32} className="text-clay/20 absolute top-6 right-6" />
+                <Quote
+                  size={32}
+                  className="text-clay/20 absolute top-6 right-6"
+                />
                 <div className="flex items-center gap-1 mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} size={16} className="fill-yellow-400 text-yellow-400" />
+                    <Star
+                      key={i}
+                      size={16}
+                      className="fill-yellow-400 text-yellow-400"
+                    />
                   ))}
                 </div>
                 <p className="text-soil/70 mb-6 italic leading-relaxed">
                   "{testimonial.content}"
                 </p>
                 <div>
-                  <div className="font-semibold text-soil">{testimonial.name}</div>
-                  <div className="text-sm text-soil/50">{testimonial.location}</div>
+                  <div className="font-semibold text-soil">
+                    {testimonial.name}
+                  </div>
+                  <div className="text-sm text-soil/50">
+                    {testimonial.location}
+                  </div>
                   {testimonial.productRef && (
-                    <div className="text-xs text-clay mt-1">{testimonial.productRef}</div>
+                    <div className="text-xs text-clay mt-1">
+                      {testimonial.productRef}
+                    </div>
                   )}
                 </div>
               </motion.div>
@@ -428,8 +481,8 @@ export default function Home() {
             Stay Connected
           </h2>
           <p className="text-soil/60 mb-8 max-w-lg mx-auto">
-            Be the first to know about new collections, upcoming workshops, 
-            and exclusive offers from Basho.
+            Be the first to know about new collections, upcoming workshops, and
+            exclusive offers from Basho.
           </p>
           <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
             <input

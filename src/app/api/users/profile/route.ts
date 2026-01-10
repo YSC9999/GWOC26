@@ -1,21 +1,8 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
+import { getUser } from "@/lib/server-auth";
 
-// Helper to get user ID from token
-async function getUser() {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
-    if (!token) return null;
-    try {
-        const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-        return decoded.userId;
-    } catch {
-        return null;
-    }
-}
 
 export async function GET(req: Request) {
     try {
