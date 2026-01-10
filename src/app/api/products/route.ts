@@ -14,8 +14,9 @@ export async function GET(req: Request) {
         const limit = parseInt(searchParams.get("limit") || "50");
         const page = parseInt(searchParams.get("page") || "1");
 
-        // Build query
-       const query: any = { stock: { $gt: 0 } };
+        // Build query - ensure we filter using fields that exist in the Product schema
+       // Use stockQuantity or inStock; previous code used `stock` which doesn't exist, returning no products.
+       const query: any = { $or: [{ stockQuantity: { $gt: 0 } }, { inStock: true }] };
 
         if (category && category !== "all") {
             query.category = category;
