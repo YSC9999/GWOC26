@@ -52,14 +52,14 @@ const WorkshopSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Create slug from title before saving
-WorkshopSchema.pre('save', function (next) {
+WorkshopSchema.pre('save', function (this: any) {
     if (this.isModified('title') && !this.slug) {
         this.slug = this.title
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/(^-|-$)/g, '');
     }
-    next();
+    // synchronous hook — no next() required
 });
 
 export default mongoose.models.Workshop || mongoose.model('Workshop', WorkshopSchema);

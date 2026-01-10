@@ -18,6 +18,12 @@ export async function POST(req: Request) {
             );
         }
 
+        // Server-side 200-word limit
+        const words = message.trim().split(/\s+/).filter(Boolean);
+        if (words.length > 200) {
+            return NextResponse.json({ error: "Message exceeds 200-word limit" }, { status: 400 });
+        }
+
         // Create contact message
         await Contact.create({
             name,

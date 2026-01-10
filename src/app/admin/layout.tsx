@@ -25,7 +25,10 @@ export default function AdminLayout({
             Blog
           </Link>
           <Link href="/admin/contact" className="hover:text-clay">
-            Contact
+            Company Details
+          </Link>
+          <Link href="/admin/user-contacts" className="hover:text-clay">
+            User Contacts
           </Link>
         </nav>
       </aside>

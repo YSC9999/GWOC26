@@ -26,6 +26,18 @@ export default function AdminDashboard() {
             Edit photo frames section
           </p>
         </div>
+
+        <div className="card p-6">
+          <h3 className="text-xl font-semibold mb-2">Company Details</h3>
+          <p className="text-sm text-gray-600 mb-4">Edit studio name, contact info, visiting hours and policies</p>
+          <a href="/admin/contact" className="text-clay underline">Edit Company Details</a>
+        </div>
+
+        <div className="card p-6">
+          <h3 className="text-xl font-semibold mb-2">User Contacts</h3>
+          <p className="text-sm text-gray-600 mb-4">View and manage customer contact messages</p>
+          <a href="/admin/user-contacts" className="text-clay underline">View Messages</a>
+        </div>
       </div>
     </div>
   );

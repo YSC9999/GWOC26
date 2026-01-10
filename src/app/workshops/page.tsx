@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Calendar, Users, Clock, MapPin, ArrowRight, Loader2, Check } from "lucide-react";
+import { Calendar, Users, Clock, MapPin, ArrowRight, Loader2, Check, Search } from "lucide-react";
 
 interface Workshop {
   _id: string;
@@ -40,16 +40,18 @@ export default function Workshops() {
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedType, setSelectedType] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchWorkshops();
-  }, [selectedType]);
+  }, [selectedType, searchQuery]);
 
   const fetchWorkshops = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
       if (selectedType !== "all") params.append("type", selectedType);
+      if (searchQuery) params.append("search", searchQuery);
       params.append("status", "upcoming");
       
       const res = await fetch(`/api/workshops?${params}`);
@@ -97,32 +99,47 @@ export default function Workshops() {
         </p>
       </motion.section>
 
-      {/* Filter */}
+      {/* Search & Filter */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="flex flex-wrap justify-center gap-3 mb-12"
+        className="mb-8"
       >
-        {[
-          { id: "all", label: "All Workshops" },
-          { id: "group", label: "Group Classes" },
-          { id: "one-on-one", label: "Private Sessions" },
-          { id: "couples", label: "Couples" },
-          { id: "corporate", label: "Corporate" },
-        ].map((type) => (
-          <button
-            key={type.id}
-            onClick={() => setSelectedType(type.id)}
-            className={`px-6 py-2.5 rounded-full font-medium transition-all duration-300 ${
-              selectedType === type.id
-                ? "bg-clay text-white shadow-lg shadow-clay/30"
-                : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-            }`}
-          >
-            {type.label}
-          </button>
-        ))}
+        {/* Search */}
+        <div className="relative max-w-md mx-auto mb-6">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-soil/50" size={20} />
+          <input
+            type="text"
+            placeholder="Search workshops..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 bg-white border-2 border-soil/20 rounded-full focus:border-clay focus:outline-none transition-colors"
+          />
+        </div>
+
+        {/* Type Pills */}
+        <div className="flex flex-wrap justify-center gap-3">
+          {[
+            { id: "all", label: "All Workshops" },
+            { id: "group", label: "Group Classes" },
+            { id: "one-on-one", label: "Private Sessions" },
+            { id: "couples", label: "Couples" },
+            { id: "corporate", label: "Corporate" },
+          ].map((type) => (
+            <button
+              key={type.id}
+              onClick={() => setSelectedType(type.id)}
+              className={`px-6 py-2.5 rounded-full font-medium transition-all duration-300 ${
+                selectedType === type.id
+                  ? "bg-clay text-white shadow-lg shadow-clay/30"
+                  : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+              }`}
+            >
+              {type.label}
+            </button>
+          ))}
+        </div>
       </motion.div>
 
       {/* Workshops Grid */}
@@ -138,9 +155,9 @@ export default function Workshops() {
           className="text-center py-20"
         >
           <div className="text-6xl mb-4">🎨</div>
-          <h3 className="text-2xl font-bold text-soil mb-2">No upcoming workshops</h3>
-          <p className="text-soil/60 mb-6">
-            New workshops are added regularly. Check back soon!
+          <h3 className="text-2xl font-bold text-soil mb-2">No workshops found</h3>
+          <p className="text-soil/60">
+            Try adjusting your search or filter criteria.
           </p>
         </motion.div>
       ) : (
