@@ -23,6 +23,14 @@ export default function AdminDashboard() {
         </div>
 
         <div className="card p-6">
+          <h3 className="text-xl font-semibold mb-2">Custom Orders</h3>
+          <p className="text-sm text-gray-600">
+            Manage custom requests and quotes
+          </p>
+          <a href="/admin/custom-orders" className="text-clay underline mt-2 block">View Requests</a>
+        </div>
+
+        <div className="card p-6">
           <h3 className="text-xl font-semibold mb-2">Featured Collection</h3>
           <p className="text-sm text-gray-600">
             Control homepage featured items

@@ -12,12 +12,7 @@ const CustomOrderSchema = new mongoose.Schema({
     phone: { type: String, required: true },
 
     // Custom requirements
-    productType: {
-        type: String,
-        required: true,
-        enum: ['bowl', 'cup', 'plate', 'platter', 'vase', 'decor', 'set', 'other']
-    },
-    quantity: { type: Number, required: true, min: 1 },
+    // Keeping top-level description for the initial request
     description: { type: String, required: true },
     referenceImages: [String],
     budget: {
@@ -26,16 +21,39 @@ const CustomOrderSchema = new mongoose.Schema({
         required: true
     },
 
-    // Admin response
-    quotation: Number,
+    // Admin response / Detailed Items
+    items: [{
+        name: { type: String, required: true },
+        description: String,
+        quantity: { type: Number, required: true, default: 1 },
+        price: Number, // Per unit price
+        images: [String],
+        status: {
+            type: String,
+            enum: ['pending', 'approved', 'rejected'],
+            default: 'pending'
+        },
+        removalReason: String // If rejected
+    }],
+
+    totalPrice: Number, // Calculated total of approved items
+    currency: { type: String, default: 'INR' },
+
     adminNotes: String,
     estimatedDelivery: String,
+    expiryDate: Date, // For the quote
 
     status: {
         type: String,
-        enum: ['pending', 'quoted', 'accepted', 'in_progress', 'completed', 'cancelled'],
+        enum: ['pending', 'quoted', 'accepted', 'in_progress', 'completed', 'cancelled', 'declined'],
         default: 'pending'
     },
+    
+    // Link to actual order when paid
+    orderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Order'
+    }
 
 }, { timestamps: true });
 

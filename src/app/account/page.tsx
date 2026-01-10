@@ -48,6 +48,13 @@ export default function AccountDashboard() {
       href: "/account/wishlist",
       color: "bg-red-50 text-red-600",
     },
+    {
+      label: "Custom Requests",
+      desc: "Track bespoke orders",
+      icon: <Package size={32} />, // Using Package as icon, same as orders, maybe distinct? 
+      href: "/account/custom-orders",
+      color: "bg-purple-50 text-purple-600",
+    },
   ];
 
   return (
@@ -95,9 +102,9 @@ export default function AccountDashboard() {
             </Link>
           ))}
         </div>
-        
+
         {/* Recent Activity or Recommendations could go here */}
-        
+
       </div>
     </div>
   );

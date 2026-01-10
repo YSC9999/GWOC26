@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
 import crypto from "crypto";
 import Product from "@/models/Product";
+import CustomOrder from "@/models/CustomOrder";
 
 export async function POST(req: Request) {
     try {
@@ -31,11 +32,26 @@ export async function POST(req: Request) {
         order.status = "confirmed"; // Auto-confirm on payment
         await order.save();
 
-        // 3. Update Inventory (Deduct stock)
+
+
+        // 3. Update Inventory (Deduct stock) and Check for Custom Orders
         for (const item of order.items) {
-            await Product.findByIdAndUpdate(item.productId, {
+            const product = await Product.findByIdAndUpdate(item.productId, {
                 $inc: { stockQuantity: -item.quantity }
             });
+
+            // Check if this product is a custom order (via tags)
+            if (product && product.tags && product.tags.includes('custom')) {
+                const orderTag = product.tags.find((t: string) => t.startsWith('order-'));
+                if (orderTag) {
+                    const customOrderId = orderTag.split('-')[1];
+                    // Update Custom Order Status
+                    await CustomOrder.findByIdAndUpdate(customOrderId, {
+                        status: 'completed',
+                        orderId: order._id
+                    });
+                }
+            }
         }
 
         return NextResponse.json({

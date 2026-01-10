@@ -27,8 +27,6 @@ export default function CustomOrders() {
     name: "",
     email: "",
     phone: "",
-    productType: "",
-    quantity: 1,
     description: "",
     budget: "",
   });
@@ -88,7 +86,7 @@ export default function CustomOrders() {
             Request Submitted!
           </h2>
           <p className="text-soil/70 mb-8">
-            Thank you for your custom order request. Our team will review your 
+            Thank you for your custom order request. Our team will review your
             requirements and get back to you within 24-48 hours with a quotation.
           </p>
           <button
@@ -98,8 +96,6 @@ export default function CustomOrders() {
                 name: "",
                 email: "",
                 phone: "",
-                productType: "",
-                quantity: 1,
                 description: "",
                 budget: "",
               });
@@ -130,7 +126,7 @@ export default function CustomOrders() {
           Custom Orders
         </h1>
         <p className="text-xl text-soil/70 max-w-2xl mx-auto">
-          Have a specific vision? We'll bring it to life. From personalized gifts 
+          Have a specific vision? We'll bring it to life. From personalized gifts
           to bespoke tableware sets, every piece is crafted with care.
         </p>
       </motion.section>
@@ -202,51 +198,15 @@ export default function CustomOrders() {
                 />
               </div>
 
-              {/* Product Type */}
-              <div>
-                <label className="block text-sm font-medium text-soil mb-3">
-                  What would you like us to create? *
-                </label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {productTypes.map((type) => (
-                    <button
-                      key={type.id}
-                      type="button"
-                      onClick={() => setFormData((prev) => ({ ...prev, productType: type.id }))}
-                      className={`p-4 rounded-xl border-2 text-center transition-all ${
-                        formData.productType === type.id
-                          ? "border-clay bg-clay/5"
-                          : "border-soil/10 hover:border-clay/50"
-                      }`}
-                    >
-                      <div className="text-2xl mb-1">{type.emoji}</div>
-                      <div className="text-sm font-medium text-soil">{type.label}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Quantity */}
-              <div>
-                <label className="block text-sm font-medium text-soil mb-2">
-                  Quantity *
-                </label>
-                <input
-                  type="number"
-                  name="quantity"
-                  value={formData.quantity}
-                  onChange={handleChange}
-                  min={1}
-                  required
-                  className="w-full px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors"
-                />
-              </div>
 
               {/* Description */}
               <div>
                 <label className="block text-sm font-medium text-soil mb-2">
                   Describe what you're looking for *
                 </label>
+                <p className="text-xs text-soil/60 mb-2">
+                  Please describe the items you need, including quantities, shapes, and sizes.
+                </p>
                 <textarea
                   name="description"
                   value={formData.description}
@@ -254,7 +214,7 @@ export default function CustomOrders() {
                   required
                   rows={5}
                   className="w-full px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors resize-none"
-                  placeholder="Tell us about your vision: size, color, style, purpose, any specific details..."
+                  placeholder="Tell us about your vision: e.g., 4 Dinner Plates, 4 BOWLS, in blue glaze..."
                 />
               </div>
 
@@ -269,11 +229,10 @@ export default function CustomOrders() {
                       key={range.id}
                       type="button"
                       onClick={() => setFormData((prev) => ({ ...prev, budget: range.id }))}
-                      className={`px-4 py-2 rounded-full border-2 text-sm font-medium transition-all ${
-                        formData.budget === range.id
-                          ? "border-clay bg-clay text-white"
-                          : "border-soil/20 text-soil hover:border-clay"
-                      }`}
+                      className={`px-4 py-2 rounded-full border-2 text-sm font-medium transition-all ${formData.budget === range.id
+                        ? "border-clay bg-clay text-white"
+                        : "border-soil/20 text-soil hover:border-clay"
+                        }`}
                     >
                       {range.label}
                     </button>
@@ -300,7 +259,7 @@ export default function CustomOrders() {
               {/* Submit */}
               <button
                 type="submit"
-                disabled={loading || !formData.productType || !formData.budget}
+                disabled={loading || !formData.description || !formData.budget}
                 className="w-full flex items-center justify-center gap-3 bg-clay text-white py-4 rounded-full font-semibold text-lg hover:bg-clay/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
@@ -358,7 +317,7 @@ export default function CustomOrders() {
               Typical Timeline
             </h3>
             <p className="text-soil/60 mb-4">
-              Custom pieces take approximately <span className="font-semibold text-clay">3-4 weeks</span> to 
+              Custom pieces take approximately <span className="font-semibold text-clay">3-4 weeks</span> to
               complete, including:
             </p>
             <ul className="space-y-2 text-sm text-soil/70">

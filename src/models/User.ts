@@ -30,6 +30,8 @@ export interface IUser extends Document {
   emailVerified: boolean;
   emailVerificationOTP?: string;
   otpExpiry?: Date;
+  phoneVerificationOTP?: string;
+  phoneOtpExpiry?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -73,6 +75,8 @@ const UserSchema = new Schema<IUser>({
   emailVerified: { type: Boolean, default: false },
   emailVerificationOTP: String,
   otpExpiry: Date,
+  phoneVerificationOTP: String,
+  phoneOtpExpiry: Date,
 }, { timestamps: true });
 
 const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
