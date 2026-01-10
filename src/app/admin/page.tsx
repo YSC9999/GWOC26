@@ -31,6 +31,14 @@ export default function AdminDashboard() {
         </div>
 
         <div className="card p-6">
+          <h3 className="text-xl font-semibold mb-2">Users</h3>
+          <p className="text-sm text-gray-600">
+            Manage user accounts and employees
+          </p>
+          <a href="/admin/users" className="text-clay underline mt-2 block">Manage Users</a>
+        </div>
+
+        <div className="card p-6">
           <h3 className="text-xl font-semibold mb-2">Featured Collection</h3>
           <p className="text-sm text-gray-600">
             Control homepage featured items
