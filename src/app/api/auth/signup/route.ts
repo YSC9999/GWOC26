@@ -20,6 +20,12 @@ export async function POST(req: Request) {
     const hashed = await bcrypt.hash(password, 10);
     const fullName = `${firstName} ${lastName}`;
 
+    // Security check: Ensure email was verified before allowing details update/upsert
+    const unverifiedUser = await User.findOne({ email }).lean();
+    if (unverifiedUser && !unverifiedUser.emailVerified && !unverifiedUser.googleId) {
+      return NextResponse.json({ error: "Email not verified" }, { status: 403 });
+    }
+
     // Create or update user
     const user = await User.findOneAndUpdate(
       { email },
