@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
 
+<<<<<<< HEAD
 // GET all products with filtering and pagination
 export async function GET(req: Request) {
     try {
@@ -57,4 +58,18 @@ export async function GET(req: Request) {
         console.error("Products GET error:", error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
+=======
+export async function GET() {
+  await connectDB();
+
+  const products = await Product.find({
+    isActive: true,
+    stock: { $gt: 0 },
+  })
+    .sort({ createdAt: -1 })
+    .lean()
+    .exec(); // ✅ REQUIRED in mongoose v8
+
+  return NextResponse.json(products);
+>>>>>>> 5999d3ccafb5d5647a776ff6ca884f06f0f1659b
 }

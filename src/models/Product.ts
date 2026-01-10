@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import mongoose, { Document, Model, Schema } from 'mongoose';
 
 export interface IProduct extends Document {
@@ -109,4 +110,32 @@ ProductSchema.pre('save', function (next) {
 ProductSchema.index({ name: 'text', description: 'text', tags: 'text' });
 
 const Product: Model<IProduct> = mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema);
+=======
+import mongoose, { Schema, models } from "mongoose";
+
+export interface ProductDocument extends mongoose.Document {
+  name: string;
+  description?: string;
+  price: number;
+  images: string[];
+  stock: number;
+  isActive: boolean;
+}
+
+const ProductSchema = new Schema<ProductDocument>(
+  {
+    name: { type: String, required: true },
+    description: String,
+    price: { type: Number, required: true },
+    images: [{ type: String }],
+    stock: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
+
+const Product =
+  models.Product || mongoose.model<ProductDocument>("Product", ProductSchema);
+
+>>>>>>> 5999d3ccafb5d5647a776ff6ca884f06f0f1659b
 export default Product;

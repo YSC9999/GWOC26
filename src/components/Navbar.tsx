@@ -149,7 +149,11 @@ export default function Navbar() {
                     {user?.role === "admin" && (
                       <Link
                         href="/admin"
+<<<<<<< HEAD
                         className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 text-sm text-soil/80 transition-colors"
+=======
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-sm"
+>>>>>>> 5999d3ccafb5d5647a776ff6ca884f06f0f1659b
                       >
                         📊 Admin Dashboard
                       </Link>
