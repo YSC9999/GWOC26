@@ -11,6 +11,15 @@ export default function AdminDashboard() {
           <p className="text-sm text-gray-600">
             Manage collection items
           </p>
+          <a href="/admin/products" className="text-clay underline mt-2 block">Manage Products</a>
+        </div>
+
+        <div className="card p-6">
+          <h3 className="text-xl font-semibold mb-2">Orders</h3>
+          <p className="text-sm text-gray-600">
+            View and update customer orders
+          </p>
+          <a href="/admin/orders" className="text-clay underline mt-2 block">View Orders</a>
         </div>
 
         <div className="card p-6">
