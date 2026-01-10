@@ -109,9 +109,9 @@ export default function AdminUsers() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center gap-4 mb-6">
+        <Link href="/admin" className="text-soil/60 hover:text-clay">← Admin Home</Link>
         <h1 className="text-3xl font-serif font-bold text-soil">User Management</h1>
-        <Link href="/admin" className="text-sm text-clay underline">Back</Link>
       </div>
 
       <div className="mb-6 flex items-center gap-3">
