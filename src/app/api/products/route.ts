@@ -15,7 +15,7 @@ export async function GET(req: Request) {
         const page = parseInt(searchParams.get("page") || "1");
 
         // Build query
-        const query: any = { inStock: true };
+       const query: any = { stock: { $gt: 0 } };
 
         if (category && category !== "all") {
             query.category = category;

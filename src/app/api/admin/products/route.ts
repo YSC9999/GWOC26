@@ -25,20 +25,32 @@ export async function POST(req: Request) {
     await requireAdmin();
     await connectDB();
 
-    const { name, price, stock, images = [] } = await req.json();
+    const { name, price, stockQuantity, images = [] } = await req.json();
 
-    const product = await Product.create({
-      name,
-      price,
-      stock,
-      images,
-    });
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
 
-    return NextResponse.json(product);
-  } catch {
-    return NextResponse.json({ error: "Create failed" }, { status: 400 });
+const product = await Product.create({
+  name,
+  slug,
+  description: "Product description",
+  category: "bowls", // 👈 REQUIRED FIX
+  price,
+  stockQuantity,
+  images,
+});
+
+
+
+    return NextResponse.json(product, { status: 201 });
+  } catch (err: any) {
+    console.error(err);
+    return NextResponse.json({ error: err.message }, { status: 400 });
   }
 }
+
 
 /* UPDATE PRODUCT */
 export async function PATCH(req: Request) {

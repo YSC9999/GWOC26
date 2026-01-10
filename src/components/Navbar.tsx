@@ -165,7 +165,7 @@ export default function Navbar() {
                       <p className="text-xs text-soil/60 truncate">{user?.email}</p>
                     </div>
                     
-                    {user?.role === "admin" && (
+                    {user?.role == "admin" && (
                       <Link
                         href="/admin"
                         className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 text-sm text-soil/80 transition-colors"

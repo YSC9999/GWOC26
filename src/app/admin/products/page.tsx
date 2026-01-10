@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 type ProductForm = {
   name: string;
   price: number;
-  stock: number;
+  stockQuantity: number;
   images: string[];
 };
 
@@ -15,7 +15,7 @@ export default function AdminProductsPage() {
   const [form, setForm] = useState<ProductForm>({
     name: "",
     price: 0,
-    stock: 0,
+    stockQuantity: 0,
     images: [],
   });
   const [error, setError] = useState("");
@@ -74,7 +74,7 @@ export default function AdminProductsPage() {
       body: JSON.stringify({
         name: formEl.name.value,
         price: Number(formEl.price.value),
-        stock: Number(formEl.stock.value),
+        stockQuantity: Number(formEl.stockQuantity.value),
         images,
       }),
     });
@@ -119,7 +119,7 @@ export default function AdminProductsPage() {
           required
         />
         <input
-          name="stock"
+          name="stockQuantity"
           type="number"
           placeholder="Stock"
           className="border p-2"
@@ -177,11 +177,11 @@ export default function AdminProductsPage() {
                     <input
                       type="number"
                       className="border p-1"
-                      defaultValue={p.stock}
+                      defaultValue={p.stockQuantity}
                       onChange={(e) =>
                         setForm({
                           ...form,
-                          stock: Number(e.target.value),
+                           stockQuantity: Number(e.target.value),
                         })
                       }
                     />
@@ -201,7 +201,7 @@ export default function AdminProductsPage() {
                 <>
                   <td>{p.name}</td>
                   <td>₹{p.price}</td>
-                  <td>{p.stock}</td>
+                  <td>{p.stockQuantity}</td>
                   <td>{p.images?.length || 0}</td>
                   <td>
                     <button
