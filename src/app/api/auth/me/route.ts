@@ -1,24 +1,20 @@
-<<<<<<< HEAD
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
+import { getUser } from "@/lib/server-auth";
 
 export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    const authUser = await getUser();
 
-    if (!token) {
+    if (!authUser) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
     await connectDB();
 
     // Select specific fields for session
-    const user = await User.findById(decoded.userId).select("-password");
+    const user = await User.findById(authUser.id).select("-password");
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -29,37 +25,11 @@ export async function GET(req: Request) {
       name: user.name,
       email: user.email,
       role: user.role,
-      tier: user.tier, // Assuming tier exists on User model if used in Navbar
+      tier: user.tier,
+      addresses: user.addresses
     });
 
   } catch (error) {
     return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-=======
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/User";
-import jwt from "jsonwebtoken";
-
-export async function GET(req: Request) {
-  try {
-    await connectDB();
-
-    const token = req.headers.get("cookie")?.split("token=")[1];
-    if (!token) throw new Error();
-
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET!
-    ) as { id: string };
-
-    const user = await User.findById(decoded.id)
-      .select("-password")
-      .exec(); // ✅ FIX
-
-    if (!user) throw new Error();
-
-    return Response.json(user);
-  } catch {
-    return new Response("Unauthorized", { status: 401 });
->>>>>>> 5999d3ccafb5d5647a776ff6ca884f06f0f1659b
   }
 }

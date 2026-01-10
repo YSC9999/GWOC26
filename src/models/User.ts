@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import mongoose, { Document, Model, Schema } from "mongoose";
 
 export interface IAddress {
@@ -62,29 +61,4 @@ const UserSchema = new Schema<IUser>({
 }, { timestamps: true });
 
 const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
-=======
-import mongoose, { Schema, model, models, InferSchemaType } from "mongoose";
-
-const UserSchema = new Schema(
-  {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-
-    tier: {
-      type: String,
-      enum: ["tier-0", "tier-1", "tier-2", "tier-3"],
-      default: "tier-0",
-    },
-
-    subscriptionActive: { type: Boolean, default: false },
-    tierUpgradeDate: { type: Date },
-  },
-  { timestamps: true }
-);
-
-export type UserDocument = InferSchemaType<typeof UserSchema>;
-
-const User = models.User || model<UserDocument>("User", UserSchema);
->>>>>>> 5999d3ccafb5d5647a776ff6ca884f06f0f1659b
 export default User;
