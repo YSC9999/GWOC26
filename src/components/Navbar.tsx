@@ -74,13 +74,17 @@ export default function Navbar() {
     { href: "/products", label: "Collection" },
     { href: "/workshops", label: "Workshop" },
     { href: "/gallery", label: "Gallery" },
-    { href: "/events", label: "Events" }, 
+    { href: "/events", label: "Events" },
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
   ];
 
   // Hide navbar on auth pages (after all hooks are called)
-  if (pathname?.includes("/auth/") || pathname === "/login" || pathname === "/signup") {
+  if (
+    pathname?.includes("/auth/") ||
+    pathname === "/login" ||
+    pathname === "/signup"
+  ) {
     return null;
   }
 
@@ -90,9 +94,13 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          className="font-serif text-3xl font-bold text-soil flex-shrink-0 whitespace-nowrap"
+          className="flex items-center flex-shrink-0 whitespace-nowrap"
         >
-          Basho
+          <img
+            src="/Logo.png"
+            alt="Basho Logo"
+            className="h-14 w-auto object-contain"
+          />
         </Link>
 
         {/* Desktop Menu */}
@@ -111,19 +119,22 @@ export default function Navbar() {
 
           {/* Search Bar */}
           <div className="flex items-center bg-white rounded-full px-3 py-2 border border-soil/20 flex-shrink-0 ml-auto">
-             <input
-               type="text"
-               placeholder="Search..."
-               className="bg-transparent outline-none text-xs w-24 placeholder-gray-400"
-             />
-             <Search size={16} className="text-soil/60" />
-           </div>
+            <input
+              type="text"
+              placeholder="Search..."
+              className="bg-transparent outline-none text-xs w-24 placeholder-gray-400"
+            />
+            <Search size={16} className="text-soil/60" />
+          </div>
 
           {/* Right Actions */}
           <div className="flex items-center gap-3">
             {/* Cart Icon - Only when logged in */}
             {isAuthenticated && (
-              <Link href="/cart" className="relative text-soil hover:text-clay transition-colors p-2">
+              <Link
+                href="/cart"
+                className="relative text-soil hover:text-clay transition-colors p-2"
+              >
                 <ShoppingBag size={20} />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-clay text-white text-[10px] font-bold flex items-center justify-center rounded-full">
@@ -155,14 +166,18 @@ export default function Navbar() {
                   onClick={() => setProfileOpen(!profileOpen)}
                   className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 text-white hover:shadow-lg transition-all"
                 >
-                    <User size={18} />
+                  <User size={18} />
                 </button>
-                
+
                 {profileOpen && (
                   <div className="absolute right-0 mt-4 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-200">
                     <div className="px-5 py-3 border-b border-gray-100 bg-sand/20">
-                      <p className="text-sm font-bold text-soil truncate">{user?.name}</p>
-                      <p className="text-xs text-soil/60 truncate">{user?.email}</p>
+                      <p className="text-sm font-bold text-soil truncate">
+                        {user?.name}
+                      </p>
+                      <p className="text-xs text-soil/60 truncate">
+                        {user?.email}
+                      </p>
                     </div>
                     
                     {user?.role == "admin" && (
@@ -173,14 +188,14 @@ export default function Navbar() {
                         📊 Admin Dashboard
                       </Link>
                     )}
-                    
+
                     <Link
                       href="/account"
                       className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 text-sm text-soil/80 transition-colors"
                     >
                       👤 My Account
                     </Link>
-                    
+
                     <Link
                       href="/account/orders"
                       className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 text-sm text-soil/80 transition-colors"
@@ -224,7 +239,7 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
-            
+
             {!isAuthenticated ? (
               <div className="flex flex-col gap-3 mt-4 pt-4">
                 <Link
@@ -244,15 +259,15 @@ export default function Navbar() {
               </div>
             ) : (
               <div className="mt-4 space-y-3 pt-4">
-                <Link 
-                  href="/cart" 
+                <Link
+                  href="/cart"
                   className="nav-link hover:text-clay block"
                   onClick={() => setOpen(false)}
                 >
                   Cart ({cartCount})
                 </Link>
-                <Link 
-                  href="/account" 
+                <Link
+                  href="/account"
                   className="nav-link hover:text-clay block"
                   onClick={() => setOpen(false)}
                 >
