@@ -49,7 +49,7 @@ export default function Profile() {
 
   const fetchProfile = async () => {
     try {
-      const res = await fetch("/api/users/profile");
+      const res = await fetch("/api/user/profile");
       if (res.ok) {
         const data = await res.json();
         setProfile(data.user);
@@ -67,7 +67,7 @@ export default function Profile() {
   const handleUpdateProfile = async () => {
     setSaving(true);
     try {
-      const res = await fetch("/api/users/profile", {
+      const res = await fetch("/api/user/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, phone }),
@@ -88,7 +88,7 @@ export default function Profile() {
     setSaving(true);
     try {
       const updatedAddresses = [...addresses, newAddr];
-      const res = await fetch("/api/users/profile", {
+      const res = await fetch("/api/user/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ addresses: updatedAddresses }),
@@ -120,7 +120,7 @@ export default function Profile() {
     if(!confirm("Delete this address?")) return;
     const updatedAddresses = addresses.filter(a => a._id !== id);
     try {
-        await fetch("/api/users/profile", {
+        await fetch("/api/user/profile", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ addresses: updatedAddresses }),

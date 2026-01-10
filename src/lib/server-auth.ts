@@ -6,6 +6,7 @@ export interface AuthUser {
     id: string;
     email: string;
     tier: UserTier;
+    role: string;
 }
 
 export async function getUser(): Promise<AuthUser | null> {

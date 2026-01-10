@@ -11,7 +11,10 @@ export async function requireAdmin() {
     process.env.JWT_SECRET!
   ) as any;
 
-  // Temporary: still return decoded user; other checks can be added later
+  if (decoded.role !== 'admin') {
+    throw new Error("Unauthorized - admin role required");
+  }
+
   return decoded;
 }
 

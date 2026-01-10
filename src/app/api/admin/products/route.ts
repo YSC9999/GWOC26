@@ -25,22 +25,26 @@ export async function POST(req: Request) {
     await requireAdmin();
     await connectDB();
 
-    const { name, price, stockQuantity, images = [] } = await req.json();
+    const { name, price, stockQuantity, images = [], description, category } = await req.json();
+
+    if (!category) {
+      return NextResponse.json({ error: "Category is required" }, { status: 400 });
+    }
 
     const slug = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
 
-const product = await Product.create({
-  name,
-  slug,
-  description: "Product description",
-  category: "bowls", // 👈 REQUIRED FIX
-  price,
-  stockQuantity,
-  images,
-});
+    const product = await Product.create({
+      name,
+      slug,
+      description: description || "",
+      category,
+      price,
+      stockQuantity,
+      images,
+    });
 
 
 

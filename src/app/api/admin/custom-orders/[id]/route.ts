@@ -12,7 +12,7 @@ export async function GET(
         await connectDB();
 
         const { id } = await params;
-        const order = await CustomOrder.findById(id).populate("userId", "name email");
+        const order = await (CustomOrder as any).findById(id).populate("userId", "name email");
 
         if (!order) {
             return NextResponse.json({ error: "Order not found" }, { status: 404 });
@@ -39,7 +39,7 @@ export async function PATCH(
         // If items are updated, we should recalculate total price if not provided, but let's trust frontend/admin for now or calc here.
         // Let's rely on what Admin sends.
 
-        const updatedOrder = await CustomOrder.findByIdAndUpdate(
+        const updatedOrder = await (CustomOrder as any).findByIdAndUpdate(
             id,
             { $set: body },
             { new: true }

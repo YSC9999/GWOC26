@@ -8,9 +8,11 @@ export async function POST(req: Request) {
     try {
         await connectDB();
 
-        const { phone } = await req.json();
-
+        let { phone } = await req.json();
         if (!phone) return NextResponse.json({ error: "Phone required" }, { status: 400 });
+
+        // Sanitize: strip spaces, dashes, etc. Keep leading +
+        phone = phone.trim().replace(/[^\d+]/g, '');
 
         const authUser = await getUser();
 

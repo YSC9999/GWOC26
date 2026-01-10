@@ -6,10 +6,12 @@ import { getUser } from "@/lib/server-auth";
 
 export async function GET(req: Request) {
     try {
-        const userId = await getUser();
-        if (!userId) {
+        const authUser = await getUser();
+        if (!authUser) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
+
+        const userId = authUser.id;
 
         await connectDB();
         const user = await User.findById(userId).select("-password").lean();
@@ -26,10 +28,12 @@ export async function GET(req: Request) {
 
 export async function PUT(req: Request) {
     try {
-        const userId = await getUser();
-        if (!userId) {
+        const authUser = await getUser();
+        if (!authUser) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
+
+        const userId = authUser.id;
 
         const body = await req.json();
         const { name, phone, addresses } = body;
