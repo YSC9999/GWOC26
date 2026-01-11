@@ -2,8 +2,35 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import UploadInput from "@/components/UploadInput";
 import { PRODUCT_CATEGORIES } from "@/lib/categories";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 50 },
+  },
+};
+
+const formVariants = {
+  hidden: { opacity: 0, height: 0, overflow: "hidden" },
+  visible: {
+    opacity: 1,
+    height: "auto",
+    transition: { duration: 0.4, ease: "easeOut" }
+  },
+};
 
 type ProductForm = {
   name: string;
@@ -144,107 +171,161 @@ export default function AdminProductsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="space-y-8"
+    >
       {/* ... existing alerts and header ... */}
-      {error && <div className="text-red-600">{error}</div>}
-      {success && <div className="text-green-600">{success}</div>}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="text-red-600 bg-red-50 p-3 rounded-lg border border-red-100"
+        >
+          {error}
+        </motion.div>
+      )}
+      {success && (
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="text-green-600 bg-green-50 p-3 rounded-lg border border-green-100"
+        >
+          {success}
+        </motion.div>
+      )}
+
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/admin" className="text-soil/60 hover:text-clay">
+        <Link href="/admin" className="text-soil/60 hover:text-clay transition-colors hover:scale-105 transform inline-block">
           ← Admin Home
         </Link>
-        <h1 className="text-3xl font-serif font-bold text-soil">Products</h1>
+        <motion.h1
+          variants={itemVariants}
+          className="text-3xl font-serif font-bold text-soil"
+        >
+          Products
+        </motion.h1>
       </div>
 
-      {/* ADD PRODUCT FORM (omitted for brevity in replacement, kept in file) */}
-      <form onSubmit={handleAdd} className="flex gap-2 flex-wrap">
-        {/* ... existing form inputs ... */}
-        <input
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          placeholder="Name"
-          className="border p-2"
-          required
-        />
-        <input
-          type="number"
-          value={form.price}
-          onChange={(e) => setForm({ ...form, price: e.target.value === "" ? "" : Number(e.target.value) })}
-          placeholder="Price"
-          className="border p-2"
-          required
-        />
-        <input
-          type="number"
-          value={form.stockQuantity}
-          onChange={(e) =>
-            setForm({ ...form, stockQuantity: e.target.value === "" ? "" : Number(e.target.value) })
-          }
-          placeholder="Stock"
-          className="border p-2"
-          required
-        />
-
-        <UploadInput
-          uploadPreset={"products_unsigned"}
-          folder={"products/"}
-          onUploaded={(urls) => {
-            setForm((prev) => ({ ...prev, images: [...(prev.images || []), ...urls] }));
-          }}
-        />
-
-        {/* Thumbnails */}
-        <div className="flex gap-2 mt-2 flex-wrap">
-          {(form.images || []).map((img, idx) => (
-            <div key={idx} className="relative">
-              <img src={img} className="w-20 h-20 object-cover rounded" />
-              <button
-                type="button"
-                onClick={() => setForm((prev) => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }))}
-                className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 text-xs"
-              >
-                ×
-              </button>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex gap-2 w-full">
-          <select
-            value={PRODUCT_CATEGORIES.some(c => c.id === category) ? category : "other"}
-            onChange={(e) => {
-              if (e.target.value === "other") {
-                setCategory("");
-              } else {
-                setCategory(e.target.value);
-              }
-            }}
-            className="border p-2 flex-grow"
-          >
-            <option value="">Select category</option>
-            {PRODUCT_CATEGORIES.filter(c => c.id !== 'all').map((cat) => (
-              <option key={cat.id} value={cat.id}>{cat.label}</option>
-            ))}
-            <option value="other">Other (Add New)</option>
-          </select>
-          {(!PRODUCT_CATEGORIES.some(c => c.id === category) && category !== "") || !PRODUCT_CATEGORIES.some(c => c.id === category) ? (
+      {/* ADD PRODUCT FORM */}
+      <motion.div variants={itemVariants} className="bg-white p-6 rounded-2xl shadow-sm border border-soil/10">
+        <h2 className="text-xl font-bold text-soil mb-4 flex items-center gap-2">
+          <span>✨</span> Add New Product
+        </h2>
+        <form onSubmit={handleAdd} className="flex gap-4 flex-wrap">
+          {/* ... existing form inputs ... */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
             <input
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              placeholder="Enter new category"
-              className="border p-2 flex-grow"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="Name"
+              className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay"
+              required
             />
-          ) : null}
-        </div>
+            <input
+              type="number"
+              value={form.price}
+              onChange={(e) => setForm({ ...form, price: e.target.value === "" ? "" : Number(e.target.value) })}
+              placeholder="Price"
+              className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay"
+              required
+            />
+            <input
+              type="number"
+              value={form.stockQuantity}
+              onChange={(e) =>
+                setForm({ ...form, stockQuantity: e.target.value === "" ? "" : Number(e.target.value) })
+              }
+              placeholder="Stock"
+              className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay"
+              required
+            />
+          </div>
 
-        <input
-          value={descriptionText}
-          onChange={(e) => setDescriptionText(e.target.value)}
-          placeholder="Short description"
-          className="border p-2 w-full"
-        />
+          <div className="w-full">
+            <UploadInput
+              uploadPreset={"products_unsigned"}
+              folder={"products/"}
+              onUploaded={(urls) => {
+                setForm((prev) => ({ ...prev, images: [...(prev.images || []), ...urls] }));
+              }}
+            />
+          </div>
 
-        <button className="bg-black text-white px-6 py-2">Add</button>
-      </form>
+          {/* Thumbnails */}
+          {form.images?.length > 0 && (
+            <div className="flex gap-2 mt-2 flex-wrap w-full">
+              <AnimatePresence>
+                {(form.images || []).map((img, idx) => (
+                  <motion.div
+                    key={img}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.5 }}
+                    className="relative group"
+                  >
+                    <img src={img} className="w-20 h-20 object-cover rounded-lg shadow-sm" />
+                    <button
+                      type="button"
+                      onClick={() => setForm((prev) => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }))}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs shadow-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center transform hover:scale-110"
+                    >
+                      ×
+                    </button>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
+
+          <div className="flex gap-4 w-full">
+            <select
+              value={PRODUCT_CATEGORIES.some(c => c.id === category) ? category : "other"}
+              onChange={(e) => {
+                if (e.target.value === "other") {
+                  setCategory("");
+                } else {
+                  setCategory(e.target.value);
+                }
+              }}
+              className="border p-3 rounded-lg flex-grow focus:ring-2 focus:ring-clay/20 outline-none bg-white"
+            >
+              <option value="">Select category</option>
+              {PRODUCT_CATEGORIES.filter(c => c.id !== 'all').map((cat) => (
+                <option key={cat.id} value={cat.id}>{cat.label}</option>
+              ))}
+              <option value="other">Other (Add New)</option>
+            </select>
+            {(!PRODUCT_CATEGORIES.some(c => c.id === category) && category !== "") || !PRODUCT_CATEGORIES.some(c => c.id === category) ? (
+              <motion.input
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                placeholder="Enter new category"
+                className="border p-3 rounded-lg flex-grow focus:ring-2 focus:ring-clay/20 outline-none"
+              />
+            ) : null}
+          </div>
+
+          <input
+            value={descriptionText}
+            onChange={(e) => setDescriptionText(e.target.value)}
+            placeholder="Short description"
+            className="border p-3 rounded-lg w-full focus:ring-2 focus:ring-clay/20 outline-none"
+          />
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="bg-black text-white px-8 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all w-full md:w-auto"
+          >
+            + Add Product
+          </motion.button>
+        </form>
+      </motion.div>
 
       {/* SEARCH BAR */}
       <div className="mb-4">
@@ -271,44 +352,56 @@ export default function AdminProductsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {currentProducts.map((p) => (
-                <tr key={p._id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="p-3 align-top break-words text-sm font-medium text-soil/90">
-                    {p.name}
-                  </td>
-                  <td className="p-3 align-top text-sm text-soil/70 break-words">
-                    {PRODUCT_CATEGORIES.find(c => c.id === p.category)?.label || p.category}
-                  </td>
-                  <td className="p-3 align-top text-sm text-soil/70">
-                    ₹{p.price}
-                  </td>
-                  <td className="p-3 align-top text-sm text-soil/70">
-                    {p.stockQuantity}
-                  </td>
-                  <td className="p-3 align-top text-sm text-soil/70">
-                    {p.images?.length || 0}
-                  </td>
-                  <td className="p-3 align-top text-right space-x-2">
-                    <button
-                      onClick={() => {
-                        setEditingId(p._id);
-                        setForm({ name: p.name, price: p.price, stockQuantity: p.stockQuantity, images: p.images || [] });
-                        setCategory(p.category || '');
-                        setDescriptionText(p.description || '');
-                      }}
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(p._id)}
-                      className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              <AnimatePresence mode="popLayout">
+                {currentProducts.map((p) => (
+                  <motion.tr
+                    key={p._id}
+                    layout
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    whileHover={{ backgroundColor: "rgba(50, 50, 50, 0.02)" }}
+                    className="hover:bg-gray-50/50 transition-colors"
+                  >
+                    <td className="p-3 align-top break-words text-sm font-medium text-soil/90">
+                      {p.name}
+                    </td>
+                    <td className="p-3 align-top text-sm text-soil/70 break-words">
+                      {PRODUCT_CATEGORIES.find(c => c.id === p.category)?.label || p.category}
+                    </td>
+                    <td className="p-3 align-top text-sm text-soil/70">
+                      ₹{p.price}
+                    </td>
+                    <td className="p-3 align-top text-sm text-soil/70">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${p.stockQuantity > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {p.stockQuantity}
+                      </span>
+                    </td>
+                    <td className="p-3 align-top text-sm text-soil/70">
+                      {p.images?.length || 0}
+                    </td>
+                    <td className="p-3 align-top text-right space-x-2">
+                      <button
+                        onClick={() => {
+                          setEditingId(p._id);
+                          setForm({ name: p.name, price: p.price, stockQuantity: p.stockQuantity, images: p.images || [] });
+                          setCategory(p.category || '');
+                          setDescriptionText(p.description || '');
+                        }}
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors hover:underline"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(p._id)}
+                        className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </motion.tr>
+                ))}
+              </AnimatePresence>
             </tbody>
           </table>
           {filteredProducts.length === 0 && (
@@ -431,6 +524,6 @@ export default function AdminProductsPage() {
         </div>
       )}
 
-    </div>
+    </motion.div>
   );
 }

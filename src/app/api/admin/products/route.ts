@@ -31,10 +31,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Category is required" }, { status: 400 });
     }
 
-    const slug = name
+    let slug = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
+
+    // Check for existing slug and modify if necessary to ensure uniqueness
+    const existingProduct = await Product.findOne({ slug });
+    if (existingProduct) {
+      slug = `${slug}-${Date.now()}`;
+    }
 
     const product = await Product.create({
       name,

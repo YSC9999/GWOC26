@@ -35,6 +35,11 @@ interface Testimonial {
   productRef: string;
 }
 
+interface FrameConfig {
+  frameId: number;
+  product?: Product;
+}
+
 const categoryEmojis: Record<string, string> = {
   bowls: "🥣",
   cups: "🍵",
@@ -52,6 +57,7 @@ export default function Home() {
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
     null
   );
+  const [dynamicFrames, setDynamicFrames] = useState<FrameConfig[]>([]);
 
   useEffect(() => {
     fetchData();
@@ -59,16 +65,19 @@ export default function Home() {
 
   const fetchData = async () => {
     try {
-      const [productsRes, testimonialsRes] = await Promise.all([
+      const [productsRes, testimonialsRes, framesRes] = await Promise.all([
         fetch("/api/products/featured"),
         fetch("/api/testimonials?featured=true&limit=3"),
+        fetch("/api/admin/frames"),
       ]);
 
       const productsData = await productsRes.json();
       const testimonialsData = await testimonialsRes.json();
+      const framesData = await framesRes.json();
 
       setFeaturedProducts(productsData.products || []);
       setTestimonials(testimonialsData.testimonials || []);
+      setDynamicFrames(framesData.frames || []);
     } catch (error) {
       console.error("Failed to fetch data:", error);
     } finally {
@@ -152,31 +161,61 @@ export default function Home() {
               transition={{ delay: 0.4, duration: 0.8 }}
               className="relative pt-12 w-full h-screen scale-75 md:scale-90 lg:scale-100 origin-top-left"
             >
-              {frameData.map((frame) => (
-                <motion.div
-                  key={frame.id}
-                  initial={{ opacity: 0, scale: 0.6, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{
-                    delay: 0.5 + frame.id * 0.04,
-                    duration: 0.4,
-                    type: "spring",
-                    stiffness: 100,
-                  }}
-                  className="absolute rounded-lg overflow-hidden border-2 border-soil/30 shadow-md hover:shadow-lg transition-shadow cursor-pointer"
-                  style={{
-                    backgroundColor: frame.color,
-                    width: `${frame.width}px`,
-                    height: `${frame.height}px`,
-                    left: `${frame.left}px`,
-                    top: `${frame.top}px`,
-                  }}
-                >
-                  <div className="w-full h-full flex items-center justify-center text-white text-xs font-semibold opacity-0 hover:opacity-75 transition-opacity bg-black/30">
-                    {frame.id + 1}
-                  </div>
-                </motion.div>
-              ))}
+              {frameData.map((frame) => {
+                const configuredFrame = dynamicFrames.find(f => f.frameId === frame.id);
+                const product = configuredFrame?.product;
+
+                return (
+                  <motion.div
+                    key={frame.id}
+                    initial={{ opacity: 0, scale: 0.6, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    whileHover={{
+                      scale: 1.05,
+                      zIndex: 20,
+                      transition: { duration: 0.2 }
+                    }}
+                    transition={{
+                      delay: 0.5 + frame.id * 0.04,
+                      duration: 0.4,
+                      type: "spring",
+                      stiffness: 100,
+                    }}
+                    className="absolute rounded-lg overflow-hidden border-2 border-soil/30 shadow-md hover:shadow-2xl transition-all cursor-pointer group"
+                    style={{
+                      backgroundColor: product ? 'white' : frame.color,
+                      width: `${frame.width}px`,
+                      height: `${frame.height}px`,
+                      left: `${frame.left}px`,
+                      top: `${frame.top}px`,
+                    }}
+                    onClick={() => {
+                      if (product) {
+                        setSelectedProductId(product.slug || product._id);
+                      }
+                    }}
+                  >
+                    {product ? (
+                      <>
+                        <img
+                          src={product.images?.[0]}
+                          alt={product.name}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
+                          <span className="text-white opacity-0 group-hover:opacity-100 font-bold text-xs px-2 text-center drop-shadow-md transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                            {product.name}
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-white text-xs font-semibold opacity-0 hover:opacity-75 transition-opacity bg-black/30">
+                        {frame.id + 1}
+                      </div>
+                    )}
+                  </motion.div>
+                )
+              })}
             </motion.div>
           </div>
         </div>
@@ -229,9 +268,9 @@ export default function Home() {
                   <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
                     <div className="h-56 bg-gradient-to-br from-sand to-sand/50 flex items-center justify-center overflow-hidden relative">
                       {product.images?.[0] &&
-                      (product.images[0].startsWith("/") ||
-                        product.images[0].startsWith("http") ||
-                        product.images[0].startsWith("data:")) ? (
+                        (product.images[0].startsWith("/") ||
+                          product.images[0].startsWith("http") ||
+                          product.images[0].startsWith("data:")) ? (
                         <img
                           src={product.images[0]}
                           alt={product.name}
