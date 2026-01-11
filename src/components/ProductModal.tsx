@@ -152,16 +152,19 @@ export default function ProductModal({
   };
 
   const handleWishlist = async () => {
-    if (!user || !productId) {
+    if (!user) {
       alert("Please login to add to wishlist");
       return;
     }
 
+    if (!product?._id) return;
+
+    const targetId = product._id;
     const currentWishlist = user.wishlist || [];
-    const isLiked = currentWishlist.includes(productId);
+    const isLiked = currentWishlist.includes(targetId);
     const newWishlist = isLiked
-      ? currentWishlist.filter((id) => id !== productId)
-      : [...currentWishlist, productId];
+      ? currentWishlist.filter((id) => id !== targetId)
+      : [...currentWishlist, targetId];
 
     login({ ...user, wishlist: newWishlist });
 
@@ -169,7 +172,7 @@ export default function ProductModal({
       const res = await fetch("/api/user/wishlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId }),
+        body: JSON.stringify({ productId: targetId }),
       });
 
       const data = await res.json();
@@ -445,14 +448,14 @@ export default function ProductModal({
 
                       <button
                         onClick={handleWishlist}
-                        className={`p-3 rounded-full border-2 transition-all ${user?.wishlist?.includes(productId!)
+                        className={`p-3 rounded-full border-2 transition-all ${product?._id && user?.wishlist?.includes(product._id)
                           ? "bg-red-50 border-red-300 text-red-500"
                           : "border-soil/20 text-soil hover:border-clay hover:text-clay"
                           }`}
                       >
                         <Heart
                           size={20}
-                          fill={user?.wishlist?.includes(productId!) ? "currentColor" : "none"}
+                          fill={product?._id && user?.wishlist?.includes(product._id) ? "currentColor" : "none"}
                         />
                       </button>
                     </div>

@@ -192,7 +192,8 @@ export default function Home() {
                     }}
                     onClick={() => {
                       if (product) {
-                        setSelectedProductId(product.slug || product._id);
+                        // Use ID for consistent fetching in Modal
+                        setSelectedProductId(product._id);
                       }
                     }}
                   >
