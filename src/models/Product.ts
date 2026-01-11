@@ -7,7 +7,7 @@ export interface IProduct extends Document {
   longDescription?: string;
   price: number;
   originalPrice?: number;
-  category: "bowls" | "cups" | "plates" | "platters" | "vases" | "decor" | "sets";
+  category: string;
   subcategory?: string;
   images: string[];
   material: "stoneware" | "porcelain" | "terracotta" | "ceramic";
@@ -62,8 +62,8 @@ const ProductSchema = new Schema<IProduct>(
 
     category: {
       type: String,
-      enum: ["bowls", "cups", "plates", "platters", "vases", "decor", "sets"],
       required: true,
+      index: true
     },
 
     subcategory: String,
@@ -109,6 +109,11 @@ ProductSchema.index({
   description: "text",
   tags: "text",
 });
+
+// Prevent Mongoose recompilation error in development
+if (process.env.NODE_ENV !== 'production') {
+  delete mongoose.models.Product;
+}
 
 const Product: Model<IProduct> =
   mongoose.models.Product ||

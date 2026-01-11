@@ -15,10 +15,10 @@ type ProductForm = {
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<ProductForm>({
+  const [form, setForm] = useState<any>({
     name: "",
-    price: 0,
-    stockQuantity: 0,
+    price: "",
+    stockQuantity: "",
     images: [],
   });
   const [category, setCategory] = useState<string>('');
@@ -138,7 +138,7 @@ export default function AdminProductsPage() {
         <input
           type="number"
           value={form.price}
-          onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
+          onChange={(e) => setForm({ ...form, price: e.target.value === "" ? "" : Number(e.target.value) })}
           placeholder="Price"
           className="border p-2"
           required
@@ -147,7 +147,7 @@ export default function AdminProductsPage() {
           type="number"
           value={form.stockQuantity}
           onChange={(e) =>
-            setForm({ ...form, stockQuantity: Number(e.target.value) })
+            setForm({ ...form, stockQuantity: e.target.value === "" ? "" : Number(e.target.value) })
           }
           placeholder="Stock"
           className="border p-2"
@@ -273,10 +273,10 @@ export default function AdminProductsPage() {
                 <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="border p-2 w-full" />
 
                 <label className="block text-sm text-soil mt-3 mb-1">Price</label>
-                <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} className="border p-2 w-full" />
+                <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value === "" ? "" : Number(e.target.value) })} className="border p-2 w-full" />
 
                 <label className="block text-sm text-soil mt-3 mb-1">Stock</label>
-                <input type="number" value={form.stockQuantity} onChange={(e) => setForm({ ...form, stockQuantity: Number(e.target.value) })} className="border p-2 w-full" />
+                <input type="number" value={form.stockQuantity} onChange={(e) => setForm({ ...form, stockQuantity: e.target.value === "" ? "" : Number(e.target.value) })} className="border p-2 w-full" />
 
                 <label className="block text-sm text-soil mt-3 mb-1">Category</label>
                 <div className="space-y-2">
