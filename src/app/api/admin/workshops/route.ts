@@ -65,3 +65,61 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Failed to create workshop" }, { status: 400 });
   }
 }
+
+export async function PATCH(req: Request) {
+  try {
+    await requireAdmin();
+    await connectDB();
+
+    const body = await req.json();
+    const { id, ...updates } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: "Workshop ID required" }, { status: 400 });
+    }
+
+    // Generate new slug if title changed
+    if (updates.title) {
+      updates.slug = updates.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+    }
+
+    // Handle includes if it's a string
+    if (typeof updates.includes === "string") {
+      updates.includes = updates.includes.split(",").map((s: string) => s.trim()).filter(Boolean);
+    }
+
+    const workshop = await Workshop.findByIdAndUpdate(id, updates, { new: true });
+
+    if (!workshop) {
+      return NextResponse.json({ error: "Workshop not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ workshop });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Failed to update workshop" }, { status: 400 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    await requireAdmin();
+    await connectDB();
+
+    const { id } = await req.json();
+
+    if (!id) {
+      return NextResponse.json({ error: "Workshop ID required" }, { status: 400 });
+    }
+
+    await Workshop.findByIdAndDelete(id);
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Failed to delete workshop" }, { status: 400 });
+  }
+}
