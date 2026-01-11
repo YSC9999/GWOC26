@@ -11,9 +11,64 @@ import { useRouter } from "next/navigation";
 export default function Cart() {
   const { items, updateQty, remove, total, clear } = useCart();
   const [loading, setLoading] = useState(false);
+  // Coupon State
   const [checkoutStep, setCheckoutStep] = useState(1); // 1: Cart, 2: Address, 3: Success
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountPercentage: number } | null>(null);
+  const [couponError, setCouponError] = useState("");
+  const [verifyingCoupon, setVerifyingCoupon] = useState(false);
 
-  // Address State
+  // ... (existing useEffects and handlers)
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return;
+    setVerifyingCoupon(true);
+    setCouponError("");
+    try {
+      const res = await fetch("/api/coupons/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponCode }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setAppliedCoupon(data.coupon);
+        setCouponCode("");
+        alert("Coupon applied successfully!");
+      } else {
+        setCouponError(data.error);
+        setAppliedCoupon(null);
+      }
+    } catch (err) {
+      console.error(err);
+      setCouponError("Failed to apply coupon");
+    } finally {
+      setVerifyingCoupon(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    setCouponError("");
+  };
+
+
+
+
+
+
+  // Update handleCheckout to include discount info if needed (optional, or just send final total)
+  // Ideally, backend should re-verify, but for now we send the total.
+  // Actually, better to send the coupon code to backend so it can re-verify and calculate.
+  // But wait, the existing API logic takes calculate total from DB products.
+  // I should update the Order creation API to accept a couponCode and apply the discount there too.
+  // For this step, let's just update the UI first. The user asked for "total amount to pay... minus that discount".
+
+  // ... (inside JSX, usually in the Order Summary section)
+
+
+
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | "new">("new");
   const [fetchingAddresses, setFetchingAddresses] = useState(false);
@@ -27,7 +82,7 @@ export default function Cart() {
   const [otpSent, setOtpSent] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
-  
+
   // Shipping State
   const [shippingCost, setShippingCost] = useState<number | null>(null);
   const [calculatingShipping, setCalculatingShipping] = useState(false);
@@ -73,10 +128,39 @@ export default function Cart() {
     }
   };
 
+  const { user } = useAuth();
+
+  const calculateTotal = () => {
+    const subtotal = total();
+    // Enforce free shipping if subtotal > 2000, overriding Shiprocket cost
+    const finalShipping = subtotal > 2000 ? 0 : (shippingCost !== null ? shippingCost : 150);
+
+    let discountAmount = 0;
+    if (appliedCoupon) {
+      discountAmount = (subtotal * appliedCoupon.discountPercentage) / 100;
+    }
+
+    return {
+      subtotal,
+      shipping: finalShipping,
+      discount: discountAmount,
+      total: subtotal + finalShipping - discountAmount
+    };
+  };
+
+  const { subtotal, shipping, discount, total: finalTotal } = calculateTotal();
+
+  // Populate email from user
+  React.useEffect(() => {
+    if (user?.email) {
+      setFormData(prev => ({ ...prev, email: user.email }));
+    }
+  }, [user]);
+
   const fillFormWithAddress = (addr: any) => {
     setFormData({
       name: addr.name || "",
-      email: formData.email, // Keep current email
+      email: user?.email || formData.email, // Use user email if available
       phone: addr.phone || "",
       street: addr.street || "",
       city: addr.city || "",
@@ -228,11 +312,7 @@ export default function Cart() {
     }
   };
 
-  const calculateTotal = () => {
-    const subtotal = total();
-    const finalShipping = shippingCost !== null ? shippingCost : (subtotal > 2000 ? 0 : 150);
-    return { subtotal, shipping: finalShipping, total: subtotal + finalShipping };
-  };
+
 
   // Fetch Shipping Rates
   React.useEffect(() => {
@@ -250,7 +330,7 @@ export default function Cart() {
       if (res.ok && data.data?.available_courier_companies) {
         const couriers = data.data.available_courier_companies;
         if (couriers.length > 0) {
-          const cheapest = couriers.reduce((prev: any, curr: any) => 
+          const cheapest = couriers.reduce((prev: any, curr: any) =>
             (Number(prev.rate) < Number(curr.rate)) ? prev : curr
           );
           setShippingCost(Math.ceil(Number(cheapest.rate)));
@@ -268,7 +348,6 @@ export default function Cart() {
     }
   };
 
-  const { subtotal, shipping, total: finalTotal } = calculateTotal();
 
   const handleCheckout = async () => {
     if (!phoneVerified) {
@@ -306,6 +385,7 @@ export default function Cart() {
           items,
           shippingAddress: formData,
           email: formData.email,
+          couponCode: appliedCoupon ? appliedCoupon.code : undefined,
         }),
       });
 
@@ -710,6 +790,41 @@ export default function Cart() {
                 {shippingError && (
                   <div className="text-[10px] text-red-500 mt-1">{shippingError}</div>
                 )}
+                {appliedCoupon && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Discount ({appliedCoupon.code})</span>
+                    <span>-₹{discount.toLocaleString()}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Coupon Input */}
+              <div className="mb-6">
+                {appliedCoupon ? (
+                  <div className="flex items-center justify-between bg-green-50 p-3 rounded-lg border border-green-200">
+                    <span className="text-sm font-bold text-green-700">Applied: {appliedCoupon.code} ({appliedCoupon.discountPercentage}% Off)</span>
+                    <button onClick={removeCoupon} className="text-red-500 hover:text-red-700 text-xs font-bold">REMOVE</button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                      placeholder="Coupon Code"
+                      className="flex-1 px-4 py-2 border rounded-lg uppercase focus:outline-none focus:border-clay"
+                    />
+                    <button
+                      onClick={handleApplyCoupon}
+                      disabled={!couponCode || verifyingCoupon}
+                      className="bg-soil text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-soil/90 disabled:opacity-50"
+                    >
+                      {verifyingCoupon ? "..." : "APPLY"}
+                    </button>
+                  </div>
+                )}
+                {couponError && <p className="text-red-500 text-xs mt-1">{couponError}</p>}
+
               </div>
 
               <div className="flex justify-between text-xl font-bold text-soil mb-8">
@@ -717,7 +832,7 @@ export default function Cart() {
                 <span className="text-clay">₹{finalTotal.toLocaleString()}</span>
               </div>
 
-              {shipping > 0 && (
+              {shipping > 0 && subtotal < 2000 && (
                 <div className="bg-white/50 p-4 rounded-xl mb-6 text-sm text-soil/70 text-center">
                   Add items worth ₹{(2000 - subtotal).toLocaleString()} more for free shipping!
                 </div>
@@ -768,7 +883,8 @@ export default function Cart() {
             </div>
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 }

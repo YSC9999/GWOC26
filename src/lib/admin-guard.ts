@@ -12,7 +12,8 @@ export async function requireAdmin() {
   ) as any;
 
   if (decoded.role !== 'admin') {
-    throw new Error("Unauthorized - admin role required");
+    console.error(`[AdminGuard] Access denied. User: ${decoded.email}, Role: ${decoded.role}`);
+    throw new Error(`Unauthorized - role is '${decoded.role}', required 'admin'`);
   }
 
   return decoded;
