@@ -12,12 +12,14 @@ export async function POST(req: Request) {
     // 1. Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
+      console.log(`[Login API] User not found: ${email}`);
       return NextResponse.json({ error: "Invalid credentials" }, { status: 400 });
     }
 
     // 2. Validate password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.log(`[Login API] Password mismatch for: ${email}`);
       return NextResponse.json({ error: "Invalid credentials" }, { status: 400 });
     }
 
