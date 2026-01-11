@@ -7,6 +7,7 @@ interface OrderItem {
   quantity: number;
   price: number;
   image: string;
+  productId?: { tags?: string[] };
 }
 
 interface Order {
@@ -37,7 +38,9 @@ export default function AdminOrdersPage() {
         const data = await res.json();
         setOrders(data.orders || []);
       } else {
-        console.error('Failed to fetch orders');
+        const err = await res.json().catch(() => ({}));
+        console.error('Failed to fetch orders:', err.error);
+        alert(`Failed to fetch orders: ${err.error || 'Unknown error'}`);
       }
     } catch (err) {
       console.error(err);
@@ -47,8 +50,8 @@ export default function AdminOrdersPage() {
   };
 
   const stageChecked = (status: string) => ({
-    confirmed: ['confirmed','processing','shipped','delivered'].includes(status),
-    shipped: ['shipped','delivered'].includes(status),
+    confirmed: ['confirmed', 'processing', 'shipped', 'delivered'].includes(status),
+    shipped: ['shipped', 'delivered'].includes(status),
     delivered: status === 'delivered'
   });
 
@@ -74,7 +77,7 @@ export default function AdminOrdersPage() {
     }
   };
 
-  const handleCheckboxChange = (order: Order, stage: 'confirmed'|'shipped'|'delivered', checked: boolean) => {
+  const handleCheckboxChange = (order: Order, stage: 'confirmed' | 'shipped' | 'delivered', checked: boolean) => {
     // Determine new status based on checked boxes
     const confirmed = stage === 'confirmed' ? checked : stageChecked(order.status).confirmed;
     const shipped = stage === 'shipped' ? checked : stageChecked(order.status).shipped;
@@ -106,26 +109,35 @@ export default function AdminOrdersPage() {
         <div className="space-y-4">
           {orders.map((order) => {
             const checked = stageChecked(order.status);
+            const isCustomOrder = order.items.some(item => item.productId?.tags?.includes('custom'));
+
             return (
               <div key={order._id} className="bg-white rounded-2xl border border-gray-100 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex-1">
-                  <div className="font-bold text-soil">{order.orderNumber}</div>
+                  <div className="flex items-center gap-2">
+                    <div className="font-bold text-soil">{order.orderNumber}</div>
+                    {isCustomOrder && (
+                      <span className="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full font-bold">
+                        Custom Request
+                      </span>
+                    )}
+                  </div>
                   <div className="text-sm text-soil/60">{order.userId && typeof order.userId !== 'string' ? `${order.userId.name || ''} • ${order.userId.email || ''}` : ''}</div>
                   <div className="text-sm text-soil/70 mt-1">Placed on {new Date(order.createdAt).toLocaleString()}</div>
                 </div>
 
                 <div className="flex items-center gap-6">
                   <div className="flex items-center gap-3">
-                    <label className="flex items-center gap-2 text-sm">
-                      <input type="checkbox" checked={checked.confirmed} onChange={(e) => handleCheckboxChange(order, 'confirmed', e.target.checked)} />
+                    <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+                      <input type="checkbox" checked={checked.confirmed} onChange={(e) => handleCheckboxChange(order, 'confirmed', e.target.checked)} className="rounded text-clay focus:ring-clay" />
                       <span>Confirmed</span>
                     </label>
-                    <label className="flex items-center gap-2 text-sm">
-                      <input type="checkbox" checked={checked.shipped} onChange={(e) => handleCheckboxChange(order, 'shipped', e.target.checked)} />
+                    <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+                      <input type="checkbox" checked={checked.shipped} onChange={(e) => handleCheckboxChange(order, 'shipped', e.target.checked)} className="rounded text-clay focus:ring-clay" />
                       <span>Shipped</span>
                     </label>
-                    <label className="flex items-center gap-2 text-sm">
-                      <input type="checkbox" checked={checked.delivered} onChange={(e) => handleCheckboxChange(order, 'delivered', e.target.checked)} />
+                    <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+                      <input type="checkbox" checked={checked.delivered} onChange={(e) => handleCheckboxChange(order, 'delivered', e.target.checked)} className="rounded text-clay focus:ring-clay" />
                       <span>Delivered</span>
                     </label>
                   </div>

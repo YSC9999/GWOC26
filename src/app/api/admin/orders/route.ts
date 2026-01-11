@@ -12,6 +12,7 @@ export async function GET() {
     const orders = await Order.find({})
       .sort({ createdAt: -1 })
       .populate('userId', 'name email')
+      .populate('items.productId', 'tags')
       .lean();
 
     return NextResponse.json({ orders });
@@ -32,7 +33,7 @@ export async function PATCH(req: Request) {
 
     if (!id) return NextResponse.json({ error: "Order id required" }, { status: 400 });
 
-    const allowed = ['pending','confirmed','processing','shipped','delivered','cancelled'];
+    const allowed = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
     if (status && !allowed.includes(status)) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }

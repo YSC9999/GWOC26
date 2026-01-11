@@ -40,6 +40,7 @@ export interface IOrder extends Document {
   status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   trackingNumber?: string;
   emailSent: boolean;
+  couponCode?: string;
   customerNotes?: string;
   adminNotes?: string;
   createdAt: Date;
@@ -93,6 +94,7 @@ const OrderSchema = new Schema<IOrder>({
   },
   trackingNumber: String,
   emailSent: { type: Boolean, default: false },
+  couponCode: String,
   customerNotes: String,
   adminNotes: String,
 }, { timestamps: true });

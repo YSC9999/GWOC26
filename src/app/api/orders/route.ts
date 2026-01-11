@@ -28,12 +28,14 @@ export async function GET(req: Request) {
     }
 }
 
+import Coupon from "@/models/Coupon";
+
 export async function POST(req: Request) {
     try {
         await connectDB();
 
         const body = await req.json();
-        const { items, shippingAddress, email } = body;
+        const { items, shippingAddress, email, couponCode } = body;
 
         // Get userId from session if available
         const authUser = await getUser();
@@ -92,12 +94,24 @@ export async function POST(req: Request) {
             shippingCost = subtotal > 2000 ? 0 : 150;
         }
 
+        /* Coupon Logic */
+        let discount = 0;
+        if (couponCode) {
+            const coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
+            if (coupon && coupon.isActive) {
+                const now = new Date();
+                if (now >= new Date(coupon.validFrom) && now <= new Date(coupon.validTo)) {
+                    discount = (subtotal * coupon.discountPercentage) / 100;
+                }
+            }
+        }
+
         const gstAmount = 0;
-        const totalAmount = subtotal + shippingCost;
+        const totalAmount = Math.max(0, subtotal + shippingCost - discount); // Ensure non-negative
 
         // 3. Create Razorpay Order
         const razorpayOrder = await razorpay.orders.create({
-            amount: totalAmount * 100, // paise
+            amount: Math.round(totalAmount * 100), // paise, verify integer
             currency: "INR",
             receipt: `rcpt_${Date.now()}`,
         });
@@ -111,6 +125,8 @@ export async function POST(req: Request) {
             subtotal,
             gstAmount,
             shippingCost,
+            discount,
+            couponCode: couponCode ? couponCode.toUpperCase() : undefined,
             total: totalAmount,
             shippingAddress,
             razorpayOrderId: razorpayOrder.id,
@@ -129,6 +145,6 @@ export async function POST(req: Request) {
 
     } catch (error: any) {
         console.error("Order creation error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: error.message || "Unknown error occurred" }, { status: 500 });
     }
 }
