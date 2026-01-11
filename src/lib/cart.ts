@@ -13,7 +13,7 @@ export type CartItem = {
 
 type CartStore = {
   items: CartItem[];
-  add: (item: CartItem) => void;
+  add: (item: CartItem) => { success: boolean; message?: string };
   remove: (id: string) => void;
   updateQty: (id: string, qty: number) => void;
   clear: () => void;
@@ -25,31 +25,50 @@ export const useCart = create<CartStore>()(
     (set, get) => ({
       items: [],
       add: (item) => {
-        const existing = get().items.find((i) => i.id === item.id);
+        // Sanitize incoming item
+        const sanitizedItem = {
+          ...item,
+          price: Number(item.price) || 0,
+          qty: Number(item.qty) || 1,
+          stock: typeof item.stock === 'number' ? item.stock : 0,
+        };
+
+        const items = get().items;
+        const existing = items.find((i) => i.id === sanitizedItem.id);
+
         if (existing) {
-          const newQty = existing.qty + item.qty;
-          if (newQty <= item.stock) {
+          // Update stale stock with fresh stock from product page
+          const existingQty = Number(existing.qty) || 0;
+          const newQty = existingQty + sanitizedItem.qty;
+
+          if (newQty <= sanitizedItem.stock) {
             set({
-              items: get().items.map((i) =>
-                i.id === item.id ? { ...i, qty: newQty } : i
+              items: items.map((i) =>
+                i.id === sanitizedItem.id
+                  ? { ...i, qty: newQty, stock: sanitizedItem.stock, price: sanitizedItem.price }
+                  : i
               ),
             });
+            return { success: true };
           } else {
             // Cap at max stock
             set({
-              items: get().items.map((i) =>
-                i.id === item.id ? { ...i, qty: item.stock } : i
+              items: items.map((i) =>
+                i.id === sanitizedItem.id
+                  ? { ...i, qty: sanitizedItem.stock, stock: sanitizedItem.stock, price: sanitizedItem.price }
+                  : i
               ),
             });
-            alert(`Stock limit reached. Cart updated to maximum available quantity (${item.stock}).`);
+            return { success: false, message: `Stock limit reached. Max available: ${sanitizedItem.stock}` };
           }
         } else {
-          if (item.qty <= item.stock) {
-            set({ items: [...get().items, item] });
+          if (sanitizedItem.qty <= sanitizedItem.stock) {
+            set({ items: [...items, sanitizedItem] });
+            return { success: true };
           } else {
             // Cap at max stock
-            set({ items: [...get().items, { ...item, qty: item.stock }] });
-            alert(`Stock limit reached. Cart updated to maximum available quantity (${item.stock}).`);
+            set({ items: [...items, { ...sanitizedItem, qty: sanitizedItem.stock }] });
+            return { success: false, message: `Stock limit reached. Max available: ${sanitizedItem.stock}` };
           }
         }
       },

@@ -136,10 +136,13 @@ export default function ProductModal({
     }
   };
 
+  const [statusMsg, setStatusMsg] = useState("");
+
   const handleAddToCart = () => {
     if (!product) return;
 
-    cart.add({
+    console.log("Adding to cart:", { name: product.name, qty: quantity, stock: product.stockQuantity, id: product._id });
+    const result = cart.add({
       id: product._id as any,
       name: product.name,
       price: product.price,
@@ -147,8 +150,13 @@ export default function ProductModal({
       stock: product.stockQuantity || 0,
     });
 
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
+    if (result.success) {
+      setAddedToCart(true);
+      setTimeout(() => setAddedToCart(false), 2000);
+    } else if (result.message) {
+      setStatusMsg(result.message);
+      setTimeout(() => setStatusMsg(""), 3000);
+    }
   };
 
   const handleWishlist = async () => {
@@ -427,17 +435,23 @@ export default function ProductModal({
                     <div className="flex gap-3">
                       <button
                         onClick={handleAddToCart}
-                        disabled={!product.inStock || addedToCart}
+                        disabled={!product.inStock || addedToCart || !!statusMsg}
                         className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full font-semibold transition-all ${addedToCart
                           ? "bg-green-500 text-white"
-                          : product.inStock
-                            ? "bg-clay text-white hover:bg-clay/90 hover:scale-[1.02]"
-                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : statusMsg
+                            ? "bg-red-500 text-white"
+                            : product.inStock
+                              ? "bg-clay text-white hover:bg-clay/90 hover:scale-[1.02]"
+                              : "bg-gray-300 text-gray-500 cursor-not-allowed"
                           }`}
                       >
                         {addedToCart ? (
                           <>
                             <Check size={20} /> Added!
+                          </>
+                        ) : statusMsg ? (
+                          <>
+                            <Minus size={20} /> {statusMsg}
                           </>
                         ) : (
                           <>
