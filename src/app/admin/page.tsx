@@ -12,7 +12,7 @@ import {
   Frame,
   Building2,
   MessageSquare,
-  Brush
+  Brush,
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -32,7 +32,7 @@ export default function AdminDashboard() {
       opacity: 1,
       y: 0,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 100,
         damping: 10,
       },
@@ -44,70 +44,66 @@ export default function AdminDashboard() {
       href: "/admin/products",
       label: "Products",
       desc: "Manage collection items",
-      icon: <Package size={32} />
+      icon: <Package size={32} />,
     },
     {
       href: "/admin/orders",
       label: "Orders",
       desc: "View and manage customer orders",
-      icon: <ShoppingBag size={32} />
+      icon: <ShoppingBag size={32} />,
     },
     {
       href: "/admin/coupons",
       label: "Coupons",
       desc: "Manage discount codes",
-      icon: <Ticket size={32} />
+      icon: <Ticket size={32} />,
     },
     {
       href: "/admin/custom-orders",
       label: "Custom Orders",
       desc: "Manage custom requests",
-      icon: <Palette size={32} />
+      icon: <Palette size={32} />,
     },
     {
       href: "/admin/users",
       label: "Users",
       desc: "Manage accounts & employees",
-      icon: <Users size={32} />
+      icon: <Users size={32} />,
     },
     {
       href: "/admin/featured",
       label: "Featured",
       desc: "Control homepage items",
-      icon: <Star size={32} />
+      icon: <Star size={32} />,
     },
     {
       href: "/admin/frames",
       label: "Frames",
       desc: "Edit photo frames section",
-      icon: <Frame size={32} />
+      icon: <Frame size={32} />,
     },
     {
       href: "/admin/contact",
       label: "Company Details",
       desc: "Edit studio info & policies",
-      icon: <Building2 size={32} />
+      icon: <Building2 size={32} />,
     },
     {
       href: "/admin/user-contacts",
       label: "User Contacts",
       desc: "View customer messages",
-      icon: <MessageSquare size={32} />
+      icon: <MessageSquare size={32} />,
     },
     {
       href: "/admin/workshops",
       label: "Workshops",
       desc: "Manage classes & events",
-      icon: <Brush size={32} />
+      icon: <Brush size={32} />,
     },
   ];
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-    >
+    <motion.div initial="hidden" animate="visible" variants={containerVariants}>
       <motion.h1
         variants={itemVariants}
         className="text-4xl font-serif font-bold text-soil mb-8 flex items-center gap-3"
@@ -124,7 +120,7 @@ export default function AdminDashboard() {
                   scale: 1.05,
                   y: -5,
                   backgroundColor: "rgba(255, 255, 255, 1)",
-                  borderColor: "rgba(200, 84, 40, 0.4)" // Clay color
+                  borderColor: "rgba(200, 84, 40, 0.4)", // Clay color
                 }}
                 whileTap={{ scale: 0.98 }}
                 className="group h-full p-8 bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm hover:shadow-2xl hover:shadow-clay/20 border-2 border-soil/5 transition-all duration-300 relative overflow-hidden"
@@ -133,9 +129,7 @@ export default function AdminDashboard() {
                 <div className="absolute top-0 right-0 -mr-8 -mt-8 w-24 h-24 bg-clay/5 rounded-full blur-2xl group-hover:bg-clay/10 transition-colors" />
 
                 <div className="relative z-10">
-                  <motion.div
-                    className="mb-4 text-clay/80 group-hover:text-clay group-hover:scale-110 transition-all origin-left duration-300"
-                  >
+                  <motion.div className="mb-4 text-clay/80 group-hover:text-clay group-hover:scale-110 transition-all origin-left duration-300">
                     {link.icon}
                   </motion.div>
 

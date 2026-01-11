@@ -91,7 +91,7 @@ export async function PATCH(req: Request) {
       updates.includes = updates.includes.split(",").map((s: string) => s.trim()).filter(Boolean);
     }
 
-    const workshop = await Workshop.findByIdAndUpdate(id, updates, { new: true });
+    const workshop = await (Workshop as any).findByIdAndUpdate(id, updates, { new: true });
 
     if (!workshop) {
       return NextResponse.json({ error: "Workshop not found" }, { status: 404 });
@@ -115,7 +115,7 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Workshop ID required" }, { status: 400 });
     }
 
-    await Workshop.findByIdAndDelete(id);
+    await (Workshop as any).findByIdAndDelete(id);
 
     return NextResponse.json({ success: true });
   } catch (err) {
