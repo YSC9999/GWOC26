@@ -46,7 +46,7 @@ export async function POST(req: Request) {
                 if (orderTag) {
                     const customOrderId = orderTag.split('-')[1];
                     // Update Custom Order Status
-                    await CustomOrder.findByIdAndUpdate(customOrderId, {
+                    await (CustomOrder as any).findByIdAndUpdate(customOrderId, {
                         status: 'completed',
                         orderId: order._id
                     });

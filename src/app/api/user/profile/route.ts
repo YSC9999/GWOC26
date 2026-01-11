@@ -1,28 +1,17 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
+import { getUser } from "@/lib/server-auth";
 
-// Helper to get user ID from token
-async function getUser() {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
-    if (!token) return null;
-    try {
-        const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-        return decoded.userId;
-    } catch {
-        return null;
-    }
-}
 
 export async function GET(req: Request) {
     try {
-        const userId = await getUser();
-        if (!userId) {
+        const authUser = await getUser();
+        if (!authUser) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
+
+        const userId = authUser.id;
 
         await connectDB();
         const user = await User.findById(userId).select("-password").lean();
@@ -39,10 +28,12 @@ export async function GET(req: Request) {
 
 export async function PUT(req: Request) {
     try {
-        const userId = await getUser();
-        if (!userId) {
+        const authUser = await getUser();
+        if (!authUser) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
+
+        const userId = authUser.id;
 
         const body = await req.json();
         const { name, phone, addresses } = body;

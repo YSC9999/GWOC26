@@ -5,7 +5,7 @@ import Product from "@/models/Product";
 // GET single product by ID or slug
 export async function GET(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await connectDB();
@@ -16,7 +16,7 @@ export async function GET(
         let product;
 
         if (id.match(/^[0-9a-fA-F]{24}$/)) {
-            product = await Product.findById(id).lean();
+            product = await (Product as any).findById(id).lean();
         }
 
         if (!product) {

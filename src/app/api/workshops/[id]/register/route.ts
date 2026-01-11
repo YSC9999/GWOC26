@@ -6,7 +6,7 @@ import WorkshopRegistration from "@/models/WorkshopRegistration";
 // POST - Register for a workshop
 export async function POST(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await connectDB();
@@ -24,7 +24,7 @@ export async function POST(
         }
 
         // Find workshop
-        const workshop = await Workshop.findById(id);
+        const workshop = await (Workshop as any).findById(id);
         if (!workshop) {
             return NextResponse.json({ error: "Workshop not found" }, { status: 404 });
         }
@@ -55,7 +55,7 @@ export async function POST(
         });
 
         // Update enrolled count
-        await Workshop.findByIdAndUpdate(id, {
+        await (Workshop as any).findByIdAndUpdate(id, {
             $inc: { enrolledCount: numberOfParticipants }
         });
 

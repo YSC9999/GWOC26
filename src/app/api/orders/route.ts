@@ -3,8 +3,8 @@ import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
 import Razorpay from "razorpay";
-import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { getUser } from "@/lib/server-auth";
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID!,
@@ -13,17 +13,14 @@ const razorpay = new Razorpay({
 
 export async function GET(req: Request) {
     try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get("token")?.value;
+        const user = await getUser();
 
-        if (!token) {
+        if (!user) {
             return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
         }
 
-        const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
         await connectDB();
-
-        const orders = await Order.find({ userId: decoded.userId }).sort({ createdAt: -1 });
+        const orders = await Order.find({ userId: user.id }).sort({ createdAt: -1 });
 
         return NextResponse.json({ orders });
     } catch (error) {
@@ -38,18 +35,9 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { items, shippingAddress, email } = body;
 
-        // Get userId from token if available (for logged in users)
-        const cookieStore = await cookies();
-        const token = cookieStore.get("token")?.value;
-        let userId = null;
-        if (token) {
-            try {
-                const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-                userId = decoded.userId;
-            } catch (e) {
-                // Token invalid, proceed as guest
-            }
-        }
+        // Get userId from session if available
+        const authUser = await getUser();
+        let userId = authUser?.id || null;
 
         if (!items || items.length === 0) {
             return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
@@ -79,9 +67,32 @@ export async function POST(req: Request) {
             });
         }
 
-        // 2. Calculate shipping & tax
-        const shippingCost = subtotal > 2000 ? 0 : 150;
-        const gstAmount = 0; // Keeping simple as per previous decision
+        // 2. Calculate shipping via Shiprocket
+        let shippingCost = 0;
+        try {
+            const { checkServiceability } = await import("@/lib/shiprocket");
+            const totalWeightKG = orderItems.reduce((sum, item) => sum + ((item.weightGrams || 500) * item.quantity), 0) / 1000;
+
+            const srData = await checkServiceability(Number(shippingAddress.pincode), totalWeightKG);
+
+            // Get cheapest courier
+            const couriers = srData.data?.available_courier_companies || [];
+            if (couriers.length > 0) {
+                // Find cheapest
+                const cheapest = couriers.reduce((prev: any, curr: any) =>
+                    (Number(prev.rate) < Number(curr.rate)) ? prev : curr
+                );
+                shippingCost = Math.ceil(Number(cheapest.rate));
+            } else {
+                // Fallback to default if no courier found (e.g., remote area handle)
+                shippingCost = subtotal > 2000 ? 0 : 150;
+            }
+        } catch (err) {
+            console.error("Shipping calc failed, using fallback:", err);
+            shippingCost = subtotal > 2000 ? 0 : 150;
+        }
+
+        const gstAmount = 0;
         const totalAmount = subtotal + shippingCost;
 
         // 3. Create Razorpay Order

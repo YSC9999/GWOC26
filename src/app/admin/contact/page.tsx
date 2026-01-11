@@ -122,9 +122,9 @@ export default function AdminContact() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center gap-4 mb-6">
+        <Link href="/admin" className="text-soil/60 hover:text-clay">← Admin Home</Link>
         <h1 className="text-3xl font-serif font-bold text-soil">Company Details</h1>
-        <Link href="/admin" className="text-sm text-clay underline">Back</Link>
       </div>
 
       {error && !loading && (

@@ -36,14 +36,13 @@ const EventSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Create slug from title before saving
-EventSchema.pre('save', function (next) {
+EventSchema.pre('save', async function () {
     if (this.isModified('title') && !this.slug) {
-        this.slug = this.title
+        this.slug = (this as any).title
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/(^-|-$)/g, '');
     }
-    next();
 });
 
 export default mongoose.models.Event || mongoose.model('Event', EventSchema);

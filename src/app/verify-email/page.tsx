@@ -1,12 +1,14 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth";
 
-export default function VerifyEmail() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const email = searchParams.get("email") || "";
+  const { login } = useAuth();
   
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
@@ -19,7 +21,7 @@ export default function VerifyEmail() {
     setLoading(true);
 
     try {
-      // Verify OTP
+      // 1. Verify OTP
       const response = await fetch("/api/auth/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -33,7 +35,7 @@ export default function VerifyEmail() {
         return;
       }
 
-      // Get signup data from sessionStorage
+      // 2. Get signup data from sessionStorage
       const signupDataStr = sessionStorage.getItem("signupData");
       if (!signupDataStr) {
         setError("Session expired. Please signup again.");
@@ -42,7 +44,7 @@ export default function VerifyEmail() {
 
       const signupData = JSON.parse(signupDataStr);
 
-      // Now create account with verified email
+      // 3. Create account with verified email
       const signupResponse = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -55,17 +57,23 @@ export default function VerifyEmail() {
         }),
       });
 
+      const signupResult = await signupResponse.json();
+
       if (!signupResponse.ok) {
-        const signupDataError = await signupResponse.json();
-        setError(signupDataError.error || "Signup failed");
+        setError(signupResult.error || "Signup failed");
         return;
       }
 
-      // Clear signup data
+      // 4. Clear signup data
       sessionStorage.removeItem("signupData");
 
-      // Redirect to login or home
-      router.push("/login?verified=true");
+      // 5. Auto-login in local store
+      if (signupResult.user) {
+        login(signupResult.user);
+      }
+
+      // 6. Redirect to account
+      router.push("/account?welcome=true");
     } catch (err) {
       setError("An error occurred. Please try again.");
     } finally {
@@ -187,5 +195,17 @@ export default function VerifyEmail() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmail() {
+  return (
+    <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center">
+            <p className="text-soil animate-pulse">Loading verification...</p>
+        </div>
+    }>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }

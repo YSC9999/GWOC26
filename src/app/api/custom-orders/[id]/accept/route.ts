@@ -17,7 +17,7 @@ export async function POST(
     await connectDB();
     const { id } = await params;
 
-    const customOrder = await CustomOrder.findOne({ _id: id, userId: user.id });
+    const customOrder = await (CustomOrder as any).findOne({ _id: id, userId: user.id });
 
     if (!customOrder) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
@@ -32,10 +32,10 @@ export async function POST(
     const productSlug = `custom-order-${customOrder._id}`;
 
     // Check if product already exists (maybe retry accept?)
-    let product = await Product.findOne({ slug: productSlug });
+    let product = await (Product as any).findOne({ slug: productSlug });
 
     if (!product) {
-      product = await Product.create({
+      product = await (Product as any).create({
         name: productName,
         slug: productSlug,
         description: `Custom order for ${customOrder.name}. Includes: ${customOrder.items.map((i: any) => i.name).join(', ')}`,

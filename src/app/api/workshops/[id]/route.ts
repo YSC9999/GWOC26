@@ -5,7 +5,7 @@ import Workshop from "@/models/Workshop";
 // GET single workshop
 export async function GET(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await connectDB();
@@ -15,11 +15,11 @@ export async function GET(
         let workshop;
 
         if (id.match(/^[0-9a-fA-F]{24}$/)) {
-            workshop = await Workshop.findById(id).lean();
+            workshop = await (Workshop as any).findById(id).lean();
         }
 
         if (!workshop) {
-            workshop = await Workshop.findOne({ slug: id }).lean();
+            workshop = await (Workshop as any).findOne({ slug: id }).lean();
         }
 
         if (!workshop) {

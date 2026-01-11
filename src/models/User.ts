@@ -21,7 +21,7 @@ export interface IUser extends Document {
   phone?: string;
   googleId?: string;
   picture?: string;
-  role: "customer" | "admin";
+  role: "customer" | "admin" | "employee";
   gstNumber?: string;
   addresses: IAddress[];
   wishlist: mongoose.Types.ObjectId[];
@@ -59,7 +59,7 @@ const UserSchema = new Schema<IUser>({
   picture: String,
   role: {
     type: String,
-    enum: ['customer', 'admin'],
+    enum: ['customer', 'admin', 'employee'],
     default: 'customer'
   },
   gstNumber: String,

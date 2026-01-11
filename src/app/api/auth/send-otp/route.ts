@@ -16,11 +16,11 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check if email already exists and is verified
+    // Check if email already exists and is FULLY registered (has a password)
     const existingUser = await User.findOne({ email }).lean();
-    if (existingUser && existingUser.emailVerified) {
+    if (existingUser && existingUser.emailVerified && existingUser.password) {
       return NextResponse.json(
-        { error: "Email already registered and verified" },
+        { error: "Email already registered. Please login." },
         { status: 400 }
       );
     }

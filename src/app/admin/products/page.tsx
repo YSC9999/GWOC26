@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import  Link from "next/link";
+
 
 type ProductForm = {
   name: string;
@@ -108,6 +110,11 @@ export default function AdminProductsPage() {
 
   return (
     <div className="space-y-8">
+      <div className="flex items-center gap-4 mb-6">
+        <Link href="/admin" className="text-soil/60 hover:text-clay">← Admin Home</Link>
+        <h1 className="text-3xl font-serif font-bold text-soil">Products</h1>
+      </div>
+
       {/* ADD PRODUCT */}
       <form onSubmit={handleAdd} className="flex gap-2 flex-wrap">
         <input name="name" placeholder="Name" className="border p-2" required />

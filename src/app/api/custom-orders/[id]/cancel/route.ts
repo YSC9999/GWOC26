@@ -16,7 +16,7 @@ export async function POST(
         await connectDB();
         const { id } = await params;
 
-        const customOrder = await CustomOrder.findOne({ _id: id, userId: user.id });
+        const customOrder = await (CustomOrder as any).findOne({ _id: id, userId: user.id });
 
         if (!customOrder) {
             return NextResponse.json({ error: "Order not found" }, { status: 404 });

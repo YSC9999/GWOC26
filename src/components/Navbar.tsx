@@ -127,91 +127,95 @@ export default function Navbar() {
             <Search size={16} className="text-soil/60" />
           </div>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-3">
-            {/* Cart Icon - Only when logged in */}
-            {isAuthenticated && (
-              <Link
-                href="/cart"
-                className="relative text-soil hover:text-clay transition-colors p-2"
-              >
-                <ShoppingBag size={20} />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-clay text-white text-[10px] font-bold flex items-center justify-center rounded-full">
-                    {cartCount}
-                  </span>
-                )}
-              </Link>
-            )}
-
-            {/* Desktop Auth */}
-            {!isAuthenticated ? (
-              <div className="flex gap-2 items-center flex-shrink-0">
-                <Link
-                  href="/login"
-                  className="text-xs uppercase tracking-widest px-3 py-2 border-2 border-soil rounded-lg hover:bg-soil hover:text-sand transition text-soil font-semibold whitespace-nowrap"
-                >
-                  LOGIN
-                </Link>
-                <Link
-                  href="/signup"
-                  className="text-xs uppercase tracking-widest px-3 py-2 bg-soil text-sand rounded-lg hover:bg-soil/80 transition font-semibold whitespace-nowrap"
-                >
-                  SIGNUP
-                </Link>
-              </div>
-            ) : (
-              <div className="relative ml-2" ref={profileRef}>
-                <button
-                  onClick={() => setProfileOpen(!profileOpen)}
-                  className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 text-white hover:shadow-lg transition-all"
-                >
-                  <User size={18} />
-                </button>
-
-                {profileOpen && (
-                  <div className="absolute right-0 mt-4 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-200">
-                    <div className="px-5 py-3 border-b border-gray-100 bg-sand/20">
-                      <p className="text-sm font-bold text-soil truncate">
-                        {user?.name}
-                      </p>
-                      <p className="text-xs text-soil/60 truncate">
-                        {user?.email}
-                      </p>
-                    </div>
-                    
-                    {user?.role == "admin" && (
-                      <Link
-                        href="/admin"
-                        className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 text-sm text-soil/80 transition-colors"
-                      >
-                        📊 Admin Dashboard
-                      </Link>
+          {/* Right Actions - Only show after hydration to avoid flicker */}
+          <div className="flex items-center gap-3 min-w-[150px] justify-end">
+            {mounted && (
+              <>
+                {/* Cart Icon - Only when logged in */}
+                {isAuthenticated && (
+                  <Link
+                    href="/cart"
+                    className="relative text-soil hover:text-clay transition-colors p-2"
+                  >
+                    <ShoppingBag size={20} />
+                    {cartCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-clay text-white text-[10px] font-bold flex items-center justify-center rounded-full">
+                        {cartCount}
+                      </span>
                     )}
+                  </Link>
+                )}
 
+                {/* Desktop Auth */}
+                {!isAuthenticated ? (
+                  <div className="flex gap-2 items-center flex-shrink-0">
                     <Link
-                      href="/account"
-                      className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 text-sm text-soil/80 transition-colors"
+                      href="/login"
+                      className="text-xs uppercase tracking-widest px-3 py-2 border-2 border-soil rounded-lg hover:bg-soil hover:text-sand transition text-soil font-semibold whitespace-nowrap"
                     >
-                      👤 My Account
+                      LOGIN
                     </Link>
-
                     <Link
-                      href="/account/orders"
-                      className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 text-sm text-soil/80 transition-colors"
+                      href="/signup"
+                      className="text-xs uppercase tracking-widest px-3 py-2 bg-soil text-sand rounded-lg hover:bg-soil/80 transition font-semibold whitespace-nowrap"
                     >
-                      📦 My Orders
+                      SIGNUP
                     </Link>
-
+                  </div>
+                ) : (
+                  <div className="relative ml-2" ref={profileRef}>
                     <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center gap-3 px-5 py-3 hover:bg-red-50 text-sm text-red-600 transition-colors font-medium border-t border-gray-100"
+                      onClick={() => setProfileOpen(!profileOpen)}
+                      className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 text-white hover:shadow-lg transition-all"
                     >
-                      <LogOut size={16} /> Sign Out
+                      <User size={18} />
                     </button>
+
+                    {profileOpen && (
+                      <div className="absolute right-0 mt-4 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-200">
+                        <div className="px-5 py-3 border-b border-gray-100 bg-sand/20">
+                          <p className="text-sm font-bold text-soil truncate">
+                            {user?.name}
+                          </p>
+                          <p className="text-xs text-soil/60 truncate">
+                            {user?.email}
+                          </p>
+                        </div>
+                        
+                        {user?.role == "admin" && (
+                          <Link
+                            href="/admin"
+                            className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 text-sm text-soil/80 transition-colors"
+                          >
+                            📊 Admin Dashboard
+                          </Link>
+                        )}
+
+                        <Link
+                          href="/account"
+                          className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 text-sm text-soil/80 transition-colors"
+                        >
+                          👤 My Account
+                        </Link>
+
+                        <Link
+                          href="/account/orders"
+                          className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 text-sm text-soil/80 transition-colors"
+                        >
+                          📦 My Orders
+                        </Link>
+
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-3 px-5 py-3 hover:bg-red-50 text-sm text-red-600 transition-colors font-medium border-t border-gray-100"
+                        >
+                          <LogOut size={16} /> Sign Out
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
-              </div>
+              </>
             )}
           </div>
         </div>
