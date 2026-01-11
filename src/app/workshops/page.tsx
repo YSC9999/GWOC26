@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { fadeInUp, staggerContainer, hoverScale } from "@/lib/animations";
 import {
   Calendar,
   Users,
@@ -91,9 +92,9 @@ export default function Workshops() {
     <div className="min-h-screen py-12">
       {/* Hero Section */}
       <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        initial="hidden"
+        animate="visible"
+        variants={fadeInUp}
         className="text-center mb-16"
       >
         <span className="inline-block text-clay font-medium mb-4 tracking-wider uppercase">
@@ -111,9 +112,9 @@ export default function Workshops() {
 
       {/* Search & Filter */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
+        initial="hidden"
+        animate="visible"
+        variants={fadeInUp}
         className="mb-8"
       >
         {/* Search */}
@@ -143,11 +144,10 @@ export default function Workshops() {
             <button
               key={type.id}
               onClick={() => setSelectedType(type.id)}
-              className={`px-6 py-2.5 rounded-full font-medium transition-all duration-300 ${
-                selectedType === type.id
-                  ? "bg-clay text-white shadow-lg shadow-clay/30"
-                  : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-              }`}
+              className={`px-6 py-2.5 rounded-full font-medium transition-all duration-300 ${selectedType === type.id
+                ? "bg-clay text-white shadow-lg shadow-clay/30"
+                : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+                }`}
             >
               {type.label}
             </button>
@@ -165,6 +165,7 @@ export default function Workshops() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
           className="text-center py-20"
         >
           <div className="text-6xl mb-4">🎨</div>
@@ -176,13 +177,17 @@ export default function Workshops() {
           </p>
         </motion.div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+        >
           {workshops.map((workshop, idx) => (
             <motion.div
               key={workshop._id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
+              variants={fadeInUp}
+              whileHover={hoverScale}
               className="group"
             >
               <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
@@ -199,10 +204,10 @@ export default function Workshops() {
                       {workshop.type === "couples"
                         ? "💑"
                         : workshop.type === "corporate"
-                        ? "🏢"
-                        : workshop.type === "one-on-one"
-                        ? "🎯"
-                        : "🎨"}
+                          ? "🏢"
+                          : workshop.type === "one-on-one"
+                            ? "🎯"
+                            : "🎨"}
                     </div>
                   )}
 
@@ -216,9 +221,8 @@ export default function Workshops() {
                   {/* Level Badge */}
                   <div className="absolute top-4 right-4">
                     <span
-                      className={`text-sm font-medium px-3 py-1 rounded-full ${
-                        levelColors[workshop.level] || levelColors["all-levels"]
-                      }`}
+                      className={`text-sm font-medium px-3 py-1 rounded-full ${levelColors[workshop.level] || levelColors["all-levels"]
+                        }`}
                     >
                       {workshop.level === "all-levels"
                         ? "All Levels"
@@ -229,7 +233,7 @@ export default function Workshops() {
                   {/* Spots indicator */}
                   <div className="absolute bottom-4 right-4">
                     {getAvailableSpots(workshop) <= 3 &&
-                    getAvailableSpots(workshop) > 0 ? (
+                      getAvailableSpots(workshop) > 0 ? (
                       <span className="bg-orange-500 text-white text-sm font-bold px-3 py-1 rounded-full animate-pulse">
                         Only {getAvailableSpots(workshop)} spots left!
                       </span>
@@ -316,11 +320,10 @@ export default function Workshops() {
 
                     <Link
                       href={`/workshops/${workshop.slug || workshop._id}`}
-                      className={`inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all ${
-                        getAvailableSpots(workshop) === 0
-                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                          : "bg-clay text-white hover:bg-clay/90 hover:scale-105"
-                      }`}
+                      className={`inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all ${getAvailableSpots(workshop) === 0
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-clay text-white hover:bg-clay/90 hover:scale-105"
+                        }`}
                     >
                       {getAvailableSpots(workshop) === 0
                         ? "Sold Out"
@@ -334,14 +337,15 @@ export default function Workshops() {
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
 
       {/* CTA Section */}
       <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={fadeInUp}
         className="mt-20 bg-gradient-to-br from-sand to-sand/50 rounded-3xl p-12 text-center text-soil border border-soil/10 relative overflow-hidden"
       >
         <div className="absolute inset-0 bg-[url('/pottery-pattern.png')] opacity-10 bg-repeat bg-[length:400px_auto]" />

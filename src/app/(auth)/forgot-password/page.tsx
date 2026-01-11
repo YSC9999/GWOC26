@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { fadeInUp, clickTap } from "@/lib/animations";
 
 export default function ForgotPasswordPage() {
     const router = useRouter();
@@ -76,7 +78,12 @@ export default function ForgotPasswordPage() {
 
     return (
         <div className="min-h-screen bg-sand-50 py-20 px-4">
-            <div className="max-w-md mx-auto bg-white rounded-2xl shadow-sm p-8 border border-stone-100">
+            <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={fadeInUp}
+                className="max-w-md mx-auto bg-white rounded-2xl shadow-sm p-8 border border-stone-100"
+            >
                 <div className="text-center mb-8">
                     <h1 className="text-2xl font-serif text-soil mb-2">Reset Password</h1>
                     <p className="text-stone-500 text-sm">
@@ -87,15 +94,23 @@ export default function ForgotPasswordPage() {
                 </div>
 
                 {error && (
-                    <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6 text-center">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6 text-center"
+                    >
                         {error}
-                    </div>
+                    </motion.div>
                 )}
 
                 {success && (
-                    <div className="bg-green-50 text-green-600 p-3 rounded-lg text-sm mb-6 text-center">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-green-50 text-green-600 p-3 rounded-lg text-sm mb-6 text-center"
+                    >
                         {success}
-                    </div>
+                    </motion.div>
                 )}
 
                 {step === 1 ? (
@@ -111,13 +126,15 @@ export default function ForgotPasswordPage() {
                                 required
                             />
                         </div>
-                        <button
+                        <motion.button
                             type="submit"
                             disabled={loading}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={clickTap}
                             className="w-full bg-soil text-white py-3 rounded-lg hover:bg-soil/90 transition-colors disabled:opacity-50 font-medium"
                         >
                             {loading ? "Sending..." : "Send Verification Code"}
-                        </button>
+                        </motion.button>
                     </form>
                 ) : (
                     <form onSubmit={handleResetPassword} className="space-y-6">
@@ -155,13 +172,15 @@ export default function ForgotPasswordPage() {
                                 required
                             />
                         </div>
-                        <button
+                        <motion.button
                             type="submit"
                             disabled={loading}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={clickTap}
                             className="w-full bg-soil text-white py-3 rounded-lg hover:bg-soil/90 transition-colors disabled:opacity-50 font-medium"
                         >
                             {loading ? "Resetting..." : "Reset Password"}
-                        </button>
+                        </motion.button>
                     </form>
                 )}
 
@@ -170,7 +189,7 @@ export default function ForgotPasswordPage() {
                         Back to Login
                     </Link>
                 </div>
-            </div>
+            </motion.div>
         </div>
     );
 }

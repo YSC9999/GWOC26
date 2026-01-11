@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { fadeInUp, staggerContainer, hoverScale } from "@/lib/animations";
 import { Calendar, MapPin, Clock, ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 
@@ -47,7 +48,7 @@ export default function Events() {
   const formatDate = (start: string, end: string) => {
     const s = new Date(start);
     const e = new Date(end);
-    
+
     if (s.toDateString() === e.toDateString()) {
       return s.toLocaleDateString("en-IN", {
         weekday: "short",
@@ -55,7 +56,7 @@ export default function Events() {
         month: "long",
       });
     }
-    
+
     return `${s.toLocaleDateString("en-IN", {
       day: "numeric",
       month: "short",
@@ -70,9 +71,9 @@ export default function Events() {
     <div className="min-h-screen py-12">
       {/* Hero */}
       <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        initial="hidden"
+        animate="visible"
+        variants={fadeInUp}
         className="text-center mb-16"
       >
         <span className="inline-block text-clay font-medium mb-4 tracking-wider uppercase">
@@ -82,36 +83,39 @@ export default function Events() {
           Events & Exhibitions
         </h1>
         <p className="text-xl text-soil/70 max-w-2xl mx-auto">
-          Join us for pop-up markets, exhibitions, and special events. 
+          Join us for pop-up markets, exhibitions, and special events.
           Come meet the artist and explore our latest collections in person.
         </p>
       </motion.section>
 
       {/* Tabs */}
-      <div className="flex justify-center mb-12">
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={fadeInUp}
+        className="flex justify-center mb-12"
+      >
         <div className="bg-sand p-1 rounded-full flex">
           <button
             onClick={() => setFilter("upcoming")}
-            className={`px-8 py-3 rounded-full font-medium transition-all ${
-              filter === "upcoming"
-                ? "bg-white text-clay shadow-sm"
-                : "text-soil/60 hover:text-soil"
-            }`}
+            className={`px-8 py-3 rounded-full font-medium transition-all ${filter === "upcoming"
+              ? "bg-white text-clay shadow-sm"
+              : "text-soil/60 hover:text-soil"
+              }`}
           >
             Upcoming
           </button>
           <button
             onClick={() => setFilter("past")}
-            className={`px-8 py-3 rounded-full font-medium transition-all ${
-              filter === "past"
-                ? "bg-white text-clay shadow-sm"
-                : "text-soil/60 hover:text-soil"
-            }`}
+            className={`px-8 py-3 rounded-full font-medium transition-all ${filter === "past"
+              ? "bg-white text-clay shadow-sm"
+              : "text-soil/60 hover:text-soil"
+              }`}
           >
             Past Events
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Events List */}
       <div className="max-w-4xl mx-auto px-4">
@@ -120,28 +124,35 @@ export default function Events() {
             <Loader2 className="w-8 h-8 animate-spin text-clay" />
           </div>
         ) : events.length === 0 ? (
-          <div className="text-center py-20 bg-sand/30 rounded-3xl">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-20 bg-sand/30 rounded-3xl"
+          >
             <div className="text-5xl mb-4">📅</div>
             <h3 className="text-xl font-bold text-soil mb-2">
               No {filter} events found
             </h3>
             <p className="text-soil/60">
-              {filter === "upcoming" 
+              {filter === "upcoming"
                 ? "Stay tuned! New events will be announced soon."
                 : "No past events to show."}
             </p>
-          </div>
+          </motion.div>
         ) : (
-          <div className="space-y-8">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+            className="space-y-8"
+          >
             {events.map((event, idx) => (
               <motion.div
                 key={event._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className={`bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row ${
-                  filter === "past" ? "opacity-75 grayscale hover:grayscale-0 hover:opacity-100" : ""
-                }`}
+                variants={fadeInUp}
+                whileHover={hoverScale}
+                className={`bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row ${filter === "past" ? "opacity-75 grayscale hover:grayscale-0 hover:opacity-100" : ""
+                  }`}
               >
                 {/* Date Badge (Mobile) */}
                 <div className="md:hidden bg-clay text-white p-4 text-center font-bold">
@@ -156,7 +167,7 @@ export default function Events() {
                   <h3 className="text-2xl font-bold text-soil mb-4 font-serif">
                     {event.title}
                   </h3>
-                  
+
                   <div className="space-y-3 mb-6">
                     <div className="flex items-start gap-3 text-soil/70">
                       <Calendar size={20} className="text-clay flex-shrink-0 mt-0.5" />
@@ -204,8 +215,8 @@ export default function Events() {
                 {/* Image (Desktop) */}
                 <div className="hidden md:block w-1/3 bg-sand relative min-h-[300px]">
                   {event.image ? (
-                    <img 
-                      src={event.image} 
+                    <img
+                      src={event.image}
                       alt={event.title}
                       className="absolute inset-0 w-full h-full object-cover"
                     />
@@ -217,7 +228,7 @@ export default function Events() {
                 </div>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
 

@@ -1,13 +1,19 @@
-"use client";
+import { motion } from "framer-motion";
+import { fadeInUp } from "@/lib/animations";
 import Link from "next/link";
-import Image from "next/image";
 import { Instagram, Mail, MapPin } from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-sand/90 border-t border-soil/30 mt-10 pt-6 pb-4">
+    <motion.footer
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      variants={fadeInUp}
+      className="bg-sand/90 border-t border-soil/30 mt-10 pt-6 pb-4"
+    >
       <div className="max-w-5xl mx-auto px-4 text-center">
         {/* Brand Logo */}
         <Link href="/" className="inline-block mb-3">
@@ -17,7 +23,7 @@ export default function Footer() {
             className="h-16 w-auto mix-blend-multiply opacity-80 mx-auto hover:opacity-100 transition-all"
           />
         </Link>
-
+        {/* ... remaining footer content ... */}
         <p className="text-soil/85 text-sm max-w-md mx-auto mb-4 leading-relaxed">
           Handcrafted ceramic art that whispers elegance.
           Designed to reflect your unique story with grace and intention.
@@ -68,6 +74,6 @@ export default function Footer() {
           </div>
         </div>
       </div>
-    </footer>
+    </motion.footer>
   );
 }

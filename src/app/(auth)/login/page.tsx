@@ -1,10 +1,5 @@
-"use client";
-import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import OAuthSignin from "@/components/OAuthSignin";
-import { useAuth } from "@/lib/auth";
-import { Eye, EyeOff } from "lucide-react";
+import { motion } from "framer-motion";
+import { fadeInUp, clickTap, instantSpring } from "@/lib/animations";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -14,12 +9,12 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { login } = useAuth();
-
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<'login' | 'otp'>('login');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // ... logic same as before ... 
     setError("");
 
     if (step === 'login') {
@@ -46,7 +41,6 @@ export default function Login() {
         if (data.requiredOtp) {
           setStep('otp');
           setError("");
-          // Don't log in yet
         } else {
           login(data.user);
           router.push("/");
@@ -57,7 +51,6 @@ export default function Login() {
         setLoading(false);
       }
     } else {
-      // Verify OTP
       if (!otp.trim()) {
         setError("Please enter OTP");
         return;
@@ -91,7 +84,12 @@ export default function Login() {
   return (
     <div className="w-full">
       <div className="w-full max-w-md mx-auto">
-        <div className="bg-white p-8 rounded-2xl shadow-lg">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeInUp}
+          className="bg-white p-8 rounded-2xl shadow-lg"
+        >
           <h1 className="text-3xl font-bold text-center text-blue-700 mb-2">
             {step === 'login' ? 'Sign In' : 'Verify OTP'}
           </h1>
@@ -100,9 +98,13 @@ export default function Login() {
           </p>
 
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4"
+            >
               ⚠️ {error}
-            </div>
+            </motion.div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -113,7 +115,7 @@ export default function Login() {
                   <label className="block text-gray-700 font-semibold mb-2">
                     Email Address
                   </label>
-                  <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
+                  <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-200 transition-shadow">
                     <span className="text-gray-400">✉️</span>
                     <input
                       type="email"
@@ -131,7 +133,7 @@ export default function Login() {
                   <label className="block text-gray-700 font-semibold mb-2">
                     Password
                   </label>
-                  <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
+                  <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-200 transition-shadow">
                     <span className="text-gray-400">🔒</span>
                     <input
                       type={showPassword ? "text" : "password"}
@@ -153,7 +155,7 @@ export default function Login() {
               </>
             ) : (
               /* OTP Input */
-              <div>
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                 <label className="block text-gray-700 font-semibold mb-2">
                   One-Time Password
                 </label>
@@ -175,7 +177,7 @@ export default function Login() {
                 >
                   Back to Login
                 </button>
-              </div>
+              </motion.div>
             )}
 
             {/* Forgot Password Link - Only show in login step */}
@@ -191,13 +193,15 @@ export default function Login() {
             )}
 
             {/* Sign In Button */}
-            <button
+            <motion.button
               type="submit"
               disabled={loading}
+              whileTap={clickTap}
+              whileHover={{ scale: 1.02 }}
               className="w-full mt-6 bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50"
             >
               {loading ? "Verifying..." : (step === 'login' ? "Sign In" : "Verify OTP")}
-            </button>
+            </motion.button>
 
             {/* OAuth Signin - Only in login step */}
             {step === 'login' && (
@@ -225,7 +229,7 @@ export default function Login() {
               </Link>
             </p>
           </form>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

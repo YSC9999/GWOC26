@@ -171,15 +171,16 @@ export default function Home() {
                     initial={{ opacity: 0, scale: 0.6, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     whileHover={{
-                      scale: 1.05,
-                      zIndex: 20,
-                      transition: { duration: 0.2 }
+                      scale: 1.25,
+                      zIndex: 50,
+                      transition: { duration: 0.01, type: "spring", stiffness: 500, damping: 10 }
                     }}
                     transition={{
-                      delay: 0.5 + frame.id * 0.04,
-                      duration: 0.4,
+                      delay: frame.id * 0.005,
+                      duration: 0.1,
                       type: "spring",
-                      stiffness: 100,
+                      stiffness: 400,
+                      damping: 15
                     }}
                     className="absolute rounded-lg overflow-hidden border-2 border-soil/30 shadow-md hover:shadow-2xl transition-all cursor-pointer group"
                     style={{
@@ -200,13 +201,9 @@ export default function Home() {
                         <img
                           src={product.images?.[0]}
                           alt={product.name}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
-                          <span className="text-white opacity-0 group-hover:opacity-100 font-bold text-xs px-2 text-center drop-shadow-md transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                            {product.name}
-                          </span>
-                        </div>
+                        {/* Removed text overlay as requested */}
                       </>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-white text-xs font-semibold opacity-0 hover:opacity-75 transition-opacity bg-black/30">

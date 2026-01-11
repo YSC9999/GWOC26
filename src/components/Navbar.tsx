@@ -112,23 +112,41 @@ export default function Navbar() {
 
         {/* Desktop Menu */}
         <div className="hidden lg:flex items-center gap-4 flex-1 ml-8">
-          <div className="flex gap-4 uppercase text-xs tracking-widest font-medium text-soil/80">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="relative group whitespace-nowrap overflow-hidden"
-              >
-                <div className="relative">
-                  <span className="block group-hover:-translate-y-full transition-transform duration-300 ease-in-out">
-                    {link.label}
-                  </span>
-                  <span className="absolute top-0 left-0 block translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out text-clay font-bold">
-                    {link.label}
-                  </span>
-                </div>
-              </Link>
-            ))}
+          <div className="flex gap-1 uppercase text-xs tracking-widest font-medium text-soil/80 relative">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`relative px-5 py-2 rounded-full z-10 transition-colors ${isActive ? "text-white" : "hover:text-clay"}`}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="active-nav-pill"
+                      className="absolute inset-0 bg-clay shadow-[0_0_15px_rgba(180,90,50,0.6)] border-2 border-white/20 rounded-full -z-10"
+                      transition={{ type: "spring", stiffness: 900, damping: 30, mass: 0.5 }}
+                    />
+                  )}
+                  <div className="relative overflow-hidden group">
+                    {isActive ? (
+                      <span className="block font-black text-white">
+                        {link.label}
+                      </span>
+                    ) : (
+                      <>
+                        <span className="block group-hover:-translate-y-[150%] transition-transform duration-75 ease-out">
+                          {link.label}
+                        </span>
+                        <span className="absolute top-0 left-0 block translate-y-[150%] group-hover:translate-y-0 transition-transform duration-75 ease-out font-extrabold text-clay">
+                          {link.label}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
           </div>
 
           {/* Right Actions */}

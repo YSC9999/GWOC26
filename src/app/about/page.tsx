@@ -1,5 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
+import { fadeInUp, staggerContainer, hoverScale } from "@/lib/animations";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -16,9 +17,9 @@ export default function About() {
     <div className="min-h-screen">
       {/* Hero */}
       <motion.section
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
+        initial="hidden"
+        animate="visible"
+        variants={fadeInUp}
         className="relative h-[80vh] flex items-center justify-center overflow-hidden border-4 border-soil rounded-2xl m-4 mt-8"
       >
         <div className="absolute inset-0 bg-[url('/About-img.png')] bg-cover bg-center bg-scroll"></div>
@@ -29,9 +30,10 @@ export default function About() {
       <section className="py-24 px-4 md:px-12 bg-white border-4 border-soil rounded-2xl">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center border-4 border-soil rounded-2xl p-12 bg-white/90 shadow-lg">
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInUp}
             className="border-l-4 border-clay pl-8"
           >
             <span className="text-clay font-medium tracking-wider uppercase mb-2 block">
@@ -78,9 +80,10 @@ export default function About() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInUp}
             className="relative h-[600px] rounded-3xl overflow-hidden shadow-2xl border-4 border-soil"
           >
             <div className="absolute inset-0 bg-sand/20 z-10" />
@@ -96,14 +99,18 @@ export default function About() {
       {/* Stats */}
       <section className="py-20 bg-soil text-white border-4 border-sand/50 m-8 rounded-2xl">
         <div className="max-w-7xl mx-auto px-4 md:px-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <motion.div
+            className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+          >
             {stats.map((stat, idx) => (
               <motion.div
                 key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                whileHover={{ scale: 1.05 }}
-                transition={{ delay: idx * 0.1 }}
+                variants={fadeInUp}
+                whileHover={hoverScale}
                 className="border-2 border-sand/30 rounded-lg p-6 hover:shadow-xl transition-shadow duration-300 ease-out cursor-pointer bg-white/5"
               >
                 <div className="text-5xl md:text-6xl font-bold text-clay mb-2">
@@ -114,7 +121,7 @@ export default function About() {
                 </div>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -122,9 +129,10 @@ export default function About() {
       <section className="py-32 px-4 md:px-12 bg-sand/30">
         <div className="max-w-7xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInUp}
             className="flex flex-col items-center justify-center"
           >
             <h2 className="text-5xl md:text-6xl font-bold text-soil font-serif mb-12 text-center">
@@ -133,10 +141,8 @@ export default function About() {
 
             <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-10 items-start lg:items-center">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.8 }}
+                variants={fadeInUp}
+                whileHover={hoverScale}
                 className="relative w-full rounded-3xl overflow-hidden shadow-2xl border-4 border-soil"
               >
                 <Image
@@ -150,9 +156,7 @@ export default function About() {
               </motion.div>
 
               <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8 }}
+                variants={fadeInUp}
                 className="px-2 lg:px-6 text-center flex flex-col items-center"
               >
                 <p
@@ -180,9 +184,9 @@ export default function About() {
                     Learn more or visit the studio
                   </p>
                   <Link href="/studio">
-                    <button className="btn-primary inline-flex items-center gap-2">
+                    <motion.button whileHover={hoverScale} className="btn-primary inline-flex items-center gap-2">
                       Visit The Studio <ArrowRight size={20} />
-                    </button>
+                    </motion.button>
                   </Link>
                 </div>
               </motion.div>

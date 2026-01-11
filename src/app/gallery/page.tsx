@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { fadeInUp, staggerContainer } from "@/lib/animations";
 import { Loader2, ZoomIn, X } from "lucide-react";
 import Image from "next/image";
 
@@ -36,7 +37,7 @@ export default function Gallery() {
     try {
       const params = new URLSearchParams();
       if (selectedCategory !== "all") params.append("category", selectedCategory);
-      
+
       const res = await fetch(`/api/gallery?${params}`);
       const data = await res.json();
       setItems(data.gallery || []);
@@ -51,9 +52,9 @@ export default function Gallery() {
     <div className="min-h-screen py-12">
       {/* Hero */}
       <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        initial="hidden"
+        animate="visible"
+        variants={fadeInUp}
         className="text-center mb-12"
       >
         <span className="inline-block text-clay font-medium mb-4 tracking-wider uppercase">
@@ -63,27 +64,26 @@ export default function Gallery() {
           Moments in Clay
         </h1>
         <p className="text-xl text-soil/70 max-w-2xl mx-auto">
-          A glimpse into our world – from the potter's wheel to the kiln, 
+          A glimpse into our world – from the potter's wheel to the kiln,
           and the beautiful moments shared in our studio.
         </p>
       </motion.section>
 
       {/* Filter */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
+        initial="hidden"
+        animate="visible"
+        variants={fadeInUp}
         className="flex flex-wrap justify-center gap-3 mb-12"
       >
         {categories.map((cat) => (
           <button
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
-            className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
-              selectedCategory === cat.id
-                ? "bg-clay text-white shadow-lg shadow-clay/30"
-                : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-            }`}
+            className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${selectedCategory === cat.id
+              ? "bg-clay text-white shadow-lg shadow-clay/30"
+              : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+              }`}
           >
             {cat.label}
           </button>
@@ -100,13 +100,16 @@ export default function Gallery() {
           No images found in this category.
         </div>
       ) : (
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8 px-4 md:px-12">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+          className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8 px-4 md:px-12"
+        >
           {items.map((item, idx) => (
             <motion.div
               key={item._id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
+              variants={fadeInUp}
               layoutId={item._id}
               className="break-inside-avoid relative group cursor-zoom-in"
               onClick={() => setSelectedImage(item)}
@@ -123,7 +126,7 @@ export default function Gallery() {
                     📷
                   </div>
                 )}
-                
+
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                   <ZoomIn className="text-white w-8 h-8" />
                 </div>
@@ -136,7 +139,7 @@ export default function Gallery() {
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
 
       {/* Lightbox */}
@@ -154,7 +157,7 @@ export default function Gallery() {
           >
             <X size={32} />
           </button>
-          
+
           <motion.div
             layoutId={selectedImage._id}
             className="relative max-w-5xl w-full max-h-[90vh] rounded-lg overflow-hidden"

@@ -1,9 +1,5 @@
-"use client";
-import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import OAuthSignin from "@/components/OAuthSignin";
-import { Eye, EyeOff } from "lucide-react";
+import { motion } from "framer-motion";
+import { fadeInUp, clickTap } from "@/lib/animations";
 
 export default function Signup() {
   const [firstName, setFirstName] = useState("");
@@ -19,6 +15,7 @@ export default function Signup() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    /* ... previous logic ... */
     setError("");
 
     // Validation
@@ -26,32 +23,26 @@ export default function Signup() {
       setError("First name is required");
       return;
     }
-
     if (!lastName.trim()) {
       setError("Last name is required");
       return;
     }
-
     if (!email.trim()) {
       setError("Email is required");
       return;
     }
-
     if (!password) {
       setError("Password is required");
       return;
     }
-
     if (!confirmPassword) {
       setError("Please confirm your password");
       return;
     }
-
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
-
     if (password.length < 6) {
       setError("Password must be at least 6 characters");
       return;
@@ -60,18 +51,11 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      // Store signup data in sessionStorage to use after OTP verification
       sessionStorage.setItem(
         "signupData",
-        JSON.stringify({
-          firstName,
-          lastName,
-          email,
-          password,
-        })
+        JSON.stringify({ firstName, lastName, email, password })
       );
 
-      // First, send OTP to email
       const otpResponse = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -80,14 +64,10 @@ export default function Signup() {
 
       if (!otpResponse.ok) {
         const data = await otpResponse.json();
-        setError(
-          data.error || "Failed to send OTP. Check email configuration."
-        );
+        setError(data.error || "Failed to send OTP.");
         sessionStorage.removeItem("signupData");
         return;
       }
-
-      // Redirect to OTP verification page
       router.push(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err) {
       setError("An error occurred. Please try again.");
@@ -100,7 +80,12 @@ export default function Signup() {
   return (
     <div className="w-full min-h-[calc(100vh-5rem)] flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
-        <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeInUp}
+          className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg"
+        >
           <h1 className="text-3xl font-bold text-center text-blue-700 mb-2">
             Create Account
           </h1>
@@ -109,18 +94,20 @@ export default function Signup() {
           </p>
 
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4"
+            >
               ⚠️ {error}
-            </div>
+            </motion.div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* First Name and Last Name */}
+            {/* Name Fields */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">
-                  First Name
-                </label>
+                <label className="block text-gray-700 font-semibold mb-2">First Name</label>
                 <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
                   <span className="text-gray-400 flex-shrink-0">👤</span>
                   <input
@@ -133,11 +120,8 @@ export default function Signup() {
                   />
                 </div>
               </div>
-
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">
-                  Last Name
-                </label>
+                <label className="block text-gray-700 font-semibold mb-2">Last Name</label>
                 <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
                   <span className="text-gray-400 flex-shrink-0">👤</span>
                   <input
@@ -154,9 +138,7 @@ export default function Signup() {
 
             {/* Email */}
             <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Email Address
-              </label>
+              <label className="block text-gray-700 font-semibold mb-2">Email Address</label>
               <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
                 <span className="text-gray-400 flex-shrink-0">✉️</span>
                 <input
@@ -172,9 +154,7 @@ export default function Signup() {
 
             {/* Password */}
             <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Password
-              </label>
+              <label className="block text-gray-700 font-semibold mb-2">Password</label>
               <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
                 <span className="text-gray-400 flex-shrink-0">🔒</span>
                 <input
@@ -197,9 +177,7 @@ export default function Signup() {
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Confirm Password
-              </label>
+              <label className="block text-gray-700 font-semibold mb-2">Confirm Password</label>
               <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
                 <span className="text-gray-400 flex-shrink-0">🔒</span>
                 <input
@@ -215,23 +193,21 @@ export default function Signup() {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="text-gray-400 hover:text-gray-600 flex-shrink-0 ml-2"
                 >
-                  {showConfirmPassword ? (
-                    <EyeOff size={18} />
-                  ) : (
-                    <Eye size={18} />
-                  )}
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
 
             {/* Create Account Button */}
-            <button
+            <motion.button
               type="submit"
               disabled={loading}
+              whileHover={{ scale: 1.02 }}
+              whileTap={clickTap}
               className="w-full mt-6 bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50"
             >
               {loading ? "Creating account..." : "Create Account"}
-            </button>
+            </motion.button>
 
             {/* OAuth Signin */}
             <div className="mt-6">
@@ -259,7 +235,7 @@ export default function Signup() {
               </Link>
             </p>
           </form>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
