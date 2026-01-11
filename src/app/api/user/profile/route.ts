@@ -1,8 +1,26 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
-import { getUser } from "@/lib/server-auth";
+import { getUser as getAuthUser } from "@/lib/server-auth";
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
 
+// Unified getUser: try centralized auth first, then fall back to the legacy token cookie
+async function getUser() {
+    const authUser = await getAuthUser();
+    if (authUser) return authUser;
+
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+    if (!token) return null;
+
+    try {
+        const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+        return { id: decoded.userId } as any;
+    } catch {
+        return null;
+    }
+}
 
 export async function GET(req: Request) {
     try {
