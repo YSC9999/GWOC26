@@ -19,6 +19,8 @@ interface Order {
   items: OrderItem[];
   paymentStatus: string;
   userId?: { name?: string; email?: string } | string;
+  discount: number;
+  couponCode?: string;
 }
 
 export default function AdminOrdersPage() {
@@ -144,7 +146,12 @@ export default function AdminOrdersPage() {
 
                   <div className="text-right">
                     <div className="font-bold text-soil">₹{order.total.toLocaleString()}</div>
-                    <div className="text-xs text-soil/60">{order.paymentStatus}</div>
+                    {order.discount > 0 && (
+                      <div className="text-xs text-green-600 font-medium">
+                        Save ₹{order.discount} {order.couponCode && `(${order.couponCode})`}
+                      </div>
+                    )}
+                    <div className="text-xs text-soil/60 mt-1">{order.paymentStatus}</div>
                   </div>
                 </div>
               </div>

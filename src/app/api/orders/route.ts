@@ -29,6 +29,7 @@ export async function GET(req: Request) {
 }
 
 import Coupon from "@/models/Coupon";
+import User from "@/models/User";
 
 export async function POST(req: Request) {
     try {
@@ -95,14 +96,60 @@ export async function POST(req: Request) {
         }
 
         /* Coupon Logic */
+        /* Coupon Logic */
         let discount = 0;
+        let appliedCouponId = null;
+
         if (couponCode) {
-            const coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
+            // Find the specific coupon that is currently valid
+            const coupon = await Coupon.findOne({
+                code: couponCode.toUpperCase(),
+                isActive: true,
+                validTo: { $gt: new Date() }
+            });
             if (coupon && coupon.isActive) {
                 const now = new Date();
-                if (now >= new Date(coupon.validFrom) && now <= new Date(coupon.validTo)) {
-                    discount = (subtotal * coupon.discountPercentage) / 100;
+
+                // Date Validation
+                if (now < new Date(coupon.validFrom) || now > new Date(coupon.validTo)) {
+                    return NextResponse.json({ error: "Coupon is not valid at this time" }, { status: 400 });
                 }
+
+                // Usage Limit Check (Double verification)
+                const limit = coupon.usageLimit || 1;
+
+                // 1. Check Coupon's usedBy list
+                if (userId && coupon.usedBy) {
+                    const usesInCoupon = coupon.usedBy.filter((id: any) => id.toString() === userId).length;
+                    if (usesInCoupon >= limit) {
+                        return NextResponse.json({ error: `You have already used this coupon ${limit} time(s)` }, { status: 400 });
+                    }
+                }
+
+                // 2. Check User's usedCoupons list (Persistent check)
+                if (userId) {
+                    const user = await User.findById(userId);
+                    if (user && user.usedCoupons) {
+                        const usesInUser = user.usedCoupons.filter((c: string) => c === coupon.code).length;
+                        if (usesInUser >= limit) {
+                            return NextResponse.json({ error: `You have already redeemed this coupon code ${limit} time(s)` }, { status: 400 });
+                        }
+                    }
+                }
+
+                // Calculate Discount
+                const rawDiscount = (subtotal * coupon.discountPercentage) / 100;
+
+                // Max Cap Check
+                if (coupon.maxDiscountAmount && rawDiscount > coupon.maxDiscountAmount) {
+                    discount = coupon.maxDiscountAmount;
+                } else {
+                    discount = rawDiscount;
+                }
+
+                appliedCouponId = coupon._id;
+            } else if (couponCode) {
+                return NextResponse.json({ error: "Invalid coupon" }, { status: 400 });
             }
         }
 
@@ -133,6 +180,20 @@ export async function POST(req: Request) {
             paymentStatus: "pending",
             status: "pending"
         });
+
+        // 5. Update Coupon Usage if applied
+        if (appliedCouponId && userId) {
+            await Coupon.findByIdAndUpdate(appliedCouponId, {
+                $addToSet: { usedBy: userId }
+            });
+
+            // Also update User model for persistent tracking (Double Lock)
+            if (couponCode) {
+                await User.findByIdAndUpdate(userId, {
+                    $addToSet: { usedCoupons: couponCode.toUpperCase() }
+                });
+            }
+        }
 
         return NextResponse.json({
             success: true,

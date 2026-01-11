@@ -21,15 +21,21 @@ export async function POST(req: Request) {
         await requireAdmin();
         await connectDB();
         const body = await req.json();
-        const { code, discountPercentage, validFrom, validTo, isActive } = body;
+        const { code, discountPercentage, validFrom, validTo, maxDiscountAmount, isActive, usageLimit } = body;
 
         if (!code || !discountPercentage || !validFrom || !validTo) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        const existing = await Coupon.findOne({ code: code.toUpperCase() });
+        // Check if there is an ACTIVE and VALID coupon with the same code
+        const existing = await Coupon.findOne({
+            code: code.toUpperCase(),
+            isActive: true,
+            validTo: { $gt: new Date() } // Only block if validTo is in the future
+        });
+
         if (existing) {
-            return NextResponse.json({ error: "Coupon code already exists" }, { status: 400 });
+            return NextResponse.json({ error: "An active coupon with this code already exists" }, { status: 400 });
         }
 
         const coupon = await Coupon.create({
@@ -37,7 +43,9 @@ export async function POST(req: Request) {
             discountPercentage,
             validFrom,
             validTo,
+            maxDiscountAmount: maxDiscountAmount ? Number(maxDiscountAmount) : undefined,
             isActive: isActive !== undefined ? isActive : true,
+            usageLimit: usageLimit ? Number(usageLimit) : 1,
         });
 
         return NextResponse.json({ success: true, coupon });
@@ -56,7 +64,8 @@ export async function DELETE(req: Request) {
 
         if (!id) return NextResponse.json({ error: "ID required" }, { status: 400 });
 
-        await Coupon.findByIdAndDelete(id);
+        // Soft delete
+        await Coupon.findByIdAndUpdate(id, { isDeleted: true, isActive: false });
         return NextResponse.json({ success: true });
     } catch (err: any) {
         return NextResponse.json({ error: err.message }, { status: 500 });

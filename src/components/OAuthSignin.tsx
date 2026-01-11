@@ -16,25 +16,49 @@ export default function OAuthSignin() {
 
   const handleGoogleSignin = async () => {
     setLoading(true);
+
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      alert("Google Client ID is missing in .env.local!");
+      setLoading(false);
+      return;
+    }
+
     try {
       // Initialize Google Sign-In
       if (window.google) {
         window.google.accounts.id.initialize({
-          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "",
+          client_id: clientId,
           callback: handleGoogleCallback,
+          auto_select: false,
+          cancel_on_tap_outside: true,
         });
 
-        window.google.accounts.id.renderButton(
-          document.getElementById("google-button"),
-          {
-            type: "standard",
-            size: "large",
-            text: "signup_with",
-            locale: "en",
-          }
-        );
+        // We use our own button to trigger the prompt
+        // window.google.accounts.id.renderButton(...) // REMOVED: No target element exists
 
-        window.google.accounts.id.prompt();
+        // Show the One Tap or Credential Picker
+        window.google.accounts.id.prompt((notification: any) => {
+          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            console.log("Google prompt skipped/not displayed:", notification.getNotDisplayedReason());
+
+            // If prompt is suppressed (e.g. cooldown), we might better fail gracefully
+            // But for now, we just stop loading so user isn't stuck.
+
+            // Optionally: could alert user if it happened for a known reason
+            if (notification.getNotDisplayedReason() === 'browser_not_supported') {
+              alert("Browser not supported for Google Sign-In");
+            } else if (notification.getNotDisplayedReason() === 'suppressed_by_user') {
+              // User closed it recently
+              alert("Please check for the Google Sign-In popup.");
+            }
+
+            setLoading(false);
+          }
+        });
+      } else {
+        alert("Google Sign-In script not loaded yet. Please refresh the page.");
+        setLoading(false);
       }
     } catch (error) {
       console.error("Google Sign-In error:", error);
@@ -79,7 +103,7 @@ export default function OAuthSignin() {
       }
 
       const userData = await res.json();
-      
+
       // Set user in auth store
       login(userData.user);
 

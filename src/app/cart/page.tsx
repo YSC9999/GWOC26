@@ -28,7 +28,10 @@ export default function Cart() {
       const res = await fetch("/api/coupons/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: couponCode }),
+        body: JSON.stringify({
+          code: couponCode,
+          userId: user?._id // Pass userId for single-use check
+        }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -153,21 +156,28 @@ export default function Cart() {
   // Populate email from user
   React.useEffect(() => {
     if (user?.email) {
-      setFormData(prev => ({ ...prev, email: user.email }));
+      setFormData(prev => {
+        // Only update if email is partial or missing to avoid overwriting user edits?
+        // Actually, user email should be the source of truth for logged in users.
+        if (prev.email !== user.email) {
+          return { ...prev, email: user.email };
+        }
+        return prev;
+      });
     }
   }, [user]);
 
   const fillFormWithAddress = (addr: any) => {
-    setFormData({
+    setFormData(prev => ({
       name: addr.name || "",
-      email: user?.email || formData.email, // Use user email if available
+      email: user?.email || prev.email || "", // Prefer user email, fallback to existing input, then empty
       phone: addr.phone || "",
       street: addr.street || "",
       city: addr.city || "",
       state: addr.state || "",
       pincode: addr.pincode || "",
       country: addr.country || "India"
-    });
+    }));
   };
 
   const handleAddressSelect = (id: string) => {

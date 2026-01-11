@@ -19,6 +19,8 @@ interface Order {
   createdAt: string;
   items: OrderItem[];
   paymentStatus: string;
+  discount: number;
+  couponCode?: string;
 }
 
 export default function MyOrders() {
@@ -86,7 +88,7 @@ export default function MyOrders() {
           {orders.map((order) => (
             <div key={order._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               {/* Header */}
-              <div 
+              <div
                 className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:bg-gray-50 transition-colors"
                 onClick={() => setExpandedId(expandedId === order._id ? null : order._id)}
               >
@@ -115,8 +117,8 @@ export default function MyOrders() {
 
               {/* Details */}
               {expandedId === order._id && (
-                <motion.div 
-                  initial={{ height: 0 }} 
+                <motion.div
+                  initial={{ height: 0 }}
                   animate={{ height: "auto" }}
                   className="px-6 pb-6 border-t border-gray-100 bg-gray-50/50"
                 >
@@ -139,11 +141,20 @@ export default function MyOrders() {
                         </div>
                       </div>
                     ))}
+
+                    {/* Discount Row */}
+                    {order.discount > 0 && (
+                      <div className="flex justify-between items-center text-sm border-t border-gray-200 pt-3 text-green-600">
+                        <span>Discount {order.couponCode && <span className="text-xs bg-green-100 px-2 py-0.5 rounded ml-1 font-bold">{order.couponCode}</span>}</span>
+                        <span>- ₹{order.discount.toLocaleString()}</span>
+                      </div>
+                    )}
+
                     <div className="border-t border-gray-200 pt-4 flex justify-between items-center text-sm font-medium">
-                       <span>Payment Status</span>
-                       <span className={order.paymentStatus === 'paid' ? 'text-green-600' : 'text-orange-500 uppercase'}>
-                         {order.paymentStatus}
-                       </span>
+                      <span>Payment Status</span>
+                      <span className={order.paymentStatus === 'paid' ? 'text-green-600' : 'text-orange-500 uppercase'}>
+                        {order.paymentStatus}
+                      </span>
                     </div>
                   </div>
                 </motion.div>

@@ -25,6 +25,7 @@ export interface IUser extends Document {
   gstNumber?: string;
   addresses: IAddress[];
   wishlist: mongoose.Types.ObjectId[];
+  usedCoupons: string[];
   tier: "tier-0" | "tier-1" | "tier-2" | "tier-3";
   subscriptionActive: boolean;
   emailVerified: boolean;
@@ -65,6 +66,7 @@ const UserSchema = new Schema<IUser>({
   gstNumber: String,
   addresses: [AddressSchema],
   wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+  usedCoupons: [{ type: String }], // Array of coupon codes used by this user
   tier: {
     type: String,
     enum: ["tier-0", "tier-1", "tier-2", "tier-3"],
