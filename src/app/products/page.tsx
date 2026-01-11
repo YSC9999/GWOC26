@@ -27,27 +27,11 @@ interface Product {
   featured: boolean;
 }
 
-const categories = [
-  { id: "all", label: "All Products" },
-  { id: "bowls", label: "Bowls" },
-  { id: "cups", label: "Cups & Mugs" },
-  { id: "plates", label: "Plates" },
-  { id: "platters", label: "Platters" },
-  { id: "vases", label: "Vases" },
-  { id: "decor", label: "Decor" },
-  { id: "sets", label: "Sets" },
-];
+import { PRODUCT_CATEGORIES, CATEGORY_EMOJIS } from "@/lib/categories";
 
-// Emoji fallbacks for products without images
-const categoryEmojis: Record<string, string> = {
-  bowls: "🥣",
-  cups: "🍵",
-  plates: "🍽️",
-  platters: "🍱",
-  vases: "🏺",
-  decor: "🕯️",
-  sets: "🎁",
-};
+// Use constants from the library
+const categories = PRODUCT_CATEGORIES;
+const categoryEmojis = CATEGORY_EMOJIS;
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);

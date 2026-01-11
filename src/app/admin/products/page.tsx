@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import UploadInput from "@/components/UploadInput";
+import { PRODUCT_CATEGORIES } from "@/lib/categories";
 
 type ProductForm = {
   name: string;
@@ -177,16 +178,33 @@ export default function AdminProductsPage() {
           ))}
         </div>
 
-        <select value={category} onChange={(e) => setCategory(e.target.value)} className="border p-2">
-          <option value="">Select category</option>
-          <option value="bowls">Bowls</option>
-          <option value="cups">Cups</option>
-          <option value="plates">Plates</option>
-          <option value="platters">Platters</option>
-          <option value="vases">Vases</option>
-          <option value="decor">Decor</option>
-          <option value="sets">Sets</option>
-        </select>
+        <div className="flex gap-2 w-full">
+          <select
+            value={PRODUCT_CATEGORIES.some(c => c.id === category) ? category : "other"}
+            onChange={(e) => {
+              if (e.target.value === "other") {
+                setCategory("");
+              } else {
+                setCategory(e.target.value);
+              }
+            }}
+            className="border p-2 flex-grow"
+          >
+            <option value="">Select category</option>
+            {PRODUCT_CATEGORIES.filter(c => c.id !== 'all').map((cat) => (
+              <option key={cat.id} value={cat.id}>{cat.label}</option>
+            ))}
+            <option value="other">Other (Add New)</option>
+          </select>
+          {(!PRODUCT_CATEGORIES.some(c => c.id === category) && category !== "") || !PRODUCT_CATEGORIES.some(c => c.id === category) ? (
+            <input
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              placeholder="Enter new category"
+              className="border p-2 flex-grow"
+            />
+          ) : null}
+        </div>
 
         <input
           value={descriptionText}
@@ -212,29 +230,29 @@ export default function AdminProductsPage() {
         <tbody>
           {products.map((p) => (
             <tr key={p._id} className="border-t">
-                <td>{p.name}</td>
-                <td>₹{p.price}</td>
-                <td>{p.stockQuantity}</td>
-                <td>{p.images?.length || 0}</td>
-                <td>
-                  <button
-                    onClick={() => {
-                      setEditingId(p._id);
-                      setForm({ name: p.name, price: p.price, stockQuantity: p.stockQuantity, images: p.images || [] });
-                      setCategory(p.category || '');
-                      setDescriptionText(p.description || '');
-                    }}
-                    className="mr-3 text-blue-600"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(p._id)}
-                    className="text-red-600"
-                  >
-                    Delete
-                  </button>
-                </td>
+              <td>{p.name}</td>
+              <td>₹{p.price}</td>
+              <td>{p.stockQuantity}</td>
+              <td>{p.images?.length || 0}</td>
+              <td>
+                <button
+                  onClick={() => {
+                    setEditingId(p._id);
+                    setForm({ name: p.name, price: p.price, stockQuantity: p.stockQuantity, images: p.images || [] });
+                    setCategory(p.category || '');
+                    setDescriptionText(p.description || '');
+                  }}
+                  className="mr-3 text-blue-600"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(p._id)}
+                  className="text-red-600"
+                >
+                  Delete
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -252,25 +270,45 @@ export default function AdminProductsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm text-soil mb-1">Name</label>
-                <input value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} className="border p-2 w-full" />
+                <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="border p-2 w-full" />
 
                 <label className="block text-sm text-soil mt-3 mb-1">Price</label>
-                <input type="number" value={form.price} onChange={(e) => setForm({...form, price: Number(e.target.value)})} className="border p-2 w-full" />
+                <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} className="border p-2 w-full" />
 
                 <label className="block text-sm text-soil mt-3 mb-1">Stock</label>
-                <input type="number" value={form.stockQuantity} onChange={(e) => setForm({...form, stockQuantity: Number(e.target.value)})} className="border p-2 w-full" />
+                <input type="number" value={form.stockQuantity} onChange={(e) => setForm({ ...form, stockQuantity: Number(e.target.value) })} className="border p-2 w-full" />
 
                 <label className="block text-sm text-soil mt-3 mb-1">Category</label>
-                <select value={category} onChange={(e) => setCategory(e.target.value)} className="border p-2 w-full">
-                  <option value="">Select category</option>
-                  <option value="bowls">Bowls</option>
-                  <option value="cups">Cups</option>
-                  <option value="plates">Plates</option>
-                  <option value="platters">Platters</option>
-                  <option value="vases">Vases</option>
-                  <option value="decor">Decor</option>
-                  <option value="sets">Sets</option>
-                </select>
+                <div className="space-y-2">
+                  <select
+                    value={PRODUCT_CATEGORIES.some(c => c.id === category) ? category : "other"}
+                    onChange={(e) => {
+                      if (e.target.value === "other") {
+                        setCategory(""); // Clear to allow typing, or keep existing if it was already custom?
+                        // Better: if "other", user intends to type.
+                      } else {
+                        setCategory(e.target.value);
+                      }
+                    }}
+                    className="border p-2 w-full"
+                  >
+                    <option value="">Select category</option>
+                    {PRODUCT_CATEGORIES.filter(c => c.id !== 'all').map((cat) => (
+                      <option key={cat.id} value={cat.id}>{cat.label}</option>
+                    ))}
+                    <option value="other">Other (Add New)</option>
+                  </select>
+
+                  {/* Show input if category is NOT in the predefined list (meaning it's custom or "other" selected) */}
+                  {!PRODUCT_CATEGORIES.some(c => c.id === category) && (
+                    <input
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      placeholder="Enter custom category"
+                      className="border p-2 w-full"
+                    />
+                  )}
+                </div>
 
                 <label className="block text-sm text-soil mt-3 mb-1">Short description</label>
                 <input value={descriptionText} onChange={(e) => setDescriptionText(e.target.value)} className="border p-2 w-full" />

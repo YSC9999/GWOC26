@@ -5,6 +5,15 @@ import ConditionalBackground from "../components/ConditionalBackground";
 import CartSync from "../components/CartSync";
 import Script from "next/script";
 import { ReactNode } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Basho by Shivangi",
+  description: "Handcrafted Japanese-inspired pottery",
+  icons: {
+    icon: "/website icon.png",
+  },
+};
 
 export default function RootLayout({
   children,
