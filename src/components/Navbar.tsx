@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X, Search, User, LogOut, ShoppingBag } from "lucide-react";
+import { Menu, X, User, LogOut, ShoppingBag, Heart } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useCart } from "@/lib/cart";
 
@@ -117,33 +117,32 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Search Bar */}
-          <div className="flex items-center bg-white rounded-full px-3 py-2 border border-soil/20 flex-shrink-0 ml-auto">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="bg-transparent outline-none text-xs w-24 placeholder-gray-400"
-            />
-            <Search size={16} className="text-soil/60" />
-          </div>
-
           {/* Right Actions - Only show after hydration to avoid flicker */}
-          <div className="flex items-center gap-3 min-w-[150px] justify-end">
+          <div className="flex items-center gap-3 min-w-[150px] justify-end ml-auto">
             {mounted && (
               <>
-                {/* Cart Icon - Only when logged in */}
+                {/* Wishlist & Cart Icons - Only when logged in */}
                 {isAuthenticated && (
-                  <Link
-                    href="/cart"
-                    className="relative text-soil hover:text-clay transition-colors p-2"
-                  >
-                    <ShoppingBag size={20} />
-                    {cartCount > 0 && (
-                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-clay text-white text-[10px] font-bold flex items-center justify-center rounded-full">
-                        {cartCount}
-                      </span>
-                    )}
-                  </Link>
+                  <>
+                    <Link
+                      href="/account/wishlist"
+                      className="relative text-soil hover:text-clay transition-colors p-2"
+                    >
+                      <Heart size={20} />
+                    </Link>
+
+                    <Link
+                      href="/cart"
+                      className="relative text-soil hover:text-clay transition-colors p-2"
+                    >
+                      <ShoppingBag size={20} />
+                      {cartCount > 0 && (
+                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-clay text-white text-[10px] font-bold flex items-center justify-center rounded-full">
+                          {cartCount}
+                        </span>
+                      )}
+                    </Link>
+                  </>
                 )}
 
                 {/* Desktop Auth */}
