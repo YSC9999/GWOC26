@@ -2,6 +2,8 @@
 
 import { UserTier, TIER_LEVELS } from "@/lib/tiers";
 import { Lock } from "lucide-react";
+import { motion } from "framer-motion";
+import { hoverScale, clickTap } from "@/lib/animations";
 
 interface TierBadgeProps {
   tier: UserTier | string;
@@ -105,7 +107,13 @@ export function TierComparison({ selectedTier }: TierComparisonProps) {
                 Current Plan
               </button>
             ) : (
-              <button className="btn-secondary w-full">Choose Plan</button>
+              <motion.button
+                whileTap={clickTap}
+                whileHover={hoverScale}
+                className="btn-secondary w-full"
+              >
+                Choose Plan
+              </motion.button>
             )}
           </div>
         );

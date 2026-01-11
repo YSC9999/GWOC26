@@ -6,6 +6,9 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 
+import { motion } from "framer-motion";
+import { hoverScale, clickTap } from "@/lib/animations";
+
 interface ProductCardProps {
   product: any;
   userTier: UserTier;
@@ -62,9 +65,13 @@ export default function ProductCard({
   };
 
   return (
-    <a href={`/products/${product.slug || product._id}`} className="block group">
-      <div className="card p-4 relative transition-transform hover:-translate-y-1 duration-300">
-        <button
+    <Link href={`/products/${product.slug || product._id}`} className="block group">
+      <motion.div
+        whileHover={hoverScale}
+        className="card p-4 relative"
+      >
+        <motion.button
+          whileTap={clickTap}
           onClick={handleLike}
           className="absolute top-4 right-4 z-10 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-all"
         >
@@ -72,7 +79,7 @@ export default function ProductCard({
             size={20}
             className={isLiked ? "fill-red-500 text-red-500" : "text-gray-400"}
           />
-        </button>
+        </motion.button>
 
         <div className="relative overflow-hidden rounded-lg mb-4 h-48">
           <img
@@ -99,17 +106,19 @@ export default function ProductCard({
           <span className="text-clay font-bold text-lg">₹{product.price}</span>
 
           {allowed ? (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={clickTap}
               onClick={handleAddToCart}
               className="btn-primary text-sm px-4 py-2"
             >
               Add to Cart
-            </button>
+            </motion.button>
           ) : (
             <span className="text-xs text-stone-400 italic">Locked</span>
           )}
         </div>
-      </div>
-    </a>
+      </motion.div>
+    </Link>
   );
 }

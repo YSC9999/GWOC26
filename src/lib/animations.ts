@@ -1,4 +1,6 @@
-export const fadeInUp = {
+import { Variants, TargetAndTransition } from "framer-motion";
+
+export const fadeInUp: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
         opacity: 1,
@@ -7,7 +9,7 @@ export const fadeInUp = {
     }
 };
 
-export const staggerContainer = {
+export const staggerContainer: Variants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
@@ -18,18 +20,18 @@ export const staggerContainer = {
     }
 };
 
-export const hoverScale = {
+export const hoverScale: TargetAndTransition = {
     scale: 1.02,
     transition: { duration: 0.05, type: "spring", stiffness: 400, damping: 20 }
 };
 
-export const clickTap = {
+export const clickTap: TargetAndTransition = {
     scale: 0.98,
     transition: { duration: 0.05, type: "spring", stiffness: 400, damping: 20 }
 };
 
 export const instantSpring = {
-    type: "spring",
+    type: "spring" as const,
     stiffness: 500,
     damping: 30,
     mass: 0.5,

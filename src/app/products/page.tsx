@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, Filter, Search, Loader2, ArrowRight, Heart, XCircle } from "lucide-react";
+import { fadeInUp, staggerContainer, hoverScale, clickTap } from "@/lib/animations";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import ProductModal from "@/components/ProductModal";
@@ -33,28 +34,7 @@ import { PRODUCT_CATEGORIES, CATEGORY_EMOJIS } from "@/lib/categories";
 const categories = PRODUCT_CATEGORIES;
 const categoryEmojis = CATEGORY_EMOJIS;
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "spring",
-      stiffness: 50,
-      damping: 10,
-    },
-  },
-};
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -224,7 +204,7 @@ export default function Products() {
         </motion.div>
       ) : (
         <motion.div
-          variants={containerVariants}
+          variants={staggerContainer}
           initial="hidden"
           animate="visible"
           layout
@@ -237,16 +217,12 @@ export default function Products() {
               return (
                 <motion.div
                   key={product._id}
-                  variants={itemVariants}
+                  variants={fadeInUp}
                   layout
                   initial="hidden"
                   animate="visible"
                   exit={{ opacity: 0, scale: 0.8 }}
-                  whileHover={{
-                    y: -12,
-                    scale: 1.02,
-                    transition: { duration: 0.2 }
-                  }}
+                  whileHover={hoverScale}
                   className="group relative"
                 >
                   <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-clay/20 transition-all duration-300 cursor-pointer h-full flex flex-col border border-transparent hover:border-clay/10">
@@ -277,7 +253,8 @@ export default function Products() {
                       )}
 
                       {/* Heart Button */}
-                      <button
+                      <motion.button
+                        whileTap={clickTap}
                         onClick={(e) => handleWishlist(e, product._id)}
                         className="absolute top-3 right-3 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white text-soil transition-all shadow-sm z-20"
                       >
@@ -285,7 +262,7 @@ export default function Products() {
                           size={20}
                           className={isProductLiked(product._id) ? "fill-red-500 text-red-500" : "text-gray-400"}
                         />
-                      </button>
+                      </motion.button>
 
                       {/* Badges */}
                       <div className="absolute top-3 left-3 flex flex-col gap-2 pointer-events-none z-10">
@@ -303,7 +280,9 @@ export default function Products() {
 
                       {/* Quick Add */}
                       {!isOutOfStock && (
-                        <button
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={clickTap}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleAddToCart(product);
@@ -311,7 +290,7 @@ export default function Products() {
                           className="absolute bottom-3 right-3 bg-soil text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:bg-clay shadow-lg z-20"
                         >
                           <ShoppingCart size={18} />
-                        </button>
+                        </motion.button>
                       )}
                     </div>
 
@@ -380,7 +359,8 @@ export default function Products() {
             })}
           </AnimatePresence>
         </motion.div>
-      )}
+      )
+      }
 
       {/* Bottom CTA */}
       <motion.section
@@ -419,6 +399,6 @@ export default function Products() {
         productId={selectedProductId}
         onClose={() => setSelectedProductId(null)}
       />
-    </div>
+    </div >
   );
 }
