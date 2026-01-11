@@ -113,11 +113,6 @@ export default function Login() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? (
-                    <EyeOff size={20} />
-                  ) : (
-                    <Eye size={20} />
-                  )}
                 </button>
               </div>
             </div>

@@ -188,11 +188,6 @@ export default function Signup() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? (
-                    <EyeOff size={20} />
-                  ) : (
-                    <Eye size={20} />
-                  )}
                 </button>
               </div>
             </div>
@@ -217,11 +212,6 @@ export default function Signup() {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="text-gray-400 hover:text-gray-600"
                 >
-                  {showConfirmPassword ? (
-                    <EyeOff size={20} />
-                  ) : (
-                    <Eye size={20} />
-                  )}
                 </button>
               </div>
             </div>
