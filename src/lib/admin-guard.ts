@@ -23,7 +23,7 @@ export async function requireMainAdmin() {
   // Reuse requireAdmin to validate token and decode payload
   const decoded = await requireAdmin();
 
-  const main = process.env.MAIN_ADMIN_EMAIL;
+  const main = process.env.MAIN_ADMIN_EMAIL || "chiluverusreeshanth@gmail.com";
   if (!main) throw new Error("MAIN_ADMIN_EMAIL not configured");
 
   // Check that the logged-in user's email matches the configured main admin email

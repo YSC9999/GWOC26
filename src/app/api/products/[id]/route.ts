@@ -10,7 +10,7 @@ export async function GET(
     try {
         await connectDB();
 
-        const { id } = await params;
+        const { id } = await params; // id can be slug
 
         // Try to find by ID first, then by slug
         let product;

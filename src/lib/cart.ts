@@ -8,6 +8,7 @@ export type CartItem = {
   price: number;
   image?: string;
   qty: number;
+  stock: number;
 };
 
 type CartStore = {
@@ -26,23 +27,45 @@ export const useCart = create<CartStore>()(
       add: (item) => {
         const existing = get().items.find((i) => i.id === item.id);
         if (existing) {
-          set({
-            items: get().items.map((i) =>
-              i.id === item.id ? { ...i, qty: i.qty + item.qty } : i
-            ),
-          });
+          const newQty = existing.qty + item.qty;
+          if (newQty <= item.stock) {
+            set({
+              items: get().items.map((i) =>
+                i.id === item.id ? { ...i, qty: newQty } : i
+              ),
+            });
+          } else {
+            // Cap at max stock
+            set({
+              items: get().items.map((i) =>
+                i.id === item.id ? { ...i, qty: item.stock } : i
+              ),
+            });
+            alert(`Stock limit reached. Cart updated to maximum available quantity (${item.stock}).`);
+          }
         } else {
-          set({ items: [...get().items, item] });
+          if (item.qty <= item.stock) {
+            set({ items: [...get().items, item] });
+          } else {
+            // Cap at max stock
+            set({ items: [...get().items, { ...item, qty: item.stock }] });
+            alert(`Stock limit reached. Cart updated to maximum available quantity (${item.stock}).`);
+          }
         }
       },
       remove: (id) => set({ items: get().items.filter((i) => i.id !== id) }),
       updateQty: (id, qty) => {
+        const item = get().items.find((i) => i.id === id);
+        if (!item) return;
+
         if (qty <= 0) {
           get().remove(id);
-        } else {
+        } else if (qty <= item.stock) {
           set({
             items: get().items.map((i) => (i.id === id ? { ...i, qty } : i)),
           });
+        } else {
+          alert(`Cannot add more. Only ${item.stock} items in stock.`);
         }
       },
       clear: () => set({ items: [] }),

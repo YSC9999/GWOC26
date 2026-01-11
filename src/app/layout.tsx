@@ -2,6 +2,7 @@ import "./globals.css";
 import ConditionalLayout from "../components/ConditionalLayout";
 import ConditionalFooter from "../components/ConditionalFooter";
 import ConditionalBackground from "../components/ConditionalBackground";
+import CartSync from "../components/CartSync";
 import Script from "next/script";
 import { ReactNode } from "react";
 
@@ -25,6 +26,7 @@ export default function RootLayout({
         />
       </head>
       <body className="scroll-smooth flex flex-col min-h-screen">
+        <CartSync />
         <ConditionalBackground />
         <ConditionalLayout />
 

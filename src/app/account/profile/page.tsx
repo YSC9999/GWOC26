@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { motion } from "framer-motion";
 import { MapPin, Plus, Trash2, Save, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 interface Address {
   _id?: string;
@@ -23,7 +24,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState(false);
-  
+
   // Form states
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -45,14 +46,27 @@ export default function Profile() {
 
   useEffect(() => {
     fetchProfile();
+    fetchWishlist();
   }, []);
+
+  const fetchWishlist = async () => {
+    try {
+      const res = await fetch("/api/user/wishlist");
+      if (res.ok) {
+        const data = await res.json();
+        // Merge wishlist into profile state or set separate state
+        // For now, let's assume we add it to the profile object to keep it simple
+        setProfile((prev: any) => ({ ...prev, wishlist: data.wishlist }));
+      }
+    } catch (err) { console.error(err); }
+  };
 
   const fetchProfile = async () => {
     try {
       const res = await fetch("/api/user/profile");
       if (res.ok) {
         const data = await res.json();
-        setProfile(data.user);
+        setProfile((prev: any) => ({ ...prev, ...data.user }));
         setName(data.user.name);
         setPhone(data.user.phone || "");
         setAddresses(data.user.addresses || []);
@@ -115,18 +129,18 @@ export default function Profile() {
       setSaving(false);
     }
   };
-  
+
   const handleRemoveAddress = async (id: string) => {
-    if(!confirm("Delete this address?")) return;
+    if (!confirm("Delete this address?")) return;
     const updatedAddresses = addresses.filter(a => a._id !== id);
     try {
-        await fetch("/api/user/profile", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ addresses: updatedAddresses }),
-        });
-        setAddresses(updatedAddresses);
-    } catch(err) { console.error(err); }
+      await fetch("/api/user/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ addresses: updatedAddresses }),
+      });
+      setAddresses(updatedAddresses);
+    } catch (err) { console.error(err); }
   };
 
   if (loading) return <div className="text-center py-20">Loading profile...</div>;
@@ -140,7 +154,7 @@ export default function Profile() {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-soil">Personal Information</h2>
           {!editing ? (
-            <button 
+            <button
               onClick={() => setEditing(true)}
               className="text-clay font-medium hover:underline"
             >
@@ -148,13 +162,13 @@ export default function Profile() {
             </button>
           ) : (
             <div className="flex gap-4">
-              <button 
+              <button
                 onClick={() => setEditing(false)}
                 className="text-soil/40 hover:text-soil"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={handleUpdateProfile}
                 disabled={saving}
                 className="flex items-center gap-2 bg-soil text-white px-4 py-2 rounded-lg text-sm"
@@ -198,11 +212,58 @@ export default function Profile() {
         </div>
       </section>
 
+
+
+      {/* Wishlist Section */}
+      <section className="bg-white rounded-2xl p-8 mb-8 shadow-sm">
+        <h2 className="text-xl font-bold text-soil mb-6">My Wishlist</h2>
+
+        {profile?.wishlist?.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {profile.wishlist.map((item: any) => (
+              <div key={item._id} className="border border-stone-100 rounded-lg p-3 relative group">
+                <button
+                  onClick={async () => {
+                    if (!confirm("Remove from wishlist?")) return;
+                    try {
+                      const res = await fetch("/api/user/wishlist", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ productId: item._id }),
+                      });
+                      if (res.ok) {
+                        const data = await res.json();
+                        // Refresh profile (or at least wishlist)
+                        fetchProfile();
+                      }
+                    } catch (err) { console.error(err); }
+                  }}
+                  className="absolute top-2 right-2 text-red-500 bg-white rounded-full p-1 shadow-sm hover:scale-110 transition-transform z-10"
+                >
+                  <Trash2 size={16} />
+                </button>
+                <Link href={`/products/${item._id}`}>
+                  <div className="h-32 rounded-md overflow-hidden mb-3">
+                    <img src={item.images?.[0] || item.image} alt={item.name} className="w-full h-full object-cover" />
+                  </div>
+                  <h3 className="font-bold text-soil text-sm line-clamp-1">{item.name}</h3>
+                  <p className="text-clay font-bold mt-1">₹{item.price}</p>
+                </Link>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-soil/60 bg-sand/20 rounded-xl">
+            Your wishlist is empty.
+          </div>
+        )}
+      </section>
+
       {/* Addresses */}
       <section>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-soil">Saved Addresses</h2>
-          <button 
+          <button
             onClick={() => setShowAddAddr(true)}
             className="flex items-center gap-2 bg-clay text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-clay/90 transition-colors"
           >
@@ -212,13 +273,13 @@ export default function Profile() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {addresses.map((addr: any, idx) => (
-            <motion.div 
+            <motion.div
               key={addr._id || idx}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="bg-white p-6 rounded-2xl border border-soil/10 relative group"
             >
-              <button 
+              <button
                 onClick={() => handleRemoveAddress(addr._id)}
                 className="absolute top-4 right-4 text-soil/20 hover:text-red-500 transition-colors"
               >
@@ -246,72 +307,72 @@ export default function Profile() {
         </div>
 
         {addresses.length === 0 && !showAddAddr && (
-            <div className="text-center py-12 bg-sand/20 rounded-2xl text-soil/60">
-                No addresses saved. Add one for faster checkout.
-            </div>
+          <div className="text-center py-12 bg-sand/20 rounded-2xl text-soil/60">
+            No addresses saved. Add one for faster checkout.
+          </div>
         )}
 
         {/* Add Address Form */}
         {showAddAddr && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }} 
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             className="bg-white p-8 rounded-2xl mt-6 border-2 border-clay/10"
           >
             <h3 className="font-bold text-soil mb-6">New Address</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <input 
-                placeholder="Label (e.g. Home, Office)" 
+              <input
+                placeholder="Label (e.g. Home, Office)"
                 value={newAddr.label}
-                onChange={(e) => setNewAddr({...newAddr, label: e.target.value})}
+                onChange={(e) => setNewAddr({ ...newAddr, label: e.target.value })}
                 className="px-4 py-3 bg-sand/30 rounded-xl"
               />
-              <input 
-                placeholder="Receiver Name" 
+              <input
+                placeholder="Receiver Name"
                 value={newAddr.name}
-                onChange={(e) => setNewAddr({...newAddr, name: e.target.value})}
+                onChange={(e) => setNewAddr({ ...newAddr, name: e.target.value })}
                 className="px-4 py-3 bg-sand/30 rounded-xl"
               />
-              <input 
-                placeholder="Street Address" 
+              <input
+                placeholder="Street Address"
                 value={newAddr.street}
-                onChange={(e) => setNewAddr({...newAddr, street: e.target.value})}
+                onChange={(e) => setNewAddr({ ...newAddr, street: e.target.value })}
                 className="px-4 py-3 bg-sand/30 rounded-xl md:col-span-2"
               />
-              <input 
-                placeholder="City" 
+              <input
+                placeholder="City"
                 value={newAddr.city}
-                onChange={(e) => setNewAddr({...newAddr, city: e.target.value})}
+                onChange={(e) => setNewAddr({ ...newAddr, city: e.target.value })}
                 className="px-4 py-3 bg-sand/30 rounded-xl"
               />
-              <input 
-                placeholder="State" 
+              <input
+                placeholder="State"
                 value={newAddr.state}
-                onChange={(e) => setNewAddr({...newAddr, state: e.target.value})}
+                onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })}
                 className="px-4 py-3 bg-sand/30 rounded-xl"
               />
-              <input 
-                placeholder="Pincode" 
+              <input
+                placeholder="Pincode"
                 value={newAddr.pincode}
-                onChange={(e) => setNewAddr({...newAddr, pincode: e.target.value})}
+                onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value })}
                 className="px-4 py-3 bg-sand/30 rounded-xl"
               />
-               <input 
-                placeholder="Phone" 
+              <input
+                placeholder="Phone"
                 value={newAddr.phone}
-                onChange={(e) => setNewAddr({...newAddr, phone: e.target.value})}
+                onChange={(e) => setNewAddr({ ...newAddr, phone: e.target.value })}
                 className="px-4 py-3 bg-sand/30 rounded-xl"
               />
             </div>
             <div className="flex gap-4 mt-6">
-              <button 
+              <button
                 onClick={handleAddAddress}
                 disabled={saving}
                 className="bg-clay text-white px-6 py-3 rounded-xl font-bold hover:bg-clay/90 flex items-center gap-2"
               >
                 {saving ? <Loader2 className="animate-spin" /> : "Save Address"}
               </button>
-              <button 
+              <button
                 onClick={() => setShowAddAddr(false)}
                 className="text-soil/60 hover:text-soil px-4"
               >
@@ -321,6 +382,6 @@ export default function Profile() {
           </motion.div>
         )}
       </section>
-    </div>
+    </div >
   );
 }

@@ -11,6 +11,7 @@ interface User {
   firstName?: string;
   lastName?: string;
   tier?: string;
+  wishlist?: string[];
 }
 
 interface AuthStore {

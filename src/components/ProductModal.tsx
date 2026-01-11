@@ -15,6 +15,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useCart } from "@/lib/cart";
+import { useAuth } from "@/lib/auth";
 
 interface Product {
   _id: string;
@@ -62,9 +63,9 @@ export default function ProductModal({
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const [wishlist, setWishlist] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const cart = useCart();
+  const { user, login } = useAuth();
 
   useEffect(() => {
     if (productId) {
@@ -115,17 +116,45 @@ export default function ProductModal({
   const handleAddToCart = () => {
     if (!product) return;
 
-    for (let i = 0; i < quantity; i++) {
-      cart.add({
-        id: product._id as any,
-        name: product.name,
-        price: product.price,
-        qty: 1,
-      });
-    }
+    cart.add({
+      id: product._id as any,
+      name: product.name,
+      price: product.price,
+      qty: quantity,
+      stock: product.stockQuantity || 0,
+    });
 
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
+  };
+
+  const handleWishlist = async () => {
+    if (!user || !productId) {
+      alert("Please login to add to wishlist");
+      return;
+    }
+
+    const currentWishlist = user.wishlist || [];
+    const isLiked = currentWishlist.includes(productId);
+    const newWishlist = isLiked
+      ? currentWishlist.filter((id) => id !== productId)
+      : [...currentWishlist, productId];
+
+    login({ ...user, wishlist: newWishlist });
+
+    try {
+      const res = await fetch("/api/user/wishlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) login({ ...user, wishlist: currentWishlist });
+      else login({ ...user, wishlist: data.wishlist });
+    } catch (err) {
+      login({ ...user, wishlist: currentWishlist });
+    }
   };
 
   const getProductImage = () => {
@@ -327,13 +356,12 @@ export default function ProductModal({
                       <button
                         onClick={handleAddToCart}
                         disabled={!product.inStock || addedToCart}
-                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full font-semibold transition-all ${
-                          addedToCart
-                            ? "bg-green-500 text-white"
-                            : product.inStock
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full font-semibold transition-all ${addedToCart
+                          ? "bg-green-500 text-white"
+                          : product.inStock
                             ? "bg-clay text-white hover:bg-clay/90 hover:scale-[1.02]"
                             : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        }`}
+                          }`}
                       >
                         {addedToCart ? (
                           <>
@@ -347,16 +375,15 @@ export default function ProductModal({
                       </button>
 
                       <button
-                        onClick={() => setWishlist(!wishlist)}
-                        className={`p-3 rounded-full border-2 transition-all ${
-                          wishlist
-                            ? "bg-red-50 border-red-300 text-red-500"
-                            : "border-soil/20 text-soil hover:border-clay hover:text-clay"
-                        }`}
+                        onClick={handleWishlist}
+                        className={`p-3 rounded-full border-2 transition-all ${user?.wishlist?.includes(productId!)
+                          ? "bg-red-50 border-red-300 text-red-500"
+                          : "border-soil/20 text-soil hover:border-clay hover:text-clay"
+                          }`}
                       >
                         <Heart
                           size={20}
-                          fill={wishlist ? "currentColor" : "none"}
+                          fill={user?.wishlist?.includes(productId!) ? "currentColor" : "none"}
                         />
                       </button>
                     </div>
@@ -426,7 +453,8 @@ export default function ProductModal({
             )}
           </motion.div>
         </motion.div>
-      )}
-    </AnimatePresence>
+      )
+      }
+    </AnimatePresence >
   );
 }

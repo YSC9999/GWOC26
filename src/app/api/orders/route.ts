@@ -184,13 +184,13 @@ export async function POST(req: Request) {
         // 5. Update Coupon Usage if applied
         if (appliedCouponId && userId) {
             await Coupon.findByIdAndUpdate(appliedCouponId, {
-                $addToSet: { usedBy: userId }
+                $push: { usedBy: userId }
             });
 
             // Also update User model for persistent tracking (Double Lock)
             if (couponCode) {
                 await User.findByIdAndUpdate(userId, {
-                    $addToSet: { usedCoupons: couponCode.toUpperCase() }
+                    $push: { usedCoupons: couponCode.toUpperCase() }
                 });
             }
         }

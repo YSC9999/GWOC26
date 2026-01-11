@@ -181,7 +181,7 @@ export default function Navbar() {
                             {user?.email}
                           </p>
                         </div>
-                        
+
                         {user?.role == "admin" && (
                           <Link
                             href="/admin"

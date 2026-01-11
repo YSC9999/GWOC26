@@ -15,8 +15,8 @@ export async function GET(req: Request) {
         const page = parseInt(searchParams.get("page") || "1");
 
         // Build query - ensure we filter using fields that exist in the Product schema
-       // Use stockQuantity or inStock; previous code used `stock` which doesn't exist, returning no products.
-       const query: any = { $or: [{ stockQuantity: { $gt: 0 } }, { inStock: true }] };
+        // Use stockQuantity or inStock; previous code used `stock` which doesn't exist, returning no products.
+        const query: any = {};
 
         if (category && category !== "all") {
             query.category = category;

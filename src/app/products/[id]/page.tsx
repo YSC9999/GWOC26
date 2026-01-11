@@ -54,7 +54,7 @@ const categoryEmojis: Record<string, string> = {
 };
 
 export default function ProductDetail() {
-  const params = useParams();
+  const params = useParams(); // params.id will contain the slug because the dir is [id]
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
@@ -71,6 +71,7 @@ export default function ProductDetail() {
   const fetchProduct = async () => {
     setLoading(true);
     try {
+      // params.id is actually the slug here
       const res = await fetch(`/api/products/${params.id}`);
       const data = await res.json();
       if (data.product) {
@@ -85,7 +86,7 @@ export default function ProductDetail() {
 
   const handleAddToCart = () => {
     if (!product) return;
-    
+
     for (let i = 0; i < quantity; i++) {
       cart.add({
         id: product._id as any,
@@ -94,7 +95,7 @@ export default function ProductDetail() {
         qty: 1,
       });
     }
-    
+
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
   };
@@ -129,8 +130,8 @@ export default function ProductDetail() {
     );
   }
 
-  const discount = product.originalPrice 
-    ? Math.round((1 - product.price / product.originalPrice) * 100) 
+  const discount = product.originalPrice
+    ? Math.round((1 - product.price / product.originalPrice) * 100)
     : 0;
 
   return (
@@ -141,8 +142,8 @@ export default function ProductDetail() {
         animate={{ opacity: 1 }}
         className="mb-8"
       >
-        <Link 
-          href="/products" 
+        <Link
+          href="/products"
           className="inline-flex items-center gap-2 text-soil/60 hover:text-clay transition-colors"
         >
           <ChevronLeft size={18} />
@@ -170,7 +171,7 @@ export default function ProductDetail() {
                 {categoryEmojis[product.category] || "🏺"}
               </div>
             )}
-            
+
             {/* Badges */}
             {discount > 0 && (
               <div className="absolute top-4 left-4 bg-green-500 text-white font-bold px-4 py-2 rounded-full">
@@ -300,13 +301,12 @@ export default function ProductDetail() {
               <button
                 onClick={handleAddToCart}
                 disabled={!product.inStock || addedToCart}
-                className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-full font-semibold text-lg transition-all ${
-                  addedToCart
+                className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-full font-semibold text-lg transition-all ${addedToCart
                     ? "bg-green-500 text-white"
                     : product.inStock
-                    ? "bg-clay text-white hover:bg-clay/90 hover:scale-[1.02]"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
+                      ? "bg-clay text-white hover:bg-clay/90 hover:scale-[1.02]"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
               >
                 {addedToCart ? (
                   <>
@@ -318,18 +318,17 @@ export default function ProductDetail() {
                   </>
                 )}
               </button>
-              
+
               <button
                 onClick={() => setWishlist(!wishlist)}
-                className={`p-4 rounded-full border-2 transition-all ${
-                  wishlist
+                className={`p-4 rounded-full border-2 transition-all ${wishlist
                     ? "bg-red-50 border-red-300 text-red-500"
                     : "border-soil/20 text-soil hover:border-clay hover:text-clay"
-                }`}
+                  }`}
               >
                 <Heart size={22} fill={wishlist ? "currentColor" : "none"} />
               </button>
-              
+
               <button className="p-4 rounded-full border-2 border-soil/20 text-soil hover:border-clay hover:text-clay transition-all">
                 <Share2 size={22} />
               </button>

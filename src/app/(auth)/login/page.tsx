@@ -15,45 +15,76 @@ export default function Login() {
   const router = useRouter();
   const { login } = useAuth();
 
+  const [otp, setOtp] = useState("");
+  const [step, setStep] = useState<'login' | 'otp'>('login');
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (!email.trim()) {
-      setError("Email is required");
-      return;
-    }
-
-    if (!password) {
-      setError("Password is required");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || "Login failed");
+    if (step === 'login') {
+      if (!email.trim() || !password) {
+        setError("Email and password are required");
         return;
       }
+      setLoading(true);
 
-      // Set user in auth store
-      login(data.user);
+      try {
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
 
-      // Redirect to home on successful login
-      router.push("/");
-    } catch (err) {
-      setError("An error occurred. Please try again.");
-    } finally {
-      setLoading(false);
+        const data = await response.json();
+
+        if (!response.ok) {
+          setError(data.error || "Login failed");
+          return;
+        }
+
+        if (data.requiredOtp) {
+          setStep('otp');
+          setError("");
+          // Don't log in yet
+        } else {
+          login(data.user);
+          router.push("/");
+        }
+      } catch (err) {
+        setError("An error occurred. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      // Verify OTP
+      if (!otp.trim()) {
+        setError("Please enter OTP");
+        return;
+      }
+      setLoading(true);
+
+      try {
+        const response = await fetch("/api/auth/verify-login-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, otp }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setError(data.error || "Invalid OTP");
+          return;
+        }
+
+        login(data.user);
+        router.push("/");
+      } catch (err) {
+        setError("An error occurred. Please try again.");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -62,10 +93,10 @@ export default function Login() {
       <div className="w-full max-w-md mx-auto">
         <div className="bg-white p-8 rounded-2xl shadow-lg">
           <h1 className="text-3xl font-bold text-center text-blue-700 mb-2">
-            Sign In
+            {step === 'login' ? 'Sign In' : 'Verify OTP'}
           </h1>
           <p className="text-center text-gray-500 mb-6">
-            Welcome back to Fashion-Hub
+            {step === 'login' ? 'Welcome back to Fashion-Hub' : `Enter OTP sent to ${email}`}
           </p>
 
           {error && (
@@ -75,57 +106,89 @@ export default function Login() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email */}
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Email Address
-              </label>
-              <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
-                <span className="text-gray-400">✉️</span>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  required
-                  className="bg-transparent ml-2 flex-1 outline-none text-gray-700 placeholder-gray-400"
-                />
-              </div>
-            </div>
+            {step === 'login' ? (
+              <>
+                {/* Email */}
+                <div>
+                  <label className="block text-gray-700 font-semibold mb-2">
+                    Email Address
+                  </label>
+                  <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
+                    <span className="text-gray-400">✉️</span>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email"
+                      required
+                      className="bg-transparent ml-2 flex-1 outline-none text-gray-700 placeholder-gray-400"
+                    />
+                  </div>
+                </div>
 
-            {/* Password */}
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Password
-              </label>
-              <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
-                <span className="text-gray-400">🔒</span>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  required
-                  className="bg-transparent ml-2 flex-1 outline-none text-gray-700 placeholder-gray-400"
-                />
+                {/* Password */}
+                <div>
+                  <label className="block text-gray-700 font-semibold mb-2">
+                    Password
+                  </label>
+                  <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
+                    <span className="text-gray-400">🔒</span>
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      required
+                      className="bg-transparent ml-2 flex-1 outline-none text-gray-700 placeholder-gray-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              /* OTP Input */
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">
+                  One-Time Password
+                </label>
+                <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
+                  <span className="text-gray-400">🔑</span>
+                  <input
+                    type="text"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    placeholder="Enter 6-digit OTP"
+                    required
+                    className="bg-transparent ml-2 flex-1 outline-none text-gray-700 placeholder-gray-400 tracking-widest font-mono"
+                  />
+                </div>
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="text-gray-400 hover:text-gray-600"
+                  onClick={() => setStep('login')}
+                  className="text-xs text-blue-500 mt-2 hover:underline"
                 >
+                  Back to Login
                 </button>
               </div>
-            </div>
+            )}
 
-            {/* Forgot Password Link */}
-            <div className="flex justify-end">
-              <Link
-                href="/forgot-password"
-                className="text-sm text-teal-600 hover:underline font-medium"
-              >
-                Forgot password?
-              </Link>
-            </div>
+            {/* Forgot Password Link - Only show in login step */}
+            {step === 'login' && (
+              <div className="flex justify-end">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-teal-600 hover:underline font-medium"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+            )}
 
             {/* Sign In Button */}
             <button
@@ -133,21 +196,23 @@ export default function Login() {
               disabled={loading}
               className="w-full mt-6 bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50"
             >
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? "Verifying..." : (step === 'login' ? "Sign In" : "Verify OTP")}
             </button>
 
-            {/* OAuth Signin */}
-            <div className="mt-6">
-              <div className="relative mb-4">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
+            {/* OAuth Signin - Only in login step */}
+            {step === 'login' && (
+              <div className="mt-6">
+                <div className="relative mb-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">or continue with</span>
+                  </div>
                 </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">or continue with</span>
-                </div>
+                <OAuthSignin />
               </div>
-              <OAuthSignin />
-            </div>
+            )}
 
             {/* Signup Link */}
             <p className="text-center mt-6 text-gray-600">

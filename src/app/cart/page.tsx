@@ -546,7 +546,11 @@ export default function Cart() {
                       <span className="w-8 text-center font-medium">{item.qty}</span>
                       <button
                         onClick={() => updateQty(item.id, item.qty + 1)}
-                        className="p-2 hover:text-clay transition-colors"
+                        disabled={item.qty >= item.stock}
+                        className={`p-2 transition-colors ${item.qty >= item.stock
+                            ? "text-gray-300 cursor-not-allowed"
+                            : "hover:text-clay"
+                          }`}
                       >
                         <Plus size={16} />
                       </button>

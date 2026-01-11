@@ -23,7 +23,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 400 });
     }
 
-    // 3. Generate JWT
+    // 3. Check for Admin Role and "Main Admin" override
+    if (user.role === 'admin' || user.email === 'chiluverusreeshanth@gmail.com') {
+      const { generateOTP, sendOTPEmail } = await import("@/lib/email");
+      const otp = generateOTP();
+
+      user.emailVerificationOTP = otp;
+      user.otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+      await user.save();
+
+      console.log(`[Login] Admin 2FA required for: ${user.email}`);
+      await sendOTPEmail(user.email, otp);
+
+      return NextResponse.json({
+        requiredOtp: true,
+        email: user.email,
+        message: "OTP sent to your email"
+      });
+    }
+
+    // 4. Generate JWT for non-admin users
     console.log(`[Login] Logging in user: ${user.email}, Role: ${user.role}, Tier: ${user.tier}`);
 
     const token = jwt.sign(
@@ -32,7 +51,7 @@ export async function POST(req: Request) {
       { expiresIn: "7d" }
     );
 
-    // 4. Return user info (excluding password)
+    // 5. Return user info (excluding password)
     const userWithoutPassword = {
       _id: user._id,
       name: user.name,

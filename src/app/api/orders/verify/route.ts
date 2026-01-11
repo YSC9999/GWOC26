@@ -36,9 +36,14 @@ export async function POST(req: Request) {
 
         // 3. Update Inventory (Deduct stock) and Check for Custom Orders
         for (const item of order.items) {
-            const product = await Product.findByIdAndUpdate(item.productId, {
-                $inc: { stockQuantity: -item.quantity }
-            });
+            const product = await Product.findById(item.productId);
+            if (product) {
+                product.stockQuantity = Math.max(0, (product.stockQuantity || 0) - item.quantity);
+                if (product.stockQuantity === 0) {
+                    product.inStock = false;
+                }
+                await product.save();
+            }
 
             // Check if this product is a custom order (via tags)
             if (product && product.tags && product.tags.includes('custom')) {
