@@ -23,8 +23,36 @@ export default function AdminProductsPage() {
   });
   const [category, setCategory] = useState<string>('');
   const [descriptionText, setDescriptionText] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const filteredProducts = products.filter(p => {
+    const term = searchTerm.toLowerCase();
+    const nameMatch = p.name?.toLowerCase().includes(term);
+    const catLabel = PRODUCT_CATEGORIES.find(c => c.id === p.category)?.label?.toLowerCase();
+    const catMatch = p.category?.toLowerCase().includes(term) || catLabel?.includes(term);
+    return nameMatch || catMatch;
+  });
+
+  /* PAGINATION */
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Reset page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
+
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   /* FETCH PRODUCTS */
   useEffect(() => {
@@ -117,6 +145,7 @@ export default function AdminProductsPage() {
 
   return (
     <div className="space-y-8">
+      {/* ... existing alerts and header ... */}
       {error && <div className="text-red-600">{error}</div>}
       {success && <div className="text-green-600">{success}</div>}
       <div className="flex items-center gap-4 mb-6">
@@ -126,8 +155,9 @@ export default function AdminProductsPage() {
         <h1 className="text-3xl font-serif font-bold text-soil">Products</h1>
       </div>
 
-      {/* ADD PRODUCT */}
+      {/* ADD PRODUCT FORM (omitted for brevity in replacement, kept in file) */}
       <form onSubmit={handleAdd} className="flex gap-2 flex-wrap">
+        {/* ... existing form inputs ... */}
         <input
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -216,58 +246,108 @@ export default function AdminProductsPage() {
         <button className="bg-black text-white px-6 py-2">Add</button>
       </form>
 
-      {/* PRODUCT TABLE */}
-      <div className="overflow-x-auto">
-        <table className="w-full border table-fixed">
-          <thead>
-            <tr className="bg-gray-50 text-soil/80 border-b">
-              <th className="w-5/12 p-3 text-left font-semibold">Name</th>
-              <th className="w-2/12 p-3 text-left font-semibold">Price</th>
-              <th className="w-2/12 p-3 text-left font-semibold">Stock</th>
-              <th className="w-1/12 p-3 text-left font-semibold">Img</th>
-              <th className="w-2/12 p-3 text-right font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {products.map((p) => (
-              <tr key={p._id} className="hover:bg-gray-50/50 transition-colors">
-                <td className="p-3 align-top break-words text-sm font-medium text-soil/90">
-                  {p.name}
-                </td>
-                <td className="p-3 align-top text-sm text-soil/70">
-                  ₹{p.price}
-                </td>
-                <td className="p-3 align-top text-sm text-soil/70">
-                  {p.stockQuantity}
-                </td>
-                <td className="p-3 align-top text-sm text-soil/70">
-                  {p.images?.length || 0}
-                </td>
-                <td className="p-3 align-top text-right space-x-2">
-                  <button
-                    onClick={() => {
-                      setEditingId(p._id);
-                      setForm({ name: p.name, price: p.price, stockQuantity: p.stockQuantity, images: p.images || [] });
-                      setCategory(p.category || '');
-                      setDescriptionText(p.description || '');
-                    }}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(p._id)}
-                    className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors"
-                  >
-                    Delete
-                  </button>
-                </td>
+      {/* SEARCH BAR */}
+      <div className="mb-4">
+        <input
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search by name or category..."
+          className="border p-2 w-full max-w-md rounded-md"
+        />
+      </div>
+
+      {/* PRODUCT TABLE and PAGINATION */}
+      <div className="border rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full table-fixed">
+            <thead className="bg-gray-50 text-soil/80 border-b">
+              <tr>
+                <th className="w-4/12 p-3 text-left font-semibold">Name</th>
+                <th className="w-2/12 p-3 text-left font-semibold">Category</th>
+                <th className="w-1/12 p-3 text-left font-semibold">Price</th>
+                <th className="w-1/12 p-3 text-left font-semibold">Stock</th>
+                <th className="w-1/12 p-3 text-left font-semibold">Img</th>
+                <th className="w-3/12 p-3 text-right font-semibold">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {products.length === 0 && (
-          <div className="text-center py-8 text-soil/50">No products found.</div>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {currentProducts.map((p) => (
+                <tr key={p._id} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="p-3 align-top break-words text-sm font-medium text-soil/90">
+                    {p.name}
+                  </td>
+                  <td className="p-3 align-top text-sm text-soil/70 break-words">
+                    {PRODUCT_CATEGORIES.find(c => c.id === p.category)?.label || p.category}
+                  </td>
+                  <td className="p-3 align-top text-sm text-soil/70">
+                    ₹{p.price}
+                  </td>
+                  <td className="p-3 align-top text-sm text-soil/70">
+                    {p.stockQuantity}
+                  </td>
+                  <td className="p-3 align-top text-sm text-soil/70">
+                    {p.images?.length || 0}
+                  </td>
+                  <td className="p-3 align-top text-right space-x-2">
+                    <button
+                      onClick={() => {
+                        setEditingId(p._id);
+                        setForm({ name: p.name, price: p.price, stockQuantity: p.stockQuantity, images: p.images || [] });
+                        setCategory(p.category || '');
+                        setDescriptionText(p.description || '');
+                      }}
+                      className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(p._id)}
+                      className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {filteredProducts.length === 0 && (
+            <div className="text-center py-8 text-soil/50">No products found matching your search.</div>
+          )}
+        </div>
+
+        {/* Pagination Controls */}
+        {filteredProducts.length > 0 && (
+          <div className="bg-gray-50 p-3 border-t flex items-center justify-between">
+            <div className="text-sm text-soil/60">
+              Showing <span className="font-medium">{startIndex + 1}</span> to <span className="font-medium">{Math.min(startIndex + itemsPerPage, filteredProducts.length)}</span> of <span className="font-medium">{filteredProducts.length}</span> results
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200"
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => goToPage(page)}
+                  className={`px-3 py-1 border rounded text-sm ${currentPage === page ? 'bg-black text-white' : 'hover:bg-gray-200'}`}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200"
+              >
+                Next
+              </button>
+            </div>
+          </div>
         )}
       </div>
 

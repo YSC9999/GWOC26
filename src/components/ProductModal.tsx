@@ -13,7 +13,14 @@ import {
   Loader2,
   Minus,
   Plus,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+
+// ... (keep existing imports)
+
+
+
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 
@@ -64,6 +71,7 @@ export default function ProductModal({
   const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const cart = useCart();
   const { user, login } = useAuth();
 
@@ -72,10 +80,25 @@ export default function ProductModal({
       fetchProduct();
       setQuantity(1);
       setAddedToCart(false);
+      setCurrentImageIndex(0);
     } else {
       setProduct(null);
     }
   }, [productId]);
+
+  const isValidImage = (img?: string) =>
+    !!img && (img.startsWith("/") || img.startsWith("http") || img.startsWith("data:"));
+
+  const validImages = product?.images?.filter(isValidImage) || [];
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % validImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + validImages.length) % validImages.length);
+  };
+
 
   // Close on escape key
   useEffect(() => {
@@ -181,7 +204,7 @@ export default function ProductModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pt-28 bg-black/60 backdrop-blur-sm"
           onClick={onClose}
         >
           <motion.div
@@ -189,7 +212,7 @@ export default function ProductModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", duration: 0.5 }}
-            className="relative bg-white rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-y-auto shadow-2xl"
+            className="relative bg-white rounded-3xl w-full max-w-4xl max-h-[calc(100vh-8rem)] overflow-y-auto shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
@@ -208,10 +231,15 @@ export default function ProductModal({
             ) : product ? (
               <div className="grid grid-cols-1 lg:grid-cols-2">
                 {/* Image Section */}
-                <div className="bg-gradient-to-br from-sand to-sand/50 h-72 lg:h-auto lg:min-h-[500px] flex items-center justify-center overflow-hidden relative">
-                  {getProductImage() ? (
-                    <img
-                      src={getProductImage()!}
+                <div className="bg-gradient-to-br from-sand to-sand/50 h-96 lg:h-auto lg:min-h-[500px] flex items-center justify-center overflow-hidden relative group">
+                  {/* Main Image */}
+                  {validImages.length > 0 ? (
+                    <motion.img
+                      key={currentImageIndex}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                      src={validImages[currentImageIndex]}
                       alt={product.name}
                       className="w-full h-full object-cover"
                     />
@@ -221,9 +249,50 @@ export default function ProductModal({
                     </div>
                   )}
 
+                  {/* Navigation Arrows */}
+                  {validImages.length > 1 && (
+                    <>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          prevImage();
+                        }}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white text-soil shadow-lg opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
+                      >
+                        <ChevronLeft size={24} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          nextImage();
+                        }}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white text-soil shadow-lg opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
+                      >
+                        <ChevronRight size={24} />
+                      </button>
+
+                      {/* Dots/Thumbnails Indicator */}
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                        {validImages.map((_, idx) => (
+                          <button
+                            key={idx}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCurrentImageIndex(idx);
+                            }}
+                            className={`w-2.5 h-2.5 rounded-full transition-all shadow-sm ${idx === currentImageIndex
+                              ? "bg-clay w-6"
+                              : "bg-white/70 hover:bg-white"
+                              }`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+
                   {/* Discount Badge */}
                   {discount > 0 && (
-                    <div className="absolute top-4 left-4 bg-green-500 text-white font-bold px-4 py-2 rounded-full">
+                    <div className="absolute top-4 left-4 bg-green-500 text-white font-bold px-4 py-2 rounded-full z-10">
                       {discount}% OFF
                     </div>
                   )}
