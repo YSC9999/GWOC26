@@ -1,4 +1,11 @@
+"use client";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { Eye, EyeOff } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import OAuthSignin from "@/components/OAuthSignin";
 import { fadeInUp, clickTap, instantSpring } from "@/lib/animations";
 
 export default function Login() {

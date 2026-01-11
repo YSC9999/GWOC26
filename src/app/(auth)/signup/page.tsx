@@ -1,4 +1,10 @@
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { Eye, EyeOff } from "lucide-react";
+import OAuthSignin from "@/components/OAuthSignin";
 import { fadeInUp, clickTap } from "@/lib/animations";
 
 export default function Signup() {
