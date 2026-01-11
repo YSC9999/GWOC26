@@ -119,12 +119,12 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative px-5 py-2 rounded-full z-10 transition-colors ${isActive ? "text-white" : "hover:text-clay"}`}
+                  className={`relative px-3 py-2 rounded-full z-10 transition-colors ${isActive ? "text-white" : "hover:text-clay"}`}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="active-nav-pill"
-                      className="absolute inset-0 bg-clay shadow-[0_0_15px_rgba(180,90,50,0.6)] border-2 border-white/20 rounded-full -z-10"
+                      className="absolute inset-0 bg-clay border-2 border-white/20 rounded-full -z-10"
                       transition={{ type: "spring", stiffness: 900, damping: 30, mass: 0.5 }}
                     />
                   )}
@@ -187,7 +187,7 @@ export default function Navbar() {
 
                 {/* Desktop Auth */}
                 {!isAuthenticated ? (
-                  <div className="flex gap-2 items-center flex-shrink-0">
+                  <div className="flex gap-4 items-center flex-shrink-0">
                     <Link
                       href="/login"
                     >
