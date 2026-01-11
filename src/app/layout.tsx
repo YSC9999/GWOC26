@@ -15,6 +15,8 @@ export const metadata: Metadata = {
   },
 };
 
+import ChatBot from "../components/ChatBot";
+
 export default function RootLayout({
   children,
   modal
@@ -43,6 +45,7 @@ export default function RootLayout({
           <main className="px-4 md:px-12 pt-20">{children}</main>
         </div>
 
+        <ChatBot />
         <ConditionalFooter />
       </body>
     </html>

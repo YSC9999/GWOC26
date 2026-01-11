@@ -1,0 +1,237 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { MessageCircle, X, Send, Sparkles } from "lucide-react";
+import { instantSpring } from "@/lib/animations";
+
+type Message = {
+    id: string;
+    text: string;
+    sender: "user" | "bot";
+    timestamp: Date;
+};
+
+import { useAuth } from "@/lib/auth"; // Import useAuth
+
+export default function ChatBot() {
+    const { user } = useAuth(); // Get user
+    const [isOpen, setIsOpen] = useState(false);
+
+    // Initial greeting
+    const initialMessage: Message = {
+        id: "1",
+        text: "Hi there! Welcome to Basho. How can I help you discover the perfect piece today?",
+        sender: "bot",
+        timestamp: new Date(),
+    };
+
+    const [messages, setMessages] = useState<Message[]>([initialMessage]);
+    const [inputValue, setInputValue] = useState("");
+    const [studioInfo, setStudioInfo] = useState<any>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
+    // Reset Chat on Auth Change
+    useEffect(() => {
+        setMessages([initialMessage]);
+        setIsOpen(false);
+    }, [user?.email]); // Depend on user email (or just user if object ref changes)
+
+    // Fetch Studio Info on mount
+    useEffect(() => {
+        const fetchInfo = async () => {
+            try {
+                const res = await fetch("/api/studio");
+                const data = await res.json();
+                if (data.studioInfo) {
+                    setStudioInfo(data.studioInfo);
+                }
+            } catch (err) {
+                console.error("Failed to fetch studio info for chatbot", err);
+            }
+        };
+        fetchInfo();
+    }, []);
+
+    const handleSend = () => {
+        if (!inputValue.trim()) return;
+
+        const userText = inputValue.trim();
+        const newUserMsg: Message = {
+            id: Date.now().toString(),
+            text: userText,
+            sender: "user",
+            timestamp: new Date(),
+        };
+
+        setMessages((prev) => [...prev, newUserMsg]);
+        setInputValue("");
+
+        // Intelligent Bot Response
+        setTimeout(() => {
+            let botText = "";
+            const lowerInput = userText.toLowerCase();
+
+            // Keywords for problems/issues
+            if (
+                lowerInput.includes("problem") ||
+                lowerInput.includes("issue") ||
+                lowerInput.includes("refund") ||
+                lowerInput.includes("return") ||
+                lowerInput.includes("broken") ||
+                lowerInput.includes("complaint") ||
+                lowerInput.includes("help")
+            ) {
+                const phone = studioInfo?.phone || "+91 98765 43210";
+                const email = studioInfo?.email || "chiluverusreeshanth@gmail.com";
+                botText = `I'm sorry to hear that you're facing an issue. Please reach out to our customer care team directly so we can resolve this for you ASAP.\n\n📞 Phone: ${phone}\n📧 Email: ${email}`;
+            }
+            // Greetings
+            else if (lowerInput.match(/^(hi|hello|hey|greetings)/)) {
+                botText = "Hello! How can I assist you with your pottery needs today?";
+            }
+            // Default fallback
+            else {
+                const phone = studioInfo?.phone || "+91 98765 43210";
+                botText = `I'm still learning! For specific queries, please contact our support team at ${phone}, or feel free to browse our FAQ.`;
+            }
+
+            const botResponse: Message = {
+                id: (Date.now() + 1).toString(),
+                text: botText,
+                sender: "bot",
+                timestamp: new Date(),
+            };
+            setMessages((prev) => [...prev, botResponse]);
+        }, 1000);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter") {
+            handleSend();
+        }
+    };
+
+    return (
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                        transition={instantSpring}
+                        className="mb-4 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-soil/10 overflow-hidden flex flex-col"
+                        style={{ maxHeight: "600px", height: "500px" }}
+                    >
+                        {/* Header */}
+                        <div className="bg-soil text-white p-4 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-white/10 p-2 rounded-full">
+                                    <Sparkles size={18} className="text-sand" />
+                                </div>
+                                <div>
+                                    <h3 className="font-serif font-bold">Basho Assistant</h3>
+                                    <p className="text-xs text-white/70">Online</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setIsOpen(false)}
+                                className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {/* Messages */}
+                        <div className="flex-1 overflow-y-auto p-4 bg-sand/20 space-y-4">
+                            {messages.map((msg) => (
+                                <motion.div
+                                    key={msg.id}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+                                >
+                                    <div
+                                        className={`max-w-[80%] p-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${msg.sender === "user"
+                                            ? "bg-clay text-white rounded-br-none"
+                                            : "bg-white text-soil border border-soil/5 rounded-bl-none shadow-sm"
+                                            }`}
+                                    >
+                                        {msg.text}
+                                    </div>
+                                </motion.div>
+                            ))}
+                            <div ref={messagesEndRef} />
+                        </div>
+
+                        {/* Input */}
+                        <div className="p-4 bg-white border-t border-soil/10">
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={inputValue}
+                                    onChange={(e) => setInputValue(e.target.value)}
+                                    onKeyDown={handleKeyDown}
+                                    placeholder="Type a message..."
+                                    className="flex-1 bg-san/10 border border-soil/10 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-clay focus:ring-1 focus:ring-clay/20 transition-all"
+                                />
+                                <button
+                                    onClick={handleSend}
+                                    disabled={!inputValue.trim()}
+                                    className="p-2 bg-soil text-white rounded-full hover:bg-clay transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <Send size={18} />
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-14 h-14 bg-clay text-white rounded-full shadow-lg flex items-center justify-center hover:bg-soil transition-colors relative"
+            >
+                <AnimatePresence mode="wait">
+                    {isOpen ? (
+                        <motion.div
+                            key="close"
+                            initial={{ rotate: -90, opacity: 0 }}
+                            animate={{ rotate: 0, opacity: 1 }}
+                            exit={{ rotate: 90, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <X size={28} />
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="chat"
+                            initial={{ rotate: 90, opacity: 0 }}
+                            animate={{ rotate: 0, opacity: 1 }}
+                            exit={{ rotate: -90, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <MessageCircle size={28} />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Notification Dot */}
+                {!isOpen && (
+                    <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-pulse" />
+                )}
+            </motion.button>
+        </div>
+    );
+}
