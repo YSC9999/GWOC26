@@ -33,6 +33,8 @@ export interface IUser extends Document {
   otpExpiry?: Date;
   phoneVerificationOTP?: string;
   phoneOtpExpiry?: Date;
+  resetPasswordOTP?: string;
+  resetPasswordExpiry?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -79,6 +81,8 @@ const UserSchema = new Schema<IUser>({
   otpExpiry: Date,
   phoneVerificationOTP: String,
   phoneOtpExpiry: Date,
+  resetPasswordOTP: String,
+  resetPasswordExpiry: Date,
 }, { timestamps: true });
 
 const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
