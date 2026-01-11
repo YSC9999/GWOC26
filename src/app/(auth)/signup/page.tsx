@@ -171,13 +171,6 @@ export default function Signup() {
                   required
                   className="bg-transparent ml-2 flex-1 min-w-0 outline-none text-gray-700 placeholder-gray-400"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="text-gray-400 hover:text-gray-600 flex-shrink-0 ml-2"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
               </div>
             </div>
 
@@ -194,13 +187,6 @@ export default function Signup() {
                   required
                   className="bg-transparent ml-2 flex-1 min-w-0 outline-none text-gray-700 placeholder-gray-400"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="text-gray-400 hover:text-gray-600 flex-shrink-0 ml-2"
-                >
-                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
               </div>
             </div>
 

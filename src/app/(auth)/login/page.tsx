@@ -150,13 +150,6 @@ export default function Login() {
                       required
                       className="bg-transparent ml-2 flex-1 outline-none text-gray-700 placeholder-gray-400"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                    </button>
                   </div>
                 </div>
               </>
