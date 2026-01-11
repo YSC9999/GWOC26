@@ -12,7 +12,7 @@ export default function AdminDashboard() {
           <p className="text-sm text-gray-600">
             Manage collection items
           </p>
-          <span className="text-clay mt-2 block">Manage Products</span>
+          
         </Link>
 
         <Link href="/admin/orders" className="p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all border border-gray-100 group">
@@ -30,7 +30,7 @@ export default function AdminDashboard() {
           <p className="text-sm text-gray-600">
             Manage custom requests and quotes
           </p>
-          <span className="text-clay mt-2 block">View Requests</span>
+           
         </Link>
 
         <Link href="/admin/users" className="card p-6 block hover:shadow-md transition-all border border-gray-100 group">
@@ -38,7 +38,7 @@ export default function AdminDashboard() {
           <p className="text-sm text-gray-600">
             Manage user accounts and employees
           </p>
-          <span className="text-clay mt-2 block">Manage Users</span>
+           
         </Link>
 
         <Link href="/admin/featured" className="card p-6 block hover:shadow-md transition-all border border-gray-100 group">
@@ -58,13 +58,13 @@ export default function AdminDashboard() {
         <Link href="/admin/contact" className="card p-6 block hover:shadow-md transition-all border border-gray-100 group">
           <h3 className="text-xl font-semibold mb-2 group-hover:text-clay">Company Details</h3>
           <p className="text-sm text-gray-600 mb-4">Edit studio name, contact info, visiting hours and policies</p>
-          <span className="text-clay">Edit Company Details</span>
+           
         </Link>
 
         <Link href="/admin/user-contacts" className="card p-6 block hover:shadow-md transition-all border border-gray-100 group">
           <h3 className="text-xl font-semibold mb-2 group-hover:text-clay">User Contacts</h3>
           <p className="text-sm text-gray-600 mb-4">View and manage customer contact messages</p>
-          <span className="text-clay">View Messages</span>
+           
         </Link>
       </div>
     </div>
