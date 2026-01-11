@@ -49,7 +49,9 @@ export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     fetchData();
@@ -220,11 +222,16 @@ export default function Home() {
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ y: -10 }}
                   className="group cursor-pointer"
-                  onClick={() => setSelectedProductId(product.slug || product._id)}
+                  onClick={() =>
+                    setSelectedProductId(product.slug || product._id)
+                  }
                 >
                   <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
                     <div className="h-56 bg-gradient-to-br from-sand to-sand/50 flex items-center justify-center overflow-hidden relative">
-                      {product.images?.[0] && (product.images[0].startsWith("/") || product.images[0].startsWith("http") || product.images[0].startsWith("data:")) ? (
+                      {product.images?.[0] &&
+                      (product.images[0].startsWith("/") ||
+                        product.images[0].startsWith("http") ||
+                        product.images[0].startsWith("data:")) ? (
                         <img
                           src={product.images[0]}
                           alt={product.name}
@@ -239,8 +246,7 @@ export default function Home() {
                         product.originalPrice > product.price && (
                           <div className="absolute top-3 left-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                             {Math.round(
-                              (1 - product.price / product.originalPrice) *
-                                100
+                              (1 - product.price / product.originalPrice) * 100
                             )}
                             % OFF
                           </div>
@@ -442,12 +448,16 @@ export default function Home() {
                 key={testimonial._id}
                 initial={{ opacity: 0, y: 40, scale: 0.95 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                whileHover={{ 
-                  y: -8, 
+                whileHover={{
+                  y: -8,
                   boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
-                  transition: { duration: 0.3 }
+                  transition: { duration: 0.3 },
                 }}
-                transition={{ delay: idx * 0.15, duration: 0.6, type: "spring" }}
+                transition={{
+                  delay: idx * 0.15,
+                  duration: 0.6,
+                  type: "spring",
+                }}
                 className="relative p-8 rounded-3xl border border-soil/10 bg-white/80 backdrop-blur-sm"
               >
                 <motion.div
@@ -458,8 +468,8 @@ export default function Home() {
                 >
                   <Quote size={36} className="text-clay/30" />
                 </motion.div>
-                
-                <motion.div 
+
+                <motion.div
                   className="flex items-center gap-1 mb-5"
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
@@ -479,11 +489,11 @@ export default function Home() {
                     </motion.div>
                   ))}
                 </motion.div>
-                
+
                 <p className="text-soil/80 mb-6 italic leading-relaxed text-lg">
                   "{testimonial.content}"
                 </p>
-                
+
                 <motion.div
                   initial={{ opacity: 0, x: -10 }}
                   whileInView={{ opacity: 1, x: 0 }}
@@ -527,8 +537,8 @@ export default function Home() {
             Know More About Basho
           </h2>
           <p className="text-soil/70 mb-8 max-w-lg mx-auto text-lg">
-            Discover our philosophy, meet the artist, and learn about the journey 
-            behind every handcrafted piece of pottery.
+            Discover our philosophy, meet the artist, and learn about the
+            journey behind every handcrafted piece of pottery.
           </p>
           <Link href="/about">
             <button className="bg-soil text-white px-8 py-4 rounded-full font-semibold hover:bg-clay transition-colors inline-flex items-center gap-2 hover:scale-105 transform">

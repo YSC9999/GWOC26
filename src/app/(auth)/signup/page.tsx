@@ -80,7 +80,9 @@ export default function Signup() {
 
       if (!otpResponse.ok) {
         const data = await otpResponse.json();
-        setError(data.error || "Failed to send OTP. Check email configuration.");
+        setError(
+          data.error || "Failed to send OTP. Check email configuration."
+        );
         sessionStorage.removeItem("signupData");
         return;
       }
@@ -213,7 +215,11 @@ export default function Signup() {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="text-gray-400 hover:text-gray-600 flex-shrink-0 ml-2"
                 >
-                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showConfirmPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
                 </button>
               </div>
             </div>
@@ -234,7 +240,9 @@ export default function Signup() {
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">or continue with</span>
+                  <span className="px-2 bg-white text-gray-500">
+                    or continue with
+                  </span>
                 </div>
               </div>
               <OAuthSignin />
