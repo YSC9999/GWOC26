@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import  Link from "next/link";
-
+import Link from "next/link";
+import UploadInput from "@/components/UploadInput";
 
 type ProductForm = {
   name: string;
@@ -20,7 +20,10 @@ export default function AdminProductsPage() {
     stockQuantity: 0,
     images: [],
   });
+  const [category, setCategory] = useState<string>('');
+  const [descriptionText, setDescriptionText] = useState<string>('');
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   /* FETCH PRODUCTS */
   useEffect(() => {
@@ -33,66 +36,71 @@ export default function AdminProductsPage() {
       .catch((err) => setError(err.message));
   }, []);
 
-  /* CLOUDINARY UPLOAD */
-  async function uploadImages(files: FileList): Promise<string[]> {
-    const urls: string[] = [];
-
-    for (const file of Array.from(files)) {
-      const data = new FormData();
-      data.append("file", file);
-      data.append(
-        "upload_preset",
-        process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!
-      );
-
-      const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-        {
-          method: "POST",
-          body: data,
-        }
-      );
-
-      const json = await res.json();
-      urls.push(json.secure_url);
-    }
-
-    return urls;
-  }
-
   /* ADD PRODUCT */
   async function handleAdd(e: any) {
     e.preventDefault();
-    const formEl = e.target;
+    setError('');
+    setSuccess('');
 
-    const images =
-      formEl.images.files.length > 0
-        ? await uploadImages(formEl.images.files)
-        : [];
+    if (!category) {
+      setError('Category is required');
+      return;
+    }
 
-    await fetch("/api/admin/products", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: formEl.name.value,
-        price: Number(formEl.price.value),
-        stockQuantity: Number(formEl.stockQuantity.value),
-        images,
-      }),
-    });
+    try {
+      const res = await fetch("/api/admin/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          price: form.price,
+          stockQuantity: form.stockQuantity,
+          images: form.images, // secure URLs
+          description: descriptionText,
+          category,
+        }),
+      });
 
-    location.reload();
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Failed to create');
+        return;
+      }
+
+      setProducts((p) => [data, ...p]);
+      setForm({ name: "", price: 0, stockQuantity: 0, images: [] });
+      setCategory('');
+      setDescriptionText('');
+      setSuccess('Product added');
+    } catch (err: any) {
+      setError(err.message || 'Network error');
+    }
   }
 
   /* UPDATE PRODUCT */
   async function handleUpdate(id: string) {
-    await fetch("/api/admin/products", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, ...form }),
-    });
+    setError('');
+    setSuccess('');
+    try {
+      const res = await fetch("/api/admin/products", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, ...form, category, description: descriptionText }),
+      });
 
-    location.reload();
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Failed to update');
+        return;
+      }
+
+      const updated = data.product || data;
+      setProducts((prev) => prev.map((p) => (p._id === id ? updated : p)));
+      setSuccess('Product updated');
+      setEditingId(null);
+    } catch (err: any) {
+      setError(err.message || 'Network error');
+    }
   }
 
   /* DELETE PRODUCT */
@@ -106,39 +114,87 @@ export default function AdminProductsPage() {
     setProducts(products.filter((p) => p._id !== id));
   }
 
-  if (error) return <p className="text-red-600">{error}</p>;
-
   return (
     <div className="space-y-8">
+      {error && <div className="text-red-600">{error}</div>}
+      {success && <div className="text-green-600">{success}</div>}
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/admin" className="text-soil/60 hover:text-clay">← Admin Home</Link>
+        <Link href="/admin" className="text-soil/60 hover:text-clay">
+          ← Admin Home
+        </Link>
         <h1 className="text-3xl font-serif font-bold text-soil">Products</h1>
       </div>
 
       {/* ADD PRODUCT */}
       <form onSubmit={handleAdd} className="flex gap-2 flex-wrap">
-        <input name="name" placeholder="Name" className="border p-2" required />
         <input
-          name="price"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          placeholder="Name"
+          className="border p-2"
+          required
+        />
+        <input
           type="number"
+          value={form.price}
+          onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
           placeholder="Price"
           className="border p-2"
           required
         />
         <input
-          name="stockQuantity"
           type="number"
+          value={form.stockQuantity}
+          onChange={(e) =>
+            setForm({ ...form, stockQuantity: Number(e.target.value) })
+          }
           placeholder="Stock"
           className="border p-2"
           required
         />
-        <input
-          name="images"
-          type="file"
-          multiple
-          accept="image/*"
-          className="border p-2"
+
+        <UploadInput
+          uploadPreset={"products_unsigned"}
+          folder={"products/"}
+          onUploaded={(urls) => {
+            setForm((prev) => ({ ...prev, images: [...(prev.images || []), ...urls] }));
+          }}
         />
+
+        {/* Thumbnails */}
+        <div className="flex gap-2 mt-2 flex-wrap">
+          {(form.images || []).map((img, idx) => (
+            <div key={idx} className="relative">
+              <img src={img} className="w-20 h-20 object-cover rounded" />
+              <button
+                type="button"
+                onClick={() => setForm((prev) => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }))}
+                className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 text-xs"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <select value={category} onChange={(e) => setCategory(e.target.value)} className="border p-2">
+          <option value="">Select category</option>
+          <option value="bowls">Bowls</option>
+          <option value="cups">Cups</option>
+          <option value="plates">Plates</option>
+          <option value="platters">Platters</option>
+          <option value="vases">Vases</option>
+          <option value="decor">Decor</option>
+          <option value="sets">Sets</option>
+        </select>
+
+        <input
+          value={descriptionText}
+          onChange={(e) => setDescriptionText(e.target.value)}
+          placeholder="Short description"
+          className="border p-2 w-full"
+        />
+
         <button className="bg-black text-white px-6 py-2">Add</button>
       </form>
 
@@ -156,83 +212,94 @@ export default function AdminProductsPage() {
         <tbody>
           {products.map((p) => (
             <tr key={p._id} className="border-t">
-              {editingId === p._id ? (
-                <>
-                  <td>
-                    <input
-                      className="border p-1"
-                      defaultValue={p.name}
-                      onChange={(e) =>
-                        setForm({ ...form, name: e.target.value })
-                      }
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="number"
-                      className="border p-1"
-                      defaultValue={p.price}
-                      onChange={(e) =>
-                        setForm({
-                          ...form,
-                          price: Number(e.target.value),
-                        })
-                      }
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="number"
-                      className="border p-1"
-                      defaultValue={p.stockQuantity}
-                      onChange={(e) =>
-                        setForm({
-                          ...form,
-                           stockQuantity: Number(e.target.value),
-                        })
-                      }
-                    />
-                  </td>
-                  <td>{p.images?.length || 0}</td>
-                  <td>
-                    <button
-                      onClick={() => handleUpdate(p._id)}
-                      className="text-green-600 mr-2"
-                    >
-                      Save
-                    </button>
-                    <button onClick={() => setEditingId(null)}>Cancel</button>
-                  </td>
-                </>
-              ) : (
-                <>
-                  <td>{p.name}</td>
-                  <td>₹{p.price}</td>
-                  <td>{p.stockQuantity}</td>
-                  <td>{p.images?.length || 0}</td>
-                  <td>
-                    <button
-                      onClick={() => {
-                        setEditingId(p._id);
-                        setForm(p);
-                      }}
-                      className="mr-3 text-blue-600"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(p._id)}
-                      className="text-red-600"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </>
-              )}
+                <td>{p.name}</td>
+                <td>₹{p.price}</td>
+                <td>{p.stockQuantity}</td>
+                <td>{p.images?.length || 0}</td>
+                <td>
+                  <button
+                    onClick={() => {
+                      setEditingId(p._id);
+                      setForm({ name: p.name, price: p.price, stockQuantity: p.stockQuantity, images: p.images || [] });
+                      setCategory(p.category || '');
+                      setDescriptionText(p.description || '');
+                    }}
+                    className="mr-3 text-blue-600"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(p._id)}
+                    className="text-red-600"
+                  >
+                    Delete
+                  </button>
+                </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {/* Edit Modal */}
+      {editingId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-2xl shadow-lg w-full max-w-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold">Edit Product</h3>
+              <button onClick={() => setEditingId(null)} className="text-soil/60">Close</button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm text-soil mb-1">Name</label>
+                <input value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} className="border p-2 w-full" />
+
+                <label className="block text-sm text-soil mt-3 mb-1">Price</label>
+                <input type="number" value={form.price} onChange={(e) => setForm({...form, price: Number(e.target.value)})} className="border p-2 w-full" />
+
+                <label className="block text-sm text-soil mt-3 mb-1">Stock</label>
+                <input type="number" value={form.stockQuantity} onChange={(e) => setForm({...form, stockQuantity: Number(e.target.value)})} className="border p-2 w-full" />
+
+                <label className="block text-sm text-soil mt-3 mb-1">Category</label>
+                <select value={category} onChange={(e) => setCategory(e.target.value)} className="border p-2 w-full">
+                  <option value="">Select category</option>
+                  <option value="bowls">Bowls</option>
+                  <option value="cups">Cups</option>
+                  <option value="plates">Plates</option>
+                  <option value="platters">Platters</option>
+                  <option value="vases">Vases</option>
+                  <option value="decor">Decor</option>
+                  <option value="sets">Sets</option>
+                </select>
+
+                <label className="block text-sm text-soil mt-3 mb-1">Short description</label>
+                <input value={descriptionText} onChange={(e) => setDescriptionText(e.target.value)} className="border p-2 w-full" />
+
+              </div>
+
+              <div>
+                <label className="block text-sm text-soil mb-1">Images</label>
+                <div className="flex gap-2 flex-wrap mb-3">
+                  {(form.images || []).map((img, idx) => (
+                    <div key={idx} className="relative">
+                      <img src={img} className="w-24 h-24 object-cover rounded" />
+                      <button type="button" onClick={() => setForm((prev) => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }))} className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 text-xs">×</button>
+                    </div>
+                  ))}
+                </div>
+
+                <UploadInput uploadPreset={"products_unsigned"} folder={"products/"} onUploaded={(urls) => setForm((prev) => ({ ...prev, images: [...(prev.images || []), ...urls] }))} />
+
+                <div className="mt-6 flex gap-3 justify-end">
+                  <button onClick={() => setEditingId(null)} className="px-4 py-2 border rounded">Cancel</button>
+                  <button onClick={() => editingId && handleUpdate(editingId)} className="px-4 py-2 bg-clay text-white rounded">Save</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

@@ -27,7 +27,10 @@ export async function GET(
             return NextResponse.json({ error: "Product not found" }, { status: 404 });
         }
 
-        return NextResponse.json({ product });
+        const img = product.images && product.images.length > 0 ? product.images[0] : null;
+        const valid = img && (img.startsWith("/") || img.startsWith("http") || img.startsWith("data:"));
+
+        return NextResponse.json({ product: { ...product, image: valid ? img : null } });
     } catch (error: any) {
         console.error("Product GET error:", error);
         return NextResponse.json({ error: error.message }, { status: 500 });

@@ -112,7 +112,7 @@ export default function Gallery() {
               onClick={() => setSelectedImage(item)}
             >
               <div className="rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow bg-sand/30">
-                {item.image.startsWith("/") ? (
+                {item.image && (item.image.startsWith("/") || item.image.startsWith("http") || item.image.startsWith("data:")) ? (
                   <img
                     src={item.image}
                     alt={item.title}
@@ -160,7 +160,7 @@ export default function Gallery() {
             className="relative max-w-5xl w-full max-h-[90vh] rounded-lg overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {selectedImage.image.startsWith("/") ? (
+            {selectedImage.image && (selectedImage.image.startsWith("/") || selectedImage.image.startsWith("http") || selectedImage.image.startsWith("data:")) ? (
               <img
                 src={selectedImage.image}
                 alt={selectedImage.title}

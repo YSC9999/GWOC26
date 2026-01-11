@@ -18,6 +18,12 @@ export async function connectDB() {
   if (!cached.promise) {
     cached.promise = mongoose.connect(MONGODB_URL, {
       bufferCommands: false,
+      // Set a reasonable server selection timeout so the app fails faster on network issues
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
+    }).catch((err) => {
+      console.error('MongoDB connect error:', err);
+      throw err;
     });
   }
 

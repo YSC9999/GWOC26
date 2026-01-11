@@ -83,8 +83,10 @@ export default function Products() {
     });
   };
 
+  const isValidImage = (img?: string) => !!img && (img.startsWith("/") || img.startsWith("http") || img.startsWith("data:"));
+
   const getProductImage = (product: Product) => {
-    if (product.images && product.images.length > 0 && product.images[0].startsWith("/")) {
+    if (product.images && product.images.length > 0 && isValidImage(product.images[0])) {
       return product.images[0];
     }
     return null;

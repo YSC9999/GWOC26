@@ -36,7 +36,7 @@ export async function GET(req: Request) {
 
         const skip = (page - 1) * limit;
 
-        const [products, total] = await Promise.all([
+        const [productsRaw, total] = await Promise.all([
             Product.find(query)
                 .sort({ featured: -1, createdAt: -1 })
                 .skip(skip)
@@ -44,6 +44,13 @@ export async function GET(req: Request) {
                 .lean(),
             Product.countDocuments(query)
         ]);
+
+        // Normalize products to include a single `image` field for convenience (first valid image)
+        const products = (productsRaw as any[]).map((p) => {
+            const img = p.images && p.images.length > 0 ? p.images[0] : null;
+            const valid = img && (img.startsWith("/") || img.startsWith("http") || img.startsWith("data:"));
+            return { ...p, image: valid ? img : null };
+        });
 
         return NextResponse.json({
             products,

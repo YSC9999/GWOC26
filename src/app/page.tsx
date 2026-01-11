@@ -222,7 +222,7 @@ export default function Home() {
                   <Link href={`/products/${product.slug || product._id}`}>
                     <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
                       <div className="h-56 bg-gradient-to-br from-sand to-sand/50 flex items-center justify-center overflow-hidden relative">
-                        {product.images?.[0]?.startsWith("/") ? (
+                        {product.images?.[0] && (product.images[0].startsWith("/") || product.images[0].startsWith("http") || product.images[0].startsWith("data:")) ? (
                           <img
                             src={product.images[0]}
                             alt={product.name}

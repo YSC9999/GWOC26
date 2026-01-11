@@ -126,7 +126,7 @@ export default function MyOrders() {
                     {order.items.map((item, idx) => (
                       <div key={idx} className="flex gap-4 items-center">
                         <div className="w-16 h-16 bg-white rounded-lg border border-gray-200 p-2 flex items-center justify-center text-2xl">
-                          {item.image && item.image.startsWith("/") ? (
+                          {item.image && (item.image.startsWith("/") || item.image.startsWith("http") || item.image.startsWith("data:")) ? (
                             <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded" />
                           ) : (
                             "🏺"

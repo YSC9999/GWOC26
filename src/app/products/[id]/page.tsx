@@ -100,8 +100,9 @@ export default function ProductDetail() {
   };
 
   const getProductImage = () => {
-    if (product?.images && product.images.length > 0 && product.images[0].startsWith("/")) {
-      return product.images[0];
+    const img = product?.images?.[0];
+    if (img && (img.startsWith("/") || img.startsWith("http") || img.startsWith("data:"))) {
+      return img;
     }
     return null;
   };
