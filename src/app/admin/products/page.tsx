@@ -217,46 +217,59 @@ export default function AdminProductsPage() {
       </form>
 
       {/* PRODUCT TABLE */}
-      <table className="w-full border">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Price</th>
-            <th>Stock</th>
-            <th>Images</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((p) => (
-            <tr key={p._id} className="border-t">
-              <td>{p.name}</td>
-              <td>₹{p.price}</td>
-              <td>{p.stockQuantity}</td>
-              <td>{p.images?.length || 0}</td>
-              <td>
-                <button
-                  onClick={() => {
-                    setEditingId(p._id);
-                    setForm({ name: p.name, price: p.price, stockQuantity: p.stockQuantity, images: p.images || [] });
-                    setCategory(p.category || '');
-                    setDescriptionText(p.description || '');
-                  }}
-                  className="mr-3 text-blue-600"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(p._id)}
-                  className="text-red-600"
-                >
-                  Delete
-                </button>
-              </td>
+      <div className="overflow-x-auto">
+        <table className="w-full border table-fixed">
+          <thead>
+            <tr className="bg-gray-50 text-soil/80 border-b">
+              <th className="w-5/12 p-3 text-left font-semibold">Name</th>
+              <th className="w-2/12 p-3 text-left font-semibold">Price</th>
+              <th className="w-2/12 p-3 text-left font-semibold">Stock</th>
+              <th className="w-1/12 p-3 text-left font-semibold">Img</th>
+              <th className="w-2/12 p-3 text-right font-semibold">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {products.map((p) => (
+              <tr key={p._id} className="hover:bg-gray-50/50 transition-colors">
+                <td className="p-3 align-top break-words text-sm font-medium text-soil/90">
+                  {p.name}
+                </td>
+                <td className="p-3 align-top text-sm text-soil/70">
+                  ₹{p.price}
+                </td>
+                <td className="p-3 align-top text-sm text-soil/70">
+                  {p.stockQuantity}
+                </td>
+                <td className="p-3 align-top text-sm text-soil/70">
+                  {p.images?.length || 0}
+                </td>
+                <td className="p-3 align-top text-right space-x-2">
+                  <button
+                    onClick={() => {
+                      setEditingId(p._id);
+                      setForm({ name: p.name, price: p.price, stockQuantity: p.stockQuantity, images: p.images || [] });
+                      setCategory(p.category || '');
+                      setDescriptionText(p.description || '');
+                    }}
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(p._id)}
+                    className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {products.length === 0 && (
+          <div className="text-center py-8 text-soil/50">No products found.</div>
+        )}
+      </div>
 
       {/* Edit Modal */}
       {editingId && (
