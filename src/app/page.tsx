@@ -12,6 +12,7 @@ import {
   Quote,
   Sparkles,
 } from "lucide-react";
+import ProductModal from "@/components/ProductModal";
 
 interface Product {
   _id: string;
@@ -48,6 +49,7 @@ export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -132,9 +134,9 @@ export default function Home() {
                     <ShoppingBag size={20} />
                   </button>
                 </Link>
-                <Link href="/about">
+                <Link href="/custom-orders">
                   <button className="btn-secondary flex items-center gap-2 px-8 py-4 text-lg hover:scale-105 transition-transform">
-                    OUR STORY
+                    CUSTOM ORDER
                     <ArrowRight size={20} />
                   </button>
                 </Link>
@@ -217,69 +219,68 @@ export default function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ y: -10 }}
-                  className="group"
+                  className="group cursor-pointer"
+                  onClick={() => setSelectedProductId(product.slug || product._id)}
                 >
-                  <Link href={`/products/${product.slug || product._id}`}>
-                    <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
-                      <div className="h-56 bg-gradient-to-br from-sand to-sand/50 flex items-center justify-center overflow-hidden relative">
-                        {product.images?.[0] && (product.images[0].startsWith("/") || product.images[0].startsWith("http") || product.images[0].startsWith("data:")) ? (
-                          <img
-                            src={product.images[0]}
-                            alt={product.name}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform"
-                          />
-                        ) : (
-                          <div className="text-7xl group-hover:scale-110 transition-transform duration-500">
-                            {categoryEmojis[product.category] || "🏺"}
+                  <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
+                    <div className="h-56 bg-gradient-to-br from-sand to-sand/50 flex items-center justify-center overflow-hidden relative">
+                      {product.images?.[0] && (product.images[0].startsWith("/") || product.images[0].startsWith("http") || product.images[0].startsWith("data:")) ? (
+                        <img
+                          src={product.images[0]}
+                          alt={product.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                        />
+                      ) : (
+                        <div className="text-7xl group-hover:scale-110 transition-transform duration-500">
+                          {categoryEmojis[product.category] || "🏺"}
+                        </div>
+                      )}
+                      {product.originalPrice &&
+                        product.originalPrice > product.price && (
+                          <div className="absolute top-3 left-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                            {Math.round(
+                              (1 - product.price / product.originalPrice) *
+                                100
+                            )}
+                            % OFF
                           </div>
                         )}
-                        {product.originalPrice &&
-                          product.originalPrice > product.price && (
-                            <div className="absolute top-3 left-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                              {Math.round(
-                                (1 - product.price / product.originalPrice) *
-                                  100
-                              )}
-                              % OFF
-                            </div>
-                          )}
-                      </div>
-                      <div className="p-6">
-                        <span className="text-xs font-medium text-clay uppercase tracking-wide">
-                          {product.category}
-                        </span>
-                        <h3 className="text-xl font-bold text-soil mt-1 mb-2 group-hover:text-clay transition-colors">
-                          {product.name}
-                        </h3>
-                        <p className="text-sm text-soil/60 mb-3 line-clamp-2">
-                          {product.description}
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-2xl font-bold text-clay">
-                              ₹{product.price.toLocaleString()}
+                    </div>
+                    <div className="p-6">
+                      <span className="text-xs font-medium text-clay uppercase tracking-wide">
+                        {product.category}
+                      </span>
+                      <h3 className="text-xl font-bold text-soil mt-1 mb-2 group-hover:text-clay transition-colors">
+                        {product.name}
+                      </h3>
+                      <p className="text-sm text-soil/60 mb-3 line-clamp-2">
+                        {product.description}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-2xl font-bold text-clay">
+                            ₹{product.price.toLocaleString()}
+                          </span>
+                          {product.originalPrice && (
+                            <span className="text-sm text-soil/40 line-through">
+                              ₹{product.originalPrice.toLocaleString()}
                             </span>
-                            {product.originalPrice && (
-                              <span className="text-sm text-soil/40 line-through">
-                                ₹{product.originalPrice.toLocaleString()}
-                              </span>
-                            )}
-                          </div>
-                          {product.rating > 0 && (
-                            <div className="flex items-center gap-1">
-                              <Star
-                                size={14}
-                                className="fill-yellow-400 text-yellow-400"
-                              />
-                              <span className="text-sm text-soil/60">
-                                {product.rating}
-                              </span>
-                            </div>
                           )}
                         </div>
+                        {product.rating > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Star
+                              size={14}
+                              className="fill-yellow-400 text-yellow-400"
+                            />
+                            <span className="text-sm text-soil/60">
+                              {product.rating}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 </motion.div>
               ))
             ) : (
@@ -416,90 +417,133 @@ export default function Home() {
           transition={{ duration: 0.8 }}
           className="py-20 px-4 md:px-12"
         >
-          <div className="text-center mb-12">
-            <span className="inline-block text-clay font-medium mb-4 tracking-wider uppercase">
+          <div className="text-center mb-16">
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="inline-block text-clay font-medium mb-4 tracking-wider uppercase"
+            >
               What People Say
-            </span>
-            <h2 className="text-4xl md:text-5xl font-bold text-soil font-serif">
+            </motion.span>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="text-4xl md:text-5xl font-bold text-soil font-serif"
+            >
               Stories from Our Community
-            </h2>
+            </motion.h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {testimonials.map((testimonial, idx) => (
               <motion.div
                 key={testimonial._id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className="bg-white rounded-2xl p-8 relative"
+                initial={{ opacity: 0, y: 40, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                whileHover={{ 
+                  y: -8, 
+                  boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+                  transition: { duration: 0.3 }
+                }}
+                transition={{ delay: idx * 0.15, duration: 0.6, type: "spring" }}
+                className="relative p-8 rounded-3xl border border-soil/10 bg-white/80 backdrop-blur-sm"
               >
-                <Quote
-                  size={32}
-                  className="text-clay/20 absolute top-6 right-6"
-                />
-                <div className="flex items-center gap-1 mb-4">
+                <motion.div
+                  initial={{ rotate: 0 }}
+                  whileHover={{ rotate: 12, scale: 1.1 }}
+                  transition={{ duration: 0.3 }}
+                  className="absolute top-6 right-6"
+                >
+                  <Quote size={36} className="text-clay/30" />
+                </motion.div>
+                
+                <motion.div 
+                  className="flex items-center gap-1 mb-5"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  transition={{ delay: idx * 0.15 + 0.3 }}
+                >
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star
+                    <motion.div
                       key={i}
-                      size={16}
-                      className="fill-yellow-400 text-yellow-400"
-                    />
+                      initial={{ opacity: 0, scale: 0 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: idx * 0.15 + 0.4 + i * 0.05 }}
+                    >
+                      <Star
+                        size={18}
+                        className="fill-yellow-400 text-yellow-400"
+                      />
+                    </motion.div>
                   ))}
-                </div>
-                <p className="text-soil/70 mb-6 italic leading-relaxed">
+                </motion.div>
+                
+                <p className="text-soil/80 mb-6 italic leading-relaxed text-lg">
                   "{testimonial.content}"
                 </p>
-                <div>
-                  <div className="font-semibold text-soil">
+                
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.15 + 0.5 }}
+                  className="border-t border-soil/10 pt-4"
+                >
+                  <div className="font-bold text-soil text-lg">
                     {testimonial.name}
                   </div>
-                  <div className="text-sm text-soil/50">
+                  <div className="text-sm text-soil/60">
                     {testimonial.location}
                   </div>
                   {testimonial.productRef && (
-                    <div className="text-xs text-clay mt-1">
-                      {testimonial.productRef}
+                    <div className="text-xs text-clay mt-2 font-medium">
+                      ✦ {testimonial.productRef}
                     </div>
                   )}
-                </div>
+                </motion.div>
               </motion.div>
             ))}
           </div>
         </motion.section>
       )}
 
-      {/* Newsletter */}
+      {/* Know More About Basho */}
       <motion.section
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
         className="py-20 px-4 md:px-12"
       >
-        <div className="bg-sand rounded-3xl p-12 text-center max-w-4xl mx-auto">
+        <div className="bg-gradient-to-br from-sand to-sand/60 rounded-3xl p-12 text-center max-w-4xl mx-auto border border-soil/10">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Sparkles className="mx-auto text-clay mb-4" size={40} />
+          </motion.div>
           <h2 className="text-3xl md:text-4xl font-bold text-soil mb-4 font-serif">
-            Stay Connected
+            Know More About Basho
           </h2>
-          <p className="text-soil/60 mb-8 max-w-lg mx-auto">
-            Be the first to know about new collections, upcoming workshops, and
-            exclusive offers from Basho.
+          <p className="text-soil/70 mb-8 max-w-lg mx-auto text-lg">
+            Discover our philosophy, meet the artist, and learn about the journey 
+            behind every handcrafted piece of pottery.
           </p>
-          <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-6 py-4 rounded-full border-2 border-soil/10 focus:border-clay focus:outline-none transition-colors"
-              required
-            />
-            <button
-              type="submit"
-              className="bg-clay text-white px-8 py-4 rounded-full font-semibold hover:bg-clay/90 transition-colors whitespace-nowrap"
-            >
-              Subscribe
+          <Link href="/about">
+            <button className="bg-soil text-white px-8 py-4 rounded-full font-semibold hover:bg-clay transition-colors inline-flex items-center gap-2 hover:scale-105 transform">
+              Explore Our Story
+              <ArrowRight size={20} />
             </button>
-          </form>
+          </Link>
         </div>
       </motion.section>
+
+      {/* Product Modal */}
+      <ProductModal
+        productId={selectedProductId}
+        onClose={() => setSelectedProductId(null)}
+      />
     </div>
   );
 }

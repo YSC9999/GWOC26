@@ -96,9 +96,9 @@ export default function Signup() {
   };
 
   return (
-    <div className="w-full">
-      <div className="w-full max-w-md mx-auto">
-        <div className="bg-white p-4 rounded-2xl shadow-lg">
+    <div className="w-full min-h-[calc(100vh-5rem)] flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md">
+        <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
           <h1 className="text-3xl font-bold text-center text-blue-700 mb-2">
             Create Account
           </h1>
@@ -114,20 +114,20 @@ export default function Signup() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* First Name and Last Name */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-gray-700 font-semibold mb-2">
                   First Name
                 </label>
                 <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
-                  <span className="text-gray-400">👤</span>
+                  <span className="text-gray-400 flex-shrink-0">👤</span>
                   <input
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="First name"
                     required
-                    className="bg-transparent ml-2 flex-1 outline-none text-gray-700 placeholder-gray-400"
+                    className="bg-transparent ml-2 flex-1 min-w-0 outline-none text-gray-700 placeholder-gray-400"
                   />
                 </div>
               </div>
@@ -137,14 +137,14 @@ export default function Signup() {
                   Last Name
                 </label>
                 <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
-                  <span className="text-gray-400">👤</span>
+                  <span className="text-gray-400 flex-shrink-0">👤</span>
                   <input
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Last name"
                     required
-                    className="bg-transparent ml-2 flex-1 outline-none text-gray-700 placeholder-gray-400"
+                    className="bg-transparent ml-2 flex-1 min-w-0 outline-none text-gray-700 placeholder-gray-400"
                   />
                 </div>
               </div>
@@ -156,14 +156,14 @@ export default function Signup() {
                 Email Address
               </label>
               <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
-                <span className="text-gray-400">✉️</span>
+                <span className="text-gray-400 flex-shrink-0">✉️</span>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
                   required
-                  className="bg-transparent ml-2 flex-1 outline-none text-gray-700 placeholder-gray-400"
+                  className="bg-transparent ml-2 flex-1 min-w-0 outline-none text-gray-700 placeholder-gray-400"
                 />
               </div>
             </div>
@@ -174,20 +174,21 @@ export default function Signup() {
                 Password
               </label>
               <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
-                <span className="text-gray-400">🔒</span>
+                <span className="text-gray-400 flex-shrink-0">🔒</span>
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Create a password"
                   required
-                  className="bg-transparent ml-2 flex-1 outline-none text-gray-700 placeholder-gray-400"
+                  className="bg-transparent ml-2 flex-1 min-w-0 outline-none text-gray-700 placeholder-gray-400"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 flex-shrink-0 ml-2"
                 >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
@@ -198,20 +199,21 @@ export default function Signup() {
                 Confirm Password
               </label>
               <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
-                <span className="text-gray-400">🔒</span>
+                <span className="text-gray-400 flex-shrink-0">🔒</span>
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm your password"
                   required
-                  className="bg-transparent ml-2 flex-1 outline-none text-gray-700 placeholder-gray-400"
+                  className="bg-transparent ml-2 flex-1 min-w-0 outline-none text-gray-700 placeholder-gray-400"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 flex-shrink-0 ml-2"
                 >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>

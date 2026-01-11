@@ -2,8 +2,9 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ShoppingCart, Filter, Search, Loader2 } from "lucide-react";
+import { ShoppingCart, Filter, Search, Loader2, ArrowRight } from "lucide-react";
 import { useCart } from "@/lib/cart";
+import ProductModal from "@/components/ProductModal";
 
 interface Product {
   _id: string;
@@ -51,6 +52,7 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const cart = useCart();
 
   useEffect(() => {
@@ -181,10 +183,12 @@ export default function Products() {
               whileHover={{ y: -8 }}
               className="group"
             >
-              <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
+              <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer">
                 {/* Image */}
-                <Link href={`/products/${product.slug || product._id}`}>
-                  <div className="relative h-56 bg-gradient-to-br from-sand to-sand/50 overflow-hidden">
+                <div 
+                  onClick={() => setSelectedProductId(product.slug || product._id)}
+                  className="relative h-56 bg-gradient-to-br from-sand to-sand/50 overflow-hidden"
+                >
                     {getProductImage(product) ? (
                       <img
                         src={getProductImage(product)!}
@@ -214,7 +218,7 @@ export default function Products() {
                     {/* Quick Add */}
                     <button
                       onClick={(e) => {
-                        e.preventDefault();
+                        e.stopPropagation();
                         handleAddToCart(product);
                       }}
                       className="absolute bottom-3 right-3 bg-soil text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:bg-clay"
@@ -222,10 +226,9 @@ export default function Products() {
                       <ShoppingCart size={18} />
                     </button>
                   </div>
-                </Link>
 
                 {/* Content */}
-                <div className="p-5">
+                <div className="p-5" onClick={() => setSelectedProductId(product.slug || product._id)}>
                   {/* Category & Material */}
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xs font-medium text-clay uppercase tracking-wide">
@@ -238,11 +241,9 @@ export default function Products() {
                   </div>
 
                   {/* Name */}
-                  <Link href={`/products/${product.slug || product._id}`}>
-                    <h3 className="text-lg font-bold text-soil mb-2 group-hover:text-clay transition-colors line-clamp-1">
-                      {product.name}
-                    </h3>
-                  </Link>
+                  <h3 className="text-lg font-bold text-soil mb-2 group-hover:text-clay transition-colors line-clamp-1">
+                    {product.name}
+                  </h3>
 
                   {/* Description */}
                   <p className="text-sm text-soil/60 mb-3 line-clamp-2">
@@ -296,22 +297,38 @@ export default function Products() {
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="mt-20 text-center bg-gradient-to-r from-soil to-soil/90 rounded-3xl p-12 text-white"
+        className="mt-20 text-center"
       >
-        <h2 className="text-3xl md:text-4xl font-bold mb-4 font-serif">
-          Looking for something unique?
-        </h2>
-        <p className="text-lg text-sand/80 mb-8 max-w-2xl mx-auto">
-          We create custom pieces tailored to your vision. From personalized gifts 
-          to bespoke tableware sets, let's craft something special together.
-        </p>
-        <Link
-          href="/custom-orders"
-          className="inline-block bg-clay hover:bg-clay/90 text-white font-semibold px-8 py-4 rounded-full transition-all hover:scale-105"
-        >
-          Request Custom Order
-        </Link>
+        <div className="bg-gradient-to-br from-clay to-clay/80 rounded-3xl p-12 md:p-16 text-white max-w-4xl mx-auto shadow-xl">
+          <motion.div
+            initial={{ scale: 0.9 }}
+            whileInView={{ scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <span className="text-5xl mb-4 block">🎨</span>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 font-serif">
+              Looking for something unique?
+            </h2>
+            <p className="text-lg text-white/90 mb-8 max-w-xl mx-auto leading-relaxed">
+              We create custom pieces tailored to your vision. From personalized gifts 
+              to bespoke tableware sets, let's craft something special together.
+            </p>
+            <Link
+              href="/custom-orders"
+              className="inline-flex items-center gap-2 bg-white text-clay font-bold px-8 py-4 rounded-full transition-all hover:scale-105 hover:shadow-lg"
+            >
+              Request Custom Order
+              <ArrowRight size={20} />
+            </Link>
+          </motion.div>
+        </div>
       </motion.section>
+
+      {/* Product Modal */}
+      <ProductModal
+        productId={selectedProductId}
+        onClose={() => setSelectedProductId(null)}
+      />
     </div>
   );
 }

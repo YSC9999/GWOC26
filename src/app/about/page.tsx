@@ -175,8 +175,7 @@ export default function About() {
                   rhythm and soul. So come, discover Basho and create your own
                   poetry.
                 </p>
-                <p></p>
-                <div className="bg-white/90 backdrop-blur-sm border border-sand/40 rounded-xl px-6 py-4 flex flex-col items-center text-center">
+                <div className="mt-10 bg-white/90 backdrop-blur-sm border border-sand/40 rounded-xl px-6 py-4 flex flex-col items-center text-center">
                   <p className="text-soil font-medium mb-3">
                     Learn more or visit the studio
                   </p>
