@@ -11,17 +11,15 @@ export default function Footer() {
       <div className="max-w-5xl mx-auto px-4 text-center">
         {/* Brand Logo */}
         <Link href="/" className="inline-block mb-3">
-          <Image
-            src="/Basho-Logo.png"
-            alt="Basho"
-            width={100}
-            height={40}
-            className="mx-auto hover:opacity-90 transition-opacity"
+          <img
+            src="/Logo.png"
+            alt="Basho Logo"
+            className="h-16 w-auto mix-blend-multiply opacity-80 mx-auto hover:opacity-100 transition-all"
           />
         </Link>
-        
+
         <p className="text-soil/85 text-sm max-w-md mx-auto mb-4 leading-relaxed">
-          Handcrafted ceramic art that whispers elegance. 
+          Handcrafted ceramic art that whispers elegance.
           Designed to reflect your unique story with grace and intention.
         </p>
 
@@ -46,16 +44,16 @@ export default function Footer() {
             <Instagram size={24} />
           </a>
           <a
-             href="mailto:hello@basho.com"
-             className="text-soil hover:text-clay transition-colors p-2"
-             aria-label="Email"
+            href="mailto:hello@basho.com"
+            className="text-soil hover:text-clay transition-colors p-2"
+            aria-label="Email"
           >
             <Mail size={24} />
           </a>
-          <Link 
-             href="/contact"
-             className="text-soil hover:text-clay transition-colors p-2"
-             aria-label="Visit Us"
+          <Link
+            href="/contact"
+            className="text-soil hover:text-clay transition-colors p-2"
+            aria-label="Visit Us"
           >
             <MapPin size={24} />
           </Link>
