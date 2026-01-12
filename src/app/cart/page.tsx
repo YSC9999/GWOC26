@@ -151,7 +151,27 @@ export default function Cart() {
     };
   };
 
-  const { subtotal, shipping, discount, total: finalTotal } = calculateTotal();
+
+
+  const [useWallet, setUseWallet] = useState(false);
+
+  const { subtotal, shipping, discount, total: calculatedTotal, walletUsed } = (() => {
+    const { subtotal, shipping, discount, total } = calculateTotal();
+    let walletUsed = 0;
+    let finalTotal = total;
+
+    if (useWallet && user?.walletBalance && user.walletBalance > 0) {
+      if (user.walletBalance >= total) {
+        walletUsed = total;
+        finalTotal = 0;
+      } else {
+        walletUsed = user.walletBalance;
+        finalTotal = total - user.walletBalance;
+      }
+    }
+
+    return { subtotal, shipping, discount, total: finalTotal, walletUsed };
+  })();
 
   // Populate email from user
   React.useEffect(() => {
@@ -852,7 +872,7 @@ export default function Cart() {
 
               <div className="flex justify-between text-xl font-bold text-soil mb-8">
                 <span>Total</span>
-                <span className="text-clay">₹{finalTotal.toLocaleString()}</span>
+                <span className="text-clay">₹{calculatedTotal.toLocaleString()}</span>
               </div>
 
               {shipping > 0 && subtotal < 2000 && (

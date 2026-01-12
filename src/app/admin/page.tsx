@@ -88,6 +88,12 @@ export default function AdminDashboard() {
       desc: "View customer messages",
       icon: <MessageSquare size={32} />,
     },
+    {
+      href: "/admin/wallet",
+      label: "User Wallets",
+      desc: "Add funds & giveaways",
+      icon: <Building2 size={32} />,
+    },
   ];
 
   return (
