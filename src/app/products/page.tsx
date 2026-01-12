@@ -189,6 +189,17 @@ export default function Products() {
       filtered.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
     }
 
+    // Always sort out of stock items to the end
+    filtered.sort((a, b) => {
+      const aOutOfStock =
+        !a.inStock || (a.stockQuantity !== undefined && a.stockQuantity <= 0);
+      const bOutOfStock =
+        !b.inStock || (b.stockQuantity !== undefined && b.stockQuantity <= 0);
+      if (aOutOfStock && !bOutOfStock) return 1;
+      if (!aOutOfStock && bOutOfStock) return -1;
+      return 0;
+    });
+
     return filtered;
   };
 

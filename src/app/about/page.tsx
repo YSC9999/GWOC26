@@ -88,62 +88,85 @@ export default function About() {
       </section>
 
       {/* Philosophy */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center border-4 border-soil rounded-2xl p-12 bg-white/90 shadow-lg">
+      <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center border border-soil rounded-xl p-6 md:p-8 bg-white/90 shadow-md">
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          variants={fadeInUp}
-          className="border-l-4 border-clay pl-8"
+          variants={staggerContainer}
+          className="border-l-2 border-clay pl-4"
         >
-          <span className="text-clay font-medium tracking-wider uppercase mb-2 block">
+          <motion.span
+            variants={fadeInUp}
+            className="text-clay font-medium tracking-wider uppercase mb-1 block text-xs"
+          >
             Our Philosophy
-          </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-soil font-serif mb-8">
+          </motion.span>
+          <motion.h2
+            variants={fadeInUp}
+            className="text-2xl md:text-3xl font-bold text-soil font-serif mb-4"
+          >
             Wabi-Sabi & The Art of Imperfection
-          </h2>
-          <div className="space-y-6 text-lg text-soil/70 leading-relaxed">
-            <p>
+          </motion.h2>
+          <motion.div
+            variants={staggerContainer}
+            className="space-y-3 text-sm text-soil/70 leading-relaxed"
+          >
+            <motion.p variants={fadeInUp}>
               Named after Matsuo Bashō, the master of haiku, our studio embodies
               the principles of finding profound meaning in simple things. We
               believe that objects we use daily should carry a soul.
-            </p>
-            <p>
+            </motion.p>
+            <motion.p variants={fadeInUp}>
               Every bowl, cup, and vase is hand-thrown or hand-built, embracing
               the natural texture of clay and the unpredictable magic of
               glazing. No two pieces are identical, just as no two moments in
               life are the same.
-            </p>
-            <p>
+            </motion.p>
+            <motion.p variants={fadeInUp}>
               In a world of mass production, we choose to slow down. To feel the
               earth between our fingers. To create with intention.
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
-          <div className="mt-12 grid grid-cols-2 gap-6">
-            <div className="border-2 border-soil rounded-lg p-6 bg-sand/20">
-              <h4 className="font-bold text-soil mb-2 text-xl">Sustainable</h4>
-              <p className="text-soil/60">
+          <motion.div
+            variants={staggerContainer}
+            className="mt-6 grid grid-cols-2 gap-3"
+          >
+            <motion.div
+              variants={fadeInUp}
+              whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
+              className="border border-soil rounded-lg p-3 bg-sand/20 cursor-pointer"
+            >
+              <h4 className="font-bold text-soil mb-1 text-base">
+                Sustainable
+              </h4>
+              <p className="text-soil/60 text-xs">
                 Using locally sourced clay and eco-friendly practices.
               </p>
-            </div>
-            <div className="border-2 border-soil rounded-lg p-6 bg-sand/20">
-              <h4 className="font-bold text-soil mb-2 text-xl">Timeless</h4>
-              <p className="text-soil/60">
+            </motion.div>
+            <motion.div
+              variants={fadeInUp}
+              whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
+              className="border border-soil rounded-lg p-3 bg-sand/20 cursor-pointer"
+            >
+              <h4 className="font-bold text-soil mb-1 text-base">Timeless</h4>
+              <p className="text-soil/60 text-xs">
                 Designs meant to be cherished for generations.
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </motion.div>
 
         <motion.div
-          initial="hidden"
-          whileInView="visible"
+          initial={{ opacity: 0, x: 20 }}
+          whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          variants={fadeInUp}
-          className="relative h-[600px] rounded-3xl overflow-hidden shadow-2xl border-4 border-soil"
+          transition={{ duration: 0.6 }}
+          whileHover={{ scale: 1.02 }}
+          className="relative h-[350px] rounded-xl overflow-hidden shadow-lg border border-soil"
         >
-          <div className="absolute inset-0 bg-sand/20 z-10" />
+          <div className="absolute inset-0 bg-sand/10 z-10" />
           <img
             src="https://images.unsplash.com/photo-1493106641515-6b5631de4bb9?q=80&w=2694&auto=format&fit=crop"
             alt="Pottery making"
