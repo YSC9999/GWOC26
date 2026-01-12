@@ -35,7 +35,7 @@ export async function GET(req: Request) {
 
         const [workshops, total] = await Promise.all([
             Workshop.find(query)
-                .sort({ date: 1 })
+                .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)
                 .lean(),

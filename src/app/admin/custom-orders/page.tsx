@@ -127,6 +127,26 @@ export default function AdminCustomOrdersPage() {
     }
   };
 
+  const handleDeleteRequest = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this specific custom order request?")) return;
+
+    try {
+      const res = await fetch(`/api/admin/custom-orders/${id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        alert("Order request deleted successfully");
+        fetchOrders();
+      } else {
+        alert("Failed to delete order");
+      }
+    } catch (error) {
+      console.error("Error deleting order:", error);
+      alert("Failed to delete order");
+    }
+  };
+
   return (
     <div className="min-h-screen py-12 px-4 md:px-8">
       <div className="flex items-center justify-between mb-8">
@@ -196,13 +216,19 @@ export default function AdminCustomOrdersPage() {
                       <td className="p-4 font-bold text-soil">
                         {order.totalPrice ? `₹${order.totalPrice.toLocaleString()}` : '-'}
                       </td>
-                      <td className="p-4 text-right">
+                      <td className="p-4 text-right flex gap-2 justify-end">
                         <Link
                           href={`/admin/custom-orders/${order._id}`}
                           className="inline-block px-4 py-2 bg-clay text-white text-sm rounded-lg hover:bg-clay/90"
                         >
                           Manage
                         </Link>
+                        <button
+                          onClick={() => handleDeleteRequest(order._id)}
+                          className="px-4 py-2 bg-red-100 text-red-600 text-sm rounded-lg hover:bg-red-200"
+                        >
+                          Delete
+                        </button>
                       </td>
                     </tr>
                   ))}
