@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
+import UploadInput from "@/components/UploadInput";
 
 interface CustomOrder {
   _id: string;
@@ -13,28 +14,104 @@ interface CustomOrder {
   createdAt: string;
 }
 
+interface PreviousCustomOrder {
+  _id: string;
+  images: string[];
+  description: string;
+}
+
 export default function AdminCustomOrdersPage() {
+  const [activeTab, setActiveTab] = useState<'requests' | 'previous'>('requests');
+
+  // Requests State
   const [orders, setOrders] = useState<CustomOrder[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingRequests, setLoadingRequests] = useState(true);
+
+  // Previous Orders State
+  const [previousOrders, setPreviousOrders] = useState<PreviousCustomOrder[]>([]);
+  const [images, setImages] = useState<string[]>([]);
+  const [description, setDescription] = useState("");
+  const [loadingPrevious, setLoadingPrevious] = useState(false);
 
   useEffect(() => {
     fetchOrders();
+    fetchPreviousOrders();
   }, []);
 
   const fetchOrders = async () => {
-    setLoading(true);
+    setLoadingRequests(true);
     try {
       const res = await fetch('/api/admin/custom-orders');
       if (res.ok) {
         const data = await res.json();
         setOrders(data.orders || []);
-      } else {
-        console.error('Failed to fetch orders');
       }
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      setLoadingRequests(false);
+    }
+  };
+
+  const fetchPreviousOrders = async () => {
+    try {
+      const res = await fetch("/api/previous-custom-orders");
+      const data = await res.json();
+      if (data.success) {
+        setPreviousOrders(data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching previous orders:", error);
+    }
+  };
+
+  const handleAddPreviousOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (images.length === 0 || !description) {
+      alert("Please provide both images and description");
+      return;
+    }
+
+    setLoadingPrevious(true);
+    try {
+      const res = await fetch("/api/admin/previous-custom-orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ images, description }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Added successfully");
+        setImages([]);
+        setDescription("");
+        fetchPreviousOrders();
+      } else {
+        alert("Failed to add order");
+      }
+    } catch (error) {
+      console.error("Error creating order:", error);
+      alert("Failed to add order");
+    } finally {
+      setLoadingPrevious(false);
+    }
+  };
+
+  const handleDeletePreviousOrder = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this?")) return;
+
+    try {
+      const res = await fetch(`/api/admin/previous-custom-orders?id=${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Deleted successfully");
+        fetchPreviousOrders();
+      }
+    } catch (error) {
+      console.error("Error deleting order:", error);
+      alert("Failed to delete order");
     }
   };
 
@@ -50,8 +127,6 @@ export default function AdminCustomOrdersPage() {
     }
   };
 
-  if (loading) return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin" /></div>;
-
   return (
     <div className="min-h-screen py-12 px-4 md:px-8">
       <div className="flex items-center justify-between mb-8">
@@ -61,57 +136,164 @@ export default function AdminCustomOrdersPage() {
         </div>
       </div>
 
-      {orders.length === 0 ? (
-        <div className="bg-sand/30 rounded-3xl p-12 text-center">
-          <h2 className="text-xl font-bold text-soil mb-2">No custom requests</h2>
-          <p className="text-soil/60">Wait for customers to submit requests.</p>
-        </div>
-      ) : (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <table className="w-full text-left">
-            <thead className="bg-sand/30 text-soil/70 font-medium">
-              <tr>
-                <th className="p-4">Customer</th>
-                <th className="p-4">Request</th>
-                <th className="p-4">Date</th>
-                <th className="p-4">Status</th>
-                <th className="p-4">Total</th>
-                <th className="p-4 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {orders.map((order) => (
-                <tr key={order._id} className="hover:bg-gray-50 transition-colors">
-                  <td className="p-4">
-                    <div className="font-bold text-soil">{order.name}</div>
-                    <div className="text-xs text-soil/60">{order.email}</div>
-                  </td>
-                  <td className="p-4">
-                    <div className="text-sm text-soil max-w-xs truncate">{order.description}</div>
-                  </td>
-                  <td className="p-4 text-sm text-soil/70">
-                    {new Date(order.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="p-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${getStatusColor(order.status)}`}>
-                      {order.status.replace('_', ' ')}
+      {/* Tabs */}
+      <div className="flex gap-4 mb-8 border-b border-gray-200">
+        <button
+          onClick={() => setActiveTab('requests')}
+          className={`pb-4 px-4 font-medium transition-colors ${activeTab === 'requests' ? 'border-b-2 border-clay text-clay' : 'text-soil/60 hover:text-soil'}`}
+        >
+          Customer Requests
+        </button>
+        <button
+          onClick={() => setActiveTab('previous')}
+          className={`pb-4 px-4 font-medium transition-colors ${activeTab === 'previous' ? 'border-b-2 border-clay text-clay' : 'text-soil/60 hover:text-soil'}`}
+        >
+          Manage Previous Works
+        </button>
+      </div>
+
+      {/* Requests Tab */}
+      {activeTab === 'requests' && (
+        <>
+          {loadingRequests ? (
+            <div className="flex justify-center py-12"><Loader2 className="animate-spin" /></div>
+          ) : orders.length === 0 ? (
+            <div className="bg-sand/30 rounded-3xl p-12 text-center">
+              <h2 className="text-xl font-bold text-soil mb-2">No custom requests</h2>
+              <p className="text-soil/60">Wait for customers to submit requests.</p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <table className="w-full text-left">
+                <thead className="bg-sand/30 text-soil/70 font-medium">
+                  <tr>
+                    <th className="p-4">Customer</th>
+                    <th className="p-4">Request</th>
+                    <th className="p-4">Date</th>
+                    <th className="p-4">Status</th>
+                    <th className="p-4">Total</th>
+                    <th className="p-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {orders.map((order) => (
+                    <tr key={order._id} className="hover:bg-gray-50 transition-colors">
+                      <td className="p-4">
+                        <div className="font-bold text-soil">{order.name}</div>
+                        <div className="text-xs text-soil/60">{order.email}</div>
+                      </td>
+                      <td className="p-4">
+                        <div className="text-sm text-soil max-w-xs truncate">{order.description}</div>
+                      </td>
+                      <td className="p-4 text-sm text-soil/70">
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="p-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${getStatusColor(order.status)}`}>
+                          {order.status.replace('_', ' ')}
+                        </span>
+                      </td>
+                      <td className="p-4 font-bold text-soil">
+                        {order.totalPrice ? `₹${order.totalPrice.toLocaleString()}` : '-'}
+                      </td>
+                      <td className="p-4 text-right">
+                        <Link
+                          href={`/admin/custom-orders/${order._id}`}
+                          className="inline-block px-4 py-2 bg-clay text-white text-sm rounded-lg hover:bg-clay/90"
+                        >
+                          Manage
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Previous Orders Tab */}
+      {activeTab === 'previous' && (
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 className="text-xl font-semibold mb-4">Add New Entry</h2>
+            <form onSubmit={handleAddPreviousOrder} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Images</label>
+                <UploadInput
+                  onUploaded={(urls) => setImages(urls)}
+                  folder="previous-custom-orders"
+                />
+                {images.length > 0 && (
+                  <div className="flex gap-2 mt-2">
+                    {images.map((img, idx) => (
+                      <div key={idx} className="relative w-20 h-20">
+                        <img
+                          src={img}
+                          alt="Preview"
+                          className="w-full h-full object-cover rounded"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+                  rows={4}
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loadingPrevious}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+              >
+                {loadingPrevious ? "Adding..." : "Add Entry"}
+              </button>
+            </form>
+          </div>
+
+          <div className="grid gap-6">
+            <h2 className="text-xl font-semibold">Existing Entries</h2>
+            {previousOrders.map((order) => (
+              <div key={order._id} className="bg-white p-4 rounded-lg shadow border flex gap-4">
+                <div className="w-32 h-32 relative flex-shrink-0">
+                  {order.images[0] && (
+                    <img
+                      src={order.images[0]}
+                      alt="Order"
+                      className="w-full h-full object-cover rounded"
+                    />
+                  )}
+                  {order.images.length > 1 && (
+                    <span className="absolute bottom-1 right-1 bg-black/50 text-white text-xs px-1 rounded">
+                      +{order.images.length - 1}
                     </span>
-                  </td>
-                  <td className="p-4 font-bold text-soil">
-                    {order.totalPrice ? `₹${order.totalPrice.toLocaleString()}` : '-'}
-                  </td>
-                  <td className="p-4 text-right">
-                    <Link
-                      href={`/admin/custom-orders/${order._id}`}
-                      className="inline-block px-4 py-2 bg-clay text-white text-sm rounded-lg hover:bg-clay/90"
-                    >
-                      Manage
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  )}
+                </div>
+                <div className="flex-grow">
+                  <p className="whitespace-pre-wrap">{order.description}</p>
+                </div>
+                <button
+                  onClick={() => handleDeletePreviousOrder(order._id)}
+                  className="text-red-600 hover:text-red-800 self-start"
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+            {previousOrders.length === 0 && (
+              <p className="text-gray-500">No previous orders added yet.</p>
+            )}
+          </div>
         </div>
       )}
     </div>
