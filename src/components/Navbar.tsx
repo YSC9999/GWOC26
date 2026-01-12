@@ -150,14 +150,7 @@ export default function Navbar() {
                       </motion.div>
                     </Link>
 
-                    <Link
-                      href="/account/wallet"
-                      className="relative text-[#442D1C] hover:text-[#C85428] transition-colors p-2"
-                    >
-                      <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}>
-                        <Wallet size={20} />
-                      </motion.div>
-                    </Link>
+
 
                     <Link
                       href="/cart"
@@ -237,9 +230,23 @@ export default function Navbar() {
                             👤 My Account
                           </Link>
 
-                          <div className="flex items-center gap-3 px-5 py-3 text-sm text-[#442D1C] border-t border-[#442D1C]/10">
-                            💰 Wallet: <span className="font-bold text-[#652810]">₹{user?.walletBalance || 0}</span>
-                          </div>
+                          {user?.role === "admin" && (
+                            <Link
+                              href="/admin"
+                              className="flex items-center gap-3 px-5 py-3 hover:bg-[#C85428]/10 text-sm text-[#442D1C] transition-colors"
+                            >
+                              ⚡ Admin Dashboard
+                            </Link>
+                          )}
+
+                          <Link
+                            href="/cart"
+                            className="flex items-center gap-3 px-5 py-3 hover:bg-[#C85428]/10 text-sm text-[#442D1C] transition-colors"
+                          >
+                            🛍️ Cart ({cartCount})
+                          </Link>
+
+
 
                           <button
                             onClick={handleLogout}
@@ -308,6 +315,15 @@ export default function Navbar() {
                 </div>
               ) : (
                 <div className="mt-4 space-y-3 pt-4">
+                  {user?.role === "admin" && (
+                    <Link
+                      href="/admin"
+                      className="nav-link hover:text-[#C85428] block font-bold"
+                      onClick={() => setOpen(false)}
+                    >
+                      Admin Dashboard
+                    </Link>
+                  )}
                   <Link
                     href="/cart"
                     className="nav-link hover:text-[#C85428] block font-bold"

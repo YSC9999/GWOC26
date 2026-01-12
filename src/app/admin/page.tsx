@@ -89,9 +89,9 @@ export default function AdminDashboard() {
       icon: <MessageSquare size={32} />,
     },
     {
-      href: "/admin/wallet",
-      label: "User Wallets",
-      desc: "Add funds & giveaways",
+      href: "/admin/contact",
+      label: "Studio Info",
+      desc: "Edit contact & visiting hours",
       icon: <Building2 size={32} />,
     },
   ];
