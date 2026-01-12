@@ -54,8 +54,6 @@ export default function Profile() {
       const res = await fetch("/api/user/wishlist");
       if (res.ok) {
         const data = await res.json();
-        // Merge wishlist into profile state or set separate state
-        // For now, let's assume we add it to the profile object to keep it simple
         setProfile((prev: any) => ({ ...prev, wishlist: data.wishlist }));
       }
     } catch (err) { console.error(err); }
@@ -99,16 +97,38 @@ export default function Profile() {
   };
 
   const handleAddAddress = async () => {
+    // Basic Client-side Validation
+    if (!newAddr.name || !newAddr.street || !newAddr.city || !newAddr.pincode || !newAddr.phone) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+
+    // Validate Pincode (simple digit check)
+    if (!/^\d+$/.test(newAddr.pincode)) {
+      alert("Pincode must contain only numbers.");
+      return;
+    }
+
+    // Validate Phone and format (default to +91 if missing)
+    let formattedPhone = newAddr.phone.replace(/[^\d+]/g, "");
+    if (!formattedPhone.startsWith("+")) {
+      formattedPhone = "+91" + formattedPhone;
+    }
+
+    const addrToSend = { ...newAddr, phone: formattedPhone };
+
     setSaving(true);
     try {
-      const updatedAddresses = [...addresses, newAddr];
+      const updatedAddresses = [...addresses, addrToSend];
       const res = await fetch("/api/user/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ addresses: updatedAddresses }),
       });
+
+      const data = await res.json();
+
       if (res.ok) {
-        const data = await res.json();
         setAddresses(data.user.addresses);
         setShowAddAddr(false);
         setNewAddr({
@@ -122,9 +142,88 @@ export default function Profile() {
           country: "India",
           isDefault: false
         });
+      } else {
+        alert(data.error || "Failed to save address.");
       }
     } catch (err) {
       console.error(err);
+      alert("Something went wrong. Please check your connection.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // OTP State for Address Phone
+  const [showOtpInput, setShowOtpInput] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [isVerified, setIsVerified] = useState(false);
+  const [otpTimer, setOtpTimer] = useState(0);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (otpTimer > 0) {
+      interval = setInterval(() => setOtpTimer((prev) => prev - 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [otpTimer]);
+
+  const handleSendAddressOtp = async () => {
+    if (!newAddr.phone || newAddr.phone.length < 10) {
+      alert("Please enter a valid phone number first.");
+      return;
+    }
+
+    // Auto-format
+    let formattedPhone = newAddr.phone.replace(/[^\d+]/g, "");
+    if (!formattedPhone.startsWith("+")) formattedPhone = "+91" + formattedPhone;
+
+    setSaving(true);
+    try {
+      const res = await fetch("/api/auth/send-phone-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: formattedPhone }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setShowOtpInput(true);
+        setOtpTimer(10);
+        // Alert removed as requested
+      } else {
+        alert(data.error || "Failed to send OTP.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to send OTP.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleVerifyAddressOtp = async () => {
+    if (!otp) {
+      alert("Please enter the OTP.");
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch("/api/auth/verify-phone-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ otp }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setIsVerified(true);
+        setShowOtpInput(false);
+        setOtp("");
+        alert("Phone Verified Successfully!");
+      } else {
+        alert(data.error || "Invalid OTP.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Verification failed.");
     } finally {
       setSaving(false);
     }
@@ -212,8 +311,6 @@ export default function Profile() {
         </div>
       </section>
 
-
-
       {/* Wishlist Section */}
       <section className="bg-white rounded-2xl p-8 mb-8 shadow-sm">
         <h2 className="text-xl font-bold text-soil mb-6">My Wishlist</h2>
@@ -233,7 +330,6 @@ export default function Profile() {
                       });
                       if (res.ok) {
                         const data = await res.json();
-                        // Refresh profile (or at least wishlist)
                         fetchProfile();
                       }
                     } catch (err) { console.error(err); }
@@ -352,17 +448,57 @@ export default function Profile() {
                 className="px-4 py-3 bg-sand/30 rounded-xl"
               />
               <input
-                placeholder="Pincode"
+                placeholder="Pincode (Numbers only)"
                 value={newAddr.pincode}
-                onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value })}
+                onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value.replace(/\D/g, '') })}
                 className="px-4 py-3 bg-sand/30 rounded-xl"
               />
-              <input
-                placeholder="Phone"
-                value={newAddr.phone}
-                onChange={(e) => setNewAddr({ ...newAddr, phone: e.target.value })}
-                className="px-4 py-3 bg-sand/30 rounded-xl"
-              />
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <input
+                    placeholder="Phone"
+                    value={newAddr.phone}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      setNewAddr({ ...newAddr, phone: val });
+                      setIsVerified(false); // Reset if changed
+                    }}
+                    className="px-4 py-3 bg-sand/30 rounded-xl flex-1"
+                    disabled={isVerified}
+                  />
+                  {!isVerified && (
+                    <button
+                      onClick={handleSendAddressOtp}
+                      disabled={saving || otpTimer > 0}
+                      className="bg-black text-white px-3 rounded-xl text-xs font-bold whitespace-nowrap disabled:opacity-50"
+                    >
+                      {otpTimer > 0 ? `Retry (${otpTimer}s)` : "Verify"}
+                    </button>
+                  )}
+                  {isVerified && (
+                    <span className="flex items-center text-green-600 font-bold px-3 bg-green-50 rounded-xl border border-green-200">
+                      Verified ✓
+                    </span>
+                  )}
+                </div>
+
+                {showOtpInput && !isVerified && (
+                  <div className="flex gap-2 animate-in fade-in slide-in-from-top-2">
+                    <input
+                      placeholder="Enter 6-digit OTP"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                      className="px-4 py-2 border-2 border-clay rounded-xl flex-1"
+                    />
+                    <button
+                      onClick={handleVerifyAddressOtp}
+                      className="bg-clay text-white px-4 rounded-xl font-bold"
+                    >
+                      Confirm
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="flex gap-4 mt-6">
               <button
@@ -373,7 +509,12 @@ export default function Profile() {
                 {saving ? <Loader2 className="animate-spin" /> : "Save Address"}
               </button>
               <button
-                onClick={() => setShowAddAddr(false)}
+                onClick={() => {
+                  setShowAddAddr(false);
+                  setShowOtpInput(false);
+                  setOtp("");
+                  setIsVerified(false);
+                }}
                 className="text-soil/60 hover:text-soil px-4"
               >
                 Cancel

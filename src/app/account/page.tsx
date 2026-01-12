@@ -55,13 +55,7 @@ export default function AccountDashboard() {
       href: "/account/custom-orders",
       color: "bg-purple-50 text-purple-600",
     },
-    {
-      label: "My Wallet",
-      desc: `Balance: ₹${user.walletBalance || 0}`,
-      icon: <div className="text-xl">💰</div>, // Quick icon
-      href: "/account/wallet", // We can create this page later or just show balance
-      color: "bg-yellow-50 text-yellow-600",
-    },
+
   ];
 
   return (

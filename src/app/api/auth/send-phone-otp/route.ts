@@ -28,14 +28,20 @@ export async function POST(req: Request) {
         }
 
         // Send Real SMS
-        const smsSent = await sendSMS(phone, `Your Basho Verification Code is: ${otp}`);
+        const smsResult = await sendSMS(phone, `Your Basho Verification Code is: ${otp}`);
 
-        if (smsSent) {
+        if (smsResult.success) {
             return NextResponse.json({ success: true, message: "OTP sent via SMS" });
         } else {
-            // Fallback for demo/dev if keys missing
-            console.log(`[DEV MODE] OTP for ${phone}: ${otp}`);
-            return NextResponse.json({ success: true, message: "OTP sent (Dev Mode: Check Console)" });
+            // Fallback for Dev/Error cases (as requested by user)
+            // "if not then otp in terminal"
+            console.log(`[DEV MODE] SMS Failed (${smsResult.error}). OTP for ${phone}: ${otp}`);
+
+            // Return SUCCESS so the Frontend UI shows the OTP Input field
+            return NextResponse.json({
+                success: true,
+                message: `SMS Failed. Check Server Console for OTP.` // User will see this as a toast/alert but can proceed
+            });
         }
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });

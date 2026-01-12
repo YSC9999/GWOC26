@@ -19,27 +19,42 @@ export async function POST(req: Request) {
     let user = await User.findOne({ email }).lean();
 
     if (user) {
-      // User exists, update with Google info if not already set
+      const newName = [firstName, lastName].filter(Boolean).join(" ");
+      // User exists, update with Google info if not already set or if name is broken
+      const updates: any = {};
       if (!user.googleId) {
-        await User.findByIdAndUpdate(user._id, {
-          googleId,
-          picture,
-          emailVerified: true,
-        });
+        updates.googleId = googleId;
+        updates.picture = picture;
+        updates.emailVerified = true;
+      }
+      // Self-Repair: Fix 'undefined' names
+      if (user.name && user.name.includes("undefined")) {
+        updates.name = newName;
+        user.name = newName; // Update local obj for response
+      }
+
+      // Admin Promotion
+      if (email === process.env.MAIN_ADMIN_EMAIL) {
+        updates.role = 'admin';
+        user.role = 'admin';
+      }
+
+      if (Object.keys(updates).length > 0) {
+        await User.findByIdAndUpdate(user._id, updates);
       }
     } else {
       // Create new user with Google info
       user = await User.create({
         firstName,
         lastName,
-        name: `${firstName} ${lastName}`,
+        name: [firstName, lastName].filter(Boolean).join(" "),
         email,
         googleId,
         picture,
         emailVerified: true,
         tier: "tier-0",
         subscriptionActive: false,
-        role: "customer",
+        role: email === process.env.MAIN_ADMIN_EMAIL ? "admin" : "customer",
       });
     }
 
@@ -50,7 +65,7 @@ export async function POST(req: Request) {
       { expiresIn: "7d" }
     );
 
-    const response = NextResponse.json({ 
+    const response = NextResponse.json({
       success: true,
       user: {
         _id: user._id,

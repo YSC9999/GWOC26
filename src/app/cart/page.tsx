@@ -311,6 +311,7 @@ export default function Cart() {
       if (res.ok) {
         setOtpSent(true);
         setShowOtpInput(true);
+        // Alert removed as requested
       } else {
         // Handle error silently
       }
@@ -893,37 +894,7 @@ export default function Cart() {
 
               </div>
 
-              {/* Wallet Checkbox */}
-              {user?.walletBalance && user.walletBalance > 0 && (
-                <div className="mb-6 p-4 bg-white/50 rounded-xl border border-soil/10">
-                  <label className="flex items-center gap-3 cursor-pointer group select-none">
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${useWallet ? 'bg-green-600 border-green-600 text-white' : 'border-soil/20 group-hover:border-green-600'}`}>
-                      {useWallet && <Check size={14} strokeWidth={3} />}
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={useWallet}
-                      onChange={(e) => setUseWallet(e.target.checked)}
-                      className="hidden"
-                    />
-                    <div className="flex-1">
-                      <div className="font-bold text-soil text-sm flex items-center gap-2">
-                        <span>Use Wallet Balance</span>
-                        <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">AVAILABLE: ₹{user.walletBalance}</span>
-                      </div>
-                      <div className="text-xs text-soil/60 mt-0.5">
-                        Deduct balance from total
-                      </div>
-                    </div>
-                  </label>
-                  {useWallet && walletUsed > 0 && (
-                    <div className="flex justify-between items-center mt-3 pt-3 border-t border-dashed border-soil/20 text-sm">
-                      <span className="font-medium text-soil/70">Wallet Applied</span>
-                      <span className="font-bold text-green-600">-₹{walletUsed.toLocaleString()}</span>
-                    </div>
-                  )}
-                </div>
-              )}
+              {/* Wallet Removed */}
 
               <div className="flex justify-between text-xl font-bold text-soil mb-8">
                 <span>Total</span>
