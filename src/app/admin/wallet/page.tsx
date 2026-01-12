@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Search, Gift, Wallet, Users, Send } from "lucide-react";
 
@@ -14,24 +14,39 @@ export default function AdminWalletPage() {
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState<any>(null);
+    const [searching, setSearching] = useState(false);
 
-    const handleSearch = async () => {
-        if (!searchQuery) return;
-        const res = await fetch(`/api/admin/users/search?q=${searchQuery}&role=customer`);
-        const data = await res.json();
-        setSearchResults(data.users || []);
-    };
+    // Debounce Search
+    React.useEffect(() => {
+        const delayDebounceFn = setTimeout(async () => {
+            if (searchQuery.length > 2) {
+                setSearching(true);
+                try {
+                    const res = await fetch(`/api/admin/users/search?q=${searchQuery}`);
+                    const data = await res.json();
+                    setSearchResults(data.users || []);
+                } catch (error) {
+                    console.error("Search failed", error);
+                } finally {
+                    setSearching(false);
+                }
+            } else {
+                setSearchResults([]);
+            }
+        }, 500);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery]);
 
     const handleSubmit = async () => {
         setLoading(true);
         setStatus(null);
         try {
-            const token = localStorage.getItem("token");
+            // Removed manual token header to rely on HttpOnly cookies which is more secure and reliable
             const res = await fetch("/api/admin/wallet/add", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     mode: activeTab,
@@ -46,6 +61,8 @@ export default function AdminWalletPage() {
                 setStatus({ type: "success", msg: data.message || "Funds added successfully!" });
                 setAmount("");
                 setSelectedUser(null);
+                setSearchQuery(""); // Clear search on success
+                setSearchResults([]);
             } else {
                 setStatus({ type: "error", msg: data.error });
             }
@@ -84,45 +101,60 @@ export default function AdminWalletPage() {
                         <div className="space-y-6">
                             <div>
                                 <label className="block text-sm font-bold text-soil mb-2">Search User</label>
-                                <div className="flex gap-2">
+                                <div className="relative">
                                     <input
                                         type="text"
-                                        placeholder="Name or Email..."
-                                        className="flex-1 p-3 border border-soil/20 rounded-xl focus:outline-none focus:border-soil"
+                                        placeholder="Type Name or Email..."
+                                        className="w-full p-3 border border-soil/20 rounded-xl focus:outline-none focus:border-soil pl-10"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
-                                    <button onClick={handleSearch} className="bg-soil text-white px-6 rounded-xl hover:bg-soil/90">Search</button>
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-soil/40" size={18} />
+                                    {searching && (
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                            <div className="animate-spin h-4 w-4 border-2 border-soil border-t-transparent rounded-full"></div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
                             {/* Results */}
-                            {searchResults.length > 0 && !selectedUser && (
-                                <div className="border border-soil/10 rounded-xl overflow-hidden max-h-60 overflow-y-auto">
-                                    {searchResults.map(user => (
-                                        <div
-                                            key={user._id}
-                                            onClick={() => { setSelectedUser(user); setSearchResults([]); }}
-                                            className="p-3 hover:bg-soil/5 cursor-pointer flex justify-between items-center border-b border-soil/5 last:border-0"
-                                        >
-                                            <div>
-                                                <div className="font-bold">{user.name}</div>
-                                                <div className="text-xs opacity-60">{user.email}</div>
+                            {searchQuery.length > 2 && !selectedUser && (
+                                <div className="border border-soil/10 rounded-xl overflow-hidden max-h-60 overflow-y-auto bg-white">
+                                    {searchResults.length === 0 && !searching ? (
+                                        <div className="p-4 text-center text-soil/50 text-sm">No users found</div>
+                                    ) : (
+                                        searchResults.map(user => (
+                                            <div
+                                                key={user._id}
+                                                onClick={() => { setSelectedUser(user); setSearchResults([]); setSearchQuery(""); }}
+                                                className="p-3 hover:bg-soil/5 cursor-pointer flex justify-between items-center border-b border-soil/5 last:border-0 transition-colors"
+                                            >
+                                                <div>
+                                                    <div className="font-bold text-soil">{user.name}</div>
+                                                    <div className="text-xs opacity-60 text-soil">{user.email}</div>
+                                                </div>
+                                                <div className="text-green-600 font-bold bg-green-50 px-2 py-1 rounded text-xs">
+                                                    ₹{user.walletBalance || 0}
+                                                </div>
                                             </div>
-                                            <div className="text-clay font-bold">₹{user.walletBalance || 0}</div>
-                                        </div>
-                                    ))}
+                                        ))
+                                    )}
                                 </div>
                             )}
 
                             {selectedUser && (
-                                <div className="bg-soil/5 p-4 rounded-xl flex justify-between items-center">
+                                <div className="bg-soil/5 p-4 rounded-xl flex justify-between items-center border border-soil/10">
                                     <div>
-                                        <span className="text-xs uppercase tracking-wider opacity-60">Selected User</span>
-                                        <div className="font-bold text-xl">{selectedUser.name}</div>
-                                        <div className="text-sm opacity-60">{selectedUser.email}</div>
+                                        <span className="text-xs uppercase tracking-wider opacity-60 font-bold text-soil">Selected User</span>
+                                        <div className="font-bold text-xl text-soil">{selectedUser.name}</div>
+                                        <div className="text-sm opacity-60 text-soil">{selectedUser.email}</div>
+                                        <div className="text-xs text-green-600 mt-1 font-medium">Current Balance: ₹{selectedUser.walletBalance || 0}</div>
                                     </div>
-                                    <button onClick={() => setSelectedUser(null)} className="text-red-500 text-sm font-bold">Valid</button>
+                                    <button
+                                        onClick={() => setSelectedUser(null)}
+                                        className="text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded text-sm font-bold transition-all"
+                                    >Change</button>
                                 </div>
                             )}
                         </div>
@@ -130,7 +162,7 @@ export default function AdminWalletPage() {
                         <div className="space-y-6">
                             <div className="bg-gradient-to-r from-clay/10 to-orange-100 p-6 rounded-2xl border border-clay/20 flex items-center gap-4">
                                 <Gift className="w-12 h-12 text-clay" />
-                                <div>
+                                <div className="flex-1">
                                     <h3 className="font-bold text-clay text-lg">Giveaway Mode</h3>
                                     <p className="text-sm text-soil/70">Randomly select users and add funds to their wallet.</p>
                                 </div>

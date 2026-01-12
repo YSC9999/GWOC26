@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X, User, LogOut, ShoppingBag, Heart } from "lucide-react";
+import { Menu, X, User, LogOut, ShoppingBag, Heart, Wallet } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth";
 import { useCart } from "@/lib/cart";
@@ -162,6 +162,16 @@ export default function Navbar() {
                     >
                       <motion.div whileHover={{ scale: 1.2 }}>
                         <Heart size={20} />
+                      </motion.div>
+                    </Link>
+
+                    {/* Wallet Icon */}
+                    <Link
+                      href="/account/wallet"
+                      className="relative text-soil hover:text-clay transition-colors p-2"
+                    >
+                      <motion.div whileHover={{ scale: 1.2 }}>
+                        <Wallet size={20} />
                       </motion.div>
                     </Link>
 

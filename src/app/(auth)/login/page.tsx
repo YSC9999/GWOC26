@@ -51,7 +51,7 @@ export default function Login() {
         } else {
           login(data.user);
           if (data.user.role === 'admin') {
-            router.push("/admin/dashboard");
+            router.push("/admin");
           } else {
             router.push("/");
           }
@@ -84,7 +84,7 @@ export default function Login() {
 
         login(data.user);
         if (data.user.role === 'admin') {
-          router.push("/admin/dashboard");
+          router.push("/admin");
         } else {
           router.push("/");
         }

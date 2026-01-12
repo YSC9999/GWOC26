@@ -71,7 +71,8 @@ export async function POST(req: Request) {
     // Set cookie
     response.cookies.set("basho_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production", // Ensure this is false on localhost if using http
+      sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60, // 7 days
       path: "/",
     });

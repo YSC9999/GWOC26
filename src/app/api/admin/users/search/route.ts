@@ -20,6 +20,12 @@ export async function GET(req: Request) {
 
         if (role) {
             filter.role = role;
+        } else {
+            // If no role specified, maybe default to ALL? 
+            // The frontend was sending role=customer. 
+            // If I want to find admins too, I should remove the role filter or allow specifying 'all'.
+            // Actually, for wallet, we should be able to give to anyone? or just customers?
+            // User requested to fix search not appearing. The user 's snm' is likely NOT a customer role if he is an Admin.
         }
 
         const users = await User.find(filter).select("name email walletBalance").limit(5);

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Script from "next/script";
 import { motion } from "framer-motion";
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Loader2, Check, MoreVertical, Edit2 } from "lucide-react";
+import { Trash2, ShoppingBag, ArrowRight, MapPin, Plus, Loader2, Check, Minus, MoreVertical, Edit2 } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import { useRouter } from "next/navigation";
@@ -283,8 +283,15 @@ export default function Cart() {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (e.target.name === 'phone' && selectedAddressId === 'new' && !editingAddressId) {
+    const { name, value } = e.target;
+
+    // Numeric validation for pincode and phone
+    if ((name === 'pincode' || name === 'phone') && !/^\d*$/.test(value)) {
+      return;
+    }
+
+    setFormData({ ...formData, [name]: value });
+    if (name === 'phone' && selectedAddressId === 'new' && !editingAddressId) {
       setPhoneVerified(false);
       setOtpSent(false);
       setShowOtpInput(false);
@@ -416,12 +423,26 @@ export default function Cart() {
           shippingAddress: formData,
           email: formData.email,
           couponCode: appliedCoupon ? appliedCoupon.code : undefined,
+          useWallet, // Include wallet choice
         }),
       });
 
       const data = await res.json();
 
       if (!res.ok) throw new Error(data.error || "Order creation failed");
+
+      // Check for zero-cost orders (Wallet covered everything)
+      if (data.bypassPayment) {
+        clear();
+        setCheckoutStep(3);
+        // Refresh Auth State to update wallet balance
+        const authRes = await fetch("/api/auth/me");
+        if (authRes.ok) {
+          const userData = await authRes.json();
+          login(userData); // Updates global state including wallet
+        }
+        return;
+      }
 
       // 2. Open Razorpay
       const options = {
@@ -447,6 +468,12 @@ export default function Cart() {
             if (verifyRes.ok) {
               clear(); // Clear cart
               setCheckoutStep(3); // Show success
+              // Refresh Auth State to update wallet balance
+              const authRes = await fetch("/api/auth/me");
+              if (authRes.ok) {
+                const userData = await authRes.json();
+                login(userData);
+              }
             } else {
               alert("Payment verification failed. Please contact support.");
             }
@@ -869,6 +896,38 @@ export default function Cart() {
                 {couponError && <p className="text-red-500 text-xs mt-1">{couponError}</p>}
 
               </div>
+
+              {/* Wallet Checkbox */}
+              {user?.walletBalance && user.walletBalance > 0 && (
+                <div className="mb-6 p-4 bg-white/50 rounded-xl border border-soil/10">
+                  <label className="flex items-center gap-3 cursor-pointer group select-none">
+                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${useWallet ? 'bg-green-600 border-green-600 text-white' : 'border-soil/20 group-hover:border-green-600'}`}>
+                      {useWallet && <Check size={14} strokeWidth={3} />}
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={useWallet}
+                      onChange={(e) => setUseWallet(e.target.checked)}
+                      className="hidden"
+                    />
+                    <div className="flex-1">
+                      <div className="font-bold text-soil text-sm flex items-center gap-2">
+                        <span>Use Wallet Balance</span>
+                        <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">AVAILABLE: ₹{user.walletBalance}</span>
+                      </div>
+                      <div className="text-xs text-soil/60 mt-0.5">
+                        Deduct balance from total
+                      </div>
+                    </div>
+                  </label>
+                  {useWallet && walletUsed > 0 && (
+                    <div className="flex justify-between items-center mt-3 pt-3 border-t border-dashed border-soil/20 text-sm">
+                      <span className="font-medium text-soil/70">Wallet Applied</span>
+                      <span className="font-bold text-green-600">-₹{walletUsed.toLocaleString()}</span>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="flex justify-between text-xl font-bold text-soil mb-8">
                 <span>Total</span>

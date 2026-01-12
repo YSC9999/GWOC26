@@ -6,8 +6,7 @@ import { requireAdmin } from "@/lib/admin-guard";
 
 export async function GET() {
     try {
-        await requireAdmin();
-        await requireAdmin();
+        // Public endpoint - no admin check required for viewing
         await connectDB();
         try { await new Product(); } catch (e) { } // Force schema registration
         const frames = await Frame.find().populate("product").sort({ frameId: 1 });
