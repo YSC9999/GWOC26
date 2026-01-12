@@ -35,7 +35,11 @@ export async function DELETE(req: Request) {
             return NextResponse.json({ success: false, error: 'ID is required' }, { status: 400 });
         }
 
-        await PreviousCustomOrder.findByIdAndDelete(id);
+        const result = await PreviousCustomOrder.deleteOne({ _id: id });
+        
+        if (result.deletedCount === 0) {
+            return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
+        }
 
         return NextResponse.json({ success: true, message: 'Deleted successfully' });
     } catch (error: any) {
