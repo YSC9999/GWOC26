@@ -94,7 +94,7 @@ export default function Navbar() {
       transition={{ type: "spring", stiffness: 100, damping: 20 }}
       className="fixed w-full top-1 z-50 left-0 right-0 flex justify-center"
     >
-      <div className="bg-[#EDD8B4]/90 backdrop-blur-md rounded-2xl border-2 border-[#442D1C] w-11/12 max-w-6xl px-4 py-2.5 md:px-6 md:py-4 flex justify-between items-center gap-2 lg:gap-4 transition-all duration-300 shadow-xl">
+      <div className="bg-[#EFE5D8]/90 backdrop-blur-md rounded-2xl border-2 border-[#5A3E36] w-11/12 max-w-6xl px-4 py-2.5 md:px-6 md:py-4 flex justify-between items-center gap-2 lg:gap-4 transition-all duration-300 shadow-xl">
         {/* Logo */}
         <Link
           href="/"
@@ -111,19 +111,19 @@ export default function Navbar() {
 
         {/* Desktop Menu */}
         <div className="hidden lg:flex items-center gap-1 xl:gap-2 flex-1 ml-4 lg:ml-8">
-          <div className="flex gap-1 uppercase text-xs tracking-widest font-medium text-[#442D1C]/80 relative flex-wrap justify-center">
+          <div className="flex gap-1 uppercase text-xs tracking-widest font-medium text-[#5A3E36]/80 relative flex-wrap justify-center">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative px-2 xl:px-3 py-2 rounded-full z-10 transition-colors ${isActive ? "text-[#EDD8B4]" : "hover:text-[#C85428]"}`}
+                  className={`relative px-2 xl:px-3 py-2 rounded-full z-10 transition-colors ${isActive ? "text-[#EFE5D8]" : "hover:text-[#C97C5D]"}`}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="active-nav-pill"
-                      className="absolute inset-0 bg-[#C85428] rounded-full -z-10"
+                      className="absolute inset-0 bg-[#C97C5D] rounded-full -z-10"
                       transition={{ type: "spring", stiffness: 900, damping: 30, mass: 0.5 }}
                     />
                   )}
@@ -143,7 +143,7 @@ export default function Navbar() {
                   <>
                     <Link
                       href="/account/wishlist"
-                      className="relative text-[#442D1C] hover:text-[#C85428] transition-colors p-2"
+                      className="relative text-[#5A3E36] hover:text-[#C97C5D] transition-colors p-2"
                     >
                       <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}>
                         <Heart size={20} />
@@ -154,7 +154,7 @@ export default function Navbar() {
 
                     <Link
                       href="/cart"
-                      className="relative text-[#442D1C] hover:text-[#C85428] transition-colors p-2"
+                      className="relative text-[#5A3E36] hover:text-[#C97C5D] transition-colors p-2"
                     >
                       <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}>
                         <ShoppingBag size={20} />
@@ -162,7 +162,7 @@ export default function Navbar() {
                           <motion.span
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
-                            className="absolute -top-1 -right-1 w-4 h-4 bg-[#C85428] text-white text-[10px] font-bold flex items-center justify-center rounded-full"
+                            className="absolute -top-1 -right-1 w-4 h-4 bg-[#C97C5D] text-white text-[10px] font-bold flex items-center justify-center rounded-full"
                           >
                             {cartCount}
                           </motion.span>
@@ -177,9 +177,9 @@ export default function Navbar() {
                   <div className="flex gap-2 lg:gap-3 items-center flex-shrink-0">
                     <Link href="/login">
                       <motion.button
-                        whileHover={{ scale: 1.05, backgroundColor: "rgba(68, 45, 28, 0.1)" }}
+                        whileHover={{ scale: 1.05, backgroundColor: "rgba(90, 62, 54, 0.1)" }}
                         whileTap={{ scale: 0.95 }}
-                        className="text-xs uppercase tracking-widest px-3 py-2 border border-[#442D1C] rounded-lg text-[#442D1C] font-bold whitespace-nowrap"
+                        className="text-xs uppercase tracking-widest px-3 py-2 border border-[#5A3E36] rounded-lg text-[#5A3E36] font-bold whitespace-nowrap"
                       >
                         LOGIN
                       </motion.button>
@@ -188,7 +188,7 @@ export default function Navbar() {
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="text-xs uppercase tracking-widest px-3 py-2 bg-[#442D1C] text-[#EDD8B4] rounded-lg hover:bg-[#652810] transition font-bold whitespace-nowrap"
+                        className="text-xs uppercase tracking-widest px-3 py-2 bg-[#5A3E36] text-[#EFE5D8] rounded-lg hover:bg-[#C97C5D] transition font-bold whitespace-nowrap"
                       >
                         SIGNUP
                       </motion.button>
@@ -200,7 +200,7 @@ export default function Navbar() {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setProfileOpen(!profileOpen)}
-                      className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#C85428] text-white hover:shadow-lg transition-all border-2 border-[#EDD8B4]"
+                      className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#C97C5D] text-white hover:shadow-lg transition-all border-2 border-[#EFE5D8]"
                     >
                       <User size={16} className="md:w-[18px] md:h-[18px]" />
                     </motion.button>
@@ -212,20 +212,20 @@ export default function Navbar() {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
                           transition={{ duration: 0.2 }}
-                          className="absolute right-0 mt-4 w-64 bg-[#EDD8B4] rounded-2xl shadow-2xl border-2 border-[#442D1C] py-2 overflow-hidden z-50"
+                          className="absolute right-0 mt-4 w-64 bg-[#EFE5D8] rounded-2xl shadow-2xl border-2 border-[#5A3E36] py-2 overflow-hidden z-50"
                         >
-                          <div className="px-5 py-3 border-b border-[#442D1C]/10 bg-[#442D1C]/5">
-                            <p className="text-sm font-bold text-[#442D1C] truncate">
+                          <div className="px-5 py-3 border-b border-[#5A3E36]/10 bg-[#5A3E36]/5">
+                            <p className="text-sm font-bold text-[#5A3E36] truncate">
                               {user?.name}
                             </p>
-                            <p className="text-xs text-[#442D1C]/70 truncate">
+                            <p className="text-xs text-[#5A3E36]/70 truncate">
                               {user?.email}
                             </p>
                           </div>
 
                           <Link
                             href="/account"
-                            className="flex items-center gap-3 px-5 py-3 hover:bg-[#C85428]/10 text-sm text-[#442D1C] transition-colors"
+                            className="flex items-center gap-3 px-5 py-3 hover:bg-[#C97C5D]/10 text-sm text-[#5A3E36] transition-colors"
                           >
                             👤 My Account
                           </Link>
@@ -233,7 +233,7 @@ export default function Navbar() {
                           {user?.role === "admin" && (
                             <Link
                               href="/admin"
-                              className="flex items-center gap-3 px-5 py-3 hover:bg-[#C85428]/10 text-sm text-[#442D1C] transition-colors"
+                              className="flex items-center gap-3 px-5 py-3 hover:bg-[#C97C5D]/10 text-sm text-[#5A3E36] transition-colors"
                             >
                               ⚡ Admin Dashboard
                             </Link>
@@ -241,7 +241,7 @@ export default function Navbar() {
 
                           <Link
                             href="/cart"
-                            className="flex items-center gap-3 px-5 py-3 hover:bg-[#C85428]/10 text-sm text-[#442D1C] transition-colors"
+                            className="flex items-center gap-3 px-5 py-3 hover:bg-[#C97C5D]/10 text-sm text-[#5A3E36] transition-colors"
                           >
                             🛍️ Cart ({cartCount})
                           </Link>
@@ -250,7 +250,7 @@ export default function Navbar() {
 
                           <button
                             onClick={handleLogout}
-                            className="w-full flex items-center gap-3 px-5 py-3 hover:bg-red-50 text-sm text-red-600 transition-colors font-medium border-t border-[#442D1C]/10"
+                            className="w-full flex items-center gap-3 px-5 py-3 hover:bg-red-50 text-sm text-red-600 transition-colors font-medium border-t border-[#5A3E36]/10"
                           >
                             <LogOut size={16} /> Sign Out
                           </button>
@@ -268,7 +268,7 @@ export default function Navbar() {
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={() => setOpen(!open)}
-          className="lg:hidden text-[#442D1C] p-1"
+          className="lg:hidden text-[#5A3E36] p-1"
         >
           {open ? <X /> : <Menu />}
         </motion.button>
@@ -282,14 +282,14 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 200, damping: 25 }}
-            className="lg:hidden bg-[#EDD8B4] border-4 border-[#442D1C] rounded-2xl mt-1 mx-auto w-11/12 max-w-6xl px-5 py-6 absolute top-16 md:top-24 z-40 shadow-2xl"
+            className="lg:hidden bg-[#EFE5D8] border-4 border-[#5A3E36] rounded-2xl mt-1 mx-auto w-11/12 max-w-6xl px-5 py-6 absolute top-16 md:top-24 z-40 shadow-2xl"
           >
-            <div className="flex flex-col space-y-4 uppercase tracking-widest text-xs text-center text-[#442D1C]">
+            <div className="flex flex-col space-y-4 uppercase tracking-widest text-xs text-center text-[#5A3E36]">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="nav-link hover:text-[#C85428] py-2 border-b border-[#442D1C]/10 font-bold"
+                  className="nav-link hover:text-[#C97C5D] py-2 border-b border-[#5A3E36]/10 font-bold"
                   onClick={() => setOpen(false)}
                 >
                   {link.label}
@@ -300,14 +300,14 @@ export default function Navbar() {
                 <div className="flex flex-col gap-3 mt-4 pt-4">
                   <Link
                     href="/login"
-                    className="text-xs uppercase tracking-widest px-4 py-3 border-2 border-[#442D1C] rounded-lg hover:bg-[#442D1C] hover:text-[#EDD8B4] transition text-[#442D1C] font-bold"
+                    className="text-xs uppercase tracking-widest px-4 py-3 border-2 border-[#5A3E36] rounded-lg hover:bg-[#5A3E36] hover:text-[#EFE5D8] transition text-[#5A3E36] font-bold"
                     onClick={() => setOpen(false)}
                   >
                     Login
                   </Link>
                   <Link
                     href="/signup"
-                    className="text-xs uppercase tracking-widest px-4 py-3 bg-[#C85428] text-white rounded-lg hover:bg-[#8E5022] transition font-bold"
+                    className="text-xs uppercase tracking-widest px-4 py-3 bg-[#C97C5D] text-white rounded-lg hover:bg-[#a85a47] transition font-bold"
                     onClick={() => setOpen(false)}
                   >
                     Signup
@@ -318,7 +318,7 @@ export default function Navbar() {
                   {user?.role === "admin" && (
                     <Link
                       href="/admin"
-                      className="nav-link hover:text-[#C85428] block font-bold"
+                      className="nav-link hover:text-[#C97C5D] block font-bold"
                       onClick={() => setOpen(false)}
                     >
                       Admin Dashboard
@@ -326,14 +326,14 @@ export default function Navbar() {
                   )}
                   <Link
                     href="/cart"
-                    className="nav-link hover:text-[#C85428] block font-bold"
+                    className="nav-link hover:text-[#C97C5D] block font-bold"
                     onClick={() => setOpen(false)}
                   >
                     Cart ({cartCount})
                   </Link>
                   <Link
                     href="/account"
-                    className="nav-link hover:text-[#C85428] block font-bold"
+                    className="nav-link hover:text-[#C97C5D] block font-bold"
                     onClick={() => setOpen(false)}
                   >
                     My Account
