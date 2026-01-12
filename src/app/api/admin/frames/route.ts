@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Frame from "@/models/Frame";
 import Product from "@/models/Product"; // Ensure Product is registered
+import { requireAdmin } from "@/lib/admin-guard";
 
 export async function GET() {
     try {
+        await requireAdmin();
         await connectDB();
         const frames = await Frame.find().populate("product").sort({ frameId: 1 });
         return NextResponse.json({ frames });
@@ -19,6 +21,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
     try {
+        await requireAdmin();
         await connectDB();
         const { frameId, productId } = await req.json();
 
