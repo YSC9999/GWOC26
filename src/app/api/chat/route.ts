@@ -42,6 +42,8 @@ export async function POST(req: Request) {
                 console.error("Gemini API Error:", err);
                 // Continue to fallback
             }
+        } else {
+            console.log("ChatBot: GEMINI_API_KEY is not set in .env.local. Skipping AI generation.");
         }
 
         return NextResponse.json({ reply: fallbackResponse, source: "fallback" });

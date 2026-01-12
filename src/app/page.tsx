@@ -8,7 +8,6 @@ import {
   ArrowRight,
   ShoppingBag,
   Star,
-  Calendar,
   Quote,
   Sparkles,
 } from "lucide-react";
@@ -213,7 +212,6 @@ export default function Home() {
                           alt={product.name}
                           className="w-full h-full object-cover"
                         />
-                        {/* Removed text overlay as requested */}
                       </>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-white text-xs font-semibold opacity-0 hover:opacity-75 transition-opacity bg-black/30">
@@ -263,19 +261,19 @@ export default function Home() {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ delay: colIndex * 0.1 }}
-                    className="group cursor-pointer"
+                    className="group"
                   >
-                    <Link href="/products">
+                    <Link href={`/collections/${collection.slug || collection._id}`}>
                       {/* Card Container */}
-                      <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-soil/5 h-full flex flex-col">
+                      <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-soil/5 h-full flex flex-col transform hover:-translate-y-1 relative">
 
                         {/* Thumbnail Image */}
-                        <div className="h-64 bg-sand/20 overflow-hidden relative">
+                        <div className="h-72 bg-sand/20 overflow-hidden relative">
                           {thumbnailImage ? (
                             <img
                               src={thumbnailImage}
                               alt={collection.title}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-4xl bg-sand/10">
@@ -283,28 +281,22 @@ export default function Home() {
                             </div>
                           )}
 
-                          {/* Overlay Gradient */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                          {/* Gradient Overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 transition-opacity" />
 
-                          {/* Collection Title on Image (Optional style, or keep below) */}
-                          <div className="absolute bottom-4 left-4 text-white">
-                            <h3 className="text-xl font-bold font-serif shadow-sm">
-                              {collection.title}
-                            </h3>
-                            <div className="text-xs font-medium uppercase tracking-wider opacity-90 mt-1 flex items-center gap-1">
-                              View Collection <ArrowRight size={12} />
+                          {/* Button Pill Centered/Bottom */}
+                          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-max max-w-[90%] z-20">
+                            <div className="bg-white text-soil font-bold px-6 py-3 rounded-full shadow-lg flex items-center gap-2 hover:bg-clay hover:text-white transition-colors duration-300 pointer-events-none">
+                              <span className="truncate">{collection.title}</span>
+                              <ArrowRight size={16} />
                             </div>
                           </div>
                         </div>
 
-                        {/* Description Below */}
-                        {collection.description && (
-                          <div className="p-4 bg-white/50 flex-grow">
-                            <p className="text-sm text-soil/70 line-clamp-2">
-                              {collection.description}
-                            </p>
-                          </div>
-                        )}
+                        {/* Optional Description (Keep it clean if user wants just buttons?) 
+                            User said "remove go to collection". The Button Pill above replaces the text.
+                            I will hide the description to keep it super clean "buttons" style.
+                        */}
                       </div>
                     </Link>
                   </motion.div>

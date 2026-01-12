@@ -2,6 +2,35 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import FeaturedCollection from "@/models/FeaturedCollection";
 
+export async function GET(
+    req: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        await connectDB();
+        const { id } = await params;
+
+        // Determine if searching by ID or Slug
+        let collection;
+        const isObjectId = /^[0-9a-fA-F]{24}$/.test(id);
+
+        if (isObjectId) {
+            collection = await FeaturedCollection.findById(id).populate("products");
+        } else {
+            collection = await FeaturedCollection.findOne({ slug: id }).populate("products");
+        }
+
+        if (!collection) {
+            return NextResponse.json({ error: "Collection not found" }, { status: 404 });
+        }
+
+        return NextResponse.json({ collection });
+    } catch (error: any) {
+        console.error("Fetch Collection Error:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}
+
 export async function PUT(
     req: Request,
     { params }: { params: Promise<{ id: string }> } // Correct for Next.js 15+
