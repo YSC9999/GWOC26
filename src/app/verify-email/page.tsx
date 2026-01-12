@@ -9,7 +9,7 @@ function VerifyEmailContent() {
   const router = useRouter();
   const email = searchParams.get("email") || "";
   const { login } = useAuth();
-  
+
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -48,12 +48,12 @@ function VerifyEmailContent() {
       const signupResponse = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           firstName: signupData.firstName,
           lastName: signupData.lastName,
           email: signupData.email,
           password: signupData.password,
-          emailVerified: true 
+          emailVerified: true
         }),
       });
 
@@ -72,8 +72,12 @@ function VerifyEmailContent() {
         login(signupResult.user);
       }
 
-      // 6. Redirect to account
-      router.push("/account?welcome=true");
+      // 6. Redirect
+      if (signupResult.user && signupResult.user.role === 'admin') {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/account?welcome=true");
+      }
     } catch (err) {
       setError("An error occurred. Please try again.");
     } finally {
@@ -201,9 +205,9 @@ function VerifyEmailContent() {
 export default function VerifyEmail() {
   return (
     <Suspense fallback={
-        <div className="min-h-screen flex items-center justify-center">
-            <p className="text-soil animate-pulse">Loading verification...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-soil animate-pulse">Loading verification...</p>
+      </div>
     }>
       <VerifyEmailContent />
     </Suspense>

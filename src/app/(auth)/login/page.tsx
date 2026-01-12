@@ -50,7 +50,11 @@ export default function Login() {
           setError("");
         } else {
           login(data.user);
-          router.push("/");
+          if (data.user.role === 'admin') {
+            router.push("/admin/dashboard");
+          } else {
+            router.push("/");
+          }
         }
       } catch (err) {
         setError("An error occurred. Please try again.");
@@ -79,7 +83,11 @@ export default function Login() {
         }
 
         login(data.user);
-        router.push("/");
+        if (data.user.role === 'admin') {
+          router.push("/admin/dashboard");
+        } else {
+          router.push("/");
+        }
       } catch (err) {
         setError("An error occurred. Please try again.");
       } finally {

@@ -61,7 +61,7 @@ export default function ChatBot() {
         fetchInfo();
     }, []);
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!inputValue.trim()) return;
 
         const userText = inputValue.trim();
@@ -75,43 +75,32 @@ export default function ChatBot() {
         setMessages((prev) => [...prev, newUserMsg]);
         setInputValue("");
 
-        // Intelligent Bot Response
-        setTimeout(() => {
-            let botText = "";
-            const lowerInput = userText.toLowerCase();
-
-            // Keywords for problems/issues
-            if (
-                lowerInput.includes("problem") ||
-                lowerInput.includes("issue") ||
-                lowerInput.includes("refund") ||
-                lowerInput.includes("return") ||
-                lowerInput.includes("broken") ||
-                lowerInput.includes("complaint") ||
-                lowerInput.includes("help")
-            ) {
-                const phone = studioInfo?.phone || "+91 98765 43210";
-                const email = studioInfo?.email || "chiluverusreeshanth@gmail.com";
-                botText = `I'm sorry to hear that you're facing an issue. Please reach out to our customer care team directly so we can resolve this for you ASAP.\n\n📞 Phone: ${phone}\n📧 Email: ${email}`;
-            }
-            // Greetings
-            else if (lowerInput.match(/^(hi|hello|hey|greetings)/)) {
-                botText = "Hello! How can I assist you with your pottery needs today?";
-            }
-            // Default fallback
-            else {
-                const phone = studioInfo?.phone || "+91 98765 43210";
-                botText = `I'm still learning! For specific queries, please contact our support team at ${phone}, or feel free to browse our FAQ.`;
-            }
+        try {
+            const res = await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: userText }),
+            });
+            const data = await res.json();
 
             const botResponse: Message = {
                 id: (Date.now() + 1).toString(),
-                text: botText,
+                text: data.reply || "I'm having trouble connecting right now. Please try again later.",
                 sender: "bot",
                 timestamp: new Date(),
             };
             setMessages((prev) => [...prev, botResponse]);
-        }, 1000);
+
+        } catch (err) {
+            console.error("Chat Error:", err);
+            const errorMsg: Message = {
+                id: (Date.now() + 1).toString(),
+                text: "Sorry, I'm offline at the moment. Please email us instead.",
+                sender: "bot",
+                timestamp: new Date(),
+            };
+            setMessages((prev) => [...prev, errorMsg]);
+        }
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {

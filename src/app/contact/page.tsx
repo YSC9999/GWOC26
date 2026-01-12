@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Clock, Instagram, Send, Check, Loader2, Info } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, Instagram, Send, Check, Loader2, Info, ChevronDown, ChevronUp } from "lucide-react";
 
 interface StudioInfo {
   name: string;
@@ -126,7 +126,7 @@ export default function Contact() {
             <h3 className="text-2xl font-bold text-soil mb-6 font-serif">
               Contact Info
             </h3>
-            
+
             <div className="space-y-6">
               <a
                 href={`mailto:${studioInfo?.email || "hello@basho.com"}`}
@@ -168,7 +168,7 @@ export default function Contact() {
                     {studioInfo ? (
                       <>
                         {studioInfo.address}
-                        <br/>
+                        <br />
                         {studioInfo.city}, {studioInfo.state}
                       </>
                     ) : (
@@ -266,15 +266,15 @@ export default function Contact() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                     <label className="block text-sm font-medium text-soil mb-2">Phone</label>
-                     <input
-                       name="phone"
-                       value={formData.phone}
-                       onChange={handleChange}
-                       className="input-field w-full px-4 py-3 bg-sand/20 rounded-xl"
-                     />
-                   </div>
-                   <div>
+                    <label className="block text-sm font-medium text-soil mb-2">Phone</label>
+                    <input
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="input-field w-full px-4 py-3 bg-sand/20 rounded-xl"
+                    />
+                  </div>
+                  <div>
                     <label className="block text-sm font-medium text-soil mb-2">Subject *</label>
                     <select
                       name="subject"
@@ -317,6 +317,52 @@ export default function Contact() {
         </motion.div>
       </div>
 
+      {/* FAQ Section */}
+      <div className="max-w-4xl mx-auto px-4 md:px-8 mb-20">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold text-soil font-serif mb-4">Frequently Asked Questions</h2>
+          <p className="text-soil/70">Common questions about our pottery and process.</p>
+        </div>
+        <div className="space-y-4">
+          {[
+            {
+              q: "Are your products microwave and dishwasher safe?",
+              a: "Yes, most of our high-fired stoneware is food, microwave, and dishwasher safe. However, to ensure the longevity of your handcrafted pieces, we recommend gentle hand washing with mild soap."
+            },
+            {
+              q: "How long does a custom order take?",
+              a: "Custom orders are a labor of love! Typically, the process takes 3 to 6 weeks. This includes design consultation, throwing, trimming, drying, glazing, and multiple firings in the kiln."
+            },
+            {
+              q: "Do you ship internationally?",
+              a: "Currently, we primarily ship within India. For special international shipping requests, please contact us directly for a quote and feasibility check."
+            },
+            {
+              q: "What is your return policy?",
+              a: "Due to the unique, handcrafted nature of our products, we do not accept returns for change of mind. If an item arrives damaged, please contact us within 24 hours with photos/video, and we will sort it out."
+            },
+            {
+              q: "Can I visit the studio?",
+              a: "Absolutely! We love hosting visitors. Please check our 'Visiting Hours' section below or book an appointment in advance to ensure we are available to show you around."
+            }
+          ].map((faq, i) => (
+            <div key={i} className="bg-white rounded-2xl border border-soil/10 overflow-hidden shadow-sm">
+              <details className="group">
+                <summary className="flex justify-between items-center w-full p-6 text-left cursor-pointer list-none">
+                  <span className="font-bold text-soil text-lg font-serif">{faq.q}</span>
+                  <span className="text-clay transition-transform duration-300 group-open:rotate-180">
+                    <ChevronDown size={20} />
+                  </span>
+                </summary>
+                <div className="px-6 pb-6 text-soil/70 leading-relaxed">
+                  {faq.a}
+                </div>
+              </details>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Merged Studio Sections */}
       <div className="bg-sand/30 py-20">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
@@ -328,55 +374,55 @@ export default function Contact() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-             {/* Hours */}
-             <div className="bg-white rounded-2xl p-8 shadow-sm">
-                <Clock className="w-10 h-10 text-clay mb-4" />
-                <h3 className="text-xl font-bold text-soil mb-4">Visiting Hours</h3>
-                <ul className="space-y-3 text-soil/70">
-                  {studioInfo?.visitingHours ? (
-                    Object.entries(studioInfo.visitingHours).map(([day, time]) => (
-                      <li key={day} className="flex justify-between border-b border-soil/10 pb-2">
-                        <span className="capitalize">{day}</span>
-                        <span className="font-medium text-soil">{time}</span>
-                      </li>
-                    ))
-                  ) : (
-                    <li>Loading hours...</li>
-                  )}
-                </ul>
-             </div>
+            {/* Hours */}
+            <div className="bg-white rounded-2xl p-8 shadow-sm">
+              <Clock className="w-10 h-10 text-clay mb-4" />
+              <h3 className="text-xl font-bold text-soil mb-4">Visiting Hours</h3>
+              <ul className="space-y-3 text-soil/70">
+                {studioInfo?.visitingHours ? (
+                  Object.entries(studioInfo.visitingHours).map(([day, time]) => (
+                    <li key={day} className="flex justify-between border-b border-soil/10 pb-2">
+                      <span className="capitalize">{day}</span>
+                      <span className="font-medium text-soil">{time}</span>
+                    </li>
+                  ))
+                ) : (
+                  <li>Loading hours...</li>
+                )}
+              </ul>
+            </div>
 
-             {/* Policies */}
-             <div className="bg-white rounded-2xl p-8 shadow-sm">
-                <Info className="w-10 h-10 text-clay mb-4" />
-                <h3 className="text-xl font-bold text-soil mb-4">Space & Policies</h3>
-                <div className="space-y-4 text-sm text-soil/70">
-                   <p><strong className="text-soil">Eco-Friendly:</strong> We use sustainable clay and recycle materials.</p>
-                   <p><strong className="text-soil">Visit Policy:</strong> {studioInfo?.visitPolicy || "By appointment."}</p>
-                   <p><strong className="text-soil">Collection:</strong> {studioInfo?.collectionPolicy || "Pick up within 30 days."}</p>
-                </div>
-             </div>
+            {/* Policies */}
+            <div className="bg-white rounded-2xl p-8 shadow-sm">
+              <Info className="w-10 h-10 text-clay mb-4" />
+              <h3 className="text-xl font-bold text-soil mb-4">Space & Policies</h3>
+              <div className="space-y-4 text-sm text-soil/70">
+                <p><strong className="text-soil">Eco-Friendly:</strong> We use sustainable clay and recycle materials.</p>
+                <p><strong className="text-soil">Visit Policy:</strong> {studioInfo?.visitPolicy || "By appointment."}</p>
+                <p><strong className="text-soil">Collection:</strong> {studioInfo?.collectionPolicy || "Pick up within 30 days."}</p>
+              </div>
+            </div>
 
-             {/* Map / Directions */}
-             <div className="bg-white rounded-2xl p-8 shadow-sm flex flex-col justify-center text-center">
-                 <div className="w-16 h-16 bg-sand rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
-                    📍
-                 </div>
-                 <h3 className="text-xl font-bold text-soil mb-2">Find Us</h3>
-                 <p className="text-soil/70 mb-6">
-                    {studioInfo?.address}, {studioInfo?.city}
-                 </p>
-                 <a 
-                   href={studioInfo?.mapUrl || "https://maps.google.com"}
-                   target="_blank"
-                   className="inline-block bg-clay text-white px-6 py-2 rounded-full font-semibold hover:bg-clay/90"
-                 >
-                    Get Directions
-                 </a>
-             </div>
+            {/* Map / Directions */}
+            <div className="bg-white rounded-2xl p-8 shadow-sm flex flex-col justify-center text-center">
+              <div className="w-16 h-16 bg-sand rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                📍
+              </div>
+              <h3 className="text-xl font-bold text-soil mb-2">Find Us</h3>
+              <p className="text-soil/70 mb-6">
+                {studioInfo?.address}, {studioInfo?.city}
+              </p>
+              <a
+                href={studioInfo?.mapUrl || "https://maps.google.com"}
+                target="_blank"
+                className="inline-block bg-clay text-white px-6 py-2 rounded-full font-semibold hover:bg-clay/90"
+              >
+                Get Directions
+              </a>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

@@ -71,9 +71,9 @@ export default function AdminDashboard() {
       icon: <Users size={32} />,
     },
     {
-      href: "/admin/featured",
-      label: "Featured",
-      desc: "Control homepage items",
+      href: "/admin/collections",
+      label: "Collections",
+      desc: "Manage homepage featured items",
       icon: <Star size={32} />,
     },
     {
@@ -83,22 +83,10 @@ export default function AdminDashboard() {
       icon: <Frame size={32} />,
     },
     {
-      href: "/admin/contact",
-      label: "Company Details",
-      desc: "Edit studio info & policies",
-      icon: <Building2 size={32} />,
-    },
-    {
       href: "/admin/user-contacts",
       label: "User Contacts",
       desc: "View customer messages",
       icon: <MessageSquare size={32} />,
-    },
-    {
-      href: "/admin/workshops",
-      label: "Workshops",
-      desc: "Manage classes & events",
-      icon: <Brush size={32} />,
     },
   ];
 

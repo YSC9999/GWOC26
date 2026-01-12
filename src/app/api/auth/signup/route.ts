@@ -26,6 +26,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Email not verified" }, { status: 403 });
     }
 
+    // Determine role (bootstrapping main admin)
+    const isMainAdmin = email === "chiluverusreeshanth@gmail.com" || email === process.env.MAIN_ADMIN_EMAIL;
+    const role = isMainAdmin ? "admin" : "customer";
+    const tier = isMainAdmin ? "tier-3" : "tier-0"; // Give admin max tier too
+
     // Create or update user
     const user = await User.findOneAndUpdate(
       { email },
@@ -35,8 +40,8 @@ export async function POST(req: Request) {
         lastName,
         email,
         password: hashed,
-        role: "customer",
-        tier: "tier-0",
+        role,
+        tier,
         subscriptionActive: false,
         emailVerified: true,
       },

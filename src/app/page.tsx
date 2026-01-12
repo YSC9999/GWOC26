@@ -24,6 +24,15 @@ interface Product {
   category: string;
   images: string[];
   rating: number;
+  stockQuantity?: number;
+}
+
+interface Collection {
+  _id: string;
+  title: string;
+  slug: string;
+  description: string;
+  products: Product[];
 }
 
 interface Testimonial {
@@ -51,7 +60,7 @@ const categoryEmojis: Record<string, string> = {
 };
 
 export default function Home() {
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [collections, setCollections] = useState<Collection[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
@@ -65,17 +74,17 @@ export default function Home() {
 
   const fetchData = async () => {
     try {
-      const [productsRes, testimonialsRes, framesRes] = await Promise.all([
-        fetch("/api/products/featured"),
+      const [collectionsRes, testimonialsRes, framesRes] = await Promise.all([
+        fetch("/api/featured-collections?active=true"),
         fetch("/api/testimonials?featured=true&limit=3"),
         fetch("/api/admin/frames"),
       ]);
 
-      const productsData = await productsRes.json();
+      const collectionsData = await collectionsRes.json();
       const testimonialsData = await testimonialsRes.json();
       const framesData = await framesRes.json();
 
-      setFeaturedProducts(productsData.products || []);
+      setCollections(collectionsData.collections || []);
       setTestimonials(testimonialsData.testimonials || []);
       setDynamicFrames(framesData.frames || []);
     } catch (error) {
@@ -219,131 +228,94 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* Featured Products */}
+      {/* Featured Collections Grid */}
       <motion.section
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="py-20"
+        className="py-16 border-b border-soil/5"
       >
-        <div className="text-center mb-12">
-          <motion.span
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            className="inline-block text-clay font-medium mb-4 tracking-wider uppercase"
-          >
-            Handpicked for You
-          </motion.span>
+        <div className="text-center mb-10 px-4">
           <motion.h2
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-5xl font-bold text-soil font-serif"
+            className="text-3xl md:text-4xl font-bold text-soil font-serif"
           >
-            Featured Collection
+            Featured Collections
           </motion.h2>
+          <p className="text-soil/60 mt-2 max-w-2xl mx-auto">
+            Explore our curated selections of handcrafted ceramics.
+          </p>
         </div>
 
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-2 border-clay border-t-transparent"></div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4 md:px-12 max-w-7xl mx-auto">
-            {featuredProducts.length > 0 ? (
-              featuredProducts.map((product, index) => (
-                <motion.div
-                  key={product._id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -10 }}
-                  className="group cursor-pointer"
-                  onClick={() =>
-                    setSelectedProductId(product.slug || product._id)
-                  }
-                >
-                  <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
-                    <div className="h-56 bg-gradient-to-br from-sand to-sand/50 flex items-center justify-center overflow-hidden relative">
-                      {product.images?.[0] &&
-                        (product.images[0].startsWith("/") ||
-                          product.images[0].startsWith("http") ||
-                          product.images[0].startsWith("data:")) ? (
-                        <img
-                          src={product.images[0]}
-                          alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform"
-                        />
-                      ) : (
-                        <div className="text-7xl group-hover:scale-110 transition-transform duration-500">
-                          {categoryEmojis[product.category] || "🏺"}
-                        </div>
-                      )}
-                      {product.originalPrice &&
-                        product.originalPrice > product.price && (
-                          <div className="absolute top-3 left-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                            {Math.round(
-                              (1 - product.price / product.originalPrice) * 100
-                            )}
-                            % OFF
-                          </div>
-                        )}
-                    </div>
-                    <div className="p-6">
-                      <span className="text-xs font-medium text-clay uppercase tracking-wide">
-                        {product.category}
-                      </span>
-                      <h3 className="text-xl font-bold text-soil mt-1 mb-2 group-hover:text-clay transition-colors">
-                        {product.name}
-                      </h3>
-                      <p className="text-sm text-soil/60 mb-3 line-clamp-2">
-                        {product.description}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-2xl font-bold text-clay">
-                            ₹{product.price.toLocaleString()}
-                          </span>
-                          {product.originalPrice && (
-                            <span className="text-sm text-soil/40 line-through">
-                              ₹{product.originalPrice.toLocaleString()}
-                            </span>
-                          )}
-                        </div>
-                        {product.rating > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Star
-                              size={14}
-                              className="fill-yellow-400 text-yellow-400"
+        <div className="max-w-7xl mx-auto px-4 md:px-12">
+          {collections.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+              {collections.map((collection, colIndex) => {
+                // Use the first product (likely the newest/most relevant) as the thumbnail
+                const thumbnailProduct = collection.products?.[0];
+                const thumbnailImage = thumbnailProduct?.images?.[0];
+
+                return (
+                  <motion.div
+                    key={collection._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: colIndex * 0.1 }}
+                    className="group cursor-pointer"
+                  >
+                    <Link href="/products">
+                      {/* Card Container */}
+                      <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-soil/5 h-full flex flex-col">
+
+                        {/* Thumbnail Image */}
+                        <div className="h-64 bg-sand/20 overflow-hidden relative">
+                          {thumbnailImage ? (
+                            <img
+                              src={thumbnailImage}
+                              alt={collection.title}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                             />
-                            <span className="text-sm text-soil/60">
-                              {product.rating}
-                            </span>
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-4xl bg-sand/10">
+                              🏺
+                            </div>
+                          )}
+
+                          {/* Overlay Gradient */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+
+                          {/* Collection Title on Image (Optional style, or keep below) */}
+                          <div className="absolute bottom-4 left-4 text-white">
+                            <h3 className="text-xl font-bold font-serif shadow-sm">
+                              {collection.title}
+                            </h3>
+                            <div className="text-xs font-medium uppercase tracking-wider opacity-90 mt-1 flex items-center gap-1">
+                              View Collection <ArrowRight size={12} />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Description Below */}
+                        {collection.description && (
+                          <div className="p-4 bg-white/50 flex-grow">
+                            <p className="text-sm text-soil/70 line-clamp-2">
+                              {collection.description}
+                            </p>
                           </div>
                         )}
                       </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))
-            ) : (
-              <div className="col-span-3 text-center py-10">
-                <p>No featured products found.</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="text-center mt-12">
-          <Link href="/products">
-            <button className="group inline-flex items-center gap-2 bg-soil text-white px-8 py-4 rounded-full font-semibold hover:bg-clay transition-colors">
-              View All Products
-              <ArrowRight
-                size={20}
-                className="group-hover:translate-x-1 transition-transform"
-              />
-            </button>
-          </Link>
+                    </Link>
+                  </motion.div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-sand/10 rounded-2xl">
+              <p className="text-soil/50 italic">No collections available at the moment.</p>
+            </div>
+          )}
         </div>
       </motion.section>
 
@@ -428,11 +400,6 @@ export default function Home() {
                 <Link href="/workshops">
                   <button className="bg-clay text-white px-8 py-4 rounded-full font-semibold hover:bg-clay/90 transition-colors hover:scale-105">
                     Browse Workshops
-                  </button>
-                </Link>
-                <Link href="/corporate">
-                  <button className="btn-outline px-8 py-4 rounded-full">
-                    Corporate Inquiries
                   </button>
                 </Link>
               </div>

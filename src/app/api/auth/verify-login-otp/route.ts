@@ -12,7 +12,10 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Email and OTP are required" }, { status: 400 });
         }
 
-        const user = await User.findOne({ email });
+        const cleanEmail = email.trim().toLowerCase();
+        const cleanOtp = otp.toString().trim();
+
+        const user = await User.findOne({ email: cleanEmail });
 
         if (!user) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -25,7 +28,11 @@ export async function POST(req: Request) {
         }
 
         // Verify OTP
-        if (user.emailVerificationOTP !== otp) {
+        const storedOtp = user.emailVerificationOTP?.toString().trim();
+
+        console.log(`[Verify OTP] Email: ${cleanEmail}, Received: ${cleanOtp}, Stored: ${storedOtp}`);
+
+        if (storedOtp !== cleanOtp) {
             return NextResponse.json({ error: "Invalid OTP" }, { status: 400 });
         }
 
