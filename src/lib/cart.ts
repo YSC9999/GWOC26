@@ -52,6 +52,14 @@ export const useCart = create<CartStore>()(
             return { success: true };
           } else {
             // Cap at max stock
+            if (sanitizedItem.stock <= 0) {
+              // If stock dropped to 0, remove the item
+              set({
+                items: items.filter((i) => i.id !== sanitizedItem.id),
+              });
+              return { success: false, message: "Item is now out of stock and removed from cart." };
+            }
+
             set({
               items: items.map((i) =>
                 i.id === sanitizedItem.id
@@ -62,6 +70,11 @@ export const useCart = create<CartStore>()(
             return { success: false, message: `Stock limit reached. Max available: ${sanitizedItem.stock}` };
           }
         } else {
+          // If trying to add new item but stock is 0, DO NOT add.
+          if (sanitizedItem.stock <= 0) {
+            return { success: false, message: "Out of stock" };
+          }
+
           if (sanitizedItem.qty <= sanitizedItem.stock) {
             set({ items: [...items, sanitizedItem] });
             return { success: true };

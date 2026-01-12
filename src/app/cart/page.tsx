@@ -37,13 +37,12 @@ export default function Cart() {
       if (res.ok) {
         setAppliedCoupon(data.coupon);
         setCouponCode("");
-        alert("Coupon applied successfully!");
+        // Removed intrusive alert
       } else {
         setCouponError(data.error);
         setAppliedCoupon(null);
       }
     } catch (err) {
-      console.error(err);
       setCouponError("Failed to apply coupon");
     } finally {
       setVerifyingCoupon(false);
@@ -250,8 +249,7 @@ export default function Cart() {
         alert("Failed to delete address");
       }
     } catch (err) {
-      console.error(err);
-      alert("Failed to delete address");
+      // Silent fail or UI toast ideally
     }
     setOpenMenuId(null);
   };
@@ -273,13 +271,9 @@ export default function Cart() {
         setSavedAddresses(data.addresses || []);
         setEditingAddressId(null);
         setSelectedAddressId(editingAddressId); // Select the updated address
-        alert("Address updated");
-      } else {
-        alert("Failed to update address");
       }
     } catch (err) {
-      console.error(err);
-      alert("Error updating address");
+      // Silent fail
     } finally {
       setLoading(false);
     }
@@ -303,7 +297,7 @@ export default function Cart() {
 
   const sendOtp = async () => {
     if (!formData.phone || formData.phone.length < 10) {
-      alert("Please enter a valid phone number");
+      // alert("Please enter a valid phone number"); // Removed alert
       return;
     }
     setSendingOtp(true);
@@ -317,13 +311,11 @@ export default function Cart() {
       if (res.ok) {
         setOtpSent(true);
         setShowOtpInput(true);
-        alert(data.message); // Use message from API (Real SMS or Mock)
       } else {
-        alert(data.error);
+        // Handle error silently
       }
     } catch (err) {
-      console.error(err);
-      alert("Failed to send OTP");
+      // Silent fail
     } finally {
       setSendingOtp(false);
     }
@@ -340,13 +332,11 @@ export default function Cart() {
       if (res.ok) {
         setPhoneVerified(true);
         setShowOtpInput(false);
-        alert("Phone verified successfully!");
       } else {
-        alert("Invalid OTP");
+        // Handle invalid OTP
       }
     } catch (err) {
-      console.error(err);
-      alert("Failed to verify OTP");
+      // Silent fail
     } finally {
       setVerifyingOtp(false);
     }
