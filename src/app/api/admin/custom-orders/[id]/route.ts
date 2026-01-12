@@ -54,3 +54,24 @@ export async function PATCH(
         return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }
+
+export async function DELETE(
+    req: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        await requireAdmin();
+        await connectDB();
+
+        const { id } = await params;
+        const deletedOrder = await (CustomOrder as any).findByIdAndDelete(id);
+
+        if (!deletedOrder) {
+            return NextResponse.json({ error: "Order not found" }, { status: 404 });
+        }
+
+        return NextResponse.json({ message: "Order deleted successfully" });
+    } catch (err: any) {
+        return NextResponse.json({ error: err.message }, { status: 500 });
+    }
+}
