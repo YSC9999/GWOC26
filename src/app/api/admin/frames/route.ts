@@ -30,11 +30,11 @@ export async function POST(req: Request) {
             // If no product ID, we might want to clear the frame?
             // For now let's assume we are setting a product. 
             // If clearing is needed, we can interpret null productId as deletion.
-            await Frame.findOneAndDelete({ frameId });
+            await (Frame as any).findOneAndDelete({ frameId });
             return NextResponse.json({ message: "Frame cleared" });
         }
 
-        const frame = await Frame.findOneAndUpdate(
+        const frame = await (Frame as any).findOneAndUpdate(
             { frameId },
             { product: productId },
             { upsert: true, new: true }

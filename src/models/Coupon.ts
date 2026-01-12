@@ -7,7 +7,6 @@ export interface ICoupon extends Document {
     usedBy: mongoose.Types.ObjectId[];
     validFrom: Date;
     validTo: Date;
-    validTo: Date;
     isActive: boolean;
     isDeleted: boolean;
     usageLimit: number;
