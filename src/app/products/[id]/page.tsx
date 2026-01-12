@@ -93,6 +93,7 @@ export default function ProductDetail() {
         name: product.name,
         price: product.price,
         qty: 1,
+        stock: product.stockQuantity || 0,
       });
     }
 
@@ -102,7 +103,10 @@ export default function ProductDetail() {
 
   const getProductImage = () => {
     const img = product?.images?.[0];
-    if (img && (img.startsWith("/") || img.startsWith("http") || img.startsWith("data:"))) {
+    if (
+      img &&
+      (img.startsWith("/") || img.startsWith("http") || img.startsWith("data:"))
+    ) {
       return img;
     }
     return null;
@@ -122,7 +126,9 @@ export default function ProductDetail() {
       <div className="min-h-screen flex flex-col items-center justify-center">
         <div className="text-6xl mb-4">🏺</div>
         <h2 className="text-2xl font-bold text-soil mb-2">Product not found</h2>
-        <p className="text-soil/60 mb-6">The product you're looking for doesn't exist.</p>
+        <p className="text-soil/60 mb-6">
+          The product you're looking for doesn't exist.
+        </p>
         <Link href="/products" className="btn-primary">
           Browse Products
         </Link>
@@ -265,7 +271,9 @@ export default function ProductDetail() {
           {product.inStock ? (
             <div className="flex items-center gap-2 text-green-600">
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-              <span className="font-medium">In Stock - Ships within 2-3 days</span>
+              <span className="font-medium">
+                In Stock - Ships within 2-3 days
+              </span>
             </div>
           ) : (
             <div className="flex items-center gap-2 text-red-600">
@@ -289,7 +297,11 @@ export default function ProductDetail() {
                   {quantity}
                 </span>
                 <button
-                  onClick={() => setQuantity(Math.min(product.stockQuantity || 10, quantity + 1))}
+                  onClick={() =>
+                    setQuantity(
+                      Math.min(product.stockQuantity || 10, quantity + 1)
+                    )
+                  }
                   className="p-3 hover:text-clay transition-colors"
                 >
                   <Plus size={18} />
@@ -301,12 +313,13 @@ export default function ProductDetail() {
               <button
                 onClick={handleAddToCart}
                 disabled={!product.inStock || addedToCart}
-                className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-full font-semibold text-lg transition-all ${addedToCart
+                className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-full font-semibold text-lg transition-all ${
+                  addedToCart
                     ? "bg-green-500 text-white"
                     : product.inStock
-                      ? "bg-clay text-white hover:bg-clay/90 hover:scale-[1.02]"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
+                    ? "bg-clay text-white hover:bg-clay/90 hover:scale-[1.02]"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
               >
                 {addedToCart ? (
                   <>
@@ -321,10 +334,11 @@ export default function ProductDetail() {
 
               <button
                 onClick={() => setWishlist(!wishlist)}
-                className={`p-4 rounded-full border-2 transition-all ${wishlist
+                className={`p-4 rounded-full border-2 transition-all ${
+                  wishlist
                     ? "bg-red-50 border-red-300 text-red-500"
                     : "border-soil/20 text-soil hover:border-clay hover:text-clay"
-                  }`}
+                }`}
               >
                 <Heart size={22} fill={wishlist ? "currentColor" : "none"} />
               </button>
@@ -342,8 +356,12 @@ export default function ProductDetail() {
                 <Truck size={20} />
               </div>
               <div>
-                <div className="font-semibold text-soil text-sm">Free Shipping</div>
-                <div className="text-xs text-soil/50">On orders above ₹2000</div>
+                <div className="font-semibold text-soil text-sm">
+                  Free Shipping
+                </div>
+                <div className="text-xs text-soil/50">
+                  On orders above ₹2000
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -351,7 +369,9 @@ export default function ProductDetail() {
                 <RotateCcw size={20} />
               </div>
               <div>
-                <div className="font-semibold text-soil text-sm">Easy Returns</div>
+                <div className="font-semibold text-soil text-sm">
+                  Easy Returns
+                </div>
                 <div className="text-xs text-soil/50">7-day return policy</div>
               </div>
             </div>
@@ -360,7 +380,9 @@ export default function ProductDetail() {
                 <Shield size={20} />
               </div>
               <div>
-                <div className="font-semibold text-soil text-sm">Secure Payment</div>
+                <div className="font-semibold text-soil text-sm">
+                  Secure Payment
+                </div>
                 <div className="text-xs text-soil/50">100% secure checkout</div>
               </div>
             </div>
@@ -369,7 +391,9 @@ export default function ProductDetail() {
                 <Check size={20} />
               </div>
               <div>
-                <div className="font-semibold text-soil text-sm">Handcrafted</div>
+                <div className="font-semibold text-soil text-sm">
+                  Handcrafted
+                </div>
                 <div className="text-xs text-soil/50">Each piece is unique</div>
               </div>
             </div>
@@ -386,36 +410,48 @@ export default function ProductDetail() {
       >
         {/* Specifications */}
         <div className="bg-white rounded-2xl p-8 shadow-sm">
-          <h3 className="text-2xl font-bold text-soil mb-6 font-serif">Specifications</h3>
+          <h3 className="text-2xl font-bold text-soil mb-6 font-serif">
+            Specifications
+          </h3>
           <div className="space-y-4">
             <div className="flex justify-between py-3 border-b border-soil/10">
               <span className="text-soil/60">Material</span>
-              <span className="font-medium text-soil capitalize">{product.material}</span>
+              <span className="font-medium text-soil capitalize">
+                {product.material}
+              </span>
             </div>
             <div className="flex justify-between py-3 border-b border-soil/10">
               <span className="text-soil/60">Weight</span>
-              <span className="font-medium text-soil">{product.weightGrams}g</span>
+              <span className="font-medium text-soil">
+                {product.weightGrams}g
+              </span>
             </div>
             {product.dimensions && (
               <div className="flex justify-between py-3 border-b border-soil/10">
                 <span className="text-soil/60">Dimensions</span>
                 <span className="font-medium text-soil">
-                  {product.dimensions.length} × {product.dimensions.width} × {product.dimensions.height} cm
+                  {product.dimensions.length} × {product.dimensions.width} ×{" "}
+                  {product.dimensions.height} cm
                 </span>
               </div>
             )}
             <div className="flex justify-between py-3 border-b border-soil/10">
               <span className="text-soil/60">Category</span>
-              <span className="font-medium text-soil capitalize">{product.category}</span>
+              <span className="font-medium text-soil capitalize">
+                {product.category}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Care Instructions */}
         <div className="bg-sand/50 rounded-2xl p-8">
-          <h3 className="text-2xl font-bold text-soil mb-6 font-serif">Care Instructions</h3>
+          <h3 className="text-2xl font-bold text-soil mb-6 font-serif">
+            Care Instructions
+          </h3>
           <p className="text-soil/70 leading-relaxed mb-4">
-            {product.careInstructions || "Hand wash recommended for best results. Avoid sudden temperature changes to preserve the beauty of the piece."}
+            {product.careInstructions ||
+              "Hand wash recommended for best results. Avoid sudden temperature changes to preserve the beauty of the piece."}
           </p>
           <div className="space-y-3">
             {product.isFoodSafe && (
