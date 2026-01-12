@@ -4,13 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import {
-  ArrowRight,
-  ShoppingBag,
-  Star,
-  Quote,
-  Sparkles,
-} from "lucide-react";
+import { ArrowRight, ShoppingBag, Star, Quote, Sparkles } from "lucide-react";
 import ProductModal from "@/components/ProductModal";
 
 interface Product {
@@ -170,7 +164,9 @@ export default function Home() {
               className="relative pt-12 w-full h-screen scale-75 md:scale-90 lg:scale-100 origin-top-left"
             >
               {frameData.map((frame) => {
-                const configuredFrame = dynamicFrames.find(f => f.frameId === frame.id);
+                const configuredFrame = dynamicFrames.find(
+                  (f) => f.frameId === frame.id
+                );
                 const product = configuredFrame?.product;
 
                 return (
@@ -181,18 +177,23 @@ export default function Home() {
                     whileHover={{
                       scale: 1.25,
                       zIndex: 50,
-                      transition: { duration: 0.01, type: "spring", stiffness: 500, damping: 10 }
+                      transition: {
+                        duration: 0.01,
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 10,
+                      },
                     }}
                     transition={{
                       delay: frame.id * 0.005,
                       duration: 0.1,
                       type: "spring",
                       stiffness: 400,
-                      damping: 15
+                      damping: 15,
                     }}
                     className="absolute rounded-lg overflow-hidden border-2 border-soil/30 shadow-md hover:shadow-2xl transition-all cursor-pointer group"
                     style={{
-                      backgroundColor: product ? 'white' : frame.color,
+                      backgroundColor: product ? "white" : frame.color,
                       width: `${frame.width}px`,
                       height: `${frame.height}px`,
                       left: `${frame.left}px`,
@@ -219,7 +220,7 @@ export default function Home() {
                       </div>
                     )}
                   </motion.div>
-                )
+                );
               })}
             </motion.div>
           </div>
@@ -231,7 +232,7 @@ export default function Home() {
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="py-16 border-b border-soil/5"
+        className="border-b border-soil/5"
       >
         <div className="text-center mb-10 px-4">
           <motion.h2
@@ -263,10 +264,11 @@ export default function Home() {
                     transition={{ delay: colIndex * 0.1 }}
                     className="group"
                   >
-                    <Link href={`/collections/${collection.slug || collection._id}`}>
+                    <Link
+                      href={`/collections/${collection.slug || collection._id}`}
+                    >
                       {/* Card Container */}
                       <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-soil/5 h-full flex flex-col transform hover:-translate-y-1 relative">
-
                         {/* Thumbnail Image */}
                         <div className="h-72 bg-sand/20 overflow-hidden relative">
                           {thumbnailImage ? (
@@ -287,7 +289,9 @@ export default function Home() {
                           {/* Button Pill Centered/Bottom */}
                           <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-max max-w-[90%] z-20">
                             <div className="bg-white text-soil font-bold px-6 py-3 rounded-full shadow-lg flex items-center gap-2 hover:bg-clay hover:text-white transition-colors duration-300 pointer-events-none">
-                              <span className="truncate">{collection.title}</span>
+                              <span className="truncate">
+                                {collection.title}
+                              </span>
                               <ArrowRight size={16} />
                             </div>
                           </div>
@@ -305,7 +309,9 @@ export default function Home() {
             </div>
           ) : (
             <div className="text-center py-12 bg-sand/10 rounded-2xl">
-              <p className="text-soil/50 italic">No collections available at the moment.</p>
+              <p className="text-soil/50 italic">
+                No collections available at the moment.
+              </p>
             </div>
           )}
         </div>
@@ -316,19 +322,24 @@ export default function Home() {
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="py-20 bg-gradient-to-br from-sand/50 to-transparent rounded-3xl mx-4 md:mx-12"
+        className="py-12 bg-gradient-to-br from-sand/50 to-transparent rounded-3xl mx-4 md:mx-12"
       >
-        <div className="max-w-7xl mx-auto p-8 md:p-12 bg-white/95 rounded-2xl border-4 border-[#2b1b14]">
-          <div className="text-center mb-12">
-            <span className="inline-block text-clay font-medium mb-4 tracking-wider uppercase">
+        <div className="max-w-6xl mx-auto p-6 md:p-8 bg-white/95 rounded-2xl border-2 border-[#2b1b14]">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-8"
+          >
+            <span className="inline-block text-clay font-medium mb-2 tracking-wider uppercase text-sm">
               The Basho Philosophy
             </span>
-            <h2 className="text-4xl md:text-5xl font-bold text-soil font-serif">
+            <h2 className="text-3xl md:text-4xl font-bold text-soil font-serif">
               Why Choose Handcrafted?
             </h2>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4 md:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 md:px-6">
             {[
               {
                 icon: "🎋",
@@ -351,16 +362,28 @@ export default function Home() {
             ].map((item, idx) => (
               <motion.div
                 key={idx}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.15 }}
-                className="bg-sand/10 rounded-2xl p-8 text-center hover:shadow-lg transition-shadow border-2 border-[#2b1b14]/20"
+                initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                whileHover={{ y: -5, scale: 1.02 }}
+                transition={{ delay: idx * 0.1, duration: 0.4 }}
+                className="bg-sand/10 rounded-2xl p-6 text-center hover:shadow-xl hover:bg-sand/20 transition-all border-2 border-[#2b1b14]/20"
               >
-                <div className="text-5xl mb-4">{item.icon}</div>
-                <h3 className="text-xl font-bold text-soil mb-3">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  whileInView={{ scale: 1 }}
+                  transition={{
+                    delay: idx * 0.1 + 0.2,
+                    type: "spring",
+                    stiffness: 200,
+                  }}
+                  className="text-4xl mb-3"
+                >
+                  {item.icon}
+                </motion.div>
+                <h3 className="text-lg font-bold text-soil mb-2">
                   {item.title}
                 </h3>
-                <p className="text-[#2b1b14]/80">{item.description}</p>
+                <p className="text-sm text-[#2b1b14]/80">{item.description}</p>
               </motion.div>
             ))}
           </div>
