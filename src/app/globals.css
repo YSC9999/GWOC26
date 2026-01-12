@@ -18,10 +18,8 @@ html {
 
 body {
   font-family: "Inter", sans-serif;
-  background-color: #EDD8B4;
-  /* New Sand */
-  color: #442D1C;
-  /* New Soil */
+  background-color: #EFE5D8;
+  color: #5A3E36;
   line-height: 1.6;
   margin: 0;
   padding: 0;
@@ -37,15 +35,11 @@ h5,
 h6 {
   font-family: "Playfair Display", serif;
   font-weight: 600;
-  color: #442D1C;
-  /* New Soil */
+  color: #5A3E36;
 }
 
 p {
   color: #5A3E36;
-  /* Slightly lighter soil/stone mix for readability, or use stone #652810 */
-  color: #652810;
-  /* New Stone */
 }
 
 a {
@@ -62,7 +56,7 @@ button {
 .nav-link {
   position: relative;
   display: inline-block;
-  color: #442D1C;
+  color: #5A3E36;
 }
 
 .nav-link::after {
@@ -72,8 +66,7 @@ button {
   left: 0;
   width: 0;
   height: 2px;
-  background-color: #C85428;
-  /* New Clay */
+  background-color: #C97C5D;
   transition: width 0.3s ease;
 }
 
@@ -82,21 +75,20 @@ button {
 }
 
 .nav-link:hover {
-  color: #C85428;
+  color: #C97C5D;
 }
 
 /* Utility classes */
 .gradient-clay {
-  background: linear-gradient(135deg, #C85428 0%, #a85a47 100%);
+  background: linear-gradient(135deg, #C97C5D 0%, #a85a47 100%);
 }
 
 .gradient-soil {
-  background: linear-gradient(135deg, #442D1C 0%, #2b1b14 100%);
+  background: linear-gradient(135deg, #5A3E36 0%, #3d2a25 100%);
 }
 
 .btn-primary {
-  background-color: #C85428;
-  /* New Clay */
+  background-color: #C97C5D;
   color: white;
   padding: 0.4rem 1rem;
   border-radius: 0.5rem;
@@ -108,33 +100,32 @@ button {
 }
 
 .btn-primary:hover {
-  background-color: #8E5022;
-  /* New Wood/Darker Clay look */
+  background-color: #a85a47;
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(193, 117, 93, 0.3);
+  box-shadow: 0 6px 12px rgba(201, 124, 93, 0.3);
 }
 
 .btn-secondary {
   background-color: transparent;
-  color: #C85428;
+  color: #C97C5D;
   padding: 0.4rem 1rem;
   border-radius: 0.5rem;
   font-weight: 600;
-  border: 2px solid #C85428;
+  border: 2px solid #C97C5D;
   font-size: 0.9rem;
   transition: all 0.3s ease;
 }
 
 .btn-secondary:hover {
-  background-color: #C85428;
+  background-color: #C97C5D;
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(193, 117, 93, 0.2);
 }
 
 .btn-outline {
-  border: 2px solid #442D1C;
-  color: #442D1C;
+  border: 2px solid #5A3E36;
+  color: #5A3E36;
   padding: 0.5rem 1.5rem;
   border-radius: 0.5rem;
   font-weight: 600;
@@ -143,8 +134,8 @@ button {
 }
 
 .btn-outline:hover {
-  background-color: #442D1C;
-  color: #EDD8B4;
+  background-color: #5A3E36;
+  color: #EFE5D8;
   transform: translateY(-2px);
 }
 
@@ -164,7 +155,7 @@ button {
 .section-title {
   font-size: 2.25rem;
   font-weight: 700;
-  color: #442D1C;
+  color: #5A3E36;
   margin-bottom: 2rem;
   text-align: center;
 }
@@ -172,7 +163,7 @@ button {
 .input-field {
   width: 100%;
   padding: 0.5rem 1rem;
-  border: 2px solid #442D1C;
+  border: 2px solid #5A3E36;
   border-radius: 0.5rem;
   transition: border-color 0.3s ease;
   font-size: 1rem;
@@ -182,7 +173,7 @@ button {
 
 .input-field:focus {
   outline: none;
-  border-color: #C85428;
+  border-color: #C97C5D;
   background-color: white;
 }
 
@@ -241,16 +232,16 @@ button {
 }
 
 ::-webkit-scrollbar-track {
-  background: #EDD8B4;
+  background: #EFE5D8;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #C85428;
+  background: #C97C5D;
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #8E5022;
+  background: #a85a47;
 }
 
 /* Responsive */
