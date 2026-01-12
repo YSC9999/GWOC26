@@ -14,7 +14,7 @@ export default function Cart() {
   // Coupon State
   const [checkoutStep, setCheckoutStep] = useState(1); // 1: Cart, 2: Address, 3: Success
   const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountPercentage: number } | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountPercentage: number; maxDiscountAmount?: number } | null>(null);
   const [couponError, setCouponError] = useState("");
   const [verifyingCoupon, setVerifyingCoupon] = useState(false);
 
@@ -141,6 +141,9 @@ export default function Cart() {
     let discountAmount = 0;
     if (appliedCoupon) {
       discountAmount = (subtotal * appliedCoupon.discountPercentage) / 100;
+      if (appliedCoupon.maxDiscountAmount && appliedCoupon.maxDiscountAmount > 0) {
+        discountAmount = Math.min(discountAmount, appliedCoupon.maxDiscountAmount);
+      }
     }
 
     return {

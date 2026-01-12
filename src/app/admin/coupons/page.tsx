@@ -169,6 +169,7 @@ export default function AdminCouponsPage() {
                                     onChange={(e) => setFormData({ ...formData, maxDiscountAmount: e.target.value })}
                                     className="w-full px-4 py-2 border rounded-lg"
                                     placeholder="e.g. 500"
+                                    min="0"
                                 />
                             </div>
                             <div>

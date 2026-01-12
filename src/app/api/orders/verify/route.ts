@@ -3,7 +3,7 @@ import crypto from "crypto";
 import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
 import User from "@/models/User";
-import WalletTransaction from "@/models/WalletTransaction";
+
 import Coupon from "@/models/Coupon";
 
 export async function POST(req: Request) {
