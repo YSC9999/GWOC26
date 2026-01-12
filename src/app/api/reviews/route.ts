@@ -1,20 +1,36 @@
-// Review API Route - Verified Fix
+// Review API Route - Verified Fix (Force Update)
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import mongoose from "mongoose";
 import Review from "@/models/Review";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
+import User from "@/models/User";
 import jwt from "jsonwebtoken";
 
 const SECRET_KEY = process.env.JWT_SECRET || "your-secret-key";
 
 // Helper to get user from token
+import { cookies } from "next/headers";
+
 async function getUserFromRequest(req: Request) {
     try {
+        let token = null;
+
+        // 1. Check Header
         const authHeader = req.headers.get("authorization");
-        if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
-        const token = authHeader.split(" ")[1];
+        if (authHeader && authHeader.startsWith("Bearer ")) {
+            token = authHeader.split(" ")[1];
+        }
+
+        // 2. Check Cookie (Fallback)
+        if (!token || token === "null" || token === "undefined") {
+            const cookieStore = await cookies();
+            token = cookieStore.get("basho_token")?.value || null;
+        }
+
+        if (!token) return null;
+
         const decoded: any = jwt.verify(token, SECRET_KEY);
         return decoded;
     } catch (err) {
@@ -80,21 +96,9 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { productId, rating, comment, images } = body;
 
-        // SKIP PURCHASE CHECK AS REQUESTED
-        /*
-        const userObjectId = new mongoose.Types.ObjectId(user.id);
-        const productObjectId = new mongoose.Types.ObjectId(productId);
-
-        const hasPurchased = await Order.exists({
-            userId: userObjectId,
-            "items.productId": productObjectId,
-            status: { $ne: "cancelled" }
-        });
-
-        if (!hasPurchased) {
-            return NextResponse.json({ error: "You must purchase this product to review it." }, { status: 403 });
-        }
-        */
+        // Fetch User Details to get Real Name
+        const dbUser = await User.findById(user.id);
+        const realUserName = dbUser?.name || dbUser?.firstName || user.name || "Customer";
 
         // Check Existing Review
         const existing = await Review.findOne({ product: productId, user: user.id });
@@ -107,30 +111,14 @@ export async function POST(req: Request) {
         const review = await Review.create({
             product: productId,
             user: user.id,
-            userName: user.name || "Customer",
+            userName: realUserName,
             rating,
             comment,
             images
         });
 
         // Update Product Stats
-        const stats = await Review.aggregate([
-            { $match: { product: new mongoose.Types.ObjectId(productId) } },
-            {
-                $group: {
-                    _id: "$product",
-                    avgRating: { $avg: "$rating" },
-                    count: { $sum: 1 }
-                }
-            }
-        ]);
-
-        if (stats.length > 0) {
-            await Product.findByIdAndUpdate(productId, {
-                rating: Math.round(stats[0].avgRating * 10) / 10,
-                reviewCount: stats[0].count
-            });
-        }
+        await updateProductStats(productId);
 
         return NextResponse.json({ review });
 
@@ -155,10 +143,41 @@ export async function DELETE(req: Request) {
 
         if (!reviewId) return NextResponse.json({ error: "ID required" }, { status: 400 });
 
-        await Review.findByIdAndDelete(reviewId);
+        const deletedReview = await Review.findByIdAndDelete(reviewId);
+
+        if (deletedReview) {
+            await updateProductStats(deletedReview.product);
+        }
 
         return NextResponse.json({ success: true });
     } catch (err: any) {
         return NextResponse.json({ error: err.message }, { status: 500 });
+    }
+}
+
+// Helper to update stats
+async function updateProductStats(productId: any) {
+    const stats = await Review.aggregate([
+        { $match: { product: new mongoose.Types.ObjectId(productId) } },
+        {
+            $group: {
+                _id: "$product",
+                avgRating: { $avg: "$rating" },
+                count: { $sum: 1 }
+            }
+        }
+    ]);
+
+    if (stats.length > 0) {
+        await Product.findByIdAndUpdate(productId, {
+            rating: Math.round(stats[0].avgRating * 10) / 10,
+            reviewCount: stats[0].count
+        });
+    } else {
+        // No reviews left
+        await Product.findByIdAndUpdate(productId, {
+            rating: 0,
+            reviewCount: 0
+        });
     }
 }
