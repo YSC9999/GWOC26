@@ -3,9 +3,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        clay: "#C97C5D",
-        soil: "#5A3E36",
-        sand: "#EFE5D8",
+        clay: "#C85428", // Rust/Orange
+        soil: "#442D1C", // Dark Brown
+        sand: "#EDD8B4", // Beige/Cream
+        stone: "#652810", // Medium Brown
+        wood: "#8E5022", // Light Brown
         ink: "#1F1F1F",
       },
       fontFamily: {

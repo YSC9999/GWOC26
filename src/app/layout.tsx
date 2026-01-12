@@ -27,6 +27,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+      </head>
+      <body className="scroll-smooth flex flex-col min-h-screen">
         <Script
           src="https://checkout.razorpay.com/v1/checkout.js"
           strategy="afterInteractive"
@@ -35,8 +37,6 @@ export default function RootLayout({
           src="https://accounts.google.com/gsi/client"
           strategy="afterInteractive"
         />
-      </head>
-      <body className="scroll-smooth flex flex-col min-h-screen">
         <CartSync />
         <ConditionalBackground />
         <ConditionalLayout />

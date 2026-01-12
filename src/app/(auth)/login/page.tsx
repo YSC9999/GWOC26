@@ -103,7 +103,7 @@ export default function Login() {
           initial="hidden"
           animate="visible"
           variants={fadeInUp}
-          className="bg-white p-8 rounded-2xl shadow-lg"
+          className="bg-white p-6 md:p-8 rounded-2xl shadow-lg"
         >
           <h1 className="text-3xl font-bold text-center text-blue-700 mb-2">
             {step === 'login' ? 'Sign In' : 'Verify OTP'}

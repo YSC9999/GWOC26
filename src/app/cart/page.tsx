@@ -131,7 +131,7 @@ export default function Cart() {
     }
   };
 
-  const { user } = useAuth();
+  const { user, login, isAuthenticated } = useAuth();
 
   const calculateTotal = () => {
     const subtotal = total();
@@ -502,22 +502,22 @@ export default function Cart() {
     }
   };
 
-  const { isAuthenticated } = useAuth(); // Assuming useAuth is available and provides this
+
 
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center py-20 px-4">
           <div className="text-6xl mb-6">🔒</div>
-          <h1 className="text-3xl font-bold text-soil mb-4 font-serif">Members Only</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-soil mb-4 font-serif">Members Only</h1>
           <p className="text-soil/60 mb-8 max-w-md mx-auto">
             Please login to view your shopping bag and checkout.
           </p>
           <div className="flex justify-center gap-4">
-            <Link href="/auth/login" className="btn-primary px-8">
+            <Link href="/auth/login" className="btn-primary px-6 py-2 md:px-8">
               Login
             </Link>
-            <Link href="/auth/signup" className="btn-outline px-8">
+            <Link href="/auth/signup" className="btn-outline px-6 py-2 md:px-8">
               Sign Up
             </Link>
           </div>
@@ -535,7 +535,7 @@ export default function Cart() {
           <p className="text-soil/60 mb-8 max-w-md mx-auto">
             Looks like you haven't discovered our collection yet.
           </p>
-          <Link href="/products" className="inline-flex items-center gap-2 bg-clay text-white px-8 py-3 rounded-full font-semibold hover:bg-clay/90 transition-colors">
+          <Link href="/products" className="inline-flex items-center gap-2 bg-clay text-white px-5 py-2.5 md:px-8 md:py-3 rounded-full font-semibold hover:bg-clay/90 transition-colors text-sm md:text-base">
             Start Shopping <ArrowRight size={18} />
           </Link>
         </div>
@@ -556,7 +556,7 @@ export default function Cart() {
           <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8">
             <Check className="w-12 h-12 text-green-600" />
           </div>
-          <h1 className="text-4xl font-bold text-soil mb-4 font-serif">Order Confirmed!</h1>
+          <h1 className="text-2xl md:text-4xl font-bold text-soil mb-4 font-serif">Order Confirmed!</h1>
           <p className="text-xl text-soil/70 mb-8">
             Thank you for shopping with Basho. We've sent a confirmation email to {formData.email}.
           </p>
@@ -568,16 +568,16 @@ export default function Cart() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Main Content */}
           <div className="lg:col-span-2">
-            <h1 className="text-4xl font-bold text-soil mb-8 font-serif">
+            <h1 className="text-2xl md:text-4xl font-bold text-soil mb-6 md:mb-8 font-serif">
               {checkoutStep === 1 ? "Shopping Cart" : "Shipping Details"}
             </h1>
 
             {checkoutStep === 1 ? (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
                 {items.map((item) => (
-                  <div key={item.id} className="bg-white p-6 rounded-2xl shadow-sm flex gap-6 items-center">
+                  <div key={item.id} className="bg-white p-3 md:p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row gap-3 md:gap-6 items-start sm:items-center">
                     {/* Image */}
-                    <Link href={`/products/${item.id}`} className="w-20 h-20 bg-gray-100 rounded-xl overflow-hidden shrink-0 border border-soil/10">
+                    <Link href={`/products/${item.id}`} className="w-full sm:w-20 h-40 sm:h-20 bg-gray-100 rounded-xl overflow-hidden shrink-0 border border-soil/10">
                       {item.image ? (
                         <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                       ) : (
@@ -586,43 +586,46 @@ export default function Cart() {
                     </Link>
 
                     {/* Item Info */}
-                    <div className="flex-1">
+                    <div className="flex-1 w-full sm:w-auto">
                       <h3 className="text-lg font-bold text-soil">{item.name}</h3>
                       <p className="text-clay font-semibold">₹{item.price.toLocaleString()}</p>
                     </div>
 
-                    {/* Quantity */}
-                    <div className="flex items-center bg-sand rounded-full">
-                      <button
-                        onClick={() => updateQty(item.id, item.qty - 1)}
-                        className="p-2 hover:text-clay transition-colors"
-                      >
-                        <Minus size={16} />
-                      </button>
-                      <span className="w-8 text-center font-medium">{item.qty}</span>
-                      <button
-                        onClick={() => updateQty(item.id, item.qty + 1)}
-                        disabled={item.qty >= item.stock}
-                        className={`p-2 transition-colors ${item.qty >= item.stock
-                          ? "text-gray-300 cursor-not-allowed"
-                          : "hover:text-clay"
-                          }`}
-                      >
-                        <Plus size={16} />
-                      </button>
-                    </div>
-
-                    {/* Total & Remove */}
-                    <div className="text-right min-w-[100px]">
-                      <div className="font-bold text-soil mb-1">
-                        ₹{(item.price * item.qty).toLocaleString()}
+                    {/* Quantity & Remove Container for Mobile */}
+                    <div className="flex items-center justify-between w-full sm:w-auto gap-4">
+                      {/* Quantity */}
+                      <div className="flex items-center bg-sand rounded-full">
+                        <button
+                          onClick={() => updateQty(item.id, item.qty - 1)}
+                          className="p-2 hover:text-clay transition-colors"
+                        >
+                          <Minus size={16} />
+                        </button>
+                        <span className="w-8 text-center font-medium">{item.qty}</span>
+                        <button
+                          onClick={() => updateQty(item.id, item.qty + 1)}
+                          disabled={item.qty >= item.stock}
+                          className={`p-2 transition-colors ${item.qty >= item.stock
+                            ? "text-gray-300 cursor-not-allowed"
+                            : "hover:text-clay"
+                            }`}
+                        >
+                          <Plus size={16} />
+                        </button>
                       </div>
-                      <button
-                        onClick={() => remove(item.id)}
-                        className="text-red-400 hover:text-red-600 transition-colors"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+
+                      {/* Total & Remove */}
+                      <div className="text-right sm:min-w-[100px] flex items-center gap-4 sm:block">
+                        <div className="font-bold text-soil sm:mb-1">
+                          ₹{(item.price * item.qty).toLocaleString()}
+                        </div>
+                        <button
+                          onClick={() => remove(item.id)}
+                          className="text-red-400 hover:text-red-600 transition-colors"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -944,9 +947,9 @@ export default function Cart() {
               {checkoutStep === 1 ? (
                 <button
                   onClick={() => setCheckoutStep(2)}
-                  className="w-full bg-clay text-white py-4 rounded-full font-bold hover:bg-clay/90 transition-colors flex items-center justify-center gap-2"
+                  className="w-full bg-clay text-white py-3 md:py-4 rounded-full font-bold hover:bg-clay/90 transition-colors flex items-center justify-center gap-2 text-sm md:text-base"
                 >
-                  Checkout <ArrowRight size={20} />
+                  Checkout <ArrowRight size={18} className="md:w-5 md:h-5" />
                 </button>
               ) : editingAddressId ? (
                 <button
@@ -960,7 +963,7 @@ export default function Cart() {
                 <button
                   onClick={handleCheckout}
                   disabled={loading || !formData.name || !formData.email || !formData.phone || !formData.street || !formData.city || !formData.state || !formData.pincode || !phoneVerified}
-                  className="w-full bg-soil text-white py-4 rounded-full font-bold hover:bg-soil/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-soil text-white py-3 md:py-4 rounded-full font-bold hover:bg-soil/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
                 >
                   {loading ? (
                     <>

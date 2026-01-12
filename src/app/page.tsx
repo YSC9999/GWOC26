@@ -6,6 +6,8 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { ArrowRight, ShoppingBag, Star, Quote, Sparkles } from "lucide-react";
 import ProductModal from "@/components/ProductModal";
+import Preloader from "@/components/Preloader";
+import FeaturedCollections from "@/components/FeaturedCollections";
 
 interface Product {
   _id: string;
@@ -80,6 +82,32 @@ export default function Home() {
       setCollections(collectionsData.collections || []);
       setTestimonials(testimonialsData.testimonials || []);
       setDynamicFrames(framesData.frames || []);
+
+      // Preload Images
+      const imagesToPreload: string[] = [];
+
+      // Hero Frames
+      framesData.frames?.forEach((f: any) => {
+        if (f.product?.images?.[0]) imagesToPreload.push(f.product.images[0]);
+      });
+
+      // Collections Thumbnails
+      collectionsData.collections?.forEach((c: any) => {
+        if (c.products?.[0]?.images?.[0]) imagesToPreload.push(c.products[0].images[0]);
+      });
+
+      if (imagesToPreload.length > 0) {
+        await Promise.all(
+          imagesToPreload.map((src) => {
+            return new Promise((resolve) => {
+              const img = new window.Image();
+              img.src = src;
+              img.onload = resolve;
+              img.onerror = resolve; // Continue even if error
+            });
+          })
+        );
+      }
     } catch (error) {
       console.error("Failed to fetch data:", error);
     } finally {
@@ -100,6 +128,10 @@ export default function Home() {
     { id: 8, width: 120, height: 110, left: 330, top: 315, color: "#C85428" },
   ];
 
+  if (loading) {
+    return <Preloader />;
+  }
+
   return (
     <div className="overflow-hidden">
       {/* Original Hero Section */}
@@ -117,7 +149,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
-                className="text-5xl md:text-7xl font-serif font-bold text-soil mb-6 leading-tight italic"
+                className="text-3xl md:text-6xl lg:text-7xl font-serif font-bold text-soil mb-4 md:mb-6 leading-tight italic"
               >
                 A Quiet Splash
                 <br />
@@ -128,7 +160,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.8 }}
-                className="text-lg md:text-xl text-soil/80 mb-12 font-light"
+                className="text-sm md:text-lg lg:text-xl text-soil/80 mb-6 md:mb-12 font-light"
               >
                 Artistry for the home and the self. Discover a curated
                 collection of fashion designed to reflect your unique story with
@@ -142,180 +174,137 @@ export default function Home() {
                 className="flex flex-col sm:flex-row gap-6 items-start"
               >
                 <Link href="/products">
-                  <button className="btn-primary flex items-center gap-2 px-8 py-4 text-lg hover:scale-105 transition-transform">
+                  <button className="btn-primary flex items-center gap-2 px-5 py-2.5 md:px-8 md:py-4 text-sm md:text-lg hover:scale-105 transition-transform">
                     SHOP NOW
-                    <ShoppingBag size={20} />
+                    <ShoppingBag size={16} className="md:w-5 md:h-5" />
                   </button>
                 </Link>
                 <Link href="/custom-orders">
-                  <button className="btn-secondary flex items-center gap-2 px-8 py-4 text-lg hover:scale-105 transition-transform">
+                  <button className="btn-secondary flex items-center gap-2 px-5 py-2.5 md:px-8 md:py-4 text-sm md:text-lg hover:scale-105 transition-transform">
                     CUSTOM ORDER
-                    <ArrowRight size={20} />
+                    <ArrowRight size={16} className="md:w-5 md:h-5" />
                   </button>
                 </Link>
               </motion.div>
             </div>
 
-            {/* Right Image Grid - 9 Static Frames, Responsive Sizing */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4, duration: 0.8 }}
-              className="relative pt-12 w-full h-screen scale-75 md:scale-90 lg:scale-100 origin-top-left"
-            >
-              {frameData.map((frame) => {
-                const configuredFrame = dynamicFrames.find(
-                  (f) => f.frameId === frame.id
-                );
-                const product = configuredFrame?.product;
+            {/* Right Image Grid - Responsive Handling */}
+            <div className="relative pt-12 w-full min-h-[50vh] md:h-screen md:pt-12">
 
-                return (
-                  <motion.div
-                    key={frame.id}
-                    initial={{ opacity: 0, scale: 0.6, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    whileHover={{
-                      scale: 1.25,
-                      zIndex: 50,
-                      transition: {
-                        duration: 0.01,
+              {/* Desktop: Absolute Positioned Scattered Frames */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4, duration: 0.8 }}
+                className="hidden md:block relative w-full h-full scale-90 lg:scale-100 origin-top-left"
+              >
+                {frameData.map((frame) => {
+                  const configuredFrame = dynamicFrames.find(
+                    (f) => f.frameId === frame.id
+                  );
+                  const product = configuredFrame?.product;
+
+                  return (
+                    <motion.div
+                      key={frame.id}
+                      initial={{ opacity: 0, scale: 0.6, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      whileHover={{
+                        scale: 1.25,
+                        zIndex: 50,
+                        transition: {
+                          duration: 0.01,
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 10,
+                        },
+                      }}
+                      transition={{
+                        delay: frame.id * 0.005,
+                        duration: 0.1,
                         type: "spring",
-                        stiffness: 500,
-                        damping: 10,
-                      },
-                    }}
-                    transition={{
-                      delay: frame.id * 0.005,
-                      duration: 0.1,
-                      type: "spring",
-                      stiffness: 400,
-                      damping: 15,
-                    }}
-                    className="absolute rounded-lg overflow-hidden border-2 border-soil/30 shadow-md hover:shadow-2xl transition-all cursor-pointer group"
-                    style={{
-                      backgroundColor: product ? "white" : frame.color,
-                      width: `${frame.width}px`,
-                      height: `${frame.height}px`,
-                      left: `${frame.left}px`,
-                      top: `${frame.top}px`,
-                    }}
-                    onClick={() => {
-                      if (product) {
-                        // Use ID for consistent fetching in Modal
-                        setSelectedProductId(product._id);
-                      }
-                    }}
-                  >
-                    {product ? (
-                      <>
+                        stiffness: 400,
+                        damping: 15,
+                      }}
+                      className="absolute rounded-lg overflow-hidden border-2 border-soil/30 shadow-md hover:shadow-2xl transition-all cursor-pointer group"
+                      style={{
+                        backgroundColor: product ? "white" : frame.color,
+                        width: `${frame.width}px`,
+                        height: `${frame.height}px`,
+                        left: `${frame.left}px`,
+                        top: `${frame.top}px`,
+                      }}
+                      onClick={() => {
+                        if (product) {
+                          setSelectedProductId(product._id);
+                        }
+                      }}
+                    >
+                      {product ? (
+                        <>
+                          <img
+                            src={product.images?.[0]}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-white text-xs font-semibold opacity-0 hover:opacity-75 transition-opacity bg-black/30">
+                          {frame.id + 1}
+                        </div>
+                      )}
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+
+              {/* Mobile: Simple Grid Layout */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="md:hidden grid grid-cols-3 gap-3"
+              >
+                {frameData.map((frame) => {
+                  const configuredFrame = dynamicFrames.find(
+                    (f) => f.frameId === frame.id
+                  );
+                  const product = configuredFrame?.product;
+
+                  // Skip empty frames on mobile to save space if desired, or show colored blocks
+                  if (!product && !frame.color) return null;
+
+                  return (
+                    <motion.div
+                      key={frame.id}
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: frame.id * 0.05 }}
+                      className="aspect-square rounded-lg overflow-hidden border border-soil/20 shadow-sm"
+                      style={{ backgroundColor: product ? "white" : frame.color }}
+                      onClick={() => {
+                        if (product) {
+                          setSelectedProductId(product._id);
+                        }
+                      }}
+                    >
+                      {product && (
                         <img
                           src={product.images?.[0]}
                           alt={product.name}
                           className="w-full h-full object-cover"
                         />
-                      </>
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-white text-xs font-semibold opacity-0 hover:opacity-75 transition-opacity bg-black/30">
-                        {frame.id + 1}
-                      </div>
-                    )}
-                  </motion.div>
-                );
-              })}
-            </motion.div>
+                      )}
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            </div>
           </div>
         </div>
       </motion.section>
 
       {/* Featured Collections Grid */}
-      <motion.section
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        className="border-b border-soil/5"
-      >
-        <div className="text-center mb-10 px-4">
-          <motion.h2
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-3xl md:text-4xl font-bold text-soil font-serif"
-          >
-            Featured Collections
-          </motion.h2>
-          <p className="text-soil/60 mt-2 max-w-2xl mx-auto">
-            Explore our curated selections of handcrafted ceramics.
-          </p>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 md:px-12">
-          {collections.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {collections.map((collection, colIndex) => {
-                // Use the first product (likely the newest/most relevant) as the thumbnail
-                const thumbnailProduct = collection.products?.[0];
-                const thumbnailImage = thumbnailProduct?.images?.[0];
-
-                return (
-                  <motion.div
-                    key={collection._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: colIndex * 0.1 }}
-                    className="group"
-                  >
-                    <Link
-                      href={`/collections/${collection.slug || collection._id}`}
-                    >
-                      {/* Card Container */}
-                      <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-soil/5 h-full flex flex-col transform hover:-translate-y-1 relative">
-                        {/* Thumbnail Image */}
-                        <div className="h-72 bg-sand/20 overflow-hidden relative">
-                          {thumbnailImage ? (
-                            <img
-                              src={thumbnailImage}
-                              alt={collection.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-4xl bg-sand/10">
-                              🏺
-                            </div>
-                          )}
-
-                          {/* Gradient Overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 transition-opacity" />
-
-                          {/* Button Pill Centered/Bottom */}
-                          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-max max-w-[90%] z-20">
-                            <div className="bg-white text-soil font-bold px-6 py-3 rounded-full shadow-lg flex items-center gap-2 hover:bg-clay hover:text-white transition-colors duration-300 pointer-events-none">
-                              <span className="truncate">
-                                {collection.title}
-                              </span>
-                              <ArrowRight size={16} />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Optional Description (Keep it clean if user wants just buttons?) 
-                            User said "remove go to collection". The Button Pill above replaces the text.
-                            I will hide the description to keep it super clean "buttons" style.
-                        */}
-                      </div>
-                    </Link>
-                  </motion.div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-12 bg-sand/10 rounded-2xl">
-              <p className="text-soil/50 italic">
-                No collections available at the moment.
-              </p>
-            </div>
-          )}
-        </div>
-      </motion.section>
+      <FeaturedCollections collections={collections} />
 
       {/* Why Basho Section */}
       <motion.section
@@ -334,7 +323,7 @@ export default function Home() {
             <span className="inline-block text-clay font-medium mb-2 tracking-wider uppercase text-sm">
               The Basho Philosophy
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-soil font-serif">
+            <h2 className="text-2xl md:text-4xl font-bold text-soil font-serif">
               Why Choose Handcrafted?
             </h2>
           </motion.div>
@@ -404,16 +393,16 @@ export default function Home() {
               <span className="inline-block text-clay bg-clay/10 px-4 py-2 rounded-full text-sm font-medium mb-6">
                 Create Memories
               </span>
-              <h2 className="text-4xl md:text-5xl font-bold text-soil mb-6 font-serif">
+              <h2 className="text-3xl md:text-5xl font-bold text-soil mb-6 font-serif">
                 Experience the Joy of Making
               </h2>
-              <p className="text-lg text-soil/70 mb-8 leading-relaxed">
+              <p className="text-sm md:text-lg text-soil/70 mb-6 md:mb-8 leading-relaxed">
                 From romantic couple dates to team-building workshops, discover
                 the meditative art of pottery in our cozy studio.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link href="/workshops">
-                  <button className="bg-clay text-white px-8 py-4 rounded-full font-semibold hover:bg-clay/90 transition-colors hover:scale-105">
+                  <button className="bg-clay text-white px-6 py-3 md:px-8 md:py-4 rounded-full font-semibold hover:bg-clay/90 transition-colors hover:scale-105 text-sm md:text-base">
                     Browse Workshops
                   </button>
                 </Link>
@@ -455,7 +444,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-4xl md:text-5xl font-bold text-soil font-serif"
+              className="text-3xl md:text-5xl font-bold text-soil font-serif"
             >
               Stories from Our Community
             </motion.h2>
@@ -509,7 +498,7 @@ export default function Home() {
                   ))}
                 </motion.div>
 
-                <p className="text-soil/80 mb-6 italic leading-relaxed text-lg">
+                <p className="text-soil/80 mb-6 italic leading-relaxed text-base md:text-lg">
                   "{testimonial.content}"
                 </p>
 
@@ -552,15 +541,15 @@ export default function Home() {
           >
             <Sparkles className="mx-auto text-clay mb-4" size={40} />
           </motion.div>
-          <h2 className="text-3xl md:text-4xl font-bold text-soil mb-4 font-serif">
+          <h2 className="text-2xl md:text-4xl font-bold text-soil mb-4 font-serif">
             Know More About Basho
           </h2>
-          <p className="text-soil/70 mb-8 max-w-lg mx-auto text-lg">
+          <p className="text-soil/70 mb-6 md:mb-8 max-w-lg mx-auto text-sm md:text-lg">
             Discover our philosophy, meet the artist, and learn about the
             journey behind every handcrafted piece of pottery.
           </p>
           <Link href="/about">
-            <button className="bg-soil text-white px-8 py-4 rounded-full font-semibold hover:bg-clay transition-colors inline-flex items-center gap-2 hover:scale-105 transform">
+            <button className="bg-soil text-white px-6 py-3 md:px-8 md:py-4 rounded-full font-semibold hover:bg-clay transition-colors inline-flex items-center gap-2 hover:scale-105 transform text-sm md:text-base">
               Explore Our Story
               <ArrowRight size={20} />
             </button>

@@ -18,8 +18,10 @@ html {
 
 body {
   font-family: "Inter", sans-serif;
-  background-color: #efe5d8;
-  color: #1f1f1f;
+  background-color: #EDD8B4;
+  /* New Sand */
+  color: #442D1C;
+  /* New Soil */
   line-height: 1.6;
   margin: 0;
   padding: 0;
@@ -27,14 +29,23 @@ body {
   position: relative;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: "Playfair Display", serif;
   font-weight: 600;
-  color: #5a3e36;
+  color: #442D1C;
+  /* New Soil */
 }
 
 p {
-  color: #2b1b14;
+  color: #5A3E36;
+  /* Slightly lighter soil/stone mix for readability, or use stone #652810 */
+  color: #652810;
+  /* New Stone */
 }
 
 a {
@@ -51,6 +62,7 @@ button {
 .nav-link {
   position: relative;
   display: inline-block;
+  color: #442D1C;
 }
 
 .nav-link::after {
@@ -60,7 +72,8 @@ button {
   left: 0;
   width: 0;
   height: 2px;
-  background-color: #c97c5d;
+  background-color: #C85428;
+  /* New Clay */
   transition: width 0.3s ease;
 }
 
@@ -68,59 +81,71 @@ button {
   width: 100%;
 }
 
+.nav-link:hover {
+  color: #C85428;
+}
+
 /* Utility classes */
 .gradient-clay {
-  background: linear-gradient(135deg, #c97c5d 0%, #a85a47 100%);
+  background: linear-gradient(135deg, #C85428 0%, #a85a47 100%);
 }
 
 .gradient-soil {
-  background: linear-gradient(135deg, #5a3e36 0%, #3d2820 100%);
+  background: linear-gradient(135deg, #442D1C 0%, #2b1b14 100%);
 }
 
 .btn-primary {
-  background-color: #c97c5d;
+  background-color: #C85428;
+  /* New Clay */
   color: white;
-  padding: 0.5rem 1.5rem;
+  padding: 0.4rem 1rem;
   border-radius: 0.5rem;
   font-weight: 600;
   border: none;
+  font-size: 0.9rem;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(193, 117, 93, 0.2);
 }
 
 .btn-primary:hover {
-  opacity: 0.9;
+  background-color: #8E5022;
+  /* New Wood/Darker Clay look */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(193, 117, 93, 0.3);
 }
 
 .btn-secondary {
-  background-color: white;
-  color: #c97c5d;
-  padding: 0.5rem 1.5rem;
+  background-color: transparent;
+  color: #C85428;
+  padding: 0.4rem 1rem;
   border-radius: 0.5rem;
   font-weight: 600;
-  border: 2px solid #c97c5d;
+  border: 2px solid #C85428;
+  font-size: 0.9rem;
   transition: all 0.3s ease;
-  cursor: pointer;
 }
 
 .btn-secondary:hover {
-  background-color: #c97c5d;
+  background-color: #C85428;
   color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(193, 117, 93, 0.2);
 }
 
 .btn-outline {
-  border: 2px solid #5a3e36;
-  color: #5a3e36;
+  border: 2px solid #442D1C;
+  color: #442D1C;
   padding: 0.5rem 1.5rem;
   border-radius: 0.5rem;
   font-weight: 600;
   background-color: transparent;
   transition: all 0.3s ease;
-  cursor: pointer;
 }
 
 .btn-outline:hover {
-  background-color: #5a3e36;
-  color: white;
+  background-color: #442D1C;
+  color: #EDD8B4;
+  transform: translateY(-2px);
 }
 
 .card {
@@ -132,12 +157,14 @@ button {
 
 .card:hover {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  transition: all 0.3s ease;
 }
 
 .section-title {
   font-size: 2.25rem;
   font-weight: 700;
-  color: #5a3e36;
+  color: #442D1C;
   margin-bottom: 2rem;
   text-align: center;
 }
@@ -145,16 +172,18 @@ button {
 .input-field {
   width: 100%;
   padding: 0.5rem 1rem;
-  border: 2px solid #5a3e36;
+  border: 2px solid #442D1C;
   border-radius: 0.5rem;
   transition: border-color 0.3s ease;
   font-size: 1rem;
   font-family: "Inter", sans-serif;
+  background-color: rgba(255, 255, 255, 0.8);
 }
 
 .input-field:focus {
   outline: none;
-  border-color: #c97c5d;
+  border-color: #C85428;
+  background-color: white;
 }
 
 /* Animations */
@@ -163,6 +192,7 @@ button {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -174,6 +204,7 @@ button {
     opacity: 0;
     transform: translateX(-30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -185,6 +216,7 @@ button {
     opacity: 0;
     transform: translateX(30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -203,9 +235,37 @@ button {
   animation: slideInFromRight 0.6s ease-out;
 }
 
+/* Custom Scrollbar for global feel */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #EDD8B4;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C85428;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8E5022;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .section-title {
     font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 769px) {
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-outline {
+    padding: 0.6rem 2rem;
+    font-size: 1rem;
   }
 }

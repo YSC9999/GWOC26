@@ -97,20 +97,20 @@ export default function ProductCard({
           )}
         </div>
 
-        <h3 className="font-serif font-bold text-lg text-soil mb-1 line-clamp-1">{product.name}</h3>
-        <p className="text-sm text-stone-500 mb-3 line-clamp-2 min-h-[40px]">
+        <h3 className="font-serif font-bold text-base md:text-lg text-soil mb-1 line-clamp-1">{product.name}</h3>
+        <p className="text-xs md:text-sm text-stone-500 mb-3 line-clamp-2 min-h-[32px] md:min-h-[40px]">
           {product.description}
         </p>
 
         <div className="flex justify-between items-center pt-2 border-t border-stone-100">
-          <span className="text-clay font-bold text-lg">₹{product.price}</span>
+          <span className="text-clay font-bold text-base md:text-lg">₹{product.price}</span>
 
           {allowed ? (
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={clickTap}
               onClick={handleAddToCart}
-              className="btn-primary text-sm px-4 py-2"
+              className="btn-primary text-xs px-3 py-1.5 md:px-4 md:py-2"
             >
               Add to Cart
             </motion.button>

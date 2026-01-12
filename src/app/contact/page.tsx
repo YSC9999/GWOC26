@@ -105,10 +105,10 @@ export default function Contact() {
         <span className="inline-block text-clay font-medium mb-4 tracking-wider uppercase">
           Get in Touch
         </span>
-        <h1 className="text-5xl md:text-6xl font-bold text-soil mb-6 font-serif">
+        <h1 className="text-3xl md:text-6xl font-bold text-soil mb-4 md:mb-6 font-serif">
           Visit & Contact Us
         </h1>
-        <p className="text-xl text-soil/70 max-w-2xl mx-auto">
+        <p className="text-base md:text-xl text-soil/70 max-w-2xl mx-auto">
           We'd love to hear from you. Visit our studio or send us a message.
         </p>
       </motion.section>
@@ -306,9 +306,9 @@ export default function Contact() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 bg-clay text-white py-4 rounded-xl font-bold hover:bg-clay/90 transition-colors disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 bg-clay text-white py-3 md:py-4 rounded-xl font-bold hover:bg-clay/90 transition-colors disabled:opacity-50 text-sm md:text-base"
                 >
-                  {loading ? <Loader2 className="animate-spin" /> : <Send size={18} />}
+                  {loading ? <Loader2 className="animate-spin" /> : <Send size={16} className="md:w-[18px]" />}
                   Send Message
                 </button>
               </form>

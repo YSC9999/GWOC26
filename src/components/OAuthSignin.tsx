@@ -18,6 +18,8 @@ export default function OAuthSignin() {
     setLoading(true);
 
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    console.log("Attempting Google Sign-In...", { clientId: clientId ? "Present" : "Missing", googleObj: !!window.google });
+
     if (!clientId) {
       alert("Google Client ID is missing in .env.local!");
       setLoading(false);
