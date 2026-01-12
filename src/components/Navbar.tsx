@@ -61,7 +61,11 @@ export default function Navbar() {
   }, []);
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (err) {
+      console.error("Logout API failed", err);
+    }
     logout();
     setProfileOpen(false);
     window.location.href = "/";
@@ -243,7 +247,7 @@ export default function Navbar() {
                         >
                           <div className="px-5 py-3 border-b border-[#5A3E36]/10 bg-[#5A3E36]/5">
                             <p className="text-sm font-bold text-[#5A3E36] truncate">
-                              {user?.name}
+                              {user?.name?.replace(" undefined", "")}
                             </p>
                             <p className="text-xs text-[#5A3E36]/70 truncate">
                               {user?.email}
@@ -266,12 +270,7 @@ export default function Navbar() {
                             </Link>
                           )}
 
-                          <Link
-                            href="/cart"
-                            className="flex items-center gap-3 px-5 py-3 hover:bg-[#C97C5D]/10 text-sm text-[#5A3E36] transition-colors"
-                          >
-                            🛍️ Cart ({cartCount})
-                          </Link>
+                          {/* Cart Removed from Dropdown */}
 
 
 

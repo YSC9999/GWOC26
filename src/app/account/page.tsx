@@ -68,7 +68,7 @@ export default function AccountDashboard() {
           </div>
           <div className="text-center md:text-left flex-1">
             <h1 className="text-3xl font-bold text-soil font-serif mb-1">
-              Hello, {user.name}
+              Hello, {user.name?.replace(" undefined", "")}
             </h1>
             <p className="text-soil/60">{user.email}</p>
             <span className="inline-block mt-2 bg-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-clay border border-clay/20">
@@ -77,7 +77,11 @@ export default function AccountDashboard() {
           </div>
           <button
             onClick={async () => {
-              await fetch("/api/auth/logout", { method: "POST" });
+              try {
+                await fetch("/api/auth/logout", { method: "POST" });
+              } catch (err) {
+                console.error("Logout API failed", err);
+              }
               logout();
               router.push("/");
             }}

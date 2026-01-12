@@ -83,31 +83,7 @@ export default function Home() {
       setTestimonials(testimonialsData.testimonials || []);
       setDynamicFrames(framesData.frames || []);
 
-      // Preload Images
-      const imagesToPreload: string[] = [];
-
-      // Hero Frames
-      framesData.frames?.forEach((f: any) => {
-        if (f.product?.images?.[0]) imagesToPreload.push(f.product.images[0]);
-      });
-
-      // Collections Thumbnails
-      collectionsData.collections?.forEach((c: any) => {
-        if (c.products?.[0]?.images?.[0]) imagesToPreload.push(c.products[0].images[0]);
-      });
-
-      if (imagesToPreload.length > 0) {
-        await Promise.all(
-          imagesToPreload.map((src) => {
-            return new Promise((resolve) => {
-              const img = new window.Image();
-              img.src = src;
-              img.onload = resolve;
-              img.onerror = resolve; // Continue even if error
-            });
-          })
-        );
-      }
+      // Image preloading removed to speed up initial render
     } catch (error) {
       console.error("Failed to fetch data:", error);
     } finally {
