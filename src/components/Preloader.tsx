@@ -1,10 +1,19 @@
-"use client";
-
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 export default function Preloader() {
-    return (
-        <div className="fixed inset-0 z-[100] bg-[#efe5d8] flex items-center justify-center flex-col">
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+        return () => setMounted(false);
+    }, []);
+
+    if (!mounted) return null;
+
+    return createPortal(
+        <div className="fixed inset-0 z-[9999] bg-[#efe5d8] flex items-center justify-center flex-col">
             <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -32,6 +41,7 @@ export default function Preloader() {
                 }}
                 className="h-1 bg-[#c97c5d] mt-8 rounded-full"
             />
-        </div>
+        </div>,
+        document.body
     );
 }

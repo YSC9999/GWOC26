@@ -84,7 +84,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-5rem)] flex items-center justify-center px-4 py-8">
+    <div className="w-full min-h-screen flex items-center justify-center px-4 py-8 bg-sand-50">
       <div className="w-full max-w-md">
         <motion.div
           initial="hidden"

@@ -97,7 +97,7 @@ export default function Login() {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full min-h-screen flex items-center justify-center px-4 py-8 bg-sand-50">
       <div className="w-full max-w-md mx-auto">
         <motion.div
           initial="hidden"

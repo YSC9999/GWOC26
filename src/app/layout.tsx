@@ -3,6 +3,7 @@ import ConditionalLayout from "../components/ConditionalLayout";
 import ConditionalFooter from "../components/ConditionalFooter";
 import ConditionalBackground from "../components/ConditionalBackground";
 import CartSync from "../components/CartSync";
+import PageWrapper from "../components/PageWrapper";
 import Script from "next/script";
 import { ReactNode } from "react";
 import type { Metadata } from "next";
@@ -41,9 +42,7 @@ export default function RootLayout({
         <ConditionalBackground />
         <ConditionalLayout />
 
-        <div className="relative z-10 flex-1">
-          <main className="px-4 md:px-12 pt-20">{children}</main>
-        </div>
+        <PageWrapper>{children}</PageWrapper>
 
         <ChatBot />
         <ConditionalFooter />

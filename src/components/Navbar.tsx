@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X, User, LogOut, ShoppingBag, Heart, Wallet } from "lucide-react";
+import { Menu, X, User, LogOut, ShoppingBag, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth";
 import { useCart } from "@/lib/cart";
@@ -12,6 +12,7 @@ export default function Navbar() {
   const { items } = useCart();
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [hoveredPath, setHoveredPath] = useState<string | null>(null);
   // Ensure we mount only on client to avoid hydration mismatch
   const [isMounted, setIsMounted] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -111,25 +112,51 @@ export default function Navbar() {
 
         {/* Desktop Menu */}
         <div className="hidden lg:flex items-center gap-1 xl:gap-2 flex-1 ml-4 lg:ml-8">
-          <div className="flex gap-1 uppercase text-xs tracking-widest font-medium text-[#5A3E36]/80 relative flex-wrap justify-center">
+          <div className="flex gap-1 uppercase text-xs tracking-widest font-medium text-[#5A3E36]/80 relative flex-wrap justify-center" onMouseLeave={() => setHoveredPath(null)}>
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
+              const isHovered = hoveredPath === link.href;
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative px-2 xl:px-3 py-2 rounded-full z-10 transition-colors ${isActive ? "text-[#EFE5D8]" : "hover:text-[#C97C5D]"}`}
+                  onMouseEnter={() => setHoveredPath(link.href)}
+                  className={`relative px-3 py-2 rounded-full z-10 transition-colors duration-200 group ${isActive ? "text-[#EFE5D8]" : isHovered ? "text-[#C97C5D]" : "hover:text-[#C97C5D]"}`}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="active-nav-pill"
                       className="absolute inset-0 bg-[#C97C5D] rounded-full -z-10"
-                      transition={{ type: "spring", stiffness: 900, damping: 30, mass: 0.5 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
                     />
                   )}
-                  <span className={`block ${isActive ? "font-bold" : "font-semibold"}`}>
-                    {link.label}
-                  </span>
+                  {isHovered && !isActive && (
+                    <motion.div
+                      layoutId="hover-nav-pill"
+                      className="absolute inset-0 bg-[#C97C5D]/10 rounded-full -z-10"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    />
+                  )}
+
+                  {/* Scroll Up Animation Container */}
+                  <div className="relative overflow-hidden h-5 flex items-center justify-center">
+                    <motion.div
+                      initial={{ y: 0 }}
+                      animate={{ y: isHovered && !isActive ? "-100%" : "0%" }}
+                      transition={{ duration: 0.15, ease: "easeInOut" }}
+                      className="flex flex-col items-center"
+                    >
+                      <span className={`block ${isActive ? "font-bold" : "font-semibold"}`}>
+                        {link.label}
+                      </span>
+                      <span className={`block absolute top-full ${isActive ? "font-bold" : "font-semibold"}`}>
+                        {link.label}
+                      </span>
+                    </motion.div>
+                  </div>
                 </Link>
               );
             })}
@@ -177,16 +204,16 @@ export default function Navbar() {
                   <div className="flex gap-2 lg:gap-3 items-center flex-shrink-0">
                     <Link href="/login">
                       <motion.button
-                        whileHover={{ scale: 1.05, backgroundColor: "rgba(90, 62, 54, 0.1)" }}
+                        whileHover={{ scale: 1.05, backgroundColor: "rgba(90, 62, 54, 0.1)", boxShadow: "0 4px 12px rgba(90, 62, 54, 0.1)" }}
                         whileTap={{ scale: 0.95 }}
-                        className="text-xs uppercase tracking-widest px-3 py-2 border border-[#5A3E36] rounded-lg text-[#5A3E36] font-bold whitespace-nowrap"
+                        className="text-xs uppercase tracking-widest px-3 py-2 border border-[#5A3E36] rounded-lg text-[#5A3E36] font-bold whitespace-nowrap transition-all"
                       >
                         LOGIN
                       </motion.button>
                     </Link>
                     <Link href="/signup">
                       <motion.button
-                        whileHover={{ scale: 1.05 }}
+                        whileHover={{ scale: 1.05, boxShadow: "0 4px 12px rgba(201, 124, 93, 0.3)" }}
                         whileTap={{ scale: 0.95 }}
                         className="text-xs uppercase tracking-widest px-3 py-2 bg-[#5A3E36] text-[#EFE5D8] rounded-lg hover:bg-[#C97C5D] transition font-bold whitespace-nowrap"
                       >
