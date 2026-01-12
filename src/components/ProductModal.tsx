@@ -560,6 +560,8 @@ function ReviewsSection({ productId }: { productId: string }) {
   const [showForm, setShowForm] = useState(false);
   const [newRating, setNewRating] = useState(5);
   const [comment, setComment] = useState("");
+  const [images, setImages] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -594,6 +596,7 @@ function ReviewsSection({ productId }: { productId: string }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    setIsSubmitting(true);
     try {
       const token = localStorage.getItem("token");
       const res = await fetch("/api/reviews", {
@@ -606,12 +609,14 @@ function ReviewsSection({ productId }: { productId: string }) {
           productId,
           rating: newRating,
           comment,
+          images, // Send images
         }),
       });
       const data = await res.json();
       if (res.ok) {
         setShowForm(false);
         setComment("");
+        setImages([]);
         fetchReviews(); // Refresh
         checkEligibility(); // Hide form logic
       } else {
@@ -619,6 +624,8 @@ function ReviewsSection({ productId }: { productId: string }) {
       }
     } catch (e) {
       console.error(e);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -672,18 +679,64 @@ function ReviewsSection({ productId }: { productId: string }) {
                   required
                 />
               </div>
-              {/* Photo Upload Placeholder - Simplified for now as requested */}
+              {/* Photo Upload */}
               <div className="mb-4">
                 <label className="block text-sm font-bold text-soil mb-2 flex items-center gap-2">
                   <Camera size={16} /> Add Photos (Optional)
                 </label>
-                <div className="border-2 border-dashed border-soil/20 rounded-lg p-4 text-center text-soil/50 text-xs">
-                  Photo upload coming soon
+
+                <div className="space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    {images.map((img, idx) => (
+                      <div key={idx} className="relative w-16 h-16 rounded-md overflow-hidden border border-soil/20 group">
+                        <img src={img} alt="Preview" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setImages(prev => prev.filter((_, i) => i !== idx))}
+                          className="absolute top-0 right-0 bg-red-500 text-white p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+
+                    {images.length < 3 && (
+                      <label className="w-16 h-16 border-2 border-dashed border-soil/20 rounded-md flex items-center justify-center cursor-pointer hover:border-clay hover:text-clay transition-colors">
+                        <Plus size={20} className="text-soil/40" />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              if (file.size > 5000000) { // 5MB limit
+                                alert("File too large (max 5MB)");
+                                return;
+                              }
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                if (typeof reader.result === 'string') {
+                                  setImages(prev => [...prev, reader.result as string]);
+                                }
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </label>
+                    )}
+                  </div>
+                  <p className="text-xs text-soil/50">Max 3 images.</p>
                 </div>
               </div>
 
               <div className="flex gap-3">
-                <button type="submit" className="bg-clay text-white px-6 py-2 rounded-full text-sm font-bold hover:bg-clay/90">Submit Review</button>
+                <button type="submit" disabled={isSubmitting} className="bg-clay text-white px-6 py-2 rounded-full text-sm font-bold hover:bg-clay/90 disabled:opacity-50 disabled:cursor-not-allowed">
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2"><Loader2 className="animate-spin" size={14} /> Posting...</span>
+                  ) : "Submit Review"}
+                </button>
                 <button type="button" onClick={() => setShowForm(false)} className="text-soil/60 px-4 py-2 text-sm hover:text-soil">Cancel</button>
               </div>
             </form>
@@ -729,7 +782,18 @@ function ReviewsSection({ productId }: { productId: string }) {
                   <Star key={i} size={14} className={i < review.rating ? "fill-current" : "text-gray-200"} />
                 ))}
               </div>
-              <p className="text-soil/80 text-sm leading-relaxed">{review.comment}</p>
+              <p className="text-soil/80 text-sm leading-relaxed mb-3">{review.comment}</p>
+
+              {/* Review Images */}
+              {review.images && review.images.length > 0 && (
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {review.images.map((img: string, idx: number) => (
+                    <div key={idx} className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 border border-soil/10">
+                      <img src={img} alt="Review" className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))
         )}

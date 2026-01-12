@@ -35,6 +35,7 @@ export interface IUser extends Document {
   phoneOtpExpiry?: Date;
   resetPasswordOTP?: string;
   resetPasswordExpiry?: Date;
+  walletBalance: number;
   cart: { productId: mongoose.Types.ObjectId; qty: number }[];
   createdAt: Date;
   updatedAt: Date;
@@ -87,7 +88,8 @@ const UserSchema = new Schema<IUser>({
   cart: [{
     productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
     qty: { type: Number, default: 1 }
-  }]
+  }],
+  walletBalance: { type: Number, default: 0 }
 }, { timestamps: true });
 
 const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);

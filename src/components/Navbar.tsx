@@ -254,6 +254,10 @@ export default function Navbar() {
                             👤 My Account
                           </Link>
 
+                          <div className="flex items-center gap-3 px-5 py-3 text-sm text-soil/80 border-t border-gray-50">
+                            💰 Wallet: <span className="font-bold text-green-600">₹{user?.walletBalance || 0}</span>
+                          </div>
+
                           <Link
                             href="/account/orders"
                             className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 text-sm text-soil/80 transition-colors"

@@ -31,7 +31,8 @@ export async function GET(req: Request) {
       email: user.email,
       role: user.role,
       tier: user.tier,
-      addresses: user.addresses
+      addresses: user.addresses,
+      walletBalance: user.walletBalance
     });
 
   } catch (error) {
