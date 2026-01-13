@@ -321,16 +321,16 @@ export default function Workshops() {
 
       {/* Featured Workshops Slider */}
       {workshops.length > 0 && (
-        <section className="mb-16 px-4">
+        <section className="mb-16 px-4 md:px-8">
           <Carousel
             items={workshops
-              .filter(w => w.image && w.image.trim() !== "")
+              .filter((w) => w.image && w.image.trim() !== "")
               .slice(0, 4)
-              .map(workshop => ({
+              .map((workshop) => ({
                 id: workshop._id,
                 image: workshop.image,
                 title: workshop.title,
-                description: workshop.description
+                description: workshop.description,
               }))}
           />
         </section>
@@ -370,10 +370,11 @@ export default function Workshops() {
             <button
               key={type.id}
               onClick={() => setSelectedType(type.id)}
-              className={`px-6 py-2.5 rounded-full font-medium transition-all duration-300 ${selectedType === type.id
-                ? "bg-clay text-white shadow-lg shadow-clay/30"
-                : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-                }`}
+              className={`px-6 py-2.5 rounded-full font-medium transition-all duration-300 ${
+                selectedType === type.id
+                  ? "bg-clay text-white shadow-lg shadow-clay/30"
+                  : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+              }`}
             >
               {type.label}
             </button>
@@ -430,10 +431,10 @@ export default function Workshops() {
                       {workshop.type === "couples"
                         ? "💑"
                         : workshop.type === "corporate"
-                          ? "🏢"
-                          : workshop.type === "one-on-one"
-                            ? "🎯"
-                            : "🎨"}
+                        ? "🏢"
+                        : workshop.type === "one-on-one"
+                        ? "🎯"
+                        : "🎨"}
                     </div>
                   )}
 
@@ -447,7 +448,7 @@ export default function Workshops() {
                   {/* Spots indicator */}
                   <div className="absolute bottom-4 right-4">
                     {getAvailableSpots(workshop) <= 3 &&
-                      getAvailableSpots(workshop) > 0 ? (
+                    getAvailableSpots(workshop) > 0 ? (
                       <span className="bg-orange-500 text-white text-sm font-bold px-3 py-1 rounded-full animate-pulse">
                         Only {getAvailableSpots(workshop)} spots left!
                       </span>
@@ -535,10 +536,11 @@ export default function Workshops() {
                         setBookingWorkshop(workshop)
                       }
                       disabled={getAvailableSpots(workshop) === 0}
-                      className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full font-semibold text-xs transition-all ${getAvailableSpots(workshop) === 0
-                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                        : "bg-clay text-white hover:bg-clay/90 hover:scale-105"
-                        }`}
+                      className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full font-semibold text-xs transition-all ${
+                        getAvailableSpots(workshop) === 0
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : "bg-clay text-white hover:bg-clay/90 hover:scale-105"
+                      }`}
                     >
                       {getAvailableSpots(workshop) === 0
                         ? "Sold Out"
@@ -673,9 +675,10 @@ export default function Workshops() {
                           bookingWorkshop.type}
                       </span>
                       <span
-                        className={`text-xs sm:text-sm font-medium px-2.5 py-1 rounded-full ${levelColors[bookingWorkshop.level] ||
+                        className={`text-xs sm:text-sm font-medium px-2.5 py-1 rounded-full ${
+                          levelColors[bookingWorkshop.level] ||
                           levelColors["all-levels"]
-                          }`}
+                        }`}
                       >
                         {bookingWorkshop.level === "all-levels"
                           ? "All Levels"
@@ -847,10 +850,11 @@ export default function Workshops() {
                               })
                             }
                             disabled={phoneVerified}
-                            className={`flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none transition-colors ${phoneVerified
-                              ? "bg-green-50 border-green-300 text-green-700"
-                              : "border-soil/20 focus:border-clay"
-                              }`}
+                            className={`flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none transition-colors ${
+                              phoneVerified
+                                ? "bg-green-50 border-green-300 text-green-700"
+                                : "border-soil/20 focus:border-clay"
+                            }`}
                             placeholder="+91 98765 43210"
                           />
                           {!phoneVerified && (
@@ -990,10 +994,11 @@ export default function Workshops() {
                       <button
                         type="submit"
                         disabled={bookingLoading || !phoneVerified}
-                        className={`w-full flex items-center justify-center gap-2 py-3 rounded-full font-semibold text-sm transition-all ${bookingLoading || !phoneVerified
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-clay text-white hover:bg-clay/90 hover:scale-[1.02]"
-                          }`}
+                        className={`w-full flex items-center justify-center gap-2 py-3 rounded-full font-semibold text-sm transition-all ${
+                          bookingLoading || !phoneVerified
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            : "bg-clay text-white hover:bg-clay/90 hover:scale-[1.02]"
+                        }`}
                       >
                         {bookingLoading ? (
                           <>
