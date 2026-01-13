@@ -62,8 +62,19 @@ export default function Home() {
     null
   );
   const [dynamicFrames, setDynamicFrames] = useState<FrameConfig[]>([]);
+  const [showPreloader, setShowPreloader] = useState(false);
 
   useEffect(() => {
+    // Check if this is the first visit in this session
+    const hasVisitedBefore = sessionStorage.getItem("hasVisitedHome");
+
+    if (!hasVisitedBefore) {
+      setShowPreloader(true);
+      sessionStorage.setItem("hasVisitedHome", "true");
+    } else {
+      setLoading(false);
+    }
+
     fetchData();
   }, []);
 
@@ -88,6 +99,7 @@ export default function Home() {
       console.error("Failed to fetch data:", error);
     } finally {
       setLoading(false);
+      setShowPreloader(false);
     }
   };
 
@@ -104,7 +116,7 @@ export default function Home() {
     { id: 8, width: 120, height: 110, left: 330, top: 315, color: "#C85428" },
   ];
 
-  if (loading) {
+  if (showPreloader) {
     return <Preloader />;
   }
 

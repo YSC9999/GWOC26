@@ -26,6 +26,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, message: "Development mode - email not sent" });
     }
 
+    // Read image files for CID attachment
+    const thankYouPath = path.join(process.cwd(), "public", "thank-you-detailed.jpeg");
+    const carePath = path.join(process.cwd(), "public", "care-instructions.jpeg");
+    
+    const thankYouExists = fs.existsSync(thankYouPath);
+    const careExists = fs.existsSync(carePath);
+    
+    if (!thankYouExists) {
+      console.log("Could not find thank-you-detailed.jpeg");
+    }
+    if (!careExists) {
+      console.log("Could not find care-instructions.jpeg");
+    }
+
     const emailContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 20px; border-radius: 12px;">
         <div style="background: linear-gradient(135deg, #8B7355 0%, #A0826D 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
@@ -37,13 +51,19 @@ export async function POST(req: Request) {
           
           <p style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">Your beautiful handmade pieces are on their way to you! We've enclosed special care cards and beautiful messages to cherish along with your order.</p>
           
-          <div style="background: #f0f0f0; padding: 20px; border-left: 4px solid #A0826D; margin: 30px 0;">
-            <h3 style="color: #8B7355; margin-top: 0;">📎 Included with Your Order:</h3>
-            <ul style="color: #666; font-size: 14px; line-height: 1.8; margin: 10px 0; padding-left: 20px;">
-              <li>💝 Thank You Card</li>
-              <li>📋 Care Instructions for your items</li>
-            </ul>
+          ${thankYouExists ? `
+          <div style="margin: 30px 0; text-align: center;">
+            <h3 style="color: #8B7355; margin-bottom: 15px;">💝 Thank You Card</h3>
+            <img src="cid:thankyou" alt="Thank You Card" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" />
           </div>
+          ` : ''}
+          
+          ${careExists ? `
+          <div style="margin: 30px 0; text-align: center;">
+            <h3 style="color: #8B7355; margin-bottom: 15px;">📋 Care Instructions</h3>
+            <img src="cid:care" alt="Care Instructions" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" />
+          </div>
+          ` : ''}
           
           <p style="color: #8B5A3C; font-style: italic; text-align: center; font-size: 15px; margin: 30px 0;">
             "Each item is thoughtfully handcrafted, making it one-of-a-kind, just like you."
@@ -56,40 +76,29 @@ export async function POST(req: Request) {
           
           <div style="background: #FFF9F0; padding: 15px; border-radius: 8px; margin-top: 30px; text-align: center;">
             <p style="color: #999; font-size: 12px; margin: 0;">
-              All images are attached to this email. Print them out to keep safe or save digitally for future reference.
+              These images are embedded in this email for your convenience. You can save them for future reference.
             </p>
           </div>
         </div>
       </div>
     `;
 
-    // Prepare attachments - only 2 images
     const attachments = [];
     
-    // Add thank-you-detailed image if it exists
-    try {
-      const thankYouPath = path.join(process.cwd(), "public", "thank-you-detailed.jpeg");
-      if (fs.existsSync(thankYouPath)) {
-        attachments.push({
-          filename: "thank-you-detailed.jpeg",
-          path: thankYouPath,
-        });
-      }
-    } catch (e) {
-      console.log("Could not attach thank-you-detailed.jpeg");
+    if (thankYouExists) {
+      attachments.push({
+        filename: 'thank-you-card.jpeg',
+        path: thankYouPath,
+        cid: 'thankyou'
+      });
     }
-
-    // Add care-instructions image if it exists
-    try {
-      const carePath = path.join(process.cwd(), "public", "care-instructions.jpeg");
-      if (fs.existsSync(carePath)) {
-        attachments.push({
-          filename: "care-instructions.jpeg",
-          path: carePath,
-        });
-      }
-    } catch (e) {
-      console.log("Could not attach care-instructions.jpeg");
+    
+    if (careExists) {
+      attachments.push({
+        filename: 'care-instructions.jpeg',
+        path: carePath,
+        cid: 'care'
+      });
     }
 
     await transporter.sendMail({

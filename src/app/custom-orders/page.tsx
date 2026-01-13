@@ -1,9 +1,17 @@
-
 "use client";
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, Send, Check, Loader2, Image, X, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Upload,
+  Send,
+  Check,
+  Loader2,
+  Image,
+  X,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 import { Carousel } from "@/components/Carousel";
 
@@ -40,6 +48,13 @@ export default function CustomOrders() {
   const [error, setError] = useState("");
   const [previousOrders, setPreviousOrders] = useState<any[]>([]);
 
+  // OTP State
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+
   useEffect(() => {
     fetch("/api/previous-custom-orders")
       .then((res) => res.json())
@@ -52,10 +67,81 @@ export default function CustomOrders() {
   }, []);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Reset phone verification if phone number changes
+    if (name === "phone") {
+      setPhoneVerified(false);
+      setOtpSent(false);
+      setOtp("");
+    }
+  };
+
+  const handleSendOtp = async () => {
+    if (!formData.phone || formData.phone.length < 10) {
+      setError("Please enter a valid phone number");
+      return;
+    }
+
+    setSendingOtp(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/auth/send-phone-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: formData.phone }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setOtpSent(true);
+      } else {
+        setError(data.error || "Failed to send OTP");
+      }
+    } catch (err) {
+      setError("Failed to send OTP");
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otp || otp.length !== 6) {
+      setError("Please enter a valid 6-digit OTP");
+      return;
+    }
+
+    setVerifyingOtp(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/auth/verify-phone-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: formData.phone, otp }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setPhoneVerified(true);
+        setOtpSent(false);
+        setOtp("");
+      } else {
+        setError(data.error || "Invalid OTP");
+      }
+    } catch (err) {
+      setError("Failed to verify OTP");
+    } finally {
+      setVerifyingOtp(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -103,7 +189,8 @@ export default function CustomOrders() {
           </h2>
           <p className="text-soil/70 mb-8">
             Thank you for your custom order request. Our team will review your
-            requirements and get back to you within 24-48 hours with a quotation.
+            requirements and get back to you within 24-48 hours with a
+            quotation.
           </p>
           <button
             onClick={() => {
@@ -142,22 +229,20 @@ export default function CustomOrders() {
           Custom Orders
         </h1>
         <p className="text-xl text-soil/70 max-w-2xl mx-auto">
-          Have a specific vision? We'll bring it to life. From personalized gifts
-          to bespoke tableware sets, every piece is crafted with care.
+          Have a specific vision? We'll bring it to life. From personalized
+          gifts to bespoke tableware sets, every piece is crafted with care.
         </p>
       </motion.section>
 
       {/* Previous Custom Orders Showcase - Carousel */}
       {previousOrders.length > 0 && (
         <section className="mb-20 max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-soil mb-10 text-center font-serif">Previous Creations</h2>
-
           <Carousel
-            items={previousOrders.flatMap(order =>
+            items={previousOrders.flatMap((order) =>
               order.images.map((img: string) => ({
                 image: img,
                 description: order.description,
-                id: order._id + "-" + img // Ensure unique ID for each image in flatMap
+                id: order._id + "-" + img, // Ensure unique ID for each image in flatMap
               }))
             )}
           />
@@ -220,17 +305,67 @@ export default function CustomOrders() {
                 <label className="block text-sm font-medium text-soil mb-2">
                   Phone Number *
                 </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors"
-                  placeholder="+91 98765 43210"
-                />
-              </div>
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      required
+                      disabled={phoneVerified}
+                      className="flex-1 px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
+                      placeholder="+91 98765 43210"
+                    />
+                    {!phoneVerified && !otpSent && (
+                      <button
+                        type="button"
+                        onClick={handleSendOtp}
+                        disabled={sendingOtp || !formData.phone}
+                        className="px-4 py-3 bg-clay text-white rounded-xl font-medium hover:bg-clay/90 transition-colors disabled:opacity-50 whitespace-nowrap"
+                      >
+                        {sendingOtp ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          "Send OTP"
+                        )}
+                      </button>
+                    )}
+                    {phoneVerified && (
+                      <div className="flex items-center justify-center px-4 py-3 bg-green-100 text-green-700 rounded-xl">
+                        <Check className="w-5 h-5" />
+                      </div>
+                    )}
+                  </div>
 
+                  {otpSent && !phoneVerified && (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={otp}
+                        onChange={(e) =>
+                          setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                        }
+                        placeholder="Enter 6-digit OTP"
+                        maxLength={6}
+                        className="flex-1 px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleVerifyOtp}
+                        disabled={verifyingOtp || otp.length !== 6}
+                        className="px-4 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors disabled:opacity-50 whitespace-nowrap"
+                      >
+                        {verifyingOtp ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          "Verify"
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
 
               {/* Description */}
               <div>
@@ -238,7 +373,8 @@ export default function CustomOrders() {
                   Describe what you're looking for *
                 </label>
                 <p className="text-xs text-soil/60 mb-2">
-                  Please describe the items you need, including quantities, shapes, and sizes.
+                  Please describe the items you need, including quantities,
+                  shapes, and sizes.
                 </p>
                 <textarea
                   name="description"
@@ -261,11 +397,14 @@ export default function CustomOrders() {
                     <button
                       key={range.id}
                       type="button"
-                      onClick={() => setFormData((prev) => ({ ...prev, budget: range.id }))}
-                      className={`px-4 py-2 rounded-full border-2 text-sm font-medium transition-all ${formData.budget === range.id
-                        ? "border-clay bg-clay text-white"
-                        : "border-soil/20 text-soil hover:border-clay"
-                        }`}
+                      onClick={() =>
+                        setFormData((prev) => ({ ...prev, budget: range.id }))
+                      }
+                      className={`px-4 py-2 rounded-full border-2 text-sm font-medium transition-all ${
+                        formData.budget === range.id
+                          ? "border-clay bg-clay text-white"
+                          : "border-soil/20 text-soil hover:border-clay"
+                      }`}
                     >
                       {range.label}
                     </button>
@@ -284,7 +423,8 @@ export default function CustomOrders() {
                     Share inspiration images with us
                   </p>
                   <p className="text-soil/40 text-xs">
-                    You can email reference images to hello@basho.com after submitting this form
+                    You can email reference images to hello@basho.com after
+                    submitting this form
                   </p>
                 </div>
               </div>
@@ -292,7 +432,12 @@ export default function CustomOrders() {
               {/* Submit */}
               <button
                 type="submit"
-                disabled={loading || !formData.description || !formData.budget}
+                disabled={
+                  loading ||
+                  !formData.description ||
+                  !formData.budget ||
+                  !phoneVerified
+                }
                 className="w-full flex items-center justify-center gap-3 bg-clay text-white py-4 rounded-full font-semibold text-lg hover:bg-clay/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
@@ -307,6 +452,11 @@ export default function CustomOrders() {
                   </>
                 )}
               </button>
+              {!phoneVerified && (
+                <p className="text-sm text-red-500 text-center -mt-2">
+                  Please verify your phone number before submitting
+                </p>
+              )}
             </form>
           </div>
         </motion.div>
@@ -325,11 +475,31 @@ export default function CustomOrders() {
             </h3>
             <div className="space-y-4">
               {[
-                { step: "1", title: "Submit Your Request", desc: "Fill out the form with your requirements" },
-                { step: "2", title: "Receive Quotation", desc: "We'll send you a detailed quote within 48 hours" },
-                { step: "3", title: "Confirm & Pay", desc: "50% advance to begin crafting" },
-                { step: "4", title: "Creation", desc: "Your piece is handcrafted with care" },
-                { step: "5", title: "Delivery", desc: "Receive your unique creation" },
+                {
+                  step: "1",
+                  title: "Submit Your Request",
+                  desc: "Fill out the form with your requirements",
+                },
+                {
+                  step: "2",
+                  title: "Receive Quotation",
+                  desc: "We'll send you a detailed quote within 48 hours",
+                },
+                {
+                  step: "3",
+                  title: "Confirm & Pay",
+                  desc: "50% advance to begin crafting",
+                },
+                {
+                  step: "4",
+                  title: "Creation",
+                  desc: "Your piece is handcrafted with care",
+                },
+                {
+                  step: "5",
+                  title: "Delivery",
+                  desc: "Receive your unique creation",
+                },
               ].map((item) => (
                 <div key={item.step} className="flex gap-4">
                   <div className="w-8 h-8 bg-clay text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
@@ -350,7 +520,8 @@ export default function CustomOrders() {
               Typical Timeline
             </h3>
             <p className="text-soil/60 mb-4">
-              Custom pieces take approximately <span className="font-semibold text-clay">3-4 weeks</span> to
+              Custom pieces take approximately{" "}
+              <span className="font-semibold text-clay">3-4 weeks</span> to
               complete, including:
             </p>
             <ul className="space-y-2 text-sm text-soil/70">

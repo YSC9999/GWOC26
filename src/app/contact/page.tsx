@@ -1,7 +1,19 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Clock, Instagram, Send, Check, Loader2, Info, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Clock,
+  Instagram,
+  Send,
+  Check,
+  Loader2,
+  Info,
+  ChevronDown,
+} from "lucide-react";
+import { fadeInUp } from "@/lib/animations";
 
 interface StudioInfo {
   name: string;
@@ -51,7 +63,9 @@ export default function Contact() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -182,7 +196,9 @@ export default function Contact() {
 
           {/* Social */}
           <div className="bg-gradient-to-br from-pink-500/5 to-purple-500/5 rounded-3xl p-8 text-center border border-pink-100">
-            <h3 className="text-lg font-bold text-soil mb-2">Follow Our Journey</h3>
+            <h3 className="text-lg font-bold text-soil mb-2">
+              Follow Our Journey
+            </h3>
             <a
               href="https://www.instagram.com/bashobyyshivangi/"
               target="_blank"
@@ -220,7 +236,11 @@ export default function Contact() {
               <button
                 onClick={() => {
                   setSubmitted(false);
-                  setFormData((prev) => ({ ...prev, message: "", subject: "" }));
+                  setFormData((prev) => ({
+                    ...prev,
+                    message: "",
+                    subject: "",
+                  }));
                 }}
                 className="bg-clay text-white px-8 py-3 rounded-full font-semibold hover:bg-clay/90 transition-colors"
               >
@@ -242,7 +262,9 @@ export default function Contact() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-soil mb-2">Name *</label>
+                    <label className="block text-sm font-medium text-soil mb-2">
+                      Name *
+                    </label>
                     <input
                       name="name"
                       value={formData.name}
@@ -252,7 +274,9 @@ export default function Contact() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-soil mb-2">Email *</label>
+                    <label className="block text-sm font-medium text-soil mb-2">
+                      Email *
+                    </label>
                     <input
                       name="email"
                       type="email"
@@ -266,7 +290,9 @@ export default function Contact() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-soil mb-2">Phone</label>
+                    <label className="block text-sm font-medium text-soil mb-2">
+                      Phone
+                    </label>
                     <input
                       name="phone"
                       value={formData.phone}
@@ -275,7 +301,9 @@ export default function Contact() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-soil mb-2">Subject *</label>
+                    <label className="block text-sm font-medium text-soil mb-2">
+                      Subject *
+                    </label>
                     <select
                       name="subject"
                       value={formData.subject}
@@ -285,14 +313,18 @@ export default function Contact() {
                     >
                       <option value="">Select a topic</option>
                       {subjectOptions.map((opt) => (
-                        <option key={opt} value={opt}>{opt}</option>
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
                       ))}
                     </select>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-soil mb-2">Message *</label>
+                  <label className="block text-sm font-medium text-soil mb-2">
+                    Message *
+                  </label>
                   <textarea
                     name="message"
                     rows={5}
@@ -308,7 +340,11 @@ export default function Contact() {
                   disabled={loading}
                   className="w-full flex items-center justify-center gap-2 bg-clay text-white py-3 md:py-4 rounded-xl font-bold hover:bg-clay/90 transition-colors disabled:opacity-50 text-sm md:text-base"
                 >
-                  {loading ? <Loader2 className="animate-spin" /> : <Send size={16} className="md:w-[18px]" />}
+                  {loading ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <Send size={16} className="md:w-[18px]" />
+                  )}
                   Send Message
                 </button>
               </form>
@@ -320,36 +356,45 @@ export default function Contact() {
       {/* FAQ Section */}
       <div className="max-w-4xl mx-auto px-4 md:px-8 mb-20">
         <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold text-soil font-serif mb-4">Frequently Asked Questions</h2>
-          <p className="text-soil/70">Common questions about our pottery and process.</p>
+          <h2 className="text-3xl font-bold text-soil font-serif mb-4">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-soil/70">
+            Common questions about our pottery and process.
+          </p>
         </div>
         <div className="space-y-4">
           {[
             {
               q: "Are your products microwave and dishwasher safe?",
-              a: "Yes, most of our high-fired stoneware is food, microwave, and dishwasher safe. However, to ensure the longevity of your handcrafted pieces, we recommend gentle hand washing with mild soap."
+              a: "Yes, most of our high-fired stoneware is food, microwave, and dishwasher safe. However, to ensure the longevity of your handcrafted pieces, we recommend gentle hand washing with mild soap.",
             },
             {
               q: "How long does a custom order take?",
-              a: "Custom orders are a labor of love! Typically, the process takes 3 to 6 weeks. This includes design consultation, throwing, trimming, drying, glazing, and multiple firings in the kiln."
+              a: "Custom orders are a labor of love! Typically, the process takes 3 to 6 weeks. This includes design consultation, throwing, trimming, drying, glazing, and multiple firings in the kiln.",
             },
             {
               q: "Do you ship internationally?",
-              a: "Currently, we primarily ship within India. For special international shipping requests, please contact us directly for a quote and feasibility check."
+              a: "Currently, we primarily ship within India. For special international shipping requests, please contact us directly for a quote and feasibility check.",
             },
             {
               q: "What is your return policy?",
-              a: "Due to the unique, handcrafted nature of our products, we do not accept returns for change of mind. If an item arrives damaged, please contact us within 24 hours with photos/video, and we will sort it out."
+              a: "Due to the unique, handcrafted nature of our products, we do not accept returns for change of mind. If an item arrives damaged, please contact us within 24 hours with photos/video, and we will sort it out.",
             },
             {
               q: "Can I visit the studio?",
-              a: "Absolutely! We love hosting visitors. Please check our 'Visiting Hours' section below or book an appointment in advance to ensure we are available to show you around."
-            }
+              a: "Absolutely! We love hosting visitors. Please check our 'Visiting Hours' section below or book an appointment in advance to ensure we are available to show you around.",
+            },
           ].map((faq, i) => (
-            <div key={i} className="bg-white rounded-2xl border border-soil/10 overflow-hidden shadow-sm">
+            <div
+              key={i}
+              className="bg-white rounded-2xl border border-soil/10 overflow-hidden shadow-sm"
+            >
               <details className="group">
                 <summary className="flex justify-between items-center w-full p-6 text-left cursor-pointer list-none">
-                  <span className="font-bold text-soil text-lg font-serif">{faq.q}</span>
+                  <span className="font-bold text-soil text-lg font-serif">
+                    {faq.q}
+                  </span>
                   <span className="text-clay transition-transform duration-300 group-open:rotate-180">
                     <ChevronDown size={20} />
                   </span>
@@ -367,7 +412,9 @@ export default function Contact() {
       <div className="bg-sand/30 py-20">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-soil font-serif mb-4">Our Studio</h2>
+            <h2 className="text-3xl font-bold text-soil font-serif mb-4">
+              Our Studio
+            </h2>
             <p className="max-w-2xl mx-auto text-soil/70">
               {studioInfo?.aboutText || "A creative space for pottery and art."}
             </p>
@@ -377,15 +424,22 @@ export default function Contact() {
             {/* Hours */}
             <div className="bg-white rounded-2xl p-8 shadow-sm">
               <Clock className="w-10 h-10 text-clay mb-4" />
-              <h3 className="text-xl font-bold text-soil mb-4">Visiting Hours</h3>
+              <h3 className="text-xl font-bold text-soil mb-4">
+                Visiting Hours
+              </h3>
               <ul className="space-y-3 text-soil/70">
                 {studioInfo?.visitingHours ? (
-                  Object.entries(studioInfo.visitingHours).map(([day, time]) => (
-                    <li key={day} className="flex justify-between border-b border-soil/10 pb-2">
-                      <span className="capitalize">{day}</span>
-                      <span className="font-medium text-soil">{time}</span>
-                    </li>
-                  ))
+                  Object.entries(studioInfo.visitingHours).map(
+                    ([day, time]) => (
+                      <li
+                        key={day}
+                        className="flex justify-between border-b border-soil/10 pb-2"
+                      >
+                        <span className="capitalize">{day}</span>
+                        <span className="font-medium text-soil">{time}</span>
+                      </li>
+                    )
+                  )
                 ) : (
                   <li>Loading hours...</li>
                 )}
@@ -395,11 +449,22 @@ export default function Contact() {
             {/* Policies */}
             <div className="bg-white rounded-2xl p-8 shadow-sm">
               <Info className="w-10 h-10 text-clay mb-4" />
-              <h3 className="text-xl font-bold text-soil mb-4">Space & Policies</h3>
+              <h3 className="text-xl font-bold text-soil mb-4">
+                Space & Policies
+              </h3>
               <div className="space-y-4 text-sm text-soil/70">
-                <p><strong className="text-soil">Eco-Friendly:</strong> We use sustainable clay and recycle materials.</p>
-                <p><strong className="text-soil">Visit Policy:</strong> {studioInfo?.visitPolicy || "By appointment."}</p>
-                <p><strong className="text-soil">Collection:</strong> {studioInfo?.collectionPolicy || "Pick up within 30 days."}</p>
+                <p>
+                  <strong className="text-soil">Eco-Friendly:</strong> We use
+                  sustainable clay and recycle materials.
+                </p>
+                <p>
+                  <strong className="text-soil">Visit Policy:</strong>{" "}
+                  {studioInfo?.visitPolicy || "By appointment."}
+                </p>
+                <p>
+                  <strong className="text-soil">Collection:</strong>{" "}
+                  {studioInfo?.collectionPolicy || "Pick up within 30 days."}
+                </p>
               </div>
             </div>
 
@@ -423,6 +488,6 @@ export default function Contact() {
           </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 }

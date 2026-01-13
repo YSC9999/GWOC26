@@ -403,15 +403,17 @@ export default function Products() {
                           !isOutOfStock &&
                           setSelectedProductId(product.slug || product._id)
                         }
-                        className={`relative h-48 bg-gradient-to-br from-sand to-sand/50 overflow-hidden ${isOutOfStock ? "cursor-not-allowed" : "cursor-pointer"
-                          }`}
+                        className={`relative h-48 bg-gradient-to-br from-sand to-sand/50 overflow-hidden ${
+                          isOutOfStock ? "cursor-not-allowed" : "cursor-pointer"
+                        }`}
                       >
                         {getProductImage(product) ? (
                           <img
                             src={getProductImage(product)!}
                             alt={product.name}
-                            className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${isOutOfStock ? "grayscale opacity-75" : ""
-                              }`}
+                            className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${
+                              isOutOfStock ? "grayscale opacity-75" : ""
+                            }`}
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-7xl group-hover:scale-110 transition-transform duration-500">
@@ -456,7 +458,7 @@ export default function Products() {
                               <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                                 {Math.round(
                                   (1 - product.price / product.originalPrice) *
-                                  100
+                                    100
                                 )}
                                 % OFF
                               </span>
@@ -565,10 +567,11 @@ export default function Products() {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === 1
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-                  }`}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  currentPage === 1
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+                }`}
               >
                 Previous
               </button>
@@ -585,10 +588,11 @@ export default function Products() {
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
-                      className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === page
-                        ? "bg-clay text-white shadow-lg"
-                        : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-                        }`}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                        currentPage === page
+                          ? "bg-clay text-white shadow-lg"
+                          : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+                      }`}
                     >
                       {page}
                     </button>
@@ -609,10 +613,11 @@ export default function Products() {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === totalPages
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-                  }`}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  currentPage === totalPages
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+                }`}
               >
                 Next
               </button>
@@ -626,29 +631,28 @@ export default function Products() {
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="mt-20 text-center px-4"
+        className="mt-16 text-center px-4"
       >
-        <div className="bg-gradient-to-br from-clay to-clay/80 rounded-3xl p-12 md:p-16 text-white max-w-4xl mx-auto shadow-xl">
+        <div className="bg-gradient-to-br from-clay to-clay/80 rounded-2xl p-8 md:p-10 text-white max-w-3xl mx-auto shadow-lg">
           <motion.div
             initial={{ scale: 0.9 }}
             whileInView={{ scale: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <span className="text-5xl mb-4 block">🎨</span>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 font-serif">
+            <span className="text-3xl mb-3 block">🎨</span>
+            <h2 className="text-2xl md:text-3xl font-bold mb-3 font-serif">
               Looking for something unique?
             </h2>
-            <p className="text-lg text-white/90 mb-8 max-w-xl mx-auto leading-relaxed">
-              We create custom pieces tailored to your vision. From personalized
-              gifts to bespoke tableware sets, let's craft something special
-              together.
+            <p className="text-base text-white/90 mb-6 max-w-lg mx-auto leading-relaxed">
+              We create custom pieces tailored to your vision. Let's craft
+              something special together.
             </p>
             <Link
               href="/custom-orders"
-              className="inline-flex items-center gap-2 bg-white text-clay font-bold px-8 py-4 rounded-full transition-all hover:scale-105 hover:shadow-lg"
+              className="inline-flex items-center gap-2 bg-white text-clay font-bold px-6 py-3 rounded-full transition-all hover:scale-105 hover:shadow-lg text-sm md:text-base"
             >
               Request Custom Order
-              <ArrowRight size={20} />
+              <ArrowRight size={18} />
             </Link>
           </motion.div>
         </div>
