@@ -22,47 +22,6 @@ export async function GET(req: Request) {
         if (toParam) endDate = new Date(toParam);
         endDate.setHours(23, 59, 59, 999); // End of the day
 
-        // 2. Summary Stats (Filtered)
-        const totalStats = await Order.aggregate([
-            {
-                $match: {
-                    createdAt: {
-                        $gte: startDate,
-                        $lte: endDate
-                    }
-                }
-            },
-            {
-                $group: {
-                    _id: null,
-                    totalRevenue: {
-                        $sum: {
-                            $cond: [{ $eq: ["$status", "cancelled"] }, 0, "$total"]
-                        }
-                    },
-                    totalOrders: { $sum: 1 },
-                    cancelledOrders: {
-                        $sum: {
-                            $cond: [{ $eq: ["$status", "cancelled"] }, 1, 0]
-                        }
-                    },
-                    cancelledRevenue: {
-                        $sum: {
-                            $cond: [{ $eq: ["$status", "cancelled"] }, "$total", 0]
-                        }
-                    },
-                    avgOrderValue: {
-                        $avg: {
-                            $cond: [{ $ne: ["$status", "cancelled"] }, "$total", null]
-                        }
-                    }
-                }
-            }
-        ]);
-
-        const stats = totalStats[0] || { totalRevenue: 0, totalOrders: 0, avgOrderValue: 0 };
-
-        // 3. Sales over time (Granularity)
         // Determine Granularity based on range
         const diffTime = endDate.getTime() - startDate.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -74,77 +33,124 @@ export async function GET(req: Request) {
             dateFormat = "%Y-%m"; // Monthly for > 4 months
         }
 
-        const salesOverTime = await Order.aggregate([
-            {
-                $match: {
-                    createdAt: {
-                        $gte: startDate,
-                        $lte: endDate
-                    }
-                }
-            },
-            {
-                $group: {
-                    _id: { $dateToString: { format: dateFormat, date: "$createdAt", timezone: "+05:30" } },
-                    orders: { $sum: 1 },
-                    revenue: {
-                        $sum: {
-                            $cond: [{ $eq: ["$status", "cancelled"] }, 0, "$total"]
-                        }
-                    },
-                    cancelled: {
-                        $sum: {
-                            $cond: [{ $eq: ["$status", "cancelled"] }, 1, 0]
-                        }
-                    }
-                }
-            },
-            { $sort: { _id: 1 } }
-        ]);
-        // 4. Top Products (By Revenue)
-        const topProducts = await Order.aggregate([
-            { $unwind: "$items" },
-            {
-                $group: {
-                    _id: "$items.name",
-                    totalSold: { $sum: "$items.quantity" },
-                    revenue: { $sum: { $multiply: ["$items.price", "$items.quantity"] } }
-                }
-            },
-            { $sort: { revenue: -1 } },
-            { $limit: 5 }
-        ]);
-
-        // 5. Recent Orders (Last 5)
-        const recentOrders = await Order.find({})
-            .sort({ createdAt: -1 })
-            .limit(5)
-            .populate("userId", "name email")
-            .select("orderNumber total status createdAt userId paymentStatus")
-            .lean();
-
-        // 6. Today's Stats
         const startOfToday = new Date();
         startOfToday.setHours(0, 0, 0, 0);
 
-        const todayStats = await Order.aggregate([
-            { $match: { createdAt: { $gte: startOfToday } } },
-            {
-                $group: {
-                    _id: null,
-                    revenue: { $sum: "$total" },
-                    orders: { $sum: 1 }
+        // Execute all queries in parallel
+        const [totalStats, salesOverTime, topProducts, recentOrders, todayStats, targetSetting] = await Promise.all([
+            // 2. Summary Stats
+            Order.aggregate([
+                {
+                    $match: {
+                        createdAt: {
+                            $gte: startDate,
+                            $lte: endDate
+                        }
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        totalRevenue: {
+                            $sum: {
+                                $cond: [{ $eq: ["$status", "cancelled"] }, 0, "$total"]
+                            }
+                        },
+                        totalOrders: { $sum: 1 },
+                        cancelledOrders: {
+                            $sum: {
+                                $cond: [{ $eq: ["$status", "cancelled"] }, 1, 0]
+                            }
+                        },
+                        cancelledRevenue: {
+                            $sum: {
+                                $cond: [{ $eq: ["$status", "cancelled"] }, "$total", 0]
+                            }
+                        },
+                        avgOrderValue: {
+                            $avg: {
+                                $cond: [{ $ne: ["$status", "cancelled"] }, "$total", null]
+                            }
+                        }
+                    }
                 }
-            }
+            ]),
+
+            // 3. Sales over time
+            Order.aggregate([
+                {
+                    $match: {
+                        createdAt: {
+                            $gte: startDate,
+                            $lte: endDate
+                        }
+                    }
+                },
+                {
+                    $group: {
+                        _id: { $dateToString: { format: dateFormat, date: "$createdAt", timezone: "+05:30" } },
+                        orders: { $sum: 1 },
+                        revenue: {
+                            $sum: {
+                                $cond: [{ $eq: ["$status", "cancelled"] }, 0, "$total"]
+                            }
+                        },
+                        cancelled: {
+                            $sum: {
+                                $cond: [{ $eq: ["$status", "cancelled"] }, 1, 0]
+                            }
+                        }
+                    }
+                },
+                { $sort: { _id: 1 } }
+            ]),
+
+            // 4. Top Products
+            Order.aggregate([
+                { $unwind: "$items" },
+                {
+                    $group: {
+                        _id: "$items.name",
+                        totalSold: { $sum: "$items.quantity" },
+                        revenue: { $sum: { $multiply: ["$items.price", "$items.quantity"] } }
+                    }
+                },
+                { $sort: { revenue: -1 } },
+                { $limit: 5 }
+            ]),
+
+            // 5. Recent Orders
+            Order.find({})
+                .sort({ createdAt: -1 })
+                .limit(5)
+                .populate("userId", "name email")
+                .select("orderNumber total status createdAt userId paymentStatus")
+                .lean(),
+
+            // 6. Today's Stats
+            Order.aggregate([
+                { $match: { createdAt: { $gte: startOfToday } } },
+                {
+                    $group: {
+                        _id: null,
+                        revenue: { $sum: "$total" },
+                        orders: { $sum: 1 }
+                    }
+                }
+            ]),
+
+            // 7. Target Setting
+            // @ts-ignore
+            Settings.findOne({ key: 'dailyRevenueTarget' })
         ]);
+
+        const stats = totalStats[0] || { totalRevenue: 0, totalOrders: 0, avgOrderValue: 0 };
         const today = todayStats[0] || { revenue: 0, orders: 0 };
 
-        // 7. Fetch Target
-        // @ts-ignore
-        let targetSetting = await Settings.findOne({ key: 'dailyRevenueTarget' });
+        let finalTarget = targetSetting?.value || 50000;
         if (!targetSetting) {
-            // @ts-ignore
-            targetSetting = await Settings.create({ key: 'dailyRevenueTarget', value: 50000 });
+            // Create default if missing (fire and forget or await, safe to await briefly)
+            await Settings.create({ key: 'dailyRevenueTarget', value: 50000 });
         }
 
         return NextResponse.json({
@@ -157,7 +163,7 @@ export async function GET(req: Request) {
             topProducts: topProducts.map(p => ({ name: p._id, revenue: p.revenue, sold: p.totalSold })),
             recentOrders,
             today,
-            target: targetSetting.value
+            target: finalTarget
         });
 
     } catch (error) {
@@ -173,7 +179,6 @@ export async function POST(req: Request) {
 
         const { target } = await req.json();
         if (target) {
-            // @ts-ignore
             await Settings.findOneAndUpdate(
                 { key: 'dailyRevenueTarget' },
                 { value: target },

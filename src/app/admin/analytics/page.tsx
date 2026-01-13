@@ -245,7 +245,7 @@ export default function AnalyticsPage() {
                                     </div>
                                     <div className="text-right">
                                         <p className="text-sm font-bold">₹{order.total.toLocaleString()}</p>
-                                        <span className={`text - [10px] px - 2 py - 0.5 rounded - full ${order.status === 'delivered' ? 'bg-green-100 text-green-700' : order.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'} `}>
+                                        <span className={`text-[10px] px-2 py-0.5 rounded-full ${order.status === 'delivered' ? 'bg-green-100 text-green-700' : order.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'} `}>
                                             {order.status}
                                         </span>
                                     </div>
@@ -287,13 +287,13 @@ export default function AnalyticsPage() {
                             <div className="flex bg-slate-100 p-1 rounded-full text-xs font-medium">
                                 <button
                                     onClick={() => setChartMode('revenue')}
-                                    className={`px - 4 py - 1.5 rounded - full transition - shadow ${chartMode === 'revenue' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'} `}
+                                    className={`px-4 py-1.5 rounded-full transition-shadow ${chartMode === 'revenue' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'} `}
                                 >
                                     Overview
                                 </button>
                                 <button
                                     onClick={() => setChartMode('orders')}
-                                    className={`px - 4 py - 1.5 rounded - full transition - shadow ${chartMode === 'orders' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'} `}
+                                    className={`px-4 py-1.5 rounded-full transition-shadow ${chartMode === 'orders' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'} `}
                                 >
                                     Breakdown
                                 </button>
@@ -366,7 +366,7 @@ export default function AnalyticsPage() {
                                         <div className="w-full bg-slate-100 rounded-full h-2">
                                             <div
                                                 className="bg-slate-800 h-2 rounded-full"
-                                                style={{ width: `${(product.revenue / data.summary.totalRevenue) * 100}% ` }}
+                                                style={{ width: `${(product.revenue / data.summary.totalRevenue) * 100}%` }}
                                             />
                                         </div>
                                     </div>

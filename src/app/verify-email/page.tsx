@@ -191,10 +191,10 @@ function VerifyEmailContent() {
 
           {/* Back to Login */}
           <Link
-            href="/login"
+            href="/signup"
             className="text-gray-600 hover:text-gray-800 font-medium"
           >
-            ← Back to login
+            ← Back to sign up
           </Link>
         </div>
       </div>
