@@ -64,7 +64,7 @@ export default function InvoicePage() {
             </div>
 
             {/* Info Grid */}
-            <div className="grid grid-cols-2 gap-12 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-12">
                 <div>
                     <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Billed To</h3>
                     <p className="font-bold text-lg">{order.shippingAddress?.name || order.userId?.name}</p>
@@ -95,30 +95,32 @@ export default function InvoicePage() {
             </div>
 
             {/* Table */}
-            <table className="w-full mb-12">
-                <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider text-left">
-                    <tr>
-                        <th className="py-3 px-4 rounded-l-lg">Item</th>
-                        <th className="py-3 px-4 text-center">Qty</th>
-                        <th className="py-3 px-4 text-right">Price</th>
-                        <th className="py-3 px-4 text-right rounded-r-lg">Total</th>
-                    </tr>
-                </thead>
-                <tbody className="text-sm">
-                    {order.items.map((item: any, i: number) => (
-                        <tr key={i} className="border-b border-slate-50 last:border-none">
-                            <td className="py-4 px-4 font-medium">
-                                {item.name}
-                                {item.status === 'cancelled' && <span className="ml-2 text-xs text-red-500">(Cancelled)</span>}
-                                {item.status === 'refunded' && <span className="ml-2 text-xs text-orange-500">(Refunded)</span>}
-                            </td>
-                            <td className="py-4 px-4 text-center">{item.quantity}</td>
-                            <td className="py-4 px-4 text-right">₹{item.price.toLocaleString()}</td>
-                            <td className="py-4 px-4 text-right font-bold">₹{(item.price * item.quantity).toLocaleString()}</td>
+            <div className="overflow-x-auto mb-12">
+                <table className="w-full min-w-[600px]">
+                    <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider text-left">
+                        <tr>
+                            <th className="py-3 px-4 rounded-l-lg">Item</th>
+                            <th className="py-3 px-4 text-center">Qty</th>
+                            <th className="py-3 px-4 text-right">Price</th>
+                            <th className="py-3 px-4 text-right rounded-r-lg">Total</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody className="text-sm">
+                        {order.items.map((item: any, i: number) => (
+                            <tr key={i} className="border-b border-slate-50 last:border-none">
+                                <td className="py-4 px-4 font-medium">
+                                    {item.name}
+                                    {item.status === 'cancelled' && <span className="ml-2 text-xs text-red-500">(Cancelled)</span>}
+                                    {item.status === 'refunded' && <span className="ml-2 text-xs text-orange-500">(Refunded)</span>}
+                                </td>
+                                <td className="py-4 px-4 text-center">{item.quantity}</td>
+                                <td className="py-4 px-4 text-right">₹{item.price.toLocaleString()}</td>
+                                <td className="py-4 px-4 text-right font-bold">₹{(item.price * item.quantity).toLocaleString()}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
 
             {/* Totals */}
             <div className="flex justify-end mb-12">

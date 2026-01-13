@@ -100,15 +100,15 @@ export default function UserContactsAdmin() {
         <h1 className="text-3xl font-serif font-bold text-soil">User Contacts</h1>
       </div>
 
-      <div className="mb-6 flex items-center gap-3">
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name, email, subject" className="input-field px-3 py-2 rounded-md" />
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="input-field px-3 py-2 rounded-md">
+      <div className="mb-6 flex flex-col md:flex-row md:items-center gap-3">
+        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name, email, subject" className="input-field px-3 py-2 rounded-md w-full md:w-auto flex-1" />
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="input-field px-3 py-2 rounded-md w-full md:w-auto">
           <option value="all">All</option>
           <option value="new">New</option>
           <option value="read">Read</option>
           <option value="replied">Replied</option>
         </select>
-        <button onClick={() => { setPage(1); fetchMessages(); }} className="bg-clay text-white px-4 py-2 rounded-md">Search</button>
+        <button onClick={() => { setPage(1); fetchMessages(); }} className="bg-clay text-white px-4 py-2 rounded-md w-full md:w-auto">Search</button>
       </div>
 
       {error && <div className="mb-4 text-red-600">{error}</div>}
@@ -158,7 +158,7 @@ export default function UserContactsAdmin() {
 
                   <td className="p-3 align-top text-sm text-soil/60">{m.phone || '-'}</td>
 
-                  <td className="p-3 align-top" style={{cursor: 'pointer'}} onClick={() => setSelected(m)}>
+                  <td className="p-3 align-top" style={{ cursor: 'pointer' }} onClick={() => setSelected(m)}>
                     <div className="font-medium text-clay underline">{m.subject || 'Query'}</div>
                   </td>
 

@@ -148,7 +148,7 @@ export default function AdminCustomOrdersPage() {
   };
 
   return (
-    <div className="min-h-screen py-12 px-4 md:px-8">
+    <div className="min-h-screen py-8 px-4 md:py-12 md:px-8">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <Link href="/admin" className="text-soil/60 hover:text-clay">← Admin Home</Link>
@@ -183,7 +183,7 @@ export default function AdminCustomOrdersPage() {
               <p className="text-soil/60">Wait for customers to submit requests.</p>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden overflow-x-auto">
               <table className="w-full text-left">
                 <thead className="bg-sand/30 text-soil/70 font-medium">
                   <tr>
@@ -290,7 +290,7 @@ export default function AdminCustomOrdersPage() {
           <div className="grid gap-6">
             <h2 className="text-xl font-semibold">Existing Entries</h2>
             {previousOrders.map((order) => (
-              <div key={order._id} className="bg-white p-4 rounded-lg shadow border flex gap-4">
+              <div key={order._id} className="bg-white p-4 rounded-lg shadow border flex flex-col md:flex-row gap-4">
                 <div className="w-32 h-32 relative flex-shrink-0">
                   {order.images[0] && (
                     <img

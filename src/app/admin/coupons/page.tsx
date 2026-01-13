@@ -138,7 +138,7 @@ export default function AdminCouponsPage() {
                                 required
                             />
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-soil mb-1">Valid From</label>
                                 <input
@@ -233,7 +233,7 @@ export default function AdminCouponsPage() {
                             return (
                                 <div
                                     key={coupon._id}
-                                    className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center"
+                                    className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row md:justify-between md:items-center gap-4"
                                 >
                                     <div>
                                         <div className="flex items-center gap-3 mb-1">

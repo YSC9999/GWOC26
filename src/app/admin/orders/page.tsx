@@ -169,7 +169,7 @@ export default function AdminOrdersPage() {
 
                   <div className="flex items-center gap-6" onClick={(e) => e.stopPropagation()}>
                     {order.status !== 'cancelled' ? (
-                      <div className="flex items-center gap-3 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                      <div className="flex flex-wrap items-center gap-3 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
                         <label className="flex items-center gap-2 text-xs cursor-pointer select-none">
                           <input type="checkbox" checked={checked.confirmed} onChange={(e) => handleCheckboxChange(order, 'confirmed', e.target.checked)} className="rounded text-clay focus:ring-clay" />
                           <span>Confirmed</span>

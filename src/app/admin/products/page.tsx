@@ -210,7 +210,7 @@ export default function AdminProductsPage() {
       </div>
 
       {/* ADD PRODUCT FORM */}
-      <motion.div variants={itemVariants} className="bg-white p-6 rounded-2xl shadow-sm border border-soil/10">
+      <motion.div variants={itemVariants} className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-soil/10">
         <h2 className="text-xl font-bold text-soil mb-4 flex items-center gap-2">
           <span>✨</span> Add New Product
         </h2>
@@ -340,7 +340,7 @@ export default function AdminProductsPage() {
       {/* PRODUCT TABLE and PAGINATION */}
       <div className="border rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full table-fixed">
+          <table className="w-full table-fixed min-w-[800px]">
             <thead className="bg-gray-50 text-soil/80 border-b">
               <tr>
                 <th className="w-4/12 p-3 text-left font-semibold">Name</th>

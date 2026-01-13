@@ -1,4 +1,4 @@
-"use client";
+ "use client";
 import React from "react";
 import { X, MapPin, CreditCard, Package, User, Mail, Phone, Calendar } from "lucide-react";
 

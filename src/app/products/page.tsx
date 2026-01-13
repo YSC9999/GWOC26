@@ -241,7 +241,7 @@ export default function Products() {
         className="mb-8 px-4"
       >
         {/* Search with Filter Button */}
-        <div className="flex gap-3 items-center max-w-4xl mx-auto mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 items-center max-w-4xl mx-auto mb-6">
           <div className="relative flex-1">
             <Search
               className="absolute left-4 top-1/2 -translate-y-1/2 text-soil/50"

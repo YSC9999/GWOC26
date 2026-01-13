@@ -74,7 +74,7 @@ export default function AdminWalletPage() {
     };
 
     return (
-        <div className="p-8 max-w-4xl mx-auto">
+        <div className="p-4 md:p-8 max-w-4xl mx-auto">
             <h1 className="text-4xl font-serif font-bold text-soil mb-8 flex items-center gap-3">
                 <Wallet className="w-10 h-10" /> Wallet Management
             </h1>

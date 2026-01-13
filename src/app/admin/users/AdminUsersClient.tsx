@@ -114,17 +114,17 @@ export default function AdminUsers() {
         <h1 className="text-3xl font-serif font-bold text-soil">User Management</h1>
       </div>
 
-      <div className="mb-6 flex items-center gap-3">
-        <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder="Search by name or email" className="input-field px-3 py-2 rounded-md" />
-        <select value={role} onChange={(e) => setRole(e.target.value)} className="input-field px-3 py-2 rounded-md">
+      <div className="mb-6 flex flex-col md:flex-row md:items-center gap-3">
+        <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder="Search by name or email" className="input-field px-3 py-2 rounded-md w-full md:w-auto flex-1" />
+        <select value={role} onChange={(e) => setRole(e.target.value)} className="input-field px-3 py-2 rounded-md w-full md:w-auto">
           <option value="all">All</option>
           <option value="customer">Customer</option>
           <option value="employee">Employee</option>
           <option value="admin">Admin</option>
         </select>
-        <button onClick={() => { setPage(1); fetchUsers(); }} className="bg-clay text-white px-4 py-2 rounded-md">Search</button>
-        <div className="ml-auto">
-          <button onClick={() => setShowAdd(true)} className="bg-green-600 text-white px-4 py-2 rounded">Add User</button>
+        <button onClick={() => { setPage(1); fetchUsers(); }} className="bg-clay text-white px-4 py-2 rounded-md w-full md:w-auto">Search</button>
+        <div className="ml-auto w-full md:w-auto">
+          <button onClick={() => setShowAdd(true)} className="bg-green-600 text-white px-4 py-2 rounded w-full md:w-auto">Add User</button>
         </div>
       </div>
 

@@ -80,25 +80,25 @@ export default function AnalyticsPage() {
     return (
         <div className="min-h-screen bg-[#F4F5F7] p-6 font-sans text-slate-800" onClick={() => setTargetMenuOpen(false)}>
             {/* Header */}
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                 <div className="flex items-center gap-4">
                     <Link href="/admin" className="text-slate-400 hover:text-slate-600">← Admin</Link>
                     <h1 className="text-2xl font-bold">Analytics Dashboard</h1>
                 </div>
 
-                <div className="flex items-center gap-3 bg-white p-2 rounded-xl shadow-sm">
+                <div className="flex w-full md:w-auto items-center justify-between md:justify-end gap-3 bg-white p-2 rounded-xl shadow-sm">
                     <input
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        className="text-xs bg-slate-50 border-none rounded-lg p-2 focus:ring-0"
+                        className="text-xs bg-slate-50 border-none rounded-lg p-2 focus:ring-0 w-full md:w-auto"
                     />
                     <span className="text-slate-300">-</span>
                     <input
                         type="date"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
-                        className="text-xs bg-slate-50 border-none rounded-lg p-2 focus:ring-0"
+                        className="text-xs bg-slate-50 border-none rounded-lg p-2 focus:ring-0 w-full md:w-auto"
                     />
                     <button onClick={fetchAnalytics} className="bg-slate-900 text-white p-2 rounded-lg hover:bg-slate-800">
                         <Filter size={16} />

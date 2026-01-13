@@ -148,8 +148,8 @@ export default function AdminCollections() {
     };
 
     return (
-        <div className="p-8 max-w-7xl mx-auto">
-            <div className="flex justify-between items-center mb-8">
+        <div className="p-4 md:p-8 max-w-7xl mx-auto">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
                 <h1 className="text-3xl font-bold text-soil font-serif">Featured Collections</h1>
                 {!isEditing && (
                     <button

@@ -103,7 +103,7 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-clay/10 -m-8 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-clay/10 -m-4 p-4 md:-m-8 md:p-8">
       <motion.div
         initial="hidden"
         animate="visible"
@@ -127,7 +127,7 @@ export default function AdminDashboard() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {adminLinks.map((link, idx) => (
             <motion.div
               key={link.href}
