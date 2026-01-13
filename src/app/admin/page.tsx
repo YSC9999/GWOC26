@@ -73,7 +73,7 @@ export default function AdminDashboard() {
     {
       href: "/admin/users",
       label: "Users",
-      desc: "Manage accounts & employees",
+      desc: "Manage accounts",
       icon: <Users size={32} />,
     },
     {
