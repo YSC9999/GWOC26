@@ -28,6 +28,7 @@ export interface IUser extends Document {
   usedCoupons: string[];
   tier: "tier-0" | "tier-1" | "tier-2" | "tier-3";
   subscriptionActive: boolean;
+  walletBalance: number;
 
   emailVerified: boolean;
   emailVerificationOTP?: string;
@@ -77,7 +78,10 @@ const UserSchema = new Schema<IUser>({
     enum: ["tier-0", "tier-1", "tier-2", "tier-3"],
     default: "tier-0"
   },
-
+  walletBalance: {
+    type: Number,
+    default: 0
+  },
 
   emailVerificationOTP: String,
   otpExpiry: Date,
