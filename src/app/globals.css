@@ -33,7 +33,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-berkshire-swash), "Playfair Display", serif;
   font-weight: 600;
   color: #5A3E36;
 }
@@ -48,6 +48,7 @@ a {
 }
 
 button {
+  font-family: var(--font-edu-nsw-act), "Inter", sans-serif;
   transition: all 0.3s ease;
   cursor: pointer;
 }

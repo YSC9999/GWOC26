@@ -116,7 +116,11 @@ export default function Navbar() {
 
         {/* Desktop Menu */}
         <div className="hidden lg:flex items-center gap-1 xl:gap-2 flex-1 ml-4 lg:ml-8">
-          <div className="flex gap-1 uppercase text-xs tracking-widest font-medium text-[#5A3E36]/80 relative flex-wrap justify-center" onMouseLeave={() => setHoveredPath(null)}>
+          <div
+            className="flex gap-1 uppercase text-xs tracking-widest font-medium text-[#5A3E36]/80 relative flex-wrap justify-center"
+            style={{ fontFamily: "var(--font-edu-nsw-act)" }}
+            onMouseLeave={() => setHoveredPath(null)}
+          >
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               const isHovered = hoveredPath === link.href;
@@ -125,23 +129,39 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   onMouseEnter={() => setHoveredPath(link.href)}
-                  className={`relative px-3 py-2 rounded-full z-10 transition-colors duration-200 group ${isActive ? "text-[#EFE5D8]" : isHovered ? "text-[#C97C5D]" : "hover:text-[#C97C5D]"}`}
+                  className={`relative px-3 py-2 rounded-full transition-colors duration-200 group ${
+                    isActive
+                      ? "text-[#EFE5D8]"
+                      : isHovered
+                      ? "text-[#C97C5D]"
+                      : "hover:text-[#C97C5D]"
+                  }`}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="active-nav-pill"
-                      className="absolute inset-0 bg-[#C97C5D] rounded-full -z-10"
-                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      className="absolute inset-0 bg-[#C97C5D] rounded-full"
+                      style={{ zIndex: -1 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 30,
+                      }}
                     />
                   )}
                   {isHovered && !isActive && (
                     <motion.div
                       layoutId="hover-nav-pill"
-                      className="absolute inset-0 bg-[#C97C5D]/10 rounded-full -z-10"
+                      className="absolute inset-0 bg-[#C97C5D]/10 rounded-full"
+                      style={{ zIndex: -1 }}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 30,
+                      }}
                     />
                   )}
 
@@ -153,10 +173,18 @@ export default function Navbar() {
                       transition={{ duration: 0.15, ease: "easeInOut" }}
                       className="flex flex-col items-center"
                     >
-                      <span className={`block ${isActive ? "font-bold" : "font-semibold"}`}>
+                      <span
+                        className={`block ${
+                          isActive ? "font-bold" : "font-semibold"
+                        }`}
+                      >
                         {link.label}
                       </span>
-                      <span className={`block absolute top-full ${isActive ? "font-bold" : "font-semibold"}`}>
+                      <span
+                        className={`block absolute top-full ${
+                          isActive ? "font-bold" : "font-semibold"
+                        }`}
+                      >
                         {link.label}
                       </span>
                     </motion.div>
@@ -176,18 +204,22 @@ export default function Navbar() {
                       href="/account/wishlist"
                       className="relative text-[#5A3E36] hover:text-[#C97C5D] transition-colors p-2"
                     >
-                      <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}>
+                      <motion.div
+                        whileHover={{ scale: 1.2 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
                         <Heart size={20} />
                       </motion.div>
                     </Link>
-
-
 
                     <Link
                       href="/cart"
                       className="relative text-[#5A3E36] hover:text-[#C97C5D] transition-colors p-2"
                     >
-                      <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}>
+                      <motion.div
+                        whileHover={{ scale: 1.2 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
                         <ShoppingBag size={20} />
                         {cartCount > 0 && (
                           <motion.span
@@ -208,7 +240,11 @@ export default function Navbar() {
                   <div className="flex gap-2 lg:gap-3 items-center flex-shrink-0">
                     <Link href="/login">
                       <motion.button
-                        whileHover={{ scale: 1.05, backgroundColor: "rgba(90, 62, 54, 0.1)", boxShadow: "0 4px 12px rgba(90, 62, 54, 0.1)" }}
+                        whileHover={{
+                          scale: 1.05,
+                          backgroundColor: "rgba(90, 62, 54, 0.1)",
+                          boxShadow: "0 4px 12px rgba(90, 62, 54, 0.1)",
+                        }}
                         whileTap={{ scale: 0.95 }}
                         className="text-xs uppercase tracking-widest px-3 py-2 border border-[#5A3E36] rounded-lg text-[#5A3E36] font-bold whitespace-nowrap transition-all"
                       >
@@ -217,7 +253,10 @@ export default function Navbar() {
                     </Link>
                     <Link href="/signup">
                       <motion.button
-                        whileHover={{ scale: 1.05, boxShadow: "0 4px 12px rgba(201, 124, 93, 0.3)" }}
+                        whileHover={{
+                          scale: 1.05,
+                          boxShadow: "0 4px 12px rgba(201, 124, 93, 0.3)",
+                        }}
                         whileTap={{ scale: 0.95 }}
                         className="text-xs uppercase tracking-widest px-3 py-2 bg-[#5A3E36] text-[#EFE5D8] rounded-lg hover:bg-[#C97C5D] transition font-bold whitespace-nowrap"
                       >
@@ -272,8 +311,6 @@ export default function Navbar() {
 
                           {/* Cart Removed from Dropdown */}
 
-
-
                           <button
                             onClick={handleLogout}
                             className="w-full flex items-center gap-3 px-5 py-3 hover:bg-red-50 text-sm text-red-600 transition-colors font-medium border-t border-[#5A3E36]/10"
@@ -310,7 +347,10 @@ export default function Navbar() {
             transition={{ type: "spring", stiffness: 200, damping: 25 }}
             className="lg:hidden bg-[#EFE5D8] border-4 border-[#5A3E36] rounded-2xl mt-1 mx-auto w-11/12 max-w-6xl px-5 py-6 absolute top-16 md:top-24 z-40 shadow-2xl"
           >
-            <div className="flex flex-col space-y-4 uppercase tracking-widest text-xs text-center text-[#5A3E36]">
+            <div
+              className="flex flex-col space-y-4 uppercase tracking-widest text-xs text-center text-[#5A3E36]"
+              style={{ fontFamily: "var(--font-edu-nsw-act)" }}
+            >
               {navLinks.map((link) => (
                 <Link
                   key={link.href}

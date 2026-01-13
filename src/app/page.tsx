@@ -115,7 +115,7 @@ export default function Home() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="relative w-full px-4 md:px-12 py-20 md:py-28"
+        className="relative w-full px-4 md:px-12 py-12 md:py-16"
       >
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
@@ -125,7 +125,8 @@ export default function Home() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
-                className="text-3xl md:text-6xl lg:text-7xl font-serif font-bold text-soil mb-4 md:mb-6 leading-tight italic"
+                className="text-3xl md:text-6xl lg:text-7xl font-bold text-soil mb-4 md:mb-6 leading-tight"
+                style={{ fontFamily: "var(--font-kaushan-script)" }}
               >
                 A Quiet Splash
                 <br />
@@ -136,7 +137,8 @@ export default function Home() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.8 }}
-                className="text-sm md:text-lg lg:text-xl text-soil/80 mb-6 md:mb-12 font-light"
+                className="text-sm md:text-lg lg:text-xl text-soil/100 mb-6 md:mb-12"
+                style={{ fontFamily: "var(--font-berkshire-swash)" }}
               >
                 Artistry for the home and the self. Discover a curated
                 collection of fashion designed to reflect your unique story with
@@ -165,8 +167,7 @@ export default function Home() {
             </div>
 
             {/* Right Image Grid - Responsive Handling */}
-            <div className="relative pt-12 w-full min-h-[50vh] md:h-screen md:pt-12">
-
+            <div className="relative pt-12 w-full min-h-[50vh] md:h-screen md:pt-6">
               {/* Desktop: Absolute Positioned Scattered Frames */}
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
@@ -256,7 +257,9 @@ export default function Home() {
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ delay: frame.id * 0.05 }}
                       className="aspect-square rounded-lg overflow-hidden border border-soil/20 shadow-sm"
-                      style={{ backgroundColor: product ? "white" : frame.color }}
+                      style={{
+                        backgroundColor: product ? "white" : frame.color,
+                      }}
                       onClick={() => {
                         if (product) {
                           setSelectedProductId(product._id);

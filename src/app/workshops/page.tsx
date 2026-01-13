@@ -319,26 +319,6 @@ export default function Workshops() {
     <div className="min-h-screen py-12">
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
 
-      {/* Hero Section */}
-      <motion.section
-        initial="hidden"
-        animate="visible"
-        variants={fadeInUp}
-        className="text-center mb-16"
-      >
-        <span className="inline-block text-clay font-medium mb-4 tracking-wider uppercase">
-          Learn the Art
-        </span>
-        <h1 className="text-5xl md:text-6xl font-bold text-soil mb-6 font-serif">
-          Pottery Workshops
-        </h1>
-        <p className="text-xl text-soil/70 max-w-3xl mx-auto leading-relaxed">
-          Discover the meditative joy of working with clay. From beginner
-          wheel-throwing to advanced techniques, find the perfect workshop for
-          your journey.
-        </p>
-      </motion.section>
-
       {/* Featured Workshops Slider */}
       {workshops.length > 0 && (
         <section className="mb-16 px-4">
@@ -461,18 +441,6 @@ export default function Workshops() {
                   <div className="absolute top-4 left-4">
                     <span className="bg-soil text-white text-sm font-medium px-4 py-1.5 rounded-full">
                       {typeLabels[workshop.type] || workshop.type}
-                    </span>
-                  </div>
-
-                  {/* Level Badge */}
-                  <div className="absolute top-4 right-4">
-                    <span
-                      className={`text-sm font-medium px-3 py-1 rounded-full ${levelColors[workshop.level] || levelColors["all-levels"]
-                        }`}
-                    >
-                      {workshop.level === "all-levels"
-                        ? "All Levels"
-                        : workshop.level}
                     </span>
                   </div>
 

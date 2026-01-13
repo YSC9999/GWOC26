@@ -134,9 +134,6 @@ export default function Cart() {
 
   const calculateTotal = () => {
     const subtotal = total();
-    // Enforce free shipping if subtotal > 2000, overriding Shiprocket cost
-    const finalShipping = subtotal > 2000 ? 0 : (shippingCost !== null ? shippingCost : 150);
-
     let discountAmount = 0;
     if (appliedCoupon) {
       discountAmount = (subtotal * appliedCoupon.discountPercentage) / 100;
@@ -147,9 +144,9 @@ export default function Cart() {
 
     return {
       subtotal,
-      shipping: finalShipping,
+      shipping: shippingCost,
       discount: discountAmount,
-      total: subtotal + finalShipping - discountAmount
+      total: subtotal + shippingCost - discountAmount
     };
   };
 
