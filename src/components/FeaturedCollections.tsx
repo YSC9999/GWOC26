@@ -108,7 +108,7 @@ export default function FeaturedCollections({ collections }: FeaturedCollections
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
-            className="border-b border-soil/5 py-12"
+            className="border-b border-soil/5"
         >
             <div className="text-center mb-8 px-4">
                 <motion.h2

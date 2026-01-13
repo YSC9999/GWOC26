@@ -120,7 +120,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             {/* Left Content */}
-            <div className="relative z-10 pt-12">
+            <div className="relative z-10 pt-14">
               <motion.h1
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -129,7 +129,7 @@ export default function Home() {
                 style={{ fontFamily: "var(--font-kaushan-script)" }}
               >
                 A Quiet Splash
-                <br />
+                <br/>
                 in Every Piece
               </motion.h1>
 
@@ -142,7 +142,7 @@ export default function Home() {
               >
                 Artistry for the home and the self. Discover a curated
                 collection of fashion designed to reflect your unique story with
-                grace and intention.
+                grace and intention crafted with love and affection.
               </motion.p>
 
               <motion.div
