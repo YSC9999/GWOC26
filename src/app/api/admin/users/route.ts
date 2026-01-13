@@ -49,7 +49,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
-    const allowedRoles = ["customer", "admin", "employee"];
+    const allowedRoles = ["customer", "admin"];
     if (!allowedRoles.includes(role)) {
       return NextResponse.json({ error: "Invalid role" }, { status: 400 });
     }

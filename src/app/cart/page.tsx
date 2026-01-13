@@ -3,10 +3,23 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Script from "next/script";
 import { motion } from "framer-motion";
-import { Trash2, ShoppingBag, ArrowRight, MapPin, Plus, Loader2, Check, Minus, MoreVertical, Edit2 } from "lucide-react";
+import {
+  Trash2,
+  ShoppingBag,
+  ArrowRight,
+  MapPin,
+  Plus,
+  Loader2,
+  Check,
+  Minus,
+  MoreVertical,
+  Edit2,
+} from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import { useRouter } from "next/navigation";
+import OrderSuccessCards from "@/components/OrderSuccessCards";
+import { EmailConfirmationToast } from "@/components/EmailConfirmationToast";
 
 export default function Cart() {
   const { items, updateQty, remove, total, clear } = useCart();
@@ -14,7 +27,11 @@ export default function Cart() {
   // Coupon State
   const [checkoutStep, setCheckoutStep] = useState(1); // 1: Cart, 2: Address, 3: Success
   const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountPercentage: number; maxDiscountAmount?: number } | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discountPercentage: number;
+    maxDiscountAmount?: number;
+  } | null>(null);
   const [couponError, setCouponError] = useState("");
   const [verifyingCoupon, setVerifyingCoupon] = useState(false);
 
@@ -30,7 +47,7 @@ export default function Cart() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code: couponCode,
-          userId: user?._id // Pass userId for single-use check
+          userId: user?._id, // Pass userId for single-use check
         }),
       });
       const data = await res.json();
@@ -55,11 +72,6 @@ export default function Cart() {
     setCouponError("");
   };
 
-
-
-
-
-
   // Update handleCheckout to include discount info if needed (optional, or just send final total)
   // Ideally, backend should re-verify, but for now we send the total.
   // Actually, better to send the coupon code to backend so it can re-verify and calculate.
@@ -69,10 +81,10 @@ export default function Cart() {
 
   // ... (inside JSX, usually in the Order Summary section)
 
-
-
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
-  const [selectedAddressId, setSelectedAddressId] = useState<string | "new">("new");
+  const [selectedAddressId, setSelectedAddressId] = useState<string | "new">(
+    "new"
+  );
   const [fetchingAddresses, setFetchingAddresses] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null); // For three-dots menu
@@ -137,8 +149,14 @@ export default function Cart() {
     let discountAmount = 0;
     if (appliedCoupon) {
       discountAmount = (subtotal * appliedCoupon.discountPercentage) / 100;
-      if (appliedCoupon.maxDiscountAmount && appliedCoupon.maxDiscountAmount > 0) {
-        discountAmount = Math.min(discountAmount, appliedCoupon.maxDiscountAmount);
+      if (
+        appliedCoupon.maxDiscountAmount &&
+        appliedCoupon.maxDiscountAmount > 0
+      ) {
+        discountAmount = Math.min(
+          discountAmount,
+          appliedCoupon.maxDiscountAmount
+        );
       }
     }
 
@@ -146,15 +164,19 @@ export default function Cart() {
       subtotal,
       shipping: shippingCost,
       discount: discountAmount,
-      total: subtotal + shippingCost - discountAmount
+      total: subtotal + shippingCost - discountAmount,
     };
   };
 
-
-
   const [useWallet, setUseWallet] = useState(false);
 
-  const { subtotal, shipping, discount, total: calculatedTotal, walletUsed } = (() => {
+  const {
+    subtotal,
+    shipping,
+    discount,
+    total: calculatedTotal,
+    walletUsed,
+  } = (() => {
     const { subtotal, shipping, discount, total } = calculateTotal();
     let walletUsed = 0;
     let finalTotal = total;
@@ -175,7 +197,7 @@ export default function Cart() {
   // Populate email from user
   React.useEffect(() => {
     if (user?.email) {
-      setFormData(prev => {
+      setFormData((prev) => {
         // Only update if email is partial or missing to avoid overwriting user edits?
         // Actually, user email should be the source of truth for logged in users.
         if (prev.email !== user.email) {
@@ -187,7 +209,7 @@ export default function Cart() {
   }, [user]);
 
   const fillFormWithAddress = (addr: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       name: addr.name || "",
       email: user?.email || prev.email || "", // Prefer user email, fallback to existing input, then empty
       phone: addr.phone || "",
@@ -195,7 +217,7 @@ export default function Cart() {
       city: addr.city || "",
       state: addr.state || "",
       pincode: addr.pincode || "",
-      country: addr.country || "India"
+      country: addr.country || "India",
     }));
   };
 
@@ -203,12 +225,20 @@ export default function Cart() {
     if (editingAddressId) return; // Disable selection while editing
     setSelectedAddressId(id);
     if (id === "new") {
-      setFormData({ ...formData, street: "", city: "", state: "", pincode: "", phone: "", name: "" });
+      setFormData({
+        ...formData,
+        street: "",
+        city: "",
+        state: "",
+        pincode: "",
+        phone: "",
+        name: "",
+      });
       setPhoneVerified(false);
       setOtpSent(false);
       setShowOtpInput(false);
     } else {
-      const addr = savedAddresses.find(a => a._id === id);
+      const addr = savedAddresses.find((a) => a._id === id);
       if (addr) {
         fillFormWithAddress(addr);
         setPhoneVerified(true); // Saved addresses are trusted
@@ -232,13 +262,23 @@ export default function Cart() {
     if (!confirm("Are you sure you want to delete this address?")) return;
 
     try {
-      const res = await fetch(`/api/user/addresses?id=${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/user/addresses?id=${id}`, {
+        method: "DELETE",
+      });
       if (res.ok) {
         const data = await res.json();
         setSavedAddresses(data.addresses || []);
         if (selectedAddressId === id) {
           setSelectedAddressId("new");
-          setFormData({ ...formData, street: "", city: "", state: "", pincode: "", phone: "", name: "" });
+          setFormData({
+            ...formData,
+            street: "",
+            city: "",
+            state: "",
+            pincode: "",
+            phone: "",
+            name: "",
+          });
           setPhoneVerified(false);
         }
         alert("Address deleted successfully!");
@@ -260,8 +300,8 @@ export default function Cart() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           _id: editingAddressId,
-          ...formData
-        })
+          ...formData,
+        }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -280,12 +320,12 @@ export default function Cart() {
     const { name, value } = e.target;
 
     // Numeric validation for pincode and phone
-    if ((name === 'pincode' || name === 'phone') && !/^\d*$/.test(value)) {
+    if ((name === "pincode" || name === "phone") && !/^\d*$/.test(value)) {
       return;
     }
 
     setFormData({ ...formData, [name]: value });
-    if (name === 'phone' && selectedAddressId === 'new' && !editingAddressId) {
+    if (name === "phone" && selectedAddressId === "new" && !editingAddressId) {
       setPhoneVerified(false);
       setOtpSent(false);
       setShowOtpInput(false);
@@ -300,9 +340,9 @@ export default function Cart() {
     setSendingOtp(true);
     try {
       const res = await fetch("/api/auth/send-phone-otp", {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: formData.phone })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: formData.phone }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -323,9 +363,9 @@ export default function Cart() {
     setVerifyingOtp(true);
     try {
       const res = await fetch("/api/auth/verify-phone-otp", {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: formData.phone, otp })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: formData.phone, otp }),
       });
       if (res.ok) {
         setPhoneVerified(true);
@@ -340,8 +380,6 @@ export default function Cart() {
     }
   };
 
-
-
   // Fetch Shipping Rates
   React.useEffect(() => {
     if (formData.pincode.length === 6) {
@@ -353,13 +391,15 @@ export default function Cart() {
     setCalculatingShipping(true);
     setShippingError("");
     try {
-      const res = await fetch(`/api/shiprocket/serviceability?pincode=${pincode}`);
+      const res = await fetch(
+        `/api/shiprocket/serviceability?pincode=${pincode}`
+      );
       const data = await res.json();
       if (res.ok && data.data?.available_courier_companies) {
         const couriers = data.data.available_courier_companies;
         if (couriers.length > 0) {
           const cheapest = couriers.reduce((prev: any, curr: any) =>
-            (Number(prev.rate) < Number(curr.rate)) ? prev : curr
+            Number(prev.rate) < Number(curr.rate) ? prev : curr
           );
           setShippingCost(Math.ceil(Number(cheapest.rate)));
         } else {
@@ -375,7 +415,6 @@ export default function Cart() {
       setCalculatingShipping(false);
     }
   };
-
 
   const handleCheckout = async () => {
     if (!phoneVerified) {
@@ -399,8 +438,8 @@ export default function Cart() {
             state: formData.state,
             pincode: formData.pincode,
             country: "India",
-            isDefault: savedAddresses.length === 0
-          })
+            isDefault: savedAddresses.length === 0,
+          }),
         });
         // Not blocking on failure, but good to know
       }
@@ -493,14 +532,14 @@ export default function Cart() {
     }
   };
 
-
-
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center py-20 px-4">
           <div className="text-6xl mb-6">🔒</div>
-          <h1 className="text-2xl md:text-3xl font-bold text-soil mb-4 font-serif">Members Only</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-soil mb-4 font-serif">
+            Members Only
+          </h1>
           <p className="text-soil/60 mb-8 max-w-md mx-auto">
             Please login to view your shopping bag and checkout.
           </p>
@@ -522,11 +561,16 @@ export default function Cart() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center py-20 px-4">
           <ShoppingBag className="w-20 h-20 mx-auto text-soil/20 mb-6" />
-          <h1 className="text-3xl font-bold text-soil mb-4 font-serif">Your cart is empty</h1>
+          <h1 className="text-3xl font-bold text-soil mb-4 font-serif">
+            Your cart is empty
+          </h1>
           <p className="text-soil/60 mb-8 max-w-md mx-auto">
             Looks like you haven't discovered our collection yet.
           </p>
-          <Link href="/products" className="inline-flex items-center gap-2 bg-clay text-white px-5 py-2.5 md:px-8 md:py-3 rounded-full font-semibold hover:bg-clay/90 transition-colors text-sm md:text-base">
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-2 bg-clay text-white px-5 py-2.5 md:px-8 md:py-3 rounded-full font-semibold hover:bg-clay/90 transition-colors text-sm md:text-base"
+          >
             Start Shopping <ArrowRight size={18} />
           </Link>
         </div>
@@ -535,26 +579,24 @@ export default function Cart() {
   }
 
   return (
-    <div className="min-h-screen py-12 px-4 md:px-8 max-w-7xl mx-auto" onClick={() => setOpenMenuId(null)}>
+    <div
+      className="min-h-screen py-12 px-4 md:px-8 max-w-7xl mx-auto"
+      onClick={() => setOpenMenuId(null)}
+    >
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
 
       {checkoutStep === 3 ? (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center py-20"
-        >
-          <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8">
-            <Check className="w-12 h-12 text-green-600" />
-          </div>
-          <h1 className="text-2xl md:text-4xl font-bold text-soil mb-4 font-serif">Order Confirmed!</h1>
-          <p className="text-xl text-soil/70 mb-8">
-            Thank you for shopping with Basho. We've sent a confirmation email to {formData.email}.
-          </p>
-          <Link href="/products" className="btn-primary">
-            Continue Shopping
-          </Link>
-        </motion.div>
+        <>
+          <EmailConfirmationToast email={formData.email} duration={3000} />
+          <OrderSuccessCards
+            customerEmail={formData.email}
+            onClose={() => {
+              setCheckoutStep(1);
+              clear();
+              router.push("/products");
+            }}
+          />
+        </>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Main Content */}
@@ -564,22 +606,42 @@ export default function Cart() {
             </h1>
 
             {checkoutStep === 1 ? (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-6"
+              >
                 {items.map((item) => (
-                  <div key={item.id} className="bg-white p-3 md:p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row gap-3 md:gap-6 items-start sm:items-center">
+                  <div
+                    key={item.id}
+                    className="bg-white p-3 md:p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row gap-3 md:gap-6 items-start sm:items-center"
+                  >
                     {/* Image */}
-                    <Link href={`/products/${item.id}`} className="w-full sm:w-20 h-40 sm:h-20 bg-gray-100 rounded-xl overflow-hidden shrink-0 border border-soil/10">
+                    <Link
+                      href={`/products/${item.id}`}
+                      className="w-full sm:w-20 h-40 sm:h-20 bg-gray-100 rounded-xl overflow-hidden shrink-0 border border-soil/10"
+                    >
                       {item.image ? (
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-2xl">🏺</div>
+                        <div className="w-full h-full flex items-center justify-center text-2xl">
+                          🏺
+                        </div>
                       )}
                     </Link>
 
                     {/* Item Info */}
                     <div className="flex-1 w-full sm:w-auto">
-                      <h3 className="text-lg font-bold text-soil">{item.name}</h3>
-                      <p className="text-clay font-semibold">₹{item.price.toLocaleString()}</p>
+                      <h3 className="text-lg font-bold text-soil">
+                        {item.name}
+                      </h3>
+                      <p className="text-clay font-semibold">
+                        ₹{item.price.toLocaleString()}
+                      </p>
                     </div>
 
                     {/* Quantity & Remove Container for Mobile */}
@@ -592,14 +654,17 @@ export default function Cart() {
                         >
                           <Minus size={16} />
                         </button>
-                        <span className="w-8 text-center font-medium">{item.qty}</span>
+                        <span className="w-8 text-center font-medium">
+                          {item.qty}
+                        </span>
                         <button
                           onClick={() => updateQty(item.id, item.qty + 1)}
                           disabled={item.qty >= item.stock}
-                          className={`p-2 transition-colors ${item.qty >= item.stock
-                            ? "text-gray-300 cursor-not-allowed"
-                            : "hover:text-clay"
-                            }`}
+                          className={`p-2 transition-colors ${
+                            item.qty >= item.stock
+                              ? "text-gray-300 cursor-not-allowed"
+                              : "hover:text-clay"
+                          }`}
                         >
                           <Plus size={16} />
                         </button>
@@ -622,23 +687,38 @@ export default function Cart() {
                 ))}
               </motion.div>
             ) : (
-              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="space-y-6"
+              >
                 {/* Saved Addresses Section */}
                 {savedAddresses.length > 0 && !editingAddressId && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     {savedAddresses.map((addr) => (
                       <div
                         key={addr._id}
-                        className={`p-4 rounded-xl border-2 transition-all relative group ${selectedAddressId === addr._id ? 'border-clay bg-clay/5' : 'border-gray-100 hover:border-gray-200'}`}
+                        className={`p-4 rounded-xl border-2 transition-all relative group ${
+                          selectedAddressId === addr._id
+                            ? "border-clay bg-clay/5"
+                            : "border-gray-100 hover:border-gray-200"
+                        }`}
                         onClick={() => handleAddressSelect(addr._id)}
                       >
                         <div className="flex justify-between items-start">
                           <div className="cursor-pointer flex-1">
-                            <div className="font-bold text-soil mb-1">{addr.name}</div>
-                            <div className="text-sm text-soil/70">{addr.street}, {addr.city}</div>
-                            <div className="text-sm text-soil/70">{addr.state} - {addr.pincode}</div>
-                            <div className="text-sm text-soil/70 mt-1">Phone: {addr.phone}</div>
+                            <div className="font-bold text-soil mb-1">
+                              {addr.name}
+                            </div>
+                            <div className="text-sm text-soil/70">
+                              {addr.street}, {addr.city}
+                            </div>
+                            <div className="text-sm text-soil/70">
+                              {addr.state} - {addr.pincode}
+                            </div>
+                            <div className="text-sm text-soil/70 mt-1">
+                              Phone: {addr.phone}
+                            </div>
                           </div>
 
                           {/* Three Dots Menu */}
@@ -647,10 +727,15 @@ export default function Cart() {
                               className="p-1 rounded-full hover:bg-gray-200"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setOpenMenuId(openMenuId === addr._id ? null : addr._id);
+                                setOpenMenuId(
+                                  openMenuId === addr._id ? null : addr._id
+                                );
                               }}
                             >
-                              <MoreVertical size={16} className="text-soil/60" />
+                              <MoreVertical
+                                size={16}
+                                className="text-soil/60"
+                              />
                             </button>
                             {openMenuId === addr._id && (
                               <div className="absolute right-0 top-full mt-1 bg-white shadow-xl rounded-lg py-1 w-32 z-10 border border-gray-100">
@@ -661,7 +746,9 @@ export default function Cart() {
                                   <Edit2 size={14} /> Edit
                                 </button>
                                 <button
-                                  onClick={(e) => handleDeleteAddress(e, addr._id)}
+                                  onClick={(e) =>
+                                    handleDeleteAddress(e, addr._id)
+                                  }
                                   className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 flex items-center gap-2"
                                 >
                                   <Trash2 size={14} /> Delete
@@ -674,7 +761,11 @@ export default function Cart() {
                     ))}
                     <div
                       onClick={() => handleAddressSelect("new")}
-                      className={`p-4 rounded-xl border-2 cursor-pointer border-dashed flex items-center justify-center gap-2 ${selectedAddressId === "new" ? 'border-clay bg-clay/5' : 'border-gray-200 text-soil/50 hover:text-clay hover:border-clay'}`}
+                      className={`p-4 rounded-xl border-2 cursor-pointer border-dashed flex items-center justify-center gap-2 ${
+                        selectedAddressId === "new"
+                          ? "border-clay bg-clay/5"
+                          : "border-gray-200 text-soil/50 hover:text-clay hover:border-clay"
+                      }`}
                     >
                       <Plus size={20} /> Add New Address
                     </div>
@@ -682,17 +773,45 @@ export default function Cart() {
                 )}
 
                 {/* Shared Form */}
-                <div className={`space-y-6 ${!editingAddressId && selectedAddressId !== 'new' ? 'opacity-80 pointer-events-none grayscale' : ''}`}> {/* Disable form if saved address selected */}
+                <div
+                  className={`space-y-6 ${
+                    !editingAddressId && selectedAddressId !== "new"
+                      ? "opacity-80 pointer-events-none grayscale"
+                      : ""
+                  }`}
+                >
+                  {" "}
+                  {/* Disable form if saved address selected */}
                   {editingAddressId && (
                     <div className="flex justify-between items-center bg-yellow-50 p-4 rounded-lg">
-                      <span className="text-soil font-bold flex items-center gap-2"><Edit2 size={16} /> Editing Address</span>
-                      <button onClick={() => { setEditingAddressId(null); setSelectedAddressId("new"); setFormData({ ...formData, street: "", city: "", state: "", pincode: "", phone: "", name: "" }); }} className="text-sm text-red-500 hover:underline">Cancel</button>
+                      <span className="text-soil font-bold flex items-center gap-2">
+                        <Edit2 size={16} /> Editing Address
+                      </span>
+                      <button
+                        onClick={() => {
+                          setEditingAddressId(null);
+                          setSelectedAddressId("new");
+                          setFormData({
+                            ...formData,
+                            street: "",
+                            city: "",
+                            state: "",
+                            pincode: "",
+                            phone: "",
+                            name: "",
+                          });
+                        }}
+                        className="text-sm text-red-500 hover:underline"
+                      >
+                        Cancel
+                      </button>
                     </div>
                   )}
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-soil mb-2">Full Name</label>
+                      <label className="block text-sm font-medium text-soil mb-2">
+                        Full Name
+                      </label>
                       <input
                         type="text"
                         name="name"
@@ -703,7 +822,9 @@ export default function Cart() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-soil mb-2">Email</label>
+                      <label className="block text-sm font-medium text-soil mb-2">
+                        Email
+                      </label>
                       <input
                         type="email"
                         name="email"
@@ -714,10 +835,11 @@ export default function Cart() {
                       />
                     </div>
                   </div>
-
                   {/* Phone & OTP */}
                   <div className="space-y-4">
-                    <label className="block text-sm font-medium text-soil">Phone Number</label>
+                    <label className="block text-sm font-medium text-soil">
+                      Phone Number
+                    </label>
                     <div className="flex gap-2">
                       <input
                         type="tel"
@@ -727,22 +849,42 @@ export default function Cart() {
                         className="flex-1 px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none"
                         required
                       />
-                      {(selectedAddressId === 'new' && !editingAddressId) && (
+                      {selectedAddressId === "new" && !editingAddressId && (
                         <button
                           type="button"
                           onClick={sendOtp}
-                          disabled={phoneVerified || sendingOtp || formData.phone.length < 10}
-                          className={`px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-colors ${phoneVerified ? 'bg-green-100 text-green-700' : 'bg-clay text-white hover:bg-clay/90 disabled:opacity-50'}`}
+                          disabled={
+                            phoneVerified ||
+                            sendingOtp ||
+                            formData.phone.length < 10
+                          }
+                          className={`px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-colors ${
+                            phoneVerified
+                              ? "bg-green-100 text-green-700"
+                              : "bg-clay text-white hover:bg-clay/90 disabled:opacity-50"
+                          }`}
                         >
-                          {sendingOtp ? <Loader2 className="animate-spin" /> : (phoneVerified ? "Verified" : "Verify")}
+                          {sendingOtp ? (
+                            <Loader2 className="animate-spin" />
+                          ) : phoneVerified ? (
+                            "Verified"
+                          ) : (
+                            "Verify"
+                          )}
                         </button>
                       )}
                     </div>
 
                     {showOtpInput && !phoneVerified && (
-                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="flex gap-2 items-end">
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        className="flex gap-2 items-end"
+                      >
                         <div className="flex-1">
-                          <label className="block text-xs font-medium text-soil mb-1">Enter OTP (Check Console)</label>
+                          <label className="block text-xs font-medium text-soil mb-1">
+                            Enter OTP (Check Console)
+                          </label>
                           <input
                             type="text"
                             value={otp}
@@ -757,20 +899,27 @@ export default function Cart() {
                           disabled={verifyingOtp}
                           className="px-6 py-3 bg-soil text-white rounded-xl font-bold hover:bg-soil/90 disabled:opacity-50"
                         >
-                          {verifyingOtp ? <Loader2 className="animate-spin" /> : "Confirm"}
+                          {verifyingOtp ? (
+                            <Loader2 className="animate-spin" />
+                          ) : (
+                            "Confirm"
+                          )}
                         </button>
                       </motion.div>
                     )}
-                    {(phoneVerified && selectedAddressId === 'new' && !editingAddressId) && (
-                      <div className="text-green-600 text-sm flex items-center gap-1">
-                        <Check size={14} /> Phone verified successfully
-                      </div>
-                    )}
+                    {phoneVerified &&
+                      selectedAddressId === "new" &&
+                      !editingAddressId && (
+                        <div className="text-green-600 text-sm flex items-center gap-1">
+                          <Check size={14} /> Phone verified successfully
+                        </div>
+                      )}
                   </div>
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-soil mb-2">Pincode</label>
+                      <label className="block text-sm font-medium text-soil mb-2">
+                        Pincode
+                      </label>
                       <input
                         type="text"
                         name="pincode"
@@ -781,7 +930,9 @@ export default function Cart() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-soil mb-2">Address</label>
+                      <label className="block text-sm font-medium text-soil mb-2">
+                        Address
+                      </label>
                       <input
                         type="text"
                         name="street"
@@ -793,10 +944,11 @@ export default function Cart() {
                       />
                     </div>
                   </div>
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-soil mb-2">City</label>
+                      <label className="block text-sm font-medium text-soil mb-2">
+                        City
+                      </label>
                       <input
                         type="text"
                         name="city"
@@ -807,7 +959,9 @@ export default function Cart() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-soil mb-2">State</label>
+                      <label className="block text-sm font-medium text-soil mb-2">
+                        State
+                      </label>
                       <input
                         type="text"
                         name="state"
@@ -818,7 +972,6 @@ export default function Cart() {
                       />
                     </div>
                   </div>
-
                   <button
                     type="button"
                     onClick={() => setCheckoutStep(1)}
@@ -834,7 +987,9 @@ export default function Cart() {
           {/* Checkout Summary */}
           <div>
             <div className="bg-sand/30 rounded-3xl p-8 sticky top-32">
-              <h2 className="text-2xl font-bold text-soil mb-6 font-serif">Order Summary</h2>
+              <h2 className="text-2xl font-bold text-soil mb-6 font-serif">
+                Order Summary
+              </h2>
 
               <div className="space-y-4 mb-6 pb-6 border-b border-soil/10 text-soil/80">
                 <div className="flex justify-between">
@@ -852,7 +1007,9 @@ export default function Cart() {
                   )}
                 </div>
                 {shippingError && (
-                  <div className="text-[10px] text-red-500 mt-1">{shippingError}</div>
+                  <div className="text-[10px] text-red-500 mt-1">
+                    {shippingError}
+                  </div>
                 )}
                 {appliedCoupon && (
                   <div className="flex justify-between text-green-600">
@@ -866,15 +1023,25 @@ export default function Cart() {
               <div className="mb-6">
                 {appliedCoupon ? (
                   <div className="flex items-center justify-between bg-green-50 p-3 rounded-lg border border-green-200">
-                    <span className="text-sm font-bold text-green-700">Applied: {appliedCoupon.code} ({appliedCoupon.discountPercentage}% Off)</span>
-                    <button onClick={removeCoupon} className="text-red-500 hover:text-red-700 text-xs font-bold">REMOVE</button>
+                    <span className="text-sm font-bold text-green-700">
+                      Applied: {appliedCoupon.code} (
+                      {appliedCoupon.discountPercentage}% Off)
+                    </span>
+                    <button
+                      onClick={removeCoupon}
+                      className="text-red-500 hover:text-red-700 text-xs font-bold"
+                    >
+                      REMOVE
+                    </button>
                   </div>
                 ) : (
                   <div className="flex gap-2">
                     <input
                       type="text"
                       value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                      onChange={(e) =>
+                        setCouponCode(e.target.value.toUpperCase())
+                      }
                       placeholder="Coupon Code"
                       className="flex-1 px-4 py-2 border rounded-lg uppercase focus:outline-none focus:border-clay"
                     />
@@ -887,20 +1054,24 @@ export default function Cart() {
                     </button>
                   </div>
                 )}
-                {couponError && <p className="text-red-500 text-xs mt-1">{couponError}</p>}
-
+                {couponError && (
+                  <p className="text-red-500 text-xs mt-1">{couponError}</p>
+                )}
               </div>
 
               {/* Wallet Removed */}
 
               <div className="flex justify-between text-xl font-bold text-soil mb-8">
                 <span>Total</span>
-                <span className="text-clay">₹{calculatedTotal.toLocaleString()}</span>
+                <span className="text-clay">
+                  ₹{calculatedTotal.toLocaleString()}
+                </span>
               </div>
 
               {shipping > 0 && subtotal < 2000 && (
                 <div className="bg-white/50 p-4 rounded-xl mb-6 text-sm text-soil/70 text-center">
-                  Add items worth ₹{(2000 - subtotal).toLocaleString()} more for free shipping!
+                  Add items worth ₹{(2000 - subtotal).toLocaleString()} more for
+                  free shipping!
                 </div>
               )}
 
@@ -918,12 +1089,26 @@ export default function Cart() {
                   disabled={loading}
                   className="w-full bg-clay text-white py-4 rounded-full font-bold hover:bg-clay/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Update Address"}
+                  {loading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    "Update Address"
+                  )}
                 </button>
               ) : (
                 <button
                   onClick={handleCheckout}
-                  disabled={loading || !formData.name || !formData.email || !formData.phone || !formData.street || !formData.city || !formData.state || !formData.pincode || !phoneVerified}
+                  disabled={
+                    loading ||
+                    !formData.name ||
+                    !formData.email ||
+                    !formData.phone ||
+                    !formData.street ||
+                    !formData.city ||
+                    !formData.state ||
+                    !formData.pincode ||
+                    !phoneVerified
+                  }
                   className="w-full bg-soil text-white py-3 md:py-4 rounded-full font-bold hover:bg-soil/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
                 >
                   {loading ? (
@@ -937,11 +1122,22 @@ export default function Cart() {
               )}
 
               {checkoutStep === 2 && !editingAddressId && !phoneVerified && (
-                <p className="text-sm text-red-500 text-center mt-2">Please verify your phone number to proceed.</p>
+                <p className="text-sm text-red-500 text-center mt-2">
+                  Please verify your phone number to proceed.
+                </p>
               )}
-              {checkoutStep === 2 && !editingAddressId && phoneVerified && (!formData.name || !formData.street || !formData.city || !formData.state || !formData.pincode) && (
-                <p className="text-sm text-red-500 text-center mt-2">Please fill in all address details.</p>
-              )}
+              {checkoutStep === 2 &&
+                !editingAddressId &&
+                phoneVerified &&
+                (!formData.name ||
+                  !formData.street ||
+                  !formData.city ||
+                  !formData.state ||
+                  !formData.pincode) && (
+                  <p className="text-sm text-red-500 text-center mt-2">
+                    Please fill in all address details.
+                  </p>
+                )}
 
               <div className="mt-6 flex items-center justify-center gap-2 text-xs text-soil/40">
                 <Check size={12} /> Secure Checkout via Razorpay
@@ -949,8 +1145,7 @@ export default function Cart() {
             </div>
           </div>
         </div>
-      )
-      }
-    </div >
+      )}
+    </div>
   );
 }
