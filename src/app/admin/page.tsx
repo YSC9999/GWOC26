@@ -41,6 +41,12 @@ export default function AdminDashboard() {
 
   const adminLinks = [
     {
+      href: "/admin/analytics",
+      label: "Analytics",
+      desc: "View sales trends & insights",
+      icon: <span className="text-2xl">📊</span>,
+    },
+    {
       href: "/admin/products",
       label: "Products",
       desc: "Manage collection items",
@@ -176,6 +182,7 @@ export default function AdminDashboard() {
                         />
                       </svg>
                     </motion.div>
+
                   </div>
                 </motion.div>
               </Link>

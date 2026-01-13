@@ -1,15 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Package, Clock, CheckCircle, Truck, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
+import { Package, Clock, CheckCircle, Truck, RefreshCw } from "lucide-react";
 import Link from "next/link";
-
-interface OrderItem {
-  name: string;
-  quantity: number;
-  price: number;
-  image: string;
-}
+import OrderModal from "@/components/OrderModal";
 
 interface Order {
   _id: string;
@@ -17,16 +10,14 @@ interface Order {
   total: number;
   status: string;
   createdAt: string;
-  items: OrderItem[];
+  items: any[];
   paymentStatus: string;
-  discount: number;
-  couponCode?: string;
 }
 
 export default function MyOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   useEffect(() => {
     fetchOrders();
@@ -34,7 +25,7 @@ export default function MyOrders() {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch("/api/orders"); // GET logic added
+      const res = await fetch("/api/orders");
       if (res.ok) {
         const data = await res.json();
         setOrders(data.orders || []);
@@ -86,11 +77,10 @@ export default function MyOrders() {
       ) : (
         <div className="space-y-6">
           {orders.map((order) => (
-            <div key={order._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              {/* Header */}
+            <div key={order._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
               <div
-                className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={() => setExpandedId(expandedId === order._id ? null : order._id)}
+                className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer"
+                onClick={() => setSelectedOrder(order)}
               >
                 <div className="flex items-center gap-4">
                   <div className={`p-3 rounded-full ${getStatusColor(order.status)}`}>
@@ -107,61 +97,19 @@ export default function MyOrders() {
                 <div className="flex items-center gap-6">
                   <div className="text-right">
                     <div className="font-bold text-soil">₹{order.total.toLocaleString()}</div>
-                    <div className={`text-xs font-medium uppercase tracking-wider px-2 py-0.5 rounded inline-block mt-1 ${getStatusColor(order.status)}`}>
-                      {order.status}
+                    <div className={`text-xs font-medium uppercase tracking-wider px-2 py-0.5 rounded inline-block mt-1 ${order.status === 'cancelled' || order.paymentStatus === 'refunded' ? 'text-red-600 bg-red-50' : getStatusColor(order.status)}`}>
+                      {order.status === 'cancelled' || order.paymentStatus === 'refunded' ? 'CANCELLED' : order.status}
                     </div>
                   </div>
-                  {expandedId === order._id ? <ChevronUp className="text-soil/40" /> : <ChevronDown className="text-soil/40" />}
                 </div>
               </div>
-
-              {/* Details */}
-              {expandedId === order._id && (
-                <motion.div
-                  initial={{ height: 0 }}
-                  animate={{ height: "auto" }}
-                  className="px-6 pb-6 border-t border-gray-100 bg-gray-50/50"
-                >
-                  <div className="pt-6 space-y-4">
-                    {order.items.map((item, idx) => (
-                      <div key={idx} className="flex gap-4 items-center">
-                        <div className="w-16 h-16 bg-white rounded-lg border border-gray-200 p-2 flex items-center justify-center text-2xl">
-                          {item.image && (item.image.startsWith("/") || item.image.startsWith("http") || item.image.startsWith("data:")) ? (
-                            <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded" />
-                          ) : (
-                            "🏺"
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-medium text-soil">{item.name}</div>
-                          <div className="text-sm text-soil/60">Qty: {item.quantity}</div>
-                        </div>
-                        <div className="font-medium text-soil">
-                          ₹{item.price.toLocaleString()}
-                        </div>
-                      </div>
-                    ))}
-
-                    {/* Discount Row */}
-                    {order.discount > 0 && (
-                      <div className="flex justify-between items-center text-sm border-t border-gray-200 pt-3 text-green-600">
-                        <span>Discount {order.couponCode && <span className="text-xs bg-green-100 px-2 py-0.5 rounded ml-1 font-bold">{order.couponCode}</span>}</span>
-                        <span>- ₹{order.discount.toLocaleString()}</span>
-                      </div>
-                    )}
-
-                    <div className="border-t border-gray-200 pt-4 flex justify-between items-center text-sm font-medium">
-                      <span>Payment Status</span>
-                      <span className={order.paymentStatus === 'paid' ? 'text-green-600' : 'text-orange-500 uppercase'}>
-                        {order.paymentStatus}
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
             </div>
           ))}
         </div>
+      )}
+
+      {selectedOrder && (
+        <OrderModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
       )}
     </div>
   );

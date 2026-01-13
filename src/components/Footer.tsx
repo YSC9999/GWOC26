@@ -17,10 +17,20 @@ export default function Footer() {
       <div className="max-w-5xl mx-auto px-4 text-center">
         {/* Brand Logo */}
         <Link href="/" className="inline-block mb-3">
-          <img
+          <motion.img
             src="/Logo.png"
             alt="Basho Logo"
-            className="h-16 w-auto mix-blend-multiply opacity-80 mx-auto hover:opacity-100 transition-all"
+            className="h-16 w-auto mix-blend-multiply opacity-80 mx-auto"
+            whileHover={{ scale: 1.1, opacity: 1 }}
+            animate={{
+              y: [0, -5, 0],
+              opacity: [0.8, 1, 0.8]
+            }}
+            transition={{
+              y: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+              opacity: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+              scale: { duration: 0.2 }
+            }}
           />
         </Link>
         {/* ... remaining footer content ... */}

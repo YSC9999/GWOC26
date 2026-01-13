@@ -376,7 +376,7 @@ export default function Products() {
             initial="hidden"
             animate="visible"
             layout
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 px-4 md:px-8 max-w-7xl mx-auto"
+            className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8 px-4 md:px-8 max-w-7xl mx-auto"
           >
             <AnimatePresence mode="popLayout">
               {paginatedProducts.map((product) => {
@@ -403,17 +403,15 @@ export default function Products() {
                           !isOutOfStock &&
                           setSelectedProductId(product.slug || product._id)
                         }
-                        className={`relative h-48 bg-gradient-to-br from-sand to-sand/50 overflow-hidden ${
-                          isOutOfStock ? "cursor-not-allowed" : "cursor-pointer"
-                        }`}
+                        className={`relative h-48 bg-gradient-to-br from-sand to-sand/50 overflow-hidden ${isOutOfStock ? "cursor-not-allowed" : "cursor-pointer"
+                          }`}
                       >
                         {getProductImage(product) ? (
                           <img
                             src={getProductImage(product)!}
                             alt={product.name}
-                            className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${
-                              isOutOfStock ? "grayscale opacity-75" : ""
-                            }`}
+                            className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${isOutOfStock ? "grayscale opacity-75" : ""
+                              }`}
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-7xl group-hover:scale-110 transition-transform duration-500">
@@ -458,7 +456,7 @@ export default function Products() {
                               <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                                 {Math.round(
                                   (1 - product.price / product.originalPrice) *
-                                    100
+                                  100
                                 )}
                                 % OFF
                               </span>
@@ -501,12 +499,12 @@ export default function Products() {
                         </div>
 
                         {/* Name */}
-                        <h3 className="text-base font-bold text-soil mb-1 group-hover:text-clay transition-colors line-clamp-1">
+                        <h3 className="text-sm md:text-base font-bold text-soil mb-1 group-hover:text-clay transition-colors line-clamp-1">
                           {product.name}
                         </h3>
 
                         {/* Description */}
-                        <p className="text-xs text-soil/60 mb-2 line-clamp-2 min-h-[32px]">
+                        <p className="hidden md:block text-xs text-soil/60 mb-2 line-clamp-2 min-h-[32px]">
                           {product.description}
                         </p>
 
@@ -567,11 +565,10 @@ export default function Products() {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  currentPage === 1
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === 1
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+                  }`}
               >
                 Previous
               </button>
@@ -588,11 +585,10 @@ export default function Products() {
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
-                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                        currentPage === page
-                          ? "bg-clay text-white shadow-lg"
-                          : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-                      }`}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === page
+                        ? "bg-clay text-white shadow-lg"
+                        : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+                        }`}
                     >
                       {page}
                     </button>
@@ -613,11 +609,10 @@ export default function Products() {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  currentPage === totalPages
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === totalPages
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+                  }`}
               >
                 Next
               </button>

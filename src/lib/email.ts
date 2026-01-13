@@ -148,3 +148,85 @@ export async function sendWalletCreditEmail(email: string, amount: number, balan
     return false;
   }
 }
+
+export async function sendRefundEmail(email: string, amount: number, orderNumber: string, message?: string): Promise<boolean> {
+  try {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.log('📧 EMAIL SERVICE NOT CONFIGURED - REFUND');
+      console.log(`Refund ${amount} to ${email} for Order ${orderNumber}`);
+      return true;
+    }
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: `Refund Initiated for Order ${orderNumber} - Basho`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="color: white; margin: 0; text-align: center;">Refund Initiated</h2>
+          </div>
+          <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px;">
+            <p style="color: #333; font-size: 16px; margin-bottom: 20px;">Hello,</p>
+            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">We have initiated a refund for your order <strong>${orderNumber}</strong>.</p>
+            
+            <div style="background: white; border: 2px solid #10B981; border-radius: 8px; padding: 20px; text-align: center; margin: 30px 0;">
+              <p style="margin: 0; font-size: 12px; color: #999;">Refund Amount</p>
+              <p style="margin: 5px 0 10px 0; font-size: 32px; font-weight: bold; color: #10B981;">₹${amount}</p>
+              <p style="margin: 0; font-size: 12px; color: #666;">Source: ${message || 'Original Payment Method'}</p>
+            </div>
+            
+            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">The amount will reflect in your account within <strong>5-7 business days</strong>.</p>
+            
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">© 2024 Basho. All rights reserved.</p>
+          </div>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error('Error sending refund email:', error);
+    return false;
+  }
+}
+
+export async function sendCancellationEmail(email: string, orderNumber: string): Promise<boolean> {
+  try {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.log('📧 EMAIL SERVICE NOT CONFIGURED - CANCELLATION');
+      console.log(`Cancellation email for ${email} - Order ${orderNumber}`);
+      return true;
+    }
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: `Order Cancelled - ${orderNumber} - Basho`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #EF4444 0%, #B91C1C 100%); padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="color: white; margin: 0; text-align: center;">Order Cancelled</h2>
+          </div>
+          <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px;">
+            <p style="color: #333; font-size: 16px; margin-bottom: 20px;">Hello,</p>
+            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Your order <strong>${orderNumber}</strong> has been cancelled.</p>
+            
+            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">If you have paid for this order, a refund has been initiated and will be credited to your account shortly.</p>
+            
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">© 2024 Basho. All rights reserved.</p>
+          </div>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error('Error sending cancellation email:', error);
+    return false;
+  }
+}

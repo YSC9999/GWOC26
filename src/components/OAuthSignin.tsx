@@ -40,6 +40,15 @@ export default function OAuthSignin() {
               setLoading(false);
             }
           },
+          error_callback: (nonOAuthError: any) => {
+            console.error("Google Sign-In Error:", nonOAuthError);
+            setLoading(false);
+            if (nonOAuthError.type === 'popup_closed') {
+              setErrorMSG("Sign-in cancelled");
+            } else {
+              setErrorMSG("Sign-in failed. Please try again.");
+            }
+          },
         });
 
         // Open the popup

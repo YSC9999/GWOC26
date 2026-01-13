@@ -32,7 +32,7 @@ export async function POST(req: Request) {
             // Payment Successful
             order.paymentStatus = "paid";
             order.razorpayPaymentId = razorpay_payment_id;
-            order.status = "confirmed"; // Auto confirm on payment
+            order.status = "pending"; // Wait for Admin Confirmation
             await order.save();
 
             // NOW we finalize the Coupons and Wallet usage if we were deferring it. 

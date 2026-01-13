@@ -8,7 +8,9 @@ export interface IOrderItem {
   quantity: number;
   image: string;
   weightGrams: number;
+  status: 'active' | 'cancelled' | 'refunded';
 }
+
 
 export interface IShippingAddress {
   name: string;
@@ -49,14 +51,20 @@ export interface IOrder extends Document {
   updatedAt: Date;
 }
 
+
 const OrderItemSchema = new Schema({
   productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
   name: String,
   price: Number,
   quantity: Number,
   image: String,
-  weightGrams: Number
-}, { _id: false });
+  weightGrams: Number,
+  status: {
+    type: String,
+    enum: ['active', 'cancelled', 'refunded'],
+    default: 'active'
+  }
+}, { _id: true });
 
 const ShippingAddressSchema = new Schema({
   name: String,
@@ -65,7 +73,7 @@ const ShippingAddressSchema = new Schema({
   city: String,
   state: String,
   pincode: String,
-  country: { type: String, default: 'India' }
+  country: String
 }, { _id: false });
 
 const OrderSchema = new Schema<IOrder>({

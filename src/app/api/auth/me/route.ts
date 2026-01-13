@@ -35,6 +35,7 @@ export async function GET(req: Request) {
     });
 
   } catch (error) {
-    return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    console.error("Auth Me API Error:", error);
+    return NextResponse.json({ error: "Invalid token" }, { status: 500 }); // Changed to 500 to debug
   }
 }

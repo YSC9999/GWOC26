@@ -12,9 +12,13 @@ type Message = {
     timestamp: Date;
 };
 
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth"; // Import useAuth
 
 export default function ChatBot() {
+    const pathname = usePathname();
+    const isAuthPage = pathname?.includes("/login") || pathname?.includes("/signup") || pathname?.includes("/verify-email") || pathname?.includes("/forgot-password");
+
     const { user } = useAuth(); // Get user
     const [isOpen, setIsOpen] = useState(false);
 
@@ -108,6 +112,9 @@ export default function ChatBot() {
             handleSend();
         }
     };
+
+    // Fix: Hooks must run before conditional return
+    if (isAuthPage) return null;
 
     return (
         <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">

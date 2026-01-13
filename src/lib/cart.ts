@@ -28,23 +28,27 @@ export const useCart = create<CartStore>()(
         // Sanitize incoming item
         const sanitizedItem = {
           ...item,
+          id: String(item.id),
           price: Number(item.price) || 0,
           qty: Number(item.qty) || 1,
           stock: typeof item.stock === 'number' ? item.stock : 0,
         };
 
         const items = get().items;
-        const existing = items.find((i) => i.id === sanitizedItem.id);
+        // Robust ID comparison
+        const existing = items.find((i) => String(i.id) === sanitizedItem.id);
+
+        console.log("Cart Add:", sanitizedItem, "Existing:", existing);
 
         if (existing) {
           // Update stale stock with fresh stock from product page
           const existingQty = Number(existing.qty) || 0;
           const newQty = existingQty + sanitizedItem.qty;
 
-          if (newQty <= sanitizedItem.stock) {
+          if (sanitizedItem.stock > 0 && newQty <= sanitizedItem.stock) {
             set({
               items: items.map((i) =>
-                i.id === sanitizedItem.id
+                String(i.id) === sanitizedItem.id
                   ? { ...i, qty: newQty, stock: sanitizedItem.stock, price: sanitizedItem.price }
                   : i
               ),
@@ -53,24 +57,28 @@ export const useCart = create<CartStore>()(
           } else {
             // Cap at max stock
             if (sanitizedItem.stock <= 0) {
-              // If stock dropped to 0, remove the item
               set({
-                items: items.filter((i) => i.id !== sanitizedItem.id),
+                items: items.filter((i) => String(i.id) !== sanitizedItem.id),
               });
               return { success: false, message: "Item is now out of stock and removed from cart." };
             }
 
-            set({
-              items: items.map((i) =>
-                i.id === sanitizedItem.id
-                  ? { ...i, qty: sanitizedItem.stock, stock: sanitizedItem.stock, price: sanitizedItem.price }
-                  : i
-              ),
-            });
-            return { success: false, message: `Stock limit reached. Max available: ${sanitizedItem.stock}` };
+            // Update to max stock if we are exceeding it
+            if (existingQty < sanitizedItem.stock) {
+              set({
+                items: items.map((i) =>
+                  String(i.id) === sanitizedItem.id
+                    ? { ...i, qty: sanitizedItem.stock, stock: sanitizedItem.stock, price: sanitizedItem.price }
+                    : i
+                ),
+              });
+              return { success: true, message: `Quantity set to max available (${sanitizedItem.stock})` };
+            }
+
+            return { success: false, message: `Max stock (${sanitizedItem.stock}) already in cart.` };
           }
         } else {
-          // If trying to add new item but stock is 0, DO NOT add.
+          // New Item
           if (sanitizedItem.stock <= 0) {
             return { success: false, message: "Out of stock" };
           }
@@ -79,9 +87,8 @@ export const useCart = create<CartStore>()(
             set({ items: [...items, sanitizedItem] });
             return { success: true };
           } else {
-            // Cap at max stock
             set({ items: [...items, { ...sanitizedItem, qty: sanitizedItem.stock }] });
-            return { success: false, message: `Stock limit reached. Max available: ${sanitizedItem.stock}` };
+            return { success: true, message: `Added max available (${sanitizedItem.stock})` };
           }
         }
       },

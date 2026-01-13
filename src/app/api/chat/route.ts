@@ -1,55 +1,56 @@
 import { NextResponse } from "next/server";
-import { chatbotFAQs, fallbackResponse } from "@/data/chatbot-faqs";
 
 export async function POST(req: Request) {
     try {
         const { message } = await req.json();
 
-        if (!message) {
-            return NextResponse.json({ error: "Message is required" }, { status: 400 });
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            console.error("GEMINI_API_KEY missing");
+            return NextResponse.json({ reply: "API Key missing" }, { status: 500 });
         }
 
-        const lowerMsg = message.toLowerCase();
+        // Using gemini-1.5-flash
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
-        // 1. Check local FAQ first (faster, cheaper, and definitive for business logic)
-        for (const faq of chatbotFAQs) {
-            if (faq.keywords.some(k => lowerMsg.includes(k))) {
-                return NextResponse.json({ reply: faq.answer, source: "faq" });
-            }
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                contents: [
+                    {
+                        role: "user",
+                        parts: [
+                            {
+                                text: `You are the AI assistant for 'Basho by Shivangi', a premium handcrafted pottery brand. 
+                Your tone is warm, artistic, and sophisticated. 
+                Visitor says: ${message}`
+                            }
+                        ]
+                    }
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Gemini Raw API Error:", JSON.stringify(errorData, null, 2));
+            return NextResponse.json({ reply: "I'm having trouble thinking right now. Please try again." }, { status: 500 });
         }
 
-        // 2. Fallback to Gemini if API key exists
-        if (process.env.GEMINI_API_KEY) {
-            try {
-                const { GoogleGenerativeAI } = await import("@google/generative-ai");
-                const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-                const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const data = await response.json();
+        const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "I didn't catch that.";
 
-                const prompt = `You are a helpful, warm, and aesthetic customer support assistant for 'Basho by Shivangi', a premium pottery studio and ceramic brand.
-             Style: Wabi-sabi, calm, artistic, polite.
-             Context: We sell handmade stoneware and porcelain ceramics. We also host workshops.
-             User Question: ${message}
-             
-             Answer strictly about pottery/ceramics or the brand. If asked about code/math/politics, politely decline. Keep it short (under 3 sentences).`;
+        return NextResponse.json({ reply: replyText });
 
-                const result = await model.generateContent(prompt);
-                const response = await result.response;
-                const text = response.text();
-                if (text) {
-                    return NextResponse.json({ reply: text, source: "ai" });
-                }
-            } catch (err) {
-                console.error("Gemini API Error:", err);
-                // Continue to fallback
-            }
-        } else {
-            console.log("ChatBot: GEMINI_API_KEY is not set in .env.local. Skipping AI generation.");
-        }
-
-        return NextResponse.json({ reply: fallbackResponse, source: "fallback" });
 
     } catch (error) {
-        console.error("Chat API Error:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        console.error("Gemini API Error:", error);
+        return NextResponse.json(
+            { reply: "I'm having a little trouble connecting to the creative muse right now. Please try again in a moment." },
+            { status: 500 }
+        );
     }
 }

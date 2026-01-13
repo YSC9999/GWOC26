@@ -105,13 +105,22 @@ export default function Navbar() {
           href="/"
           className="flex items-center flex-shrink-0 whitespace-nowrap"
         >
-          <motion.img
-            whileHover={{ scale: 1.05, rotate: -2 }}
-            whileTap={{ scale: 0.95 }}
-            src="/Logo.png"
-            alt="Basho Logo"
-            className="h-10 md:h-14 w-auto object-contain"
-          />
+          <motion.div
+            whileHover={{
+              scale: 1.05,
+              y: -2,
+              filter: "drop-shadow(0px 8px 16px rgba(90, 62, 54, 0.15))" // Soft earthy shadow
+            }}
+            whileTap={{ scale: 0.95, y: 0 }}
+            transition={{ type: "spring", stiffness: 400, damping: 17 }} // Snappy, premium feel
+            className="relative"
+          >
+            <img
+              src="/Logo.png"
+              alt="Basho Logo"
+              className="h-10 md:h-12 w-auto object-contain"
+            />
+          </motion.div>
         </Link>
 
         {/* Desktop Menu */}
@@ -129,13 +138,12 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   onMouseEnter={() => setHoveredPath(link.href)}
-                  className={`relative px-3 py-2 rounded-full transition-colors duration-200 group ${
-                    isActive
-                      ? "text-[#EFE5D8]"
-                      : isHovered
+                  className={`relative px-3 py-2 rounded-full transition-colors duration-200 group ${isActive
+                    ? "text-[#EFE5D8]"
+                    : isHovered
                       ? "text-[#C97C5D]"
                       : "hover:text-[#C97C5D]"
-                  }`}
+                    }`}
                 >
                   {isActive && (
                     <motion.div
@@ -174,16 +182,14 @@ export default function Navbar() {
                       className="flex flex-col items-center"
                     >
                       <span
-                        className={`block ${
-                          isActive ? "font-bold" : "font-semibold"
-                        }`}
+                        className={`block ${isActive ? "font-bold" : "font-semibold"
+                          }`}
                       >
                         {link.label}
                       </span>
                       <span
-                        className={`block absolute top-full ${
-                          isActive ? "font-bold" : "font-semibold"
-                        }`}
+                        className={`block absolute top-full ${isActive ? "font-bold" : "font-semibold"
+                          }`}
                       >
                         {link.label}
                       </span>

@@ -388,11 +388,18 @@ export default function ProductModal({
 
                     {/* Stock Status */}
                     {product.inStock ? (
-                      <div className="flex items-center gap-2 text-green-600">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                        <span className="font-medium text-sm">
-                          In Stock - Ships within 2-3 days
-                        </span>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-green-600">
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                          <span className="font-medium text-sm">
+                            In Stock - Ships within 2-3 days
+                          </span>
+                        </div>
+                        {product.stockQuantity !== undefined && product.stockQuantity <= 5 && product.stockQuantity > 0 && (
+                          <p className="text-amber-600 text-sm font-bold animate-pulse">
+                            🔥 Hurry! Only {product.stockQuantity} left in stock!
+                          </p>
+                        )}
                       </div>
                     ) : (
                       <div className="flex items-center gap-2 text-red-600">

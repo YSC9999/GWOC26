@@ -129,15 +129,14 @@ export default function Home() {
                 style={{ fontFamily: "var(--font-kaushan-script)" }}
               >
                 A Quiet Splash
-                <br/>
-                in Every Piece
+                <span className="block mt-2">in Every Piece</span>
               </motion.h1>
 
               <motion.p
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.8 }}
-                className="text-sm md:text-lg lg:text-xl text-soil/100 mb-6 md:mb-12"
+                className="text-sm md:text-lg lg:text-xl text-soil/100 mb-4 md:mb-8"
                 style={{ fontFamily: "var(--font-berkshire-swash)" }}
               >
                 Artistry for the home and the self. Discover a curated
