@@ -47,26 +47,26 @@ export default function OrderSuccessCards({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 pt-20 sm:pt-4"
           onClick={handleClose}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ type: "spring", duration: 0.5 }}
-            className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-auto shadow-2xl flex flex-col relative"
+            className="bg-white rounded-3xl w-full max-w-lg sm:max-w-xl md:max-w-2xl max-h-[80vh] sm:max-h-[85vh] overflow-auto shadow-2xl flex flex-col relative"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 z-10 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg transition-all hover:scale-110 active:scale-95"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg transition-all hover:scale-110 active:scale-95"
             >
-              <X size={20} className="text-soil" />
+              <X size={18} className="text-soil sm:w-5 sm:h-5" />
             </button>
 
             {/* Thank You Image */}
-            <div className="flex-1 overflow-auto flex items-center justify-center p-6">
+            <div className="flex-1 overflow-auto flex items-center justify-center p-4 sm:p-6">
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -76,27 +76,18 @@ export default function OrderSuccessCards({
                 <img
                   src="/thank-you-simple.jpeg"
                   alt="Thank You"
-                  className="max-w-full max-h-[500px] object-contain rounded-xl shadow-lg"
+                  className="max-w-full max-h-[50vh] sm:max-h-[60vh] object-contain rounded-xl shadow-lg"
                 />
               </motion.div>
             </div>
 
-            <div className="px-6 py-6 bg-white border-t border-soil/10 flex flex-col sm:flex-row justify-center gap-4">
-              {orderId && (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => window.open(`/invoice/${orderId}`, '_blank')}
-                  className="bg-white border-2 border-clay text-clay px-8 py-3 rounded-xl transition-colors font-semibold shadow-sm hover:bg-clay/5 flex items-center justify-center gap-2"
-                >
-                  Download Invoice
-                </motion.button>
-              )}
+            {/* Continue Shopping Button */}
+            <div className="px-6 py-6 bg-white border-t border-soil/10 flex justify-center">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleClose}
-                className="bg-clay hover:bg-clay/90 text-white px-8 py-3 rounded-xl transition-colors font-semibold shadow-md"
+                className="bg-clay hover:bg-clay/90 text-white px-6 py-2.5 sm:px-8 sm:py-3 rounded-xl transition-colors font-semibold shadow-md text-sm sm:text-base"
               >
                 Continue Shopping
               </motion.button>
