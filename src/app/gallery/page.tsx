@@ -44,7 +44,9 @@ export default function GalleryPage() {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [activeTestimonialVideo, setActiveTestimonialVideo] = useState<string | null>(null);
+  const [activeTestimonialVideo, setActiveTestimonialVideo] = useState<
+    string | null
+  >(null);
 
   // Videos section data (can be moved to CMS later)
   const studioVideos = [
@@ -349,10 +351,7 @@ export default function GalleryPage() {
                               whileHover={{ scale: 1.1 }}
                               className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-xl"
                             >
-                              <Play
-                                size={28}
-                                className="text-[#C97C5D] ml-1"
-                              />
+                              <Play size={28} className="text-[#C97C5D] ml-1" />
                             </motion.div>
                           </div>
                         </div>
