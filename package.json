@@ -26,6 +26,7 @@
     "nodemailer": "^7.0.12",
     "razorpay": "^2.9.6",
     "react": "19.2.3",
+    "react-calendar": "^6.0.0",
     "react-dom": "19.2.3",
     "recharts": "^3.6.0",
     "twilio": "^5.11.2",

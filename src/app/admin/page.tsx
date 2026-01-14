@@ -100,6 +100,12 @@ export default function AdminDashboard() {
       desc: "Edit contact & visiting hours",
       icon: <Building2 size={32} />,
     },
+    {
+      href: "/admin/studio",
+      label: "Studio Content",
+      desc: "Manage sliders & exhibits",
+      icon: <Brush size={32} />,
+    },
   ];
 
   return (

@@ -6,6 +6,11 @@ export async function POST(req: Request) {
   try {
     await requireAdmin();
 
+    if (!process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME) {
+      console.error("❌ CLOUDINARY_CLOUD_NAME is missing in environment variables!");
+      throw new Error("Server Misconfiguration: CLOUDINARY_CLOUD_NAME (or NEXT_PUBLIC_ variant) is missing.");
+    }
+
     const formData = await req.formData();
     const files = formData.getAll("images") as File[];
 
@@ -25,10 +30,11 @@ export async function POST(req: Request) {
     );
 
     return NextResponse.json(uploads);
-  } catch {
+  } catch (error: any) {
+    console.error("Upload API Error:", error);
     return NextResponse.json(
-      { error: "Upload failed" },
-      { status: 401 }
+      { error: "Upload failed", details: error.message },
+      { status: 500 }
     );
   }
 }
