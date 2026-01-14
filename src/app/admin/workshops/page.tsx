@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import UploadInput from "@/components/UploadInput";
+import { Loader2 } from "lucide-react";
 
 const WORKSHOP_TYPES = [
   { id: "group", label: "Group" },
@@ -63,7 +64,28 @@ const defaultForm: WorkshopForm = {
   status: "upcoming",
 };
 
+interface Inquiry {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  groupSize: number;
+  occasion: string;
+  message: string;
+  preferredDate?: string;
+  createdAt: string;
+}
+
+interface PreviousWorkshop {
+  _id: string;
+  images: string[];
+  description: string;
+}
+
 export default function WorkshopPage() {
+  const [activeTab, setActiveTab] = useState<'workshops' | 'inquiries' | 'previous'>('workshops');
+
+  // --- Workshop State ---
   const [workshops, setWorkshops] = useState<any[]>([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -71,6 +93,16 @@ export default function WorkshopPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<WorkshopForm>(defaultForm);
+
+  // --- Inquiry State ---
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [loadingInquiries, setLoadingInquiries] = useState(false);
+
+  // --- Previous Workshops State ---
+  const [previousWorkshops, setPreviousWorkshops] = useState<PreviousWorkshop[]>([]);
+  const [pImages, setPImages] = useState<string[]>([]);
+  const [pDescription, setPDescription] = useState("");
+  const [pLoading, setPLoading] = useState(false);
 
   // Filtered workshops
   const filteredWorkshops = workshops.filter((w) => {
@@ -102,15 +134,53 @@ export default function WorkshopPage() {
     }
   };
 
-  // Load workshops
+  // Load data
   useEffect(() => {
+    fetchWorkshops();
+  }, []);
+
+  // Fetch specialized data on tab change to avoid unnecessary calls
+  useEffect(() => {
+    if (activeTab === 'inquiries') {
+      fetchInquiries();
+    } else if (activeTab === 'previous') {
+      fetchPreviousWorkshops();
+    }
+  }, [activeTab]);
+
+  const fetchWorkshops = () => {
     fetch("/api/admin/workshops")
       .then((res) => res.json())
       .then(setWorkshops)
       .catch(() => setError("Failed to load workshops"));
-  }, []);
+  };
 
-  // Handle create
+  const fetchInquiries = async () => {
+    setLoadingInquiries(true);
+    try {
+      const res = await fetch("/api/admin/workshops/inquiries");
+      const data = await res.json();
+      setInquiries(data.inquiries || []);
+    } catch (err) {
+      console.error("Failed to load inquiries", err);
+    } finally {
+      setLoadingInquiries(false);
+    }
+  };
+
+  const fetchPreviousWorkshops = async () => {
+    try {
+      const res = await fetch("/api/admin/previous-workshops");
+      const data = await res.json();
+      if (data.success) {
+        setPreviousWorkshops(data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching previous workshops:", error);
+    }
+  };
+
+  // Handle create workshop
   async function handleAdd(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
@@ -150,7 +220,7 @@ export default function WorkshopPage() {
     setLoading(false);
   }
 
-  // Handle update
+  // Handle update workshop
   async function handleUpdate(id: string) {
     setError("");
     setSuccess("");
@@ -192,7 +262,7 @@ export default function WorkshopPage() {
     }
   }
 
-  // Handle delete
+  // Handle delete workshop
   async function handleDelete(id: string) {
     if (!confirm("Are you sure you want to delete this workshop?")) return;
 
@@ -205,6 +275,78 @@ export default function WorkshopPage() {
     setWorkshops(workshops.filter((w) => w._id !== id));
     setSuccess("Workshop deleted");
   }
+
+  // Handle delete inquiry
+  async function handleDeleteInquiry(id: string) {
+    if (!confirm("Are you sure you want to delete this inquiry?")) return;
+
+    try {
+      const res = await fetch(`/api/admin/workshops/inquiries?id=${id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setInquiries(inquiries.filter(i => i._id !== id));
+        alert("Inquiry deleted");
+      } else {
+        alert("Failed to delete");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting inquiry");
+    }
+  }
+
+  // Handle Add Previous Workshop
+  const handleAddPreviousWorkshop = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pImages.length === 0 || !pDescription) {
+      alert("Please provide both images and description");
+      return;
+    }
+
+    setPLoading(true);
+    try {
+      const res = await fetch("/api/admin/previous-workshops", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ images: pImages, description: pDescription }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Added successfully");
+        setPImages([]);
+        setPDescription("");
+        fetchPreviousWorkshops();
+      } else {
+        alert("Failed to add workshop");
+      }
+    } catch (error) {
+      console.error("Error creating workshop:", error);
+      alert("Failed to add workshop");
+    } finally {
+      setPLoading(false);
+    }
+  };
+
+  // Handle Delete Previous Workshop
+  const handleDeletePreviousWorkshop = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this?")) return;
+
+    try {
+      const res = await fetch(`/api/admin/previous-workshops?id=${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Deleted successfully");
+        fetchPreviousWorkshops();
+      }
+    } catch (error) {
+      console.error("Error deleting workshop:", error);
+      alert("Failed to delete workshop");
+    }
+  };
 
   // Format date for display
   const formatDate = (dateStr: string) => {
@@ -223,7 +365,7 @@ export default function WorkshopPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 min-h-screen py-8 px-4 md:py-12 md:px-8">
       {error && (
         <div className="bg-red-50 text-red-600 p-3 rounded-lg">{error}</div>
       )}
@@ -240,328 +382,504 @@ export default function WorkshopPage() {
         <h1 className="text-3xl font-serif font-bold text-soil">Workshops</h1>
       </div>
 
-      {/* ADD WORKSHOP FORM */}
-      <form
-        onSubmit={handleAdd}
-        className="bg-white p-6 rounded-xl shadow-sm border space-y-4"
-      >
-        <h2 className="text-lg font-semibold text-soil mb-4">
-          Add New Workshop
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <input
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            placeholder="Title"
-            required
-            className="border p-2 rounded"
-          />
-          <input
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            placeholder="Description"
-            required
-            className="border p-2 rounded"
-          />
-          <select
-            value={form.type}
-            onChange={(e) => setForm({ ...form, type: e.target.value })}
-            className="border p-2 rounded"
-          >
-            {WORKSHOP_TYPES.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.label}
-              </option>
-            ))}
-          </select>
-          <select
-            value={form.level}
-            onChange={(e) => setForm({ ...form, level: e.target.value })}
-            className="border p-2 rounded"
-          >
-            {WORKSHOP_LEVELS.map((l) => (
-              <option key={l.id} value={l.id}>
-                {l.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <input
-            type="number"
-            value={form.price}
-            onChange={(e) => setForm({ ...form, price: e.target.value })}
-            placeholder="Price"
-            required
-            className="border p-2 rounded"
-          />
-          <input
-            type="number"
-            value={form.maxParticipants}
-            onChange={(e) =>
-              setForm({ ...form, maxParticipants: e.target.value })
-            }
-            placeholder="Max Participants"
-            required
-            className="border p-2 rounded"
-          />
-          <input
-            type="date"
-            value={form.date}
-            onChange={(e) => setForm({ ...form, date: e.target.value })}
-            required
-            className="border p-2 rounded"
-          />
-          <input
-            value={form.time}
-            onChange={(e) => setForm({ ...form, time: e.target.value })}
-            placeholder="10:00 AM - 1:00 PM"
-            required
-            className="border p-2 rounded"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <input
-            value={form.duration}
-            onChange={(e) => setForm({ ...form, duration: e.target.value })}
-            placeholder="3 hours"
-            required
-            className="border p-2 rounded"
-          />
-          <select
-            value={form.location}
-            onChange={(e) => setForm({ ...form, location: e.target.value })}
-            className="border p-2 rounded"
-          >
-            {WORKSHOP_LOCATIONS.map((l) => (
-              <option key={l.id} value={l.id}>
-                {l.label}
-              </option>
-            ))}
-          </select>
-          <input
-            value={form.address}
-            onChange={(e) => setForm({ ...form, address: e.target.value })}
-            placeholder="Address (optional)"
-            className="border p-2 rounded"
-          />
-          <input
-            value={form.includes}
-            onChange={(e) => setForm({ ...form, includes: e.target.value })}
-            placeholder="Includes (comma separated)"
-            className="border p-2 rounded"
-          />
-        </div>
-
-        <div className="flex flex-wrap items-end gap-4">
-          <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Workshop Image
-            </label>
-            <UploadInput
-              uploadPreset="products_unsigned"
-              folder="workshops"
-              onUploaded={(urls) => setForm({ ...form, image: urls[0] || "" })}
-            />
-          </div>
-          {form.image && (
-            <div className="relative">
-              <img
-                src={form.image}
-                alt="Preview"
-                className="h-16 w-16 object-cover rounded border"
-              />
-              <button
-                type="button"
-                onClick={() => setForm({ ...form, image: "" })}
-                className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 text-xs"
-              >
-                ×
-              </button>
-            </div>
-          )}
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800 disabled:opacity-50"
-          >
-            {loading ? "Creating..." : "Add Workshop"}
-          </button>
-        </div>
-      </form>
-
-      {/* SEARCH BAR */}
-      <div className="mb-4">
-        <input
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search by title, type, or status..."
-          className="border p-2 w-full max-w-md rounded-md"
-        />
+      {/* TABS */}
+      <div className="flex gap-4 mb-8 border-b border-gray-200">
+        <button
+          onClick={() => setActiveTab('workshops')}
+          className={`pb-4 px-4 font-medium transition-colors ${activeTab === 'workshops' ? 'border-b-2 border-clay text-clay' : 'text-soil/60 hover:text-soil'}`}
+        >
+          Manage Workshops
+        </button>
+        <button
+          onClick={() => setActiveTab('inquiries')}
+          className={`pb-4 px-4 font-medium transition-colors ${activeTab === 'inquiries' ? 'border-b-2 border-clay text-clay' : 'text-soil/60 hover:text-soil'}`}
+        >
+          Custom Inquiries
+        </button>
+        <button
+          onClick={() => setActiveTab('previous')}
+          className={`pb-4 px-4 font-medium transition-colors ${activeTab === 'previous' ? 'border-b-2 border-clay text-clay' : 'text-soil/60 hover:text-soil'}`}
+        >
+          Previous Workshops
+        </button>
       </div>
 
-      {/* WORKSHOP TABLE */}
-      <div className="border rounded-lg overflow-hidden bg-white">
-        <div className="overflow-x-auto">
-          <table className="w-full table-fixed">
-            <thead className="bg-gray-50 text-soil/80 border-b">
-              <tr>
-                <th className="w-1/12 p-3 text-left font-semibold">Image</th>
-                <th className="w-2/12 p-3 text-left font-semibold">Title</th>
-                <th className="w-1/12 p-3 text-left font-semibold">Type</th>
-                <th className="w-1/12 p-3 text-left font-semibold">Date</th>
-                <th className="w-1/12 p-3 text-left font-semibold">Price</th>
-                <th className="w-1/12 p-3 text-left font-semibold">Seats</th>
-                <th className="w-1/12 p-3 text-left font-semibold">Status</th>
-                <th className="w-2/12 p-3 text-right font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {currentWorkshops.map((w) => (
-                <tr
-                  key={w._id}
-                  className="hover:bg-gray-50/50 transition-colors"
-                >
-                  <td className="p-3 align-middle">
-                    {w.image ? (
-                      <img
-                        src={w.image}
-                        className="w-12 h-12 object-cover rounded"
-                        alt={w.title}
-                      />
-                    ) : (
-                      <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-xl">
-                        🎨
-                      </div>
-                    )}
-                  </td>
-                  <td className="p-3 align-middle break-words text-sm font-medium text-soil/90">
-                    {w.title}
-                  </td>
-                  <td className="p-3 align-middle text-sm text-soil/70 capitalize">
-                    {WORKSHOP_TYPES.find((t) => t.id === w.type)?.label ||
-                      w.type}
-                  </td>
-                  <td className="p-3 align-middle text-sm text-soil/70">
-                    {formatDate(w.date)}
-                  </td>
-                  <td className="p-3 align-middle text-sm text-soil/70">
-                    ₹{w.price}
-                  </td>
-                  <td className="p-3 align-middle text-sm text-soil/70">
-                    {w.enrolledCount || 0}/{w.maxParticipants}
-                  </td>
-                  <td className="p-3 align-middle">
-                    <span
-                      className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        w.status === "upcoming"
-                          ? "bg-green-100 text-green-700"
-                          : w.status === "full"
-                          ? "bg-orange-100 text-orange-700"
-                          : w.status === "completed"
-                          ? "bg-gray-100 text-gray-700"
-                          : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      {w.status}
-                    </span>
-                  </td>
-                  <td className="p-3 align-middle text-right space-x-2">
-                    <button
-                      onClick={() => {
-                        setEditingId(w._id);
-                        setForm({
-                          title: w.title || "",
-                          description: w.description || "",
-                          type: w.type || "group",
-                          level: w.level || "all-levels",
-                          price: w.price || "",
-                          maxParticipants: w.maxParticipants || "",
-                          date: formatDateForInput(w.date),
-                          time: w.time || "",
-                          duration: w.duration || "",
-                          location: w.location || "studio",
-                          address: w.address || "",
-                          includes: Array.isArray(w.includes)
-                            ? w.includes.join(", ")
-                            : "",
-                          image: w.image || "",
-                          status: w.status || "upcoming",
-                        });
-                      }}
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(w._id)}
-                      className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {filteredWorkshops.length === 0 && (
-            <div className="text-center py-8 text-soil/50">
-              No workshops found matching your search.
-            </div>
-          )}
-        </div>
+      {/* --- WORKSHOPS TAB --- */}
+      {activeTab === 'workshops' && (
+        <>
+          {/* ADD WORKSHOP FORM */}
+          <form
+            onSubmit={handleAdd}
+            className="bg-white p-6 rounded-xl shadow-sm border space-y-4"
+          >
+            <h2 className="text-lg font-semibold text-soil mb-4">
+              Add New Workshop
+            </h2>
 
-        {/* Pagination Controls */}
-        {filteredWorkshops.length > 0 && (
-          <div className="bg-gray-50 p-3 border-t flex items-center justify-between">
-            <div className="text-sm text-soil/60">
-              Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
-              <span className="font-medium">
-                {Math.min(startIndex + itemsPerPage, filteredWorkshops.length)}
-              </span>{" "}
-              of <span className="font-medium">{filteredWorkshops.length}</span>{" "}
-              results
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200"
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <input
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                placeholder="Title"
+                required
+                className="border p-2 rounded"
+              />
+              <input
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                placeholder="Description"
+                required
+                className="border p-2 rounded"
+              />
+              <select
+                value={form.type}
+                onChange={(e) => setForm({ ...form, type: e.target.value })}
+                className="border p-2 rounded"
               >
-                Previous
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
+                {WORKSHOP_TYPES.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={form.level}
+                onChange={(e) => setForm({ ...form, level: e.target.value })}
+                className="border p-2 rounded"
+              >
+                {WORKSHOP_LEVELS.map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {l.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <input
+                type="number"
+                value={form.price}
+                onChange={(e) => setForm({ ...form, price: e.target.value })}
+                placeholder="Price"
+                required
+                className="border p-2 rounded"
+              />
+              <input
+                type="number"
+                value={form.maxParticipants}
+                onChange={(e) =>
+                  setForm({ ...form, maxParticipants: e.target.value })
+                }
+                placeholder="Max Participants"
+                required
+                className="border p-2 rounded"
+              />
+              <input
+                type="date"
+                value={form.date}
+                onChange={(e) => setForm({ ...form, date: e.target.value })}
+                required
+                className="border p-2 rounded"
+              />
+              <input
+                value={form.time}
+                onChange={(e) => setForm({ ...form, time: e.target.value })}
+                placeholder="10:00 AM - 1:00 PM"
+                required
+                className="border p-2 rounded"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <input
+                value={form.duration}
+                onChange={(e) => setForm({ ...form, duration: e.target.value })}
+                placeholder="3 hours"
+                required
+                className="border p-2 rounded"
+              />
+              <select
+                value={form.location}
+                onChange={(e) => setForm({ ...form, location: e.target.value })}
+                className="border p-2 rounded"
+              >
+                {WORKSHOP_LOCATIONS.map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {l.label}
+                  </option>
+                ))}
+              </select>
+              <input
+                value={form.address}
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
+                placeholder="Address (optional)"
+                className="border p-2 rounded"
+              />
+              <input
+                value={form.includes}
+                onChange={(e) => setForm({ ...form, includes: e.target.value })}
+                placeholder="Includes (comma separated)"
+                className="border p-2 rounded"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-end gap-4">
+              <div className="flex-1 min-w-[200px]">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Workshop Image
+                </label>
+                <UploadInput
+                  uploadPreset="products_unsigned"
+                  folder="workshops"
+                  onUploaded={(urls) => setForm({ ...form, image: urls[0] || "" })}
+                />
+              </div>
+              {form.image && (
+                <div className="relative">
+                  <img
+                    src={form.image}
+                    alt="Preview"
+                    className="h-16 w-16 object-cover rounded border"
+                  />
                   <button
-                    key={page}
-                    onClick={() => goToPage(page)}
-                    className={`px-3 py-1 border rounded text-sm ${
-                      currentPage === page
-                        ? "bg-black text-white"
-                        : "hover:bg-gray-200"
-                    }`}
+                    type="button"
+                    onClick={() => setForm({ ...form, image: "" })}
+                    className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 text-xs"
                   >
-                    {page}
+                    ×
                   </button>
-                )
+                </div>
               )}
               <button
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200"
+                type="submit"
+                disabled={loading}
+                className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800 disabled:opacity-50"
               >
-                Next
+                {loading ? "Creating..." : "Add Workshop"}
               </button>
             </div>
-          </div>
-        )}
-      </div>
+          </form>
 
-      {/* Edit Modal */}
-      {editingId && (
+          {/* SEARCH BAR */}
+          <div className="mb-4">
+            <input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by title, type, or status..."
+              className="border p-2 w-full max-w-md rounded-md"
+            />
+          </div>
+
+          {/* WORKSHOP TABLE */}
+          <div className="border rounded-lg overflow-hidden bg-white">
+            <div className="overflow-x-auto">
+              <table className="w-full table-fixed">
+                <thead className="bg-gray-50 text-soil/80 border-b">
+                  <tr>
+                    <th className="w-1/12 p-3 text-left font-semibold">Image</th>
+                    <th className="w-2/12 p-3 text-left font-semibold">Title</th>
+                    <th className="w-1/12 p-3 text-left font-semibold">Type</th>
+                    <th className="w-1/12 p-3 text-left font-semibold">Date</th>
+                    <th className="w-1/12 p-3 text-left font-semibold">Price</th>
+                    <th className="w-1/12 p-3 text-left font-semibold">Seats</th>
+                    <th className="w-1/12 p-3 text-left font-semibold">Status</th>
+                    <th className="w-2/12 p-3 text-right font-semibold">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {currentWorkshops.map((w) => (
+                    <tr
+                      key={w._id}
+                      className="hover:bg-gray-50/50 transition-colors"
+                    >
+                      <td className="p-3 align-middle">
+                        {w.image ? (
+                          <img
+                            src={w.image}
+                            className="w-12 h-12 object-cover rounded"
+                            alt={w.title}
+                          />
+                        ) : (
+                          <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-xl">
+                            🎨
+                          </div>
+                        )}
+                      </td>
+                      <td className="p-3 align-middle break-words text-sm font-medium text-soil/90">
+                        {w.title}
+                      </td>
+                      <td className="p-3 align-middle text-sm text-soil/70 capitalize">
+                        {WORKSHOP_TYPES.find((t) => t.id === w.type)?.label ||
+                          w.type}
+                      </td>
+                      <td className="p-3 align-middle text-sm text-soil/70">
+                        {formatDate(w.date)}
+                      </td>
+                      <td className="p-3 align-middle text-sm text-soil/70">
+                        ₹{w.price}
+                      </td>
+                      <td className="p-3 align-middle text-sm text-soil/70">
+                        {w.enrolledCount || 0}/{w.maxParticipants}
+                      </td>
+                      <td className="p-3 align-middle">
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full font-medium ${w.status === "upcoming"
+                            ? "bg-green-100 text-green-700"
+                            : w.status === "full"
+                              ? "bg-orange-100 text-orange-700"
+                              : w.status === "completed"
+                                ? "bg-gray-100 text-gray-700"
+                                : "bg-red-100 text-red-700"
+                            }`}
+                        >
+                          {w.status}
+                        </span>
+                      </td>
+                      <td className="p-3 align-middle text-right space-x-2">
+                        <button
+                          onClick={() => {
+                            setEditingId(w._id);
+                            setForm({
+                              title: w.title || "",
+                              description: w.description || "",
+                              type: w.type || "group",
+                              level: w.level || "all-levels",
+                              price: w.price || "",
+                              maxParticipants: w.maxParticipants || "",
+                              date: formatDateForInput(w.date),
+                              time: w.time || "",
+                              duration: w.duration || "",
+                              location: w.location || "studio",
+                              address: w.address || "",
+                              includes: Array.isArray(w.includes)
+                                ? w.includes.join(", ")
+                                : "",
+                              image: w.image || "",
+                              status: w.status || "upcoming",
+                            });
+                          }}
+                          className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(w._id)}
+                          className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {filteredWorkshops.length === 0 && (
+                <div className="text-center py-8 text-soil/50">
+                  No workshops found matching your search.
+                </div>
+              )}
+            </div>
+
+            {/* Pagination Controls */}
+            {filteredWorkshops.length > 0 && (
+              <div className="bg-gray-50 p-3 border-t flex items-center justify-between">
+                <div className="text-sm text-soil/60">
+                  Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
+                  <span className="font-medium">
+                    {Math.min(startIndex + itemsPerPage, filteredWorkshops.length)}
+                  </span>{" "}
+                  of <span className="font-medium">{filteredWorkshops.length}</span>{" "}
+                  results
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200"
+                  >
+                    Previous
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <button
+                        key={page}
+                        onClick={() => goToPage(page)}
+                        className={`px-3 py-1 border rounded text-sm ${currentPage === page
+                          ? "bg-black text-white"
+                          : "hover:bg-gray-200"
+                          }`}
+                      >
+                        {page}
+                      </button>
+                    )
+                  )}
+                  <button
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* --- INQUIRIES TAB --- */}
+      {activeTab === 'inquiries' && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          {loadingInquiries ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="animate-spin text-clay" />
+            </div>
+          ) : inquiries.length === 0 ? (
+            <div className="text-center py-16 px-4">
+              <div className="text-4xl mb-4">📧</div>
+              <h3 className="text-xl font-bold text-soil mb-2">No Inquiries Yet</h3>
+              <p className="text-soil/60">Custom workshop inquiries will appear here.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-sand/30 text-soil/70 font-medium">
+                  <tr>
+                    <th className="p-4">Customer</th>
+                    <th className="p-4">Details</th>
+                    <th className="p-4">Occasion / Message</th>
+                    <th className="p-4">Date</th>
+                    <th className="p-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {inquiries.map((inquiry) => (
+                    <tr key={inquiry._id} className="hover:bg-gray-50 transition-colors">
+                      <td className="p-4 align-top">
+                        <div className="font-bold text-soil">{inquiry.name}</div>
+                        <div className="text-xs text-soil/60">{inquiry.email}</div>
+                        <div className="text-xs text-soil/60">{inquiry.phone}</div>
+                      </td>
+                      <td className="p-4 align-top">
+                        <div className="text-sm">
+                          <span className="font-semibold">Group Size:</span> {inquiry.groupSize}
+                        </div>
+                        {inquiry.preferredDate && (
+                          <div className="text-sm">
+                            <span className="font-semibold">Pref. Date:</span> {inquiry.preferredDate}
+                          </div>
+                        )}
+                      </td>
+                      <td className="p-4 align-top">
+                        <div className="text-xs font-bold uppercase tracking-wide text-clay mb-1">{inquiry.occasion}</div>
+                        <div className="text-sm text-soil/80 max-w-sm whitespace-pre-wrap">{inquiry.message}</div>
+                      </td>
+                      <td className="p-4 align-top text-sm text-soil/70">
+                        {new Date(inquiry.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="p-4 align-top text-right">
+                        <button
+                          onClick={() => handleDeleteInquiry(inquiry._id)}
+                          className="px-3 py-1 bg-red-50 text-red-600 text-xs font-bold rounded hover:bg-red-100 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* --- PREVIOUS WORKSHOPS TAB --- */}
+      {activeTab === 'previous' && (
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 className="text-xl font-semibold mb-4">Add New Entry</h2>
+            <form onSubmit={handleAddPreviousWorkshop} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Images</label>
+                <UploadInput
+                  onUploaded={(urls) => setPImages(urls)}
+                  folder="previous-workshops"
+                />
+                {pImages.length > 0 && (
+                  <div className="flex gap-2 mt-2">
+                    {pImages.map((img, idx) => (
+                      <div key={idx} className="relative w-20 h-20">
+                        <img
+                          src={img}
+                          alt="Preview"
+                          className="w-full h-full object-cover rounded"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <textarea
+                  value={pDescription}
+                  onChange={(e) => setPDescription(e.target.value)}
+                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+                  rows={4}
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={pLoading}
+                className="bg-clay text-white px-4 py-2 rounded hover:bg-clay/90 disabled:opacity-50"
+              >
+                {pLoading ? "Adding..." : "Add Entry"}
+              </button>
+            </form>
+          </div>
+
+          <div className="grid gap-6">
+            <h2 className="text-xl font-semibold">Existing Entries</h2>
+            {previousWorkshops.map((workshop) => (
+              <div key={workshop._id} className="bg-white p-4 rounded-lg shadow border flex flex-col md:flex-row gap-4">
+                <div className="w-32 h-32 relative flex-shrink-0">
+                  {workshop.images[0] && (
+                    <img
+                      src={workshop.images[0]}
+                      alt="Workshop"
+                      className="w-full h-full object-cover rounded"
+                    />
+                  )}
+                  {workshop.images.length > 1 && (
+                    <span className="absolute bottom-1 right-1 bg-black/50 text-white text-xs px-1 rounded">
+                      +{workshop.images.length - 1}
+                    </span>
+                  )}
+                </div>
+                <div className="flex-grow">
+                  <p className="whitespace-pre-wrap">{workshop.description}</p>
+                </div>
+                <button
+                  onClick={() => handleDeletePreviousWorkshop(workshop._id)}
+                  className="text-red-600 hover:text-red-800 self-start"
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+            {previousWorkshops.length === 0 && (
+              <p className="text-gray-500">No previous workshops added yet.</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal (Only for Workshops) */}
+      {editingId && activeTab === 'workshops' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-2xl shadow-lg w-full max-w-3xl p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">

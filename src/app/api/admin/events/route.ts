@@ -3,16 +3,12 @@ import { connectDB } from "@/lib/mongodb";
 import Event from "@/models/Event";
 import { requireAdmin } from "@/lib/admin-guard";
 
-// GET all events (admin view - maybe includes drafts/all statuses if we had them)
-// For now, re-using public logic but authenticated
+// GET all events
 export async function GET(req: Request) {
     try {
         await requireAdmin();
         await connectDB();
-
-        // Admin wants to see all events sorted by start date descending (newest/future first)
         const events = await Event.find().sort({ startDate: -1 });
-
         return NextResponse.json({ events });
     } catch (error: any) {
         console.error("Admin Events GET error:", error);
@@ -23,12 +19,9 @@ export async function GET(req: Request) {
     }
 }
 
-// Helper to generate slug
+// Generate slug
 const generateSlug = (title: string) => {
-    return title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
+    return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 };
 
 // POST create new event
@@ -36,27 +29,14 @@ export async function POST(req: Request) {
     try {
         await requireAdmin();
         await connectDB();
-
         const body = await req.json();
 
-        // Basic validation
         if (!body.title || !body.startDate || !body.endDate || !body.type) {
-            return NextResponse.json(
-                { error: "Missing required fields" },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        // Auto-generate slug
         const slug = generateSlug(body.title);
-
-        // Ensure description is at least empty string if missing (though model is optional now)
-        const eventData = {
-            ...body,
-            slug,
-            description: body.description || "",
-        };
-
+        const eventData = { ...body, slug, description: body.description || "" };
         const newEvent = await Event.create(eventData);
 
         return NextResponse.json({ event: newEvent }, { status: 201 });
@@ -85,15 +65,11 @@ export async function PUT(req: Request) {
             return NextResponse.json({ error: "Missing Event ID" }, { status: 400 });
         }
 
-        // If title is changing, regenerate slug
         if (updateData.title) {
             updateData.slug = generateSlug(updateData.title);
         }
 
-        const updatedEvent = await Event.findByIdAndUpdate(_id, updateData, {
-            new: true,
-            runValidators: true,
-        } as any);
+        const updatedEvent = await Event.findByIdAndUpdate(_id, updateData, { new: true, runValidators: true } as any);
 
         if (!updatedEvent) {
             return NextResponse.json({ error: "Event not found" }, { status: 404 });
@@ -125,7 +101,8 @@ export async function DELETE(req: Request) {
             return NextResponse.json({ error: "Missing ID" }, { status: 400 });
         }
 
-        const deletedEvent = await Event.findByIdAndDelete(id);
+        // Fix TS error by casting to any
+        const deletedEvent = await (Event as any).findByIdAndDelete(id);
 
         if (!deletedEvent) {
             return NextResponse.json({ error: "Event not found" }, { status: 404 });
