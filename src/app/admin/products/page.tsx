@@ -58,7 +58,9 @@ export default function AdminProductsPage() {
     weightGrams: "", // Added weight field
     images: [],
   });
+  const [categories, setCategories] = useState<any[]>([]); // Dynamic categories
   const [category, setCategory] = useState<string>("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Custom dropdown interactions
   const [descriptionText, setDescriptionText] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
@@ -97,8 +99,9 @@ export default function AdminProductsPage() {
     }
   };
 
-  /* FETCH PRODUCTS */
+  /* FETCH PRODUCTS & CATEGORIES */
   useEffect(() => {
+    // Fetch Products
     fetch("/api/admin/products")
       .then((res) => {
         if (!res.ok) throw new Error("Unauthorized");
@@ -106,7 +109,17 @@ export default function AdminProductsPage() {
       })
       .then(setProducts)
       .catch((err) => setError(err.message));
+
+    // Fetch Categories
+    fetchCategories();
   }, []);
+
+  const fetchCategories = () => {
+    fetch("/api/admin/categories")
+      .then((res) => res.json())
+      .then(setCategories)
+      .catch(console.error);
+  };
 
   /* ADD PRODUCT */
   async function handleAdd(e: any) {
@@ -151,8 +164,50 @@ export default function AdminProductsPage() {
       setCategory("");
       setDescriptionText("");
       setSuccess("Product added");
+
+      // Check if this was a new category and refresh list if needed
+      if (!categories.find(c => c.slug === category)) {
+        // It's a hack, effectively we'd want to properly create the category first
+        // But since products just store the string, we should essentially "create" it in the category DB too
+        // to make it available for future.
+        await createCategory(category);
+      }
     } catch (err: any) {
       setError(err.message || "Network error");
+    }
+  }
+
+  // Helper to create category on the fly
+  async function createCategory(name: string) {
+    try {
+      await fetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name })
+      });
+      fetchCategories();
+    } catch (e) { console.error(e); }
+  }
+
+  // Delete category handler
+  async function handleDeleteCategory(id: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this category?")) return;
+
+    try {
+      const res = await fetch("/api/admin/categories", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+      if (res.ok) {
+        setCategories(categories.filter(c => c._id !== id));
+        if (products.some(p => p.category === categories.find(c => c._id === id)?.slug)) {
+          // Optional warning: products with this category still exist
+        }
+      }
+    } catch (e) {
+      console.error("Failed to delete category");
     }
   }
 
@@ -348,37 +403,58 @@ export default function AdminProductsPage() {
             </div>
           )}
 
-          <div className="flex gap-4 w-full">
-            <select
-              value={
-                PRODUCT_CATEGORIES.some((c) => c.id === category)
-                  ? category
-                  : "other"
-              }
-              onChange={(e) => {
-                if (e.target.value === "other") {
-                  setCategory("");
-                } else {
-                  setCategory(e.target.value);
-                }
-              }}
-              className="border p-3 rounded-lg flex-grow focus:ring-2 focus:ring-clay/20 outline-none bg-white"
-            >
-              <option value="">Select category</option>
-              {PRODUCT_CATEGORIES.filter((c) => c.id !== "all").map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.label}
-                </option>
-              ))}
-              <option value="other">Other (Add New)</option>
-            </select>
-            {(!PRODUCT_CATEGORIES.some((c) => c.id === category) &&
-              category !== "") ||
-            !PRODUCT_CATEGORIES.some((c) => c.id === category) ? (
+          <div className="flex gap-4 w-full relative">
+            {/* Custom Dropdown */}
+            <div className="relative flex-grow">
+              <div
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="border p-3 rounded-lg w-full bg-white cursor-pointer flex justify-between items-center"
+              >
+                <span className={category ? "text-soil" : "text-gray-400"}>
+                  {categories.find(c => c.slug === category)?.name || (category || "Select category")}
+                </span>
+                <ChevronRight className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-90' : ''}`} />
+              </div>
+
+              {isDropdownOpen && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                  {categories.map((cat) => (
+                    <div
+                      key={cat._id}
+                      className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer group"
+                      onClick={() => {
+                        setCategory(cat.slug);
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <span>{cat.name}</span>
+                      <button
+                        onClick={(e) => handleDeleteCategory(cat._id, e)}
+                        className="p-1 hover:bg-red-100 rounded text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Delete Category"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                  <div
+                    className="p-3 hover:bg-gray-50 cursor-pointer text-clay font-medium border-t"
+                    onClick={() => {
+                      setCategory("other");
+                      setIsDropdownOpen(false);
+                    }}
+                  >
+                    + Add New Category
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {category === "other" || (!categories.find(c => c.slug === category) && category !== "") ? (
               <motion.input
                 initial={{ opacity: 0, width: 0 }}
                 animate={{ opacity: 1, width: "auto" }}
-                value={category}
+                value={category === "other" ? "" : category}
                 onChange={(e) => setCategory(e.target.value)}
                 placeholder="Enter new category"
                 className="border p-3 rounded-lg flex-grow focus:ring-2 focus:ring-clay/20 outline-none"
@@ -451,11 +527,10 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="p-3 align-top text-sm text-soil/70">
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          p.stockQuantity > 0
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${p.stockQuantity > 0
                             ? "bg-green-100 text-green-700"
                             : "bg-red-100 text-red-700"
-                        }`}
+                          }`}
                       >
                         {p.stockQuantity}
                       </span>
@@ -524,11 +599,10 @@ export default function AdminProductsPage() {
                   <button
                     key={page}
                     onClick={() => goToPage(page)}
-                    className={`px-3 py-1 border rounded text-sm ${
-                      currentPage === page
+                    className={`px-3 py-1 border rounded text-sm ${currentPage === page
                         ? "bg-black text-white"
                         : "hover:bg-gray-200"
-                    }`}
+                      }`}
                   >
                     {page}
                   </button>

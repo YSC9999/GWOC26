@@ -46,10 +46,9 @@ interface Product {
   featured: boolean;
 }
 
-import { PRODUCT_CATEGORIES, CATEGORY_EMOJIS } from "@/lib/categories";
+import { CATEGORY_EMOJIS } from "@/lib/categories";
 
 // Use constants from the library
-const categories = PRODUCT_CATEGORIES;
 const categoryEmojis = CATEGORY_EMOJIS;
 
 const budgetRanges = [
@@ -62,6 +61,7 @@ const budgetRanges = [
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<any[]>([{ id: "all", label: "All Products" }]); // Dynamic categories
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -118,6 +118,16 @@ export default function Products() {
       }
     };
     fetchStudioInfo();
+
+
+    // Fetch Categories
+    fetch("/api/admin/categories")
+      .then((res) => res.json())
+      .then((data) => {
+        const formatted = data.map((c: any) => ({ id: c.slug, label: c.name }));
+        setCategories([{ id: "all", label: "All Products" }, ...formatted]);
+      })
+      .catch((err) => console.error("Failed to fetch categories:", err));
   }, []);
 
   const [otpSent, setOtpSent] = useState(false);
