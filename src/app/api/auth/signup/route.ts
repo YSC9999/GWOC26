@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
+import Otp from "@/models/Otp";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -20,10 +21,22 @@ export async function POST(req: Request) {
     const hashed = await bcrypt.hash(password, 10);
     const fullName = `${firstName} ${lastName}`;
 
-    // Security check: Ensure email was verified before allowing details update/upsert
-    const unverifiedUser = await User.findOne({ email }).lean();
-    if (unverifiedUser && !unverifiedUser.emailVerified && !unverifiedUser.googleId) {
-      return NextResponse.json({ error: "Email not verified" }, { status: 403 });
+    // Check for verified OTP record
+    const verifiedOtp = await Otp.findOne({ email, verified: true });
+
+    // Also allow if user already exists (maybe updating profile) but we are treating signup as "new" mostly.
+    // Actually, signup endpoint does findOneAndUpdate.
+    // If it's a new user, we MUST have a verified OTP.
+    // If it's an existing user (updating details?), check if they are already verified in User model.
+
+    const existingUser = await User.findOne({ email });
+    const isAlreadyVerified = existingUser?.emailVerified;
+
+    if (!verifiedOtp && !isAlreadyVerified && !existingUser?.googleId) {
+      return NextResponse.json(
+        { error: "Email not verified. Please verify your email first." },
+        { status: 403 }
+      );
     }
 
     // Determine role (bootstrapping main admin)

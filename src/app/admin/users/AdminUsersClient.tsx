@@ -128,6 +128,23 @@ export default function AdminUsers() {
     }
   };
 
+  const cleanupUnverified = async () => {
+    if (!confirm("Are you sure? This will delete ALL users who have not verified their email.")) return;
+    setError("");
+    try {
+      const res = await fetch("/api/admin/users/cleanup", {
+        method: "DELETE",
+        credentials: "same-origin",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed");
+      alert(data.message);
+      fetchUsers();
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center gap-4 mb-6">
@@ -147,7 +164,10 @@ export default function AdminUsers() {
           <option value="admin">Admin</option>
         </select>
         <button onClick={() => { setPage(1); fetchUsers(); }} className="bg-clay text-white px-4 py-2 rounded-md w-full md:w-auto">Search</button>
-        <div className="ml-auto w-full md:w-auto">
+        <div className="ml-auto w-full md:w-auto flex gap-2">
+          <button onClick={cleanupUnverified} className="bg-red-100 text-red-700 hover:bg-red-200 px-4 py-2 rounded w-full md:w-auto border border-red-200">
+            Cleanup Unverified
+          </button>
           <button onClick={() => setShowAdd(true)} className="bg-green-600 text-white px-4 py-2 rounded w-full md:w-auto">Add User</button>
         </div>
       </div>

@@ -105,20 +105,14 @@ export default function FeaturedCollections({ collections }: FeaturedCollections
 
     return (
         <motion.section
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
             className="border-b border-soil/5"
         >
             <div className="text-center mb-8 px-4">
-                <motion.h2
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="text-2xl md:text-4xl font-bold text-soil font-serif"
-                >
+                <h2 className="text-2xl md:text-4xl font-bold text-soil font-serif">
                     Featured Collections
-                </motion.h2>
+                </h2>
                 <p className="text-soil/60 mt-2 max-w-2xl mx-auto text-sm md:text-base">
                     Explore our curated selections of handcrafted ceramics.
                 </p>
@@ -145,8 +139,9 @@ export default function FeaturedCollections({ collections }: FeaturedCollections
                                     key={collection._id}
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.5 }} // Smooth transition for zoom
-                                    className={`group min-w-[70vw] md:min-w-0 snap-center first:pl-2 last:pr-4 transition-all duration-500 ease-out ${isActive ? "scale-105 z-10" : "scale-95 opacity-80"}`}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.5 }}
+                                    className={`group min-w-[75vw] md:min-w-0 snap-center first:pl-2 last:pr-4 transition-all duration-500 ease-out ${isActive ? "scale-100 z-10" : "scale-95 opacity-100"}`} // Fixed opacity and scale
                                 >
                                     <Link
                                         href={`/collections/${collection.slug || collection._id}`}

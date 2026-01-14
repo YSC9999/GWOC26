@@ -51,8 +51,8 @@ export default async function RootLayout({
   children: ReactNode;
   modal: ReactNode;
 }) {
-  await connectDB();
-  const studioInfo = await StudioInfo.findOne().lean();
+  // await connectDB();
+  // const studioInfo = await StudioInfo.findOne().lean();
 
   return (
     <html
@@ -76,7 +76,7 @@ export default async function RootLayout({
         <PageWrapper>{children}</PageWrapper>
 
         <ChatBot />
-        <ConditionalFooter studioInfo={JSON.parse(JSON.stringify(studioInfo))} />
+        <ConditionalFooter studioInfo={undefined} />
       </body>
     </html>
   );

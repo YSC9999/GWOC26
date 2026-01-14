@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
+import Otp from "@/models/Otp";
 import { generateOTP, sendOTPEmail } from "@/lib/email";
 
 export async function POST(req: Request) {
@@ -16,7 +17,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check if email already exists and is FULLY registered (has a password)
+    // Check if email is already fully registered
     const existingUser = await User.findOne({ email }).lean();
     if (existingUser && existingUser.emailVerified && existingUser.password) {
       return NextResponse.json(
@@ -39,25 +40,17 @@ export async function POST(req: Request) {
       );
     }
 
-    // If user exists but not verified, update OTP. Otherwise, create temporary record
-    if (existingUser) {
-      await User.updateOne(
-        { email },
-        {
-          emailVerificationOTP: otp,
-          otpExpiry,
-        }
-      );
-    } else {
-      // Create a temporary user record for new emails
-      await User.create({
+    // Upsert into Otp collection
+    await Otp.findOneAndUpdate(
+      { email },
+      {
         email,
-        name: "Unverified",
-        emailVerificationOTP: otp,
-        otpExpiry,
-        emailVerified: false,
-      });
-    }
+        otp,
+        expiresAt: otpExpiry,
+        verified: false
+      },
+      { upsert: true, new: true }
+    );
 
     return NextResponse.json({
       success: true,

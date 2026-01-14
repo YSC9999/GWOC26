@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
-import User from "@/models/User";
+import Otp from "@/models/Otp";
 
 export async function POST(req: Request) {
   try {
@@ -15,36 +15,27 @@ export async function POST(req: Request) {
       );
     }
 
-    const user = await User.findOne({ email });
+    // Find the OTP record
+    const otpRecord = await Otp.findOne({ email });
 
-    if (!user) {
+    if (!otpRecord) {
       return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
+        { error: "OTP expired or not found. Please request a new one." },
+        { status: 400 }
       );
     }
 
     // Check if OTP matches
-    if (user.emailVerificationOTP !== otp) {
+    if (otpRecord.otp !== otp) {
       return NextResponse.json(
         { error: "Invalid OTP" },
         { status: 400 }
       );
     }
 
-    // Check if OTP has expired
-    if (!user.otpExpiry || new Date() > user.otpExpiry) {
-      return NextResponse.json(
-        { error: "OTP has expired. Please request a new one." },
-        { status: 400 }
-      );
-    }
-
-    // Mark email as verified and clear OTP
-    user.emailVerified = true;
-    user.emailVerificationOTP = undefined;
-    user.otpExpiry = undefined;
-    await user.save();
+    // Mark as verified
+    otpRecord.verified = true;
+    await otpRecord.save();
 
     return NextResponse.json({
       success: true,
