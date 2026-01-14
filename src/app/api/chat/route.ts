@@ -10,8 +10,8 @@ export async function POST(req: Request) {
             return NextResponse.json({ reply: "API Key missing" }, { status: 500 });
         }
 
-        // Using gemini-1.5-flash
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        // Using gemini-2.5-flash (visible in user's dashboard)
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
         const response = await fetch(url, {
             method: "POST",
@@ -37,7 +37,9 @@ export async function POST(req: Request) {
         if (!response.ok) {
             const errorData = await response.json();
             console.error("Gemini Raw API Error:", JSON.stringify(errorData, null, 2));
-            return NextResponse.json({ reply: "I'm having trouble thinking right now. Please try again." }, { status: 500 });
+            // Return the actual error message for debugging purposes
+            const errorMessage = errorData.error?.message || "Unknown error from Gemini API";
+            return NextResponse.json({ reply: `Error: ${errorMessage}. Please check your API key and billing.` }, { status: 500 });
         }
 
         const data = await response.json();
@@ -46,10 +48,10 @@ export async function POST(req: Request) {
         return NextResponse.json({ reply: replyText });
 
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Gemini API Error:", error);
         return NextResponse.json(
-            { reply: "I'm having a little trouble connecting to the creative muse right now. Please try again in a moment." },
+            { reply: `Connection Error: ${error.message}` },
             { status: 500 }
         );
     }

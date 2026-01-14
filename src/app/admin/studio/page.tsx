@@ -389,6 +389,9 @@ function ExhibitModal({ exhibit, onClose, onSuccess }: any) {
             const method = isEdit ? "PUT" : "POST";
             const body = isEdit ? { ...formData, _id: exhibit._id } : formData;
 
+            // Ensure description is an empty string if falsy, to satisfy backend/model requirements
+            if (!body.description) body.description = "";
+
             const res = await fetch(url, {
                 method,
                 headers: { "Content-Type": "application/json" },

@@ -23,6 +23,14 @@ export async function GET(req: Request) {
     }
 }
 
+// Helper to generate slug
+const generateSlug = (title: string) => {
+    return title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+};
+
 // POST create new event
 export async function POST(req: Request) {
     try {
@@ -39,11 +47,24 @@ export async function POST(req: Request) {
             );
         }
 
-        const newEvent = await Event.create(body);
+        // Auto-generate slug
+        const slug = generateSlug(body.title);
+
+        // Ensure description is at least empty string if missing (though model is optional now)
+        const eventData = {
+            ...body,
+            slug,
+            description: body.description || "",
+        };
+
+        const newEvent = await Event.create(eventData);
 
         return NextResponse.json({ event: newEvent }, { status: 201 });
     } catch (error: any) {
         console.error("Admin Event POST error:", error);
+        if (error.code === 11000) {
+            return NextResponse.json({ error: "An event with this title already exists." }, { status: 409 });
+        }
         if (error.message === "Unauthorized") {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
@@ -64,6 +85,11 @@ export async function PUT(req: Request) {
             return NextResponse.json({ error: "Missing Event ID" }, { status: 400 });
         }
 
+        // If title is changing, regenerate slug
+        if (updateData.title) {
+            updateData.slug = generateSlug(updateData.title);
+        }
+
         const updatedEvent = await Event.findByIdAndUpdate(_id, updateData, {
             new: true,
             runValidators: true,
@@ -76,6 +102,9 @@ export async function PUT(req: Request) {
         return NextResponse.json({ event: updatedEvent });
     } catch (error: any) {
         console.error("Admin Event PUT error:", error);
+        if (error.code === 11000) {
+            return NextResponse.json({ error: "An event with this title already exists." }, { status: 409 });
+        }
         if (error.message === "Unauthorized") {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }

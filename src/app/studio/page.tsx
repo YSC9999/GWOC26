@@ -4,10 +4,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
 import { Calendar as CalendarIcon, MapPin, ArrowRight, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import EventCalendar from "@/components/EventCalendar";
+import EventModal from "@/components/EventModal";
 
 interface Event {
   _id: string;
   title: string;
+  slug: string;
   description: string;
   image: string;
   type: string;
@@ -38,6 +40,7 @@ export default function Studio() {
   const [eventFilter, setEventFilter] = useState<"upcoming" | "past">("upcoming");
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedEventDetails, setSelectedEventDetails] = useState<Event | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,6 +74,19 @@ export default function Studio() {
     return () => clearInterval(timer);
   }, [studioImages.length]);
 
+  // Helper to check if event is currently active (Ongoing)
+  const isOngoing = (ev: Event) => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const start = new Date(ev.startDate);
+    const end = new Date(ev.endDate);
+    const eStart = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    const eEnd = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+
+    return today >= eStart && today <= eEnd;
+  };
+
   const displayedEvents = events.filter((ev) => {
     if (selectedDate) {
       // Strip time from selectedDate
@@ -85,11 +101,16 @@ export default function Studio() {
     }
 
     const now = new Date();
+    // Normalize 'now' to start of day for fairer comparison with mostly date-only DB fields
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
     const end = new Date(ev.endDate);
-    // "Upcoming" includes ongoing and future events
-    if (eventFilter === "upcoming") return end >= now;
-    // "Past" includes strictly past events
-    return end < now;
+    const eEnd = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+
+    // "Upcoming" includes ongoing (endDate >= today)
+    if (eventFilter === "upcoming") return eEnd >= today;
+    // "Past" is strictly before today
+    return eEnd < today;
   }).sort((a, b) => {
     // Sort logic
     if (eventFilter === "upcoming") return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
@@ -269,7 +290,8 @@ export default function Studio() {
                   <motion.div
                     key={event._id}
                     variants={fadeInUp}
-                    className={`bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow flex flex-col group ${eventFilter === 'past' ? 'opacity-90' : ''}`}
+                    onClick={() => setSelectedEventDetails(event)}
+                    className={`bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all cursor-pointer group hover:-translate-y-1 ${eventFilter === 'past' ? 'opacity-90' : ''}`}
                   >
                     <div className="h-56 overflow-hidden relative">
                       {event.image ? (
@@ -282,12 +304,20 @@ export default function Studio() {
                         <div className="w-full h-full bg-sand flex items-center justify-center text-4xl">🎨</div>
                       )}
 
-
+                      {/* Ongoing Badge */}
+                      {isOngoing(event) && (
+                        <div className="absolute top-4 left-4">
+                          <span className="px-3 py-1 rounded-full text-xs font-bold uppercase bg-red-100 text-red-600 flex items-center gap-1.5 shadow-sm border border-red-200">
+                            <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+                            Ongoing
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="p-6 flex-1 flex flex-col">
                       <div className="mb-4">
-                        <h3 className="text-xl font-bold text-soil font-serif mb-2">{event.title}</h3>
+                        <h3 className="text-xl font-bold text-soil font-serif mb-2 group-hover:text-clay transition-colors">{event.title}</h3>
                         <div className="text-clay font-medium text-xs flex items-center gap-2">
                           <CalendarIcon size={14} /> {formatDate(event.startDate, event.endDate)}
                         </div>
@@ -333,6 +363,12 @@ export default function Studio() {
           </div>
         </div>
       </section>
+
+      {/* Event Details Modal */}
+      <EventModal
+        event={selectedEventDetails}
+        onClose={() => setSelectedEventDetails(null)}
+      />
     </div>
   );
 }
