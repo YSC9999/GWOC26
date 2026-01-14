@@ -19,6 +19,7 @@ const WorkshopRegistrationSchema = new mongoose.Schema({
 
     // Special requests
     specialRequests: String,
+    gstNumber: String, // Added GST Number for invoice
 
     // Payment
     totalAmount: { type: Number, required: true },

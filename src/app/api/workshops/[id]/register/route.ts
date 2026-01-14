@@ -20,7 +20,7 @@ export async function POST(
 
         const { id } = await params;
         const body = await req.json();
-        const { name, email, phone, numberOfParticipants, specialRequests } = body;
+        const { name, email, phone, numberOfParticipants, specialRequests, gstNumber } = body;
 
         // Get userId from session if available
         const authUser = await getUser();
@@ -68,6 +68,7 @@ export async function POST(
             phone,
             numberOfParticipants,
             specialRequests,
+            gstNumber, // Added GST number
             totalAmount,
             razorpayOrderId: razorpayOrder.id,
             paymentStatus: "pending",

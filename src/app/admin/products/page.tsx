@@ -46,6 +46,7 @@ export default function AdminProductsPage() {
     name: "",
     price: "",
     stockQuantity: "",
+    weightGrams: "", // Added weight field
     images: [],
   });
   const [category, setCategory] = useState<string>('');
@@ -111,6 +112,7 @@ export default function AdminProductsPage() {
           name: form.name,
           price: form.price,
           stockQuantity: form.stockQuantity,
+          weightGrams: form.weightGrams || 500, // Default 500g if missing?
           images: form.images, // secure URLs
           description: descriptionText,
           category,
@@ -124,7 +126,7 @@ export default function AdminProductsPage() {
       }
 
       setProducts((p) => [data, ...p]);
-      setForm({ name: "", price: 0, stockQuantity: 0, images: [] });
+      setForm({ name: "", price: 0, stockQuantity: 0, weightGrams: "", images: [] });
       setCategory('');
       setDescriptionText('');
       setSuccess('Product added');
@@ -241,6 +243,16 @@ export default function AdminProductsPage() {
               placeholder="Stock"
               className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay"
               required
+            />
+            <input
+              type="number"
+              value={form.weightGrams}
+              onChange={(e) =>
+                setForm({ ...form, weightGrams: e.target.value === "" ? "" : Number(e.target.value) })
+              }
+              placeholder="Weight (Optional, default 500g)"
+              className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay"
+              title="Weight in grams (e.g. 500 for 0.5kg)"
             />
           </div>
 
@@ -384,7 +396,7 @@ export default function AdminProductsPage() {
                       <button
                         onClick={() => {
                           setEditingId(p._id);
-                          setForm({ name: p.name, price: p.price, stockQuantity: p.stockQuantity, images: p.images || [] });
+                          setForm({ name: p.name, price: p.price, stockQuantity: p.stockQuantity, weightGrams: p.weightGrams || 500, images: p.images || [] });
                           setCategory(p.category || '');
                           setDescriptionText(p.description || '');
                         }}
@@ -463,6 +475,9 @@ export default function AdminProductsPage() {
 
                 <label className="block text-sm text-soil mt-3 mb-1">Stock</label>
                 <input type="number" value={form.stockQuantity} onChange={(e) => setForm({ ...form, stockQuantity: e.target.value === "" ? "" : Number(e.target.value) })} className="border p-2 w-full" />
+
+                <label className="block text-sm text-soil mt-3 mb-1">Weight (grams)</label>
+                <input type="number" value={form.weightGrams} onChange={(e) => setForm({ ...form, weightGrams: e.target.value === "" ? "" : Number(e.target.value) })} className="border p-2 w-full" placeholder="e.g. 500" />
 
                 <label className="block text-sm text-soil mt-3 mb-1">Category</label>
                 <div className="space-y-2">

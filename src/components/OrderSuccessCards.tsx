@@ -5,11 +5,13 @@ import { X } from "lucide-react";
 
 interface OrderSuccessCardsProps {
   customerEmail: string;
+  orderId?: string;
   onClose?: () => void;
 }
 
 export default function OrderSuccessCards({
   customerEmail,
+  orderId,
   onClose,
 }: OrderSuccessCardsProps) {
   const [showModal, setShowModal] = useState(true);
@@ -79,8 +81,17 @@ export default function OrderSuccessCards({
               </motion.div>
             </div>
 
-            {/* Continue Shopping Button */}
-            <div className="px-6 py-6 bg-white border-t border-soil/10 flex justify-center">
+            <div className="px-6 py-6 bg-white border-t border-soil/10 flex flex-col sm:flex-row justify-center gap-4">
+              {orderId && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => window.open(`/invoice/${orderId}`, '_blank')}
+                  className="bg-white border-2 border-clay text-clay px-8 py-3 rounded-xl transition-colors font-semibold shadow-sm hover:bg-clay/5 flex items-center justify-center gap-2"
+                >
+                  Download Invoice
+                </motion.button>
+              )}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

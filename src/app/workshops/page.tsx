@@ -72,6 +72,7 @@ export default function Workshops() {
     phone: "",
     numberOfParticipants: 1,
     specialRequests: "",
+    gstNumber: "" // Added GST Number
   });
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingError, setBookingError] = useState("");
@@ -291,7 +292,7 @@ export default function Workshops() {
 
   const closeBookingModal = () => {
     setBookingWorkshop(null);
-    setBookingForm({ name: "", email: "", phone: "", numberOfParticipants: 1, specialRequests: "" });
+    setBookingForm({ name: "", email: "", phone: "", numberOfParticipants: 1, specialRequests: "", gstNumber: "" });
     setBookingError("");
     setBookingSuccess(false);
     setOtp("");
@@ -690,6 +691,18 @@ export default function Workshops() {
                         />
                       </div>
                     </div>
+                    {/* GSTIN Field */}
+                    <div>
+                      <label className="text-xs font-bold text-soil uppercase tracking-wide">GST Number (Optional)</label>
+                      <input
+                        type="text"
+                        value={bookingForm.gstNumber}
+                        onChange={(e) => setBookingForm({ ...bookingForm, gstNumber: e.target.value })}
+                        className="w-full px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none text-sm uppercase"
+                        placeholder="e.g. 29ABCDE1234F1Z5"
+                        maxLength={15}
+                      />
+                    </div>
 
                     <div>
                       <label className="block text-xs font-medium text-soil mb-1">
@@ -713,8 +726,8 @@ export default function Workshops() {
                           }
                           disabled={phoneVerified}
                           className={`flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none transition-colors ${phoneVerified
-                              ? "bg-green-50 border-green-300 text-green-700"
-                              : "border-soil/20 focus:border-clay"
+                            ? "bg-green-50 border-green-300 text-green-700"
+                            : "border-soil/20 focus:border-clay"
                             }`}
                           placeholder="+91 98765 43210"
                         />

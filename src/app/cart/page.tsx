@@ -26,6 +26,7 @@ export default function Cart() {
   const [loading, setLoading] = useState(false);
   // Coupon State
   const [checkoutStep, setCheckoutStep] = useState(1); // 1: Cart, 2: Address, 3: Success
+  const [completedOrderId, setCompletedOrderId] = useState<string | null>(null);
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{
     code: string;
@@ -111,6 +112,7 @@ export default function Cart() {
     state: "",
     pincode: "",
     country: "India",
+    gstNumber: "", // Added GST Number
   });
   const router = useRouter();
 
@@ -142,6 +144,36 @@ export default function Cart() {
     }
   };
 
+  const updateShippingRate = async (pincode: string) => {
+    // We send items to server to calculate weight accurately based on DB values
+    const payload = {
+      items: items.map(i => ({ id: i.id, qty: i.qty })),
+      pincode: pincode // Added Pincode
+    };
+
+    setCalculatingShipping(true);
+    setShippingError("");
+    try {
+      const res = await fetch("/api/shipping/calculate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        setShippingCost(data.cost);
+      } else {
+        setShippingCost(150); // Fallback
+      }
+    } catch (err) {
+      console.error(err);
+      setShippingCost(150);
+    } finally {
+      setCalculatingShipping(false);
+    }
+  };
+
   const { user, login, isAuthenticated } = useAuth();
 
   const calculateTotal = () => {
@@ -164,35 +196,19 @@ export default function Cart() {
       subtotal,
       shipping: shippingCost,
       discount: discountAmount,
-      total: subtotal + shippingCost - discountAmount,
+      total: subtotal + (shippingCost || 0) - discountAmount,
     };
   };
 
-  const [useWallet, setUseWallet] = useState(false);
-
+  // Wallet Logic Removed
   const {
     subtotal,
     shipping,
     discount,
     total: calculatedTotal,
-    walletUsed,
-  } = (() => {
-    const { subtotal, shipping, discount, total } = calculateTotal();
-    let walletUsed = 0;
-    let finalTotal = total;
+  } = calculateTotal();
 
-    if (useWallet && user?.walletBalance && user.walletBalance > 0) {
-      if (user.walletBalance >= total) {
-        walletUsed = total;
-        finalTotal = 0;
-      } else {
-        walletUsed = user.walletBalance;
-        finalTotal = total - user.walletBalance;
-      }
-    }
-
-    return { subtotal, shipping, discount, total: finalTotal, walletUsed };
-  })();
+  // Populate email from user
 
   // Populate email from user
   React.useEffect(() => {
@@ -218,6 +234,7 @@ export default function Cart() {
       state: addr.state || "",
       pincode: addr.pincode || "",
       country: addr.country || "India",
+      gstNumber: addr.gstNumber || "", // Use saved if available
     }));
   };
 
@@ -387,34 +404,7 @@ export default function Cart() {
     }
   }, [formData.pincode]);
 
-  const updateShippingRate = async (pincode: string) => {
-    setCalculatingShipping(true);
-    setShippingError("");
-    try {
-      const res = await fetch(
-        `/api/shiprocket/serviceability?pincode=${pincode}`
-      );
-      const data = await res.json();
-      if (res.ok && data.data?.available_courier_companies) {
-        const couriers = data.data.available_courier_companies;
-        if (couriers.length > 0) {
-          const cheapest = couriers.reduce((prev: any, curr: any) =>
-            Number(prev.rate) < Number(curr.rate) ? prev : curr
-          );
-          setShippingCost(Math.ceil(Number(cheapest.rate)));
-        } else {
-          setShippingError("No delivery service for this pincode.");
-          setShippingCost(150); // Fallback
-        }
-      } else {
-        setShippingError(data.error || "Could not calculate shipping.");
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setCalculatingShipping(false);
-    }
-  };
+
 
   const handleCheckout = async () => {
     if (!phoneVerified) {
@@ -453,7 +443,8 @@ export default function Cart() {
           shippingAddress: formData,
           email: formData.email,
           couponCode: appliedCoupon ? appliedCoupon.code : undefined,
-          useWallet, // Include wallet choice
+          customerGstNumber: formData.gstNumber, // Pass to API
+          // useWallet removed
         }),
       });
 
@@ -463,6 +454,7 @@ export default function Cart() {
 
       // Check for zero-cost orders (Wallet covered everything)
       if (data.bypassPayment) {
+        setCompletedOrderId(data.orderId);
         clear();
         setCheckoutStep(3);
         // Refresh Auth State to update wallet balance
@@ -496,6 +488,7 @@ export default function Cart() {
             });
 
             if (verifyRes.ok) {
+              setCompletedOrderId(data.orderId); // Save Order ID for invoice
               clear(); // Clear cart
               setCheckoutStep(3); // Show success
               // Refresh Auth State to update wallet balance
@@ -590,6 +583,7 @@ export default function Cart() {
           <EmailConfirmationToast email={formData.email} duration={3000} />
           <OrderSuccessCards
             customerEmail={formData.email}
+            orderId={completedOrderId || undefined}
             onClose={() => {
               setCheckoutStep(1);
               clear();
@@ -660,11 +654,10 @@ export default function Cart() {
                         <button
                           onClick={() => updateQty(item.id, item.qty + 1)}
                           disabled={item.qty >= item.stock}
-                          className={`p-2 transition-colors ${
-                            item.qty >= item.stock
-                              ? "text-gray-300 cursor-not-allowed"
-                              : "hover:text-clay"
-                          }`}
+                          className={`p-2 transition-colors ${item.qty >= item.stock
+                            ? "text-gray-300 cursor-not-allowed"
+                            : "hover:text-clay"
+                            }`}
                         >
                           <Plus size={16} />
                         </button>
@@ -698,11 +691,10 @@ export default function Cart() {
                     {savedAddresses.map((addr) => (
                       <div
                         key={addr._id}
-                        className={`p-4 rounded-xl border-2 transition-all relative group ${
-                          selectedAddressId === addr._id
-                            ? "border-clay bg-clay/5"
-                            : "border-gray-100 hover:border-gray-200"
-                        }`}
+                        className={`p-4 rounded-xl border-2 transition-all relative group ${selectedAddressId === addr._id
+                          ? "border-clay bg-clay/5"
+                          : "border-gray-100 hover:border-gray-200"
+                          }`}
                         onClick={() => handleAddressSelect(addr._id)}
                       >
                         <div className="flex justify-between items-start">
@@ -761,11 +753,10 @@ export default function Cart() {
                     ))}
                     <div
                       onClick={() => handleAddressSelect("new")}
-                      className={`p-4 rounded-xl border-2 cursor-pointer border-dashed flex items-center justify-center gap-2 ${
-                        selectedAddressId === "new"
-                          ? "border-clay bg-clay/5"
-                          : "border-gray-200 text-soil/50 hover:text-clay hover:border-clay"
-                      }`}
+                      className={`p-4 rounded-xl border-2 cursor-pointer border-dashed flex items-center justify-center gap-2 ${selectedAddressId === "new"
+                        ? "border-clay bg-clay/5"
+                        : "border-gray-200 text-soil/50 hover:text-clay hover:border-clay"
+                        }`}
                     >
                       <Plus size={20} /> Add New Address
                     </div>
@@ -774,11 +765,10 @@ export default function Cart() {
 
                 {/* Shared Form */}
                 <div
-                  className={`space-y-6 ${
-                    !editingAddressId && selectedAddressId !== "new"
-                      ? "opacity-80 pointer-events-none grayscale"
-                      : ""
-                  }`}
+                  className={`space-y-6 ${!editingAddressId && selectedAddressId !== "new"
+                    ? "opacity-80 pointer-events-none grayscale"
+                    : ""
+                    }`}
                 >
                   {" "}
                   {/* Disable form if saved address selected */}
@@ -858,11 +848,10 @@ export default function Cart() {
                             sendingOtp ||
                             formData.phone.length < 10
                           }
-                          className={`px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-colors ${
-                            phoneVerified
-                              ? "bg-green-100 text-green-700"
-                              : "bg-clay text-white hover:bg-clay/90 disabled:opacity-50"
-                          }`}
+                          className={`px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-colors ${phoneVerified
+                            ? "bg-green-100 text-green-700"
+                            : "bg-clay text-white hover:bg-clay/90 disabled:opacity-50"
+                            }`}
                         >
                           {sendingOtp ? (
                             <Loader2 className="animate-spin" />
@@ -971,6 +960,21 @@ export default function Cart() {
                         required
                       />
                     </div>
+                  </div>
+                  {/* GSTIN Field */}
+                  <div className="mt-6">
+                    <label className="block text-sm font-medium text-soil mb-2">
+                      GST Number <span className="text-soil/50 text-xs">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="gstNumber"
+                      value={formData.gstNumber}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none uppercase"
+                      placeholder="e.g. 29ABCDE1234F1Z5"
+                      maxLength={15}
+                    />
                   </div>
                   <button
                     type="button"

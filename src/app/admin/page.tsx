@@ -13,6 +13,8 @@ import {
   Building2,
   MessageSquare,
   Brush,
+  Truck,
+  BarChart2
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -44,7 +46,7 @@ export default function AdminDashboard() {
       href: "/admin/analytics",
       label: "Analytics",
       desc: "View sales trends & insights",
-      icon: <span className="text-2xl">📊</span>,
+      icon: <BarChart2 size={32} />,
     },
     {
       href: "/admin/products",
@@ -57,6 +59,12 @@ export default function AdminDashboard() {
       label: "Orders",
       desc: "View and manage customer orders",
       icon: <ShoppingBag size={32} />,
+    },
+    {
+      href: "/admin/shipping",
+      label: "Shipping",
+      desc: "Manage rates & config",
+      icon: <Truck size={32} />,
     },
     {
       href: "/admin/coupons",

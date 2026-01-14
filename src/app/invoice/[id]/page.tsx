@@ -74,6 +74,9 @@ export default function InvoicePage() {
                         {order.shippingAddress?.pincode}, {order.shippingAddress?.country}
                     </p>
                     <p className="text-slate-600 mt-2">{order.shippingAddress?.phone}</p>
+                    {order.customerGstNumber && (
+                        <p className="text-slate-600 mt-2 font-medium">GSTIN: {order.customerGstNumber}</p>
+                    )}
                 </div>
                 <div className="text-right">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Invoice Details</h3>

@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     await requireAdmin();
     await connectDB();
 
-    const { name, price, stockQuantity, images = [], description, category } = await req.json();
+    const { name, price, stockQuantity, weightGrams, images = [], description, category } = await req.json();
 
     if (!category) {
       return NextResponse.json({ error: "Category is required" }, { status: 400 });
@@ -49,6 +49,7 @@ export async function POST(req: Request) {
       category,
       price,
       stockQuantity,
+      weightGrams: weightGrams || 500, // Default if not provided
       images,
     });
 

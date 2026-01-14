@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
+import StoreSettings from "@/models/StoreSettings";
+import ShippingRate from "@/models/ShippingRate";
+import PincodeRate from "@/models/PincodeRate";
 import Razorpay from "razorpay";
 import { cookies } from "next/headers";
 import { getUser } from "@/lib/server-auth";
@@ -36,7 +39,7 @@ export async function POST(req: Request) {
         await connectDB();
 
         const body = await req.json();
-        const { items, shippingAddress, email, couponCode } = body;
+        const { items, shippingAddress, email, couponCode, customerGstNumber } = body;
 
         // Get userId from session if available
         const authUser = await getUser();
@@ -70,29 +73,107 @@ export async function POST(req: Request) {
             });
         }
 
-        // 2. Calculate shipping via Shiprocket
+        const totalWeightKG = orderItems.reduce((sum, item) => sum + ((item.weightGrams || 500) * item.quantity), 0) / 1000;
+
+        // 2. Calculate shipping via StoreSettings (Sync with /api/shipping/calculate)
         let shippingCost = 0;
         try {
-            const { checkServiceability } = await import("@/lib/shiprocket");
-            const totalWeightKG = orderItems.reduce((sum, item) => sum + ((item.weightGrams || 500) * item.quantity), 0) / 1000;
+            // Fetch Settings
+            let settings = await StoreSettings.findOne();
+            if (!settings) settings = await StoreSettings.create({});
 
-            const srData = await checkServiceability(Number(shippingAddress.pincode), totalWeightKG);
-
-            // Get cheapest courier
-            const couriers = srData.data?.available_courier_companies || [];
-            if (couriers.length > 0) {
-                // Find cheapest
-                const cheapest = couriers.reduce((prev: any, curr: any) =>
-                    (Number(prev.rate) < Number(curr.rate)) ? prev : curr
-                );
-                shippingCost = Math.ceil(Number(cheapest.rate));
+            // Check Free Shipping Threshold
+            if (settings.freeShippingThreshold > 0 && subtotal >= settings.freeShippingThreshold) {
+                shippingCost = 0;
             } else {
-                // Fallback to default if no courier found (e.g., remote area handle)
-                shippingCost = subtotal > 2000 ? 0 : 150;
+                // Determine Mode
+                if (settings.shippingMode === 'pincode') {
+                    // SHIPROCKET INTEGRATION
+                    if (settings.pincodeType === 'shiprocket_realtime' || settings.pincodeType === 'shiprocket_reference') {
+                        const targetPincode = settings.pincodeType === 'shiprocket_realtime' ? shippingAddress?.pincode : settings.shiprocketReferencePincode;
+                        const weight = totalWeightKG;
+
+                        try {
+                            const { checkServiceability } = await import("@/lib/shiprocket");
+                            let multiplier = 1;
+
+                            // Calculate Multiplier for Reference Mode
+                            if (settings.pincodeType === 'shiprocket_reference' && settings.shiprocketReferencePincode) {
+                                try {
+                                    const refData = await checkServiceability(Number(settings.shiprocketReferencePincode), 0.5); // Check 0.5kg base rate
+                                    const couriers = refData.data?.available_courier_companies || [];
+                                    let refRate = 50;
+                                    if (couriers.length > 0) {
+                                        const cheapest = couriers.reduce((prev: any, curr: any) => (Number(prev.rate) < Number(curr.rate)) ? prev : curr);
+                                        refRate = Number(cheapest.rate);
+                                    }
+                                    const adminPrice = settings.shiprocketReferencePrice || 50;
+                                    if (refRate > 0) {
+                                        multiplier = adminPrice / refRate;
+                                    }
+                                } catch (e) {
+                                    console.error("Ref Calc Error:", e);
+                                    // Fallback: multiplier stays 1 if ref check fails
+                                }
+                            }
+
+                            if (shippingAddress?.pincode) {
+                                const srData = await checkServiceability(Number(shippingAddress.pincode), weight);
+                                const couriers = srData.data?.available_courier_companies || [];
+
+                                if (couriers.length > 0) {
+                                    const cheapest = couriers.reduce((prev: any, curr: any) => (Number(prev.rate) < Number(curr.rate)) ? prev : curr);
+                                    const baseRate = Number(cheapest.rate);
+                                    shippingCost = Math.ceil(baseRate * multiplier);
+                                } else {
+                                    shippingCost = settings.pincodeRateDefault || 150;
+                                }
+                            } else {
+                                shippingCost = settings.pincodeRateDefault || 150;
+                            }
+                        } catch (err) {
+                            console.error("SR Calc Error:", err);
+                            shippingCost = settings.pincodeRateDefault || 150;
+                        }
+                    }
+                    // DB SPECIFIC RATE
+                    else if (settings.pincodeType === 'specific' && shippingAddress?.pincode) {
+                        let pinRate = settings.pincodeRateDefault || 150;
+                        const specificPincodeRate = await PincodeRate.findOne({ pincode: shippingAddress.pincode });
+                        if (specificPincodeRate) {
+                            pinRate = specificPincodeRate.rate;
+                        }
+                        shippingCost = pinRate;
+                    }
+                    // STANDARD FALLBACK
+                    else {
+                        shippingCost = settings.pincodeRateDefault || 150;
+                    }
+                } else {
+                    // Weight Based
+                    // Calculate total weight (Already calc line 74)
+
+                    const matchingRate = await ShippingRate.findOne({
+                        minWeight: { $lte: totalWeightKG },
+                        maxWeight: { $gte: totalWeightKG }
+                    }).sort({ rate: 1 });
+
+                    if (matchingRate) {
+                        shippingCost = matchingRate.rate;
+                    } else {
+                        // Fallback logic for heavy items
+                        const maxRate = await ShippingRate.findOne({}).sort({ maxWeight: -1 });
+                        if (maxRate && totalWeightKG > maxRate.maxWeight) {
+                            shippingCost = maxRate.rate + Math.ceil(totalWeightKG - maxRate.maxWeight) * 50;
+                        } else {
+                            shippingCost = 150; // Final safe default
+                        }
+                    }
+                }
             }
         } catch (err) {
             console.error("Shipping calc failed, using fallback:", err);
-            shippingCost = subtotal > 2000 ? 0 : 150;
+            shippingCost = 150;
         }
 
         /* Coupon Logic */
@@ -186,7 +267,8 @@ export async function POST(req: Request) {
             shippingAddress,
             razorpayOrderId: razorpayOrder?.id,
             paymentStatus: totalAmount === 0 ? "paid" : "pending",
-            status: "pending"
+            status: "pending",
+            customerGstNumber: customerGstNumber || undefined
         });
 
 
