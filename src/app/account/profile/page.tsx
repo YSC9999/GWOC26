@@ -345,13 +345,30 @@ export default function Profile() {
                   >
                     <Trash2 size={16} />
                   </button>
-                  <Link href={`/products/${item._id}`}>
-                    <div className="h-32 rounded-md overflow-hidden mb-3">
-                      <img src={item.images?.[0] || item.image} alt={item.name} className="w-full h-full object-cover" />
+
+                  {item.name ? (
+                    <Link href={`/products/${item._id}`}>
+                      <div className="h-32 rounded-md overflow-hidden mb-3 relative">
+                        <img src={item.images?.[0] || item.image || '/placeholder.png'} alt={item.name} className={`w-full h-full object-cover ${!item.inStock ? 'opacity-50' : ''}`} />
+                        {!item.inStock && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                            <span className="bg-black/70 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider backdrop-blur-sm">
+                              Out of Stock
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <h3 className="font-bold text-soil text-sm line-clamp-1">{item.name}</h3>
+                      <p className="text-clay font-bold mt-1">₹{item.price}</p>
+                    </Link>
+                  ) : (
+                    <div className="h-full flex flex-col items-center justify-center text-center opacity-50 p-4">
+                      <div className="h-20 w-20 bg-stone-100 rounded-lg mb-3 flex items-center justify-center">
+                        <span className="text-2xl">?</span>
+                      </div>
+                      <p className="text-xs font-bold text-soil/60">Product Unavailable</p>
                     </div>
-                    <h3 className="font-bold text-soil text-sm line-clamp-1">{item.name}</h3>
-                    <p className="text-clay font-bold mt-1">₹{item.price}</p>
-                  </Link>
+                  )}
                 </div>
               ))}
             </div>

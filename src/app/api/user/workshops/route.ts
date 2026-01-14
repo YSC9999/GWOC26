@@ -14,7 +14,7 @@ export async function GET(req: Request) {
         await connectDB();
 
         // Fetch registrations and populate workshop details
-        const registrations = await WorkshopRegistration.find({ userId: user.id })
+        const registrations = await (WorkshopRegistration as any).find({ userId: user.id })
             .populate('workshopId')
             .sort({ createdAt: -1 });
 

@@ -20,7 +20,7 @@ export async function GET(
         await connectDB();
         const { id } = await params;
 
-        const registration = await WorkshopRegistration.findById(id).populate('workshopId');
+        const registration = await (WorkshopRegistration as any).findById(id).populate('workshopId');
 
         if (!registration) {
             return NextResponse.json({ error: "Registration not found" }, { status: 404 });

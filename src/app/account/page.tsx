@@ -3,7 +3,7 @@ import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { User, Package, MapPin, Heart, LogOut } from "lucide-react";
+import { User, Package, MapPin, Heart, LogOut, Calendar } from "lucide-react";
 import { useEffect } from "react";
 
 export default function AccountDashboard() {
@@ -54,6 +54,13 @@ export default function AccountDashboard() {
       icon: <Package size={32} />,
       href: "/account/custom-orders",
       color: "bg-purple-50 text-purple-600",
+    },
+    {
+      label: "My Workshops",
+      desc: "Registered sessions",
+      icon: <Calendar size={32} />,
+      href: "/account/workshops",
+      color: "bg-orange-50 text-orange-600",
     },
 
   ];
