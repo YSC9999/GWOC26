@@ -60,6 +60,7 @@ export default function InvoicePage() {
                     <h2 className="text-2xl font-bold text-[#5A3E36]">Basho</h2>
                     <p className="text-sm text-slate-500 mt-1">contact@basho.com</p>
                     <p className="text-sm text-slate-500">www.basho.com</p>
+                    <p className="text-sm text-slate-500 font-bold mt-1">GSTIN: 36AAJCB1234F1Z8</p>
                 </div>
             </div>
 

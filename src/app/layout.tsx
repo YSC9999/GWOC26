@@ -41,13 +41,19 @@ export const metadata: Metadata = {
 
 import ChatBot from "../components/ChatBot";
 
-export default function RootLayout({
+import { connectDB } from "@/lib/mongodb";
+import StudioInfo from "@/models/StudioInfo";
+
+export default async function RootLayout({
   children,
   modal,
 }: {
   children: ReactNode;
   modal: ReactNode;
 }) {
+  await connectDB();
+  const studioInfo = await StudioInfo.findOne().lean();
+
   return (
     <html
       lang="en"
@@ -70,7 +76,7 @@ export default function RootLayout({
         <PageWrapper>{children}</PageWrapper>
 
         <ChatBot />
-        <ConditionalFooter />
+        <ConditionalFooter studioInfo={JSON.parse(JSON.stringify(studioInfo))} />
       </body>
     </html>
   );

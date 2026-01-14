@@ -59,6 +59,7 @@ export default function WorkshopInvoicePage() {
                 <div className="text-right">
                     <h2 className="text-2xl font-bold text-slate-800 lowercase tracking-tighter">basho<span className="text-amber-600">.</span></h2>
                     <p className="text-sm text-slate-500 mt-1">by Shivangi</p>
+                    <p className="text-sm text-slate-500 font-bold mt-1">GSTIN: 36AAJCB1234F1Z8</p>
                 </div>
             </div>
 

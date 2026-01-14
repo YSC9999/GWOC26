@@ -3,7 +3,7 @@ import { fadeInUp } from "@/lib/animations";
 import Link from "next/link";
 import { Instagram, Mail, MapPin } from "lucide-react";
 
-export default function Footer() {
+export default function Footer({ studioInfo }: { studioInfo?: any }) {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -35,8 +35,7 @@ export default function Footer() {
         </Link>
         {/* ... remaining footer content ... */}
         <p className="text-soil/85 text-sm max-w-md mx-auto mb-4 leading-relaxed">
-          Handcrafted ceramic art that whispers elegance. Designed to reflect
-          your unique story with grace and intention.
+          {studioInfo?.tagline || "Handcrafted ceramic art that whispers elegance. Designed to reflect your unique story with grace and intention."}
         </p>
 
         {/* Links */}
@@ -61,7 +60,7 @@ export default function Footer() {
         {/* Social & Contact Icons */}
         <div className="flex justify-center gap-5 mb-6">
           <a
-            href="https://www.instagram.com/bashobyyshivangi"
+            href={studioInfo?.instagram || "https://www.instagram.com/bashobyyshivangi"}
             target="_blank"
             rel="noopener noreferrer"
             className="text-soil hover:text-clay transition-colors p-2"
@@ -70,30 +69,32 @@ export default function Footer() {
             <Instagram size={24} />
           </a>
           <a
-            href="mailto:hello@basho.com"
+            href={`mailto:${studioInfo?.email || "hello@basho.com"}`}
             className="text-soil hover:text-clay transition-colors p-2"
             aria-label="Email"
           >
             <Mail size={24} />
           </a>
-          <Link
-            href="/contact"
+          <a
+            href={studioInfo?.mapLink || studioInfo?.mapUrl || "/contact"}
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-soil hover:text-clay transition-colors p-2"
             aria-label="Visit Us"
           >
             <MapPin size={24} />
-          </Link>
+          </a>
         </div>
 
         {/* Copyright */}
         <div className="border-t border-soil/20 pt-4 flex flex-col md:flex-row justify-between items-center text-sm text-soil font-medium">
-          <p>© {currentYear} Basho. All Rights Reserved.</p>
+          <p>© {currentYear} {studioInfo?.name || "Basho"}. All Rights Reserved.</p>
           <div className="flex gap-4 mt-2 md:mt-0">
             <Link href="/privacy" className="hover:text-clay transition-colors">
               Privacy Policy
             </Link>
             <Link href="/terms" className="hover:text-clay transition-colors">
-              Terms of Service
+              Terms and Conditions
             </Link>
           </div>
         </div>

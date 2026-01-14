@@ -111,9 +111,9 @@ export default function AdminContact() {
     setSaved(false);
     setError("");
     await saveSection([
-      'name','tagline','aboutText','phone','email','whatsapp',
-      'address','city','state','pincode','mapUrl','visitingHours',
-      'visitPolicy','collectionPolicy','instagram','facebook','youtube'
+      'name', 'tagline', 'aboutText', 'phone', 'email', 'whatsapp',
+      'address', 'city', 'state', 'pincode', 'mapUrl', 'mapLink', 'visitingHours',
+      'visitPolicy', 'collectionPolicy', 'instagram', 'facebook', 'youtube'
     ], 'all');
     setSaving(false);
     setSaved(true);
@@ -165,7 +165,7 @@ export default function AdminContact() {
                 <input value={studio.whatsapp || ''} onChange={(e) => handleChange('whatsapp', e.target.value)} placeholder="Whatsapp" className="input-field px-3 py-2 rounded-md" />
               </div>
               <div className="mt-2 flex items-center gap-3">
-                <button onClick={() => saveSection(['phone','email','whatsapp'], 'contact')} disabled={!!savingSections['contact']} className="text-sm bg-white border px-3 py-1 rounded-md">
+                <button onClick={() => saveSection(['phone', 'email', 'whatsapp'], 'contact')} disabled={!!savingSections['contact']} className="text-sm bg-white border px-3 py-1 rounded-md">
                   {savingSections['contact'] ? 'Saving...' : 'Save Contact'}
                 </button>
                 {savedSections['contact'] && <div className="text-green-600 flex items-center gap-2 text-sm"><Check /> Saved</div>}
@@ -183,8 +183,24 @@ export default function AdminContact() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Map URL</label>
-                <input value={studio.mapUrl || ''} onChange={(e) => handleChange('mapUrl', e.target.value)} className="input-field w-full px-3 py-2 rounded-md" />
+                <label className="block text-sm font-medium mb-1">Google Maps Link (for buttons)</label>
+                <input
+                  value={studio.mapLink || ''}
+                  onChange={(e) => handleChange('mapLink', e.target.value)}
+                  placeholder="https://maps.google.com/..."
+                  className="input-field w-full px-3 py-2 rounded-md mb-3"
+                />
+
+                <label className="block text-sm font-medium mb-1">
+                  Map Embed URL (for iframe display)
+                  <span className="text-soil/50 font-normal text-xs ml-2">(Share {'>'} Embed a map {'>'} Copy HTML {'>'} Only the src part)</span>
+                </label>
+                <input
+                  value={studio.mapUrl || ''}
+                  onChange={(e) => handleChange('mapUrl', e.target.value)}
+                  placeholder="https://www.google.com/maps/embed?pb=..."
+                  className="input-field w-full px-3 py-2 rounded-md"
+                />
               </div>
 
               <div>
@@ -198,7 +214,7 @@ export default function AdminContact() {
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].map((day) => (
+                  {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
                     <input key={day} value={(studio.visitingHours as any)?.[day] || ''} onChange={(e) => handleHoursChange(day, e.target.value)} placeholder={day} className="input-field px-3 py-2 rounded-md" />
                   ))}
                 </div>
@@ -216,7 +232,7 @@ export default function AdminContact() {
               </div>
 
               <div className="mt-2 flex items-center gap-3">
-                <button onClick={() => saveSection(['visitPolicy','collectionPolicy'], 'policies')} disabled={!!savingSections['policies']} className="text-sm bg-white border px-3 py-1 rounded-md">
+                <button onClick={() => saveSection(['visitPolicy', 'collectionPolicy'], 'policies')} disabled={!!savingSections['policies']} className="text-sm bg-white border px-3 py-1 rounded-md">
                   {savingSections['policies'] ? 'Saving...' : 'Save Policies'}
                 </button>
                 {savedSections['policies'] && <div className="text-green-600 flex items-center gap-2 text-sm"><Check /> Saved</div>}
@@ -242,7 +258,7 @@ export default function AdminContact() {
               <div><strong>Email:</strong> {studio.email}</div>
             </div>
 
-            <a target="_blank" rel="noreferrer" className="inline-block bg-clay text-white px-4 py-2 rounded-full" href={studio.mapUrl || '#'}>Open map</a>
+            <a target="_blank" rel="noreferrer" className="inline-block bg-clay text-white px-4 py-2 rounded-full" href={studio.mapLink || studio.mapUrl || '#'}>Open map</a>
           </div>
         </div>
       )}

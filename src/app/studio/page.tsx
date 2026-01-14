@@ -35,6 +35,7 @@ interface GalleryItem {
 
 export default function Studio() {
   const [studioImages, setStudioImages] = useState<GalleryItem[]>([]);
+  const [studioInfo, setStudioInfo] = useState<any>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [events, setEvents] = useState<Event[]>([]);
   const [eventFilter, setEventFilter] = useState<"upcoming" | "past">("upcoming");
@@ -45,16 +46,20 @@ export default function Studio() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [galleryRes, eventsRes] = await Promise.all([
+        const [galleryRes, eventsRes, studioRes] = await Promise.all([
           fetch("/api/gallery?category=studio"),
-          fetch("/api/events?status=all") // Fetch all and filter client-side for smoother transition
+          fetch("/api/events?status=all"),
+          fetch("/api/studio")
         ]);
 
         const galleryData = await galleryRes.json();
         const eventsData = await eventsRes.json();
+        const studioData = await studioRes.json();
 
         setStudioImages(galleryData.gallery || []);
         setEvents(eventsData.events || []);
+        if (studioData.studioInfo) setStudioInfo(studioData.studioInfo);
+
       } catch (error) {
         console.error("Failed to fetch data:", error);
       } finally {
@@ -65,14 +70,7 @@ export default function Studio() {
     fetchData();
   }, []);
 
-  // Auto-slide logic
-  useEffect(() => {
-    if (studioImages.length <= 1) return;
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % studioImages.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, [studioImages.length]);
+  // ... (rest of existing effects)
 
   // Helper to check if event is currently active (Ongoing)
   const isOngoing = (ev: Event) => {
@@ -360,6 +358,101 @@ export default function Studio() {
                 </div>
               )}
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Studio Info Section (Hours & Policies) */}
+      <section className="bg-white py-20 px-4 md:px-12">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-soil font-serif mb-4">Our Studio</h2>
+            <p className="text-soil/70 max-w-2xl mx-auto">{studioInfo?.aboutText || "A space for creation and community."}</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            {/* Hours */}
+            <div className="bg-sand/40 rounded-3xl p-8 border border-stone-200 shadow-sm">
+              {/* Icon placeholder if needed */}
+              <div className="w-12 h-12 rounded-full border border-[#5A3E36] flex items-center justify-center text-[#5A3E36] mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+              </div>
+              <h3 className="text-2xl font-bold text-[#5A3E36] font-serif mb-6">Visiting Hours</h3>
+              <ul className="space-y-4">
+                {studioInfo?.visitingHours ? Object.entries(studioInfo.visitingHours).map(([day, time]: [string, any]) => (
+                  <li key={day} className="flex justify-between text-base border-b border-stone-200/50 pb-3 last:border-0 last:pb-0">
+                    <span className="text-stone-500 capitalize">{day}</span>
+                    <span className="font-medium text-[#5A3E36]">{time}</span>
+                  </li>
+                )) : <p>Loading hours...</p>}
+              </ul>
+            </div>
+
+            {/* Policies */}
+            <div className="bg-sand/40 rounded-3xl p-8 border border-stone-200 shadow-sm">
+              <div className="w-12 h-12 rounded-full border border-[#5A3E36] flex items-center justify-center text-[#5A3E36] mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
+              </div>
+              <h3 className="text-2xl font-bold text-[#5A3E36] font-serif mb-6">Space & Policies</h3>
+              <div className="space-y-6 text-base text-stone-600">
+                <div>
+                  <strong className="block text-[#5A3E36] mb-1">Eco-Friendly</strong>
+                  We use sustainable clay and recycle materials.
+                </div>
+                <div>
+                  <strong className="block text-[#5A3E36] mb-1">Visit Policy</strong>
+                  {studioInfo?.visitPolicy || "Walk-ins welcome during business hours."}
+                </div>
+                <div>
+                  <strong className="block text-[#5A3E36] mb-1">Collection</strong>
+                  {studioInfo?.collectionPolicy || "Fired pieces are ready within 2-3 weeks."}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Map Section */}
+          <div className="bg-white rounded-3xl overflow-hidden shadow-lg border border-stone-100 grid grid-cols-1 lg:grid-cols-2">
+            {/* Left: Map */}
+            <div className="h-[400px] lg:h-auto bg-slate-100 relative min-h-[400px]">
+              {studioInfo?.mapUrl ? (
+                <iframe
+                  src={studioInfo.mapUrl}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="absolute inset-0"
+                ></iframe>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-slate-400">Loading Map...</div>
+              )}
+            </div>
+
+            {/* Right: Details */}
+            <div className="p-8 lg:p-16 flex flex-col justify-center bg-white">
+              <h3 className="text-3xl font-bold text-[#5A3E36] font-serif mb-4">Basho Pottery Studio</h3>
+              <p className="text-stone-500 text-lg mb-8 leading-relaxed">
+                {studioInfo?.address ? (
+                  <>
+                    {studioInfo.address}<br />
+                    {studioInfo.city}, {studioInfo.state}
+                  </>
+                ) : "Surat, Gujarat"}
+              </p>
+
+              <div className="space-y-3 mb-10 text-stone-600">
+                <p><span className="font-bold text-[#5A3E36]">Mon-Fri:</span> 10 AM – 7 PM</p>
+                <p><span className="font-bold text-[#5A3E36]">Sat:</span> 10 AM – 5 PM</p>
+                <p><span className="font-bold text-[#5A3E36]">Sun:</span> By appointment</p>
+              </div>
+
+              <button className="w-full bg-[#5A3E36] text-white py-4 rounded-xl font-bold text-lg hover:bg-[#4a332c] transition-transform active:scale-95 shadow-md">
+                Book a Studio Visit
+              </button>
+            </div>
           </div>
         </div>
       </section>

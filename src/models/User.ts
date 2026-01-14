@@ -83,6 +83,9 @@ const UserSchema = new Schema<IUser>({
     default: 0
   },
 
+  subscriptionActive: { type: Boolean, default: false },
+  emailVerified: { type: Boolean, default: false },
+
   emailVerificationOTP: String,
   otpExpiry: Date,
   phoneVerificationOTP: String,

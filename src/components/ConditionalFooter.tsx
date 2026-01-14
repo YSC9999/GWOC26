@@ -2,7 +2,7 @@
 import { usePathname } from "next/navigation";
 import Footer from "./Footer";
 
-export default function ConditionalFooter() {
+export default function ConditionalFooter({ studioInfo }: { studioInfo?: any }) {
   const pathname = usePathname();
 
   // Hide footer on auth, verify-email, and invoice pages
@@ -12,5 +12,5 @@ export default function ConditionalFooter() {
     return null;
   }
 
-  return <Footer />;
+  return <Footer studioInfo={studioInfo} />;
 }

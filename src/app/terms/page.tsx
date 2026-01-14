@@ -3,6 +3,14 @@ import React from "react";
 import { motion } from "framer-motion";
 
 export default function TermsPage() {
+    const [studioInfo, setStudioInfo] = React.useState<any>(null);
+
+    React.useEffect(() => {
+        fetch('/api/studio').then(res => res.json()).then(data => {
+            if (data.studioInfo) setStudioInfo(data.studioInfo);
+        });
+    }, []);
+
     return (
         <div className="min-h-screen py-20 bg-sand/20">
             <div className="max-w-4xl mx-auto px-6">
@@ -16,6 +24,7 @@ export default function TermsPage() {
                     </h1>
 
                     <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-soil/10 space-y-8 text-soil/80 leading-relaxed">
+                        {/* Sections 1-7 remain identical, just collapsing for brevity in replacement if possible, but replace_file_content needs context. I will keep them. */}
 
                         <section>
                             <h2 className="text-2xl font-bold text-soil mb-4 font-serif">1. Introduction</h2>
@@ -94,7 +103,7 @@ export default function TermsPage() {
                         <section>
                             <h2 className="text-2xl font-bold text-soil mb-4 font-serif">8. Contact Us</h2>
                             <p>
-                                If you have any questions about these Terms, please contact us at <a href="mailto:hello@basho.com" className="text-clay hover:underline">hello@basho.com</a>.
+                                If you have any questions about these Terms, please contact us at <a href={`mailto:${studioInfo?.email || "hello@basho.com"}`} className="text-clay hover:underline">{studioInfo?.email || "hello@basho.com"}</a>.
                             </p>
                         </section>
 

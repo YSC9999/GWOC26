@@ -11,8 +11,8 @@ export default function OrderModal({ order, onClose }: OrderModalProps) {
     if (!order) return null;
 
     return (
-        <div className="fixed inset-0 !z-[99999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-            <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 !z-[999999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm m-0 top-0 left-0 w-screen h-screen pt-24">
+            <div className="bg-white w-full max-w-4xl max-h-[80vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
 
                 {/* Header */}
                 <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">

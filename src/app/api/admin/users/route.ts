@@ -16,6 +16,10 @@ export async function GET(req: Request) {
     const page = parseInt(url.searchParams.get("page") || "1");
 
     const query: any = {};
+    // Filter out unverified temporary users (created by send-otp)
+    query.emailVerified = { $ne: false };
+    query.name = { $ne: "Unverified" }; // Double check to exclude temp users
+
     if (role && role !== "all") query.role = role;
     if (search) {
       query.$or = [
