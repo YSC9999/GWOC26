@@ -71,6 +71,12 @@ export default function AdminDashboard() {
       icon: <Palette size={32} />,
     },
     {
+      href: "/admin/workshops",
+      label: "Workshops",
+      desc: "Manage workshops & inquiries",
+      icon: <Brush size={32} />,
+    },
+    {
       href: "/admin/users",
       label: "Users",
       desc: "Manage accounts",
