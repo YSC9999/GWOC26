@@ -75,6 +75,7 @@ export default function Navbar() {
     { href: "/", label: "Home" },
     { href: "/products", label: "Collection" },
     { href: "/workshops", label: "Workshop" },
+    { href: "/gallery", label: "Gallery" },
     { href: "/studio", label: "Studio" },
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
