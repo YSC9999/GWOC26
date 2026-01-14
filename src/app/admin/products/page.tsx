@@ -3,6 +3,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, Variants } from "framer-motion";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Save,
+  X,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import UploadInput from "@/components/UploadInput";
 import { PRODUCT_CATEGORIES } from "@/lib/categories";
 
@@ -28,7 +37,7 @@ const formVariants: Variants = {
   visible: {
     opacity: 1,
     height: "auto",
-    transition: { duration: 0.4, ease: "easeOut" }
+    transition: { duration: 0.4, ease: "easeOut" },
   },
 };
 
@@ -49,17 +58,20 @@ export default function AdminProductsPage() {
     weightGrams: "", // Added weight field
     images: [],
   });
-  const [category, setCategory] = useState<string>('');
-  const [descriptionText, setDescriptionText] = useState<string>('');
+  const [category, setCategory] = useState<string>("");
+  const [descriptionText, setDescriptionText] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const filteredProducts = products.filter(p => {
+  const filteredProducts = products.filter((p) => {
     const term = searchTerm.toLowerCase();
     const nameMatch = p.name?.toLowerCase().includes(term);
-    const catLabel = PRODUCT_CATEGORIES.find(c => c.id === p.category)?.label?.toLowerCase();
-    const catMatch = p.category?.toLowerCase().includes(term) || catLabel?.includes(term);
+    const catLabel = PRODUCT_CATEGORIES.find(
+      (c) => c.id === p.category
+    )?.label?.toLowerCase();
+    const catMatch =
+      p.category?.toLowerCase().includes(term) || catLabel?.includes(term);
     return nameMatch || catMatch;
   });
 
@@ -74,7 +86,10 @@ export default function AdminProductsPage() {
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
+  const currentProducts = filteredProducts.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -96,11 +111,11 @@ export default function AdminProductsPage() {
   /* ADD PRODUCT */
   async function handleAdd(e: any) {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     if (!category) {
-      setError('Category is required');
+      setError("Category is required");
       return;
     }
 
@@ -121,43 +136,54 @@ export default function AdminProductsPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'Failed to create');
+        setError(data.error || "Failed to create");
         return;
       }
 
       setProducts((p) => [data, ...p]);
-      setForm({ name: "", price: 0, stockQuantity: 0, weightGrams: "", images: [] });
-      setCategory('');
-      setDescriptionText('');
-      setSuccess('Product added');
+      setForm({
+        name: "",
+        price: 0,
+        stockQuantity: 0,
+        weightGrams: "",
+        images: [],
+      });
+      setCategory("");
+      setDescriptionText("");
+      setSuccess("Product added");
     } catch (err: any) {
-      setError(err.message || 'Network error');
+      setError(err.message || "Network error");
     }
   }
 
   /* UPDATE PRODUCT */
   async function handleUpdate(id: string) {
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
     try {
       const res = await fetch("/api/admin/products", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, ...form, category, description: descriptionText }),
+        body: JSON.stringify({
+          id,
+          ...form,
+          category,
+          description: descriptionText,
+        }),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'Failed to update');
+        setError(data.error || "Failed to update");
         return;
       }
 
       const updated = data.product || data;
       setProducts((prev) => prev.map((p) => (p._id === id ? updated : p)));
-      setSuccess('Product updated');
+      setSuccess("Product updated");
       setEditingId(null);
     } catch (err: any) {
-      setError(err.message || 'Network error');
+      setError(err.message || "Network error");
     }
   }
 
@@ -200,7 +226,10 @@ export default function AdminProductsPage() {
       )}
 
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/admin" className="text-soil/60 hover:text-clay transition-colors hover:scale-105 transform inline-block">
+        <Link
+          href="/admin"
+          className="text-soil/60 hover:text-clay transition-colors hover:scale-105 transform inline-block"
+        >
           ← Admin Home
         </Link>
         <motion.h1
@@ -212,7 +241,10 @@ export default function AdminProductsPage() {
       </div>
 
       {/* ADD PRODUCT FORM */}
-      <motion.div variants={itemVariants} className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-soil/10">
+      <motion.div
+        variants={itemVariants}
+        className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-soil/10"
+      >
         <h2 className="text-xl font-bold text-soil mb-4 flex items-center gap-2">
           <span>✨</span> Add New Product
         </h2>
@@ -229,7 +261,12 @@ export default function AdminProductsPage() {
             <input
               type="number"
               value={form.price}
-              onChange={(e) => setForm({ ...form, price: e.target.value === "" ? "" : Number(e.target.value) })}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  price: e.target.value === "" ? "" : Number(e.target.value),
+                })
+              }
               placeholder="Price"
               className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay"
               required
@@ -238,7 +275,11 @@ export default function AdminProductsPage() {
               type="number"
               value={form.stockQuantity}
               onChange={(e) =>
-                setForm({ ...form, stockQuantity: e.target.value === "" ? "" : Number(e.target.value) })
+                setForm({
+                  ...form,
+                  stockQuantity:
+                    e.target.value === "" ? "" : Number(e.target.value),
+                })
               }
               placeholder="Stock"
               className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay"
@@ -248,7 +289,11 @@ export default function AdminProductsPage() {
               type="number"
               value={form.weightGrams}
               onChange={(e) =>
-                setForm({ ...form, weightGrams: e.target.value === "" ? "" : Number(e.target.value) })
+                setForm({
+                  ...form,
+                  weightGrams:
+                    e.target.value === "" ? "" : Number(e.target.value),
+                })
               }
               placeholder="Weight (Optional, default 500g)"
               className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay"
@@ -261,7 +306,10 @@ export default function AdminProductsPage() {
               uploadPreset={"products_unsigned"}
               folder={"products/"}
               onUploaded={(urls) => {
-                setForm((prev) => ({ ...prev, images: [...(prev.images || []), ...urls] }));
+                setForm((prev) => ({
+                  ...prev,
+                  images: [...(prev.images || []), ...urls],
+                }));
               }}
             />
           </div>
@@ -278,10 +326,18 @@ export default function AdminProductsPage() {
                     exit={{ opacity: 0, scale: 0.5 }}
                     className="relative group"
                   >
-                    <img src={img} className="w-20 h-20 object-cover rounded-lg shadow-sm" />
+                    <img
+                      src={img}
+                      className="w-20 h-20 object-cover rounded-lg shadow-sm"
+                    />
                     <button
                       type="button"
-                      onClick={() => setForm((prev) => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }))}
+                      onClick={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          images: prev.images.filter((_, i) => i !== idx),
+                        }))
+                      }
                       className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs shadow-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center transform hover:scale-110"
                     >
                       ×
@@ -294,7 +350,11 @@ export default function AdminProductsPage() {
 
           <div className="flex gap-4 w-full">
             <select
-              value={PRODUCT_CATEGORIES.some(c => c.id === category) ? category : "other"}
+              value={
+                PRODUCT_CATEGORIES.some((c) => c.id === category)
+                  ? category
+                  : "other"
+              }
               onChange={(e) => {
                 if (e.target.value === "other") {
                   setCategory("");
@@ -305,12 +365,16 @@ export default function AdminProductsPage() {
               className="border p-3 rounded-lg flex-grow focus:ring-2 focus:ring-clay/20 outline-none bg-white"
             >
               <option value="">Select category</option>
-              {PRODUCT_CATEGORIES.filter(c => c.id !== 'all').map((cat) => (
-                <option key={cat.id} value={cat.id}>{cat.label}</option>
+              {PRODUCT_CATEGORIES.filter((c) => c.id !== "all").map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.label}
+                </option>
               ))}
               <option value="other">Other (Add New)</option>
             </select>
-            {(!PRODUCT_CATEGORIES.some(c => c.id === category) && category !== "") || !PRODUCT_CATEGORIES.some(c => c.id === category) ? (
+            {(!PRODUCT_CATEGORIES.some((c) => c.id === category) &&
+              category !== "") ||
+            !PRODUCT_CATEGORIES.some((c) => c.id === category) ? (
               <motion.input
                 initial={{ opacity: 0, width: 0 }}
                 animate={{ opacity: 1, width: "auto" }}
@@ -332,9 +396,9 @@ export default function AdminProductsPage() {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="bg-black text-white px-8 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all w-full md:w-auto"
+            className="bg-black text-white px-8 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all w-full md:w-auto flex items-center gap-2 justify-center"
           >
-            + Add Product
+            <Plus size={20} /> Add Product
           </motion.button>
         </form>
       </motion.div>
@@ -379,13 +443,20 @@ export default function AdminProductsPage() {
                       {p.name}
                     </td>
                     <td className="p-3 align-top text-sm text-soil/70 break-words">
-                      {PRODUCT_CATEGORIES.find(c => c.id === p.category)?.label || p.category}
+                      {PRODUCT_CATEGORIES.find((c) => c.id === p.category)
+                        ?.label || p.category}
                     </td>
                     <td className="p-3 align-top text-sm text-soil/70">
                       ₹{p.price}
                     </td>
                     <td className="p-3 align-top text-sm text-soil/70">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${p.stockQuantity > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          p.stockQuantity > 0
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
                         {p.stockQuantity}
                       </span>
                     </td>
@@ -396,19 +467,25 @@ export default function AdminProductsPage() {
                       <button
                         onClick={() => {
                           setEditingId(p._id);
-                          setForm({ name: p.name, price: p.price, stockQuantity: p.stockQuantity, weightGrams: p.weightGrams || 500, images: p.images || [] });
-                          setCategory(p.category || '');
-                          setDescriptionText(p.description || '');
+                          setForm({
+                            name: p.name,
+                            price: p.price,
+                            stockQuantity: p.stockQuantity,
+                            weightGrams: p.weightGrams || 500,
+                            images: p.images || [],
+                          });
+                          setCategory(p.category || "");
+                          setDescriptionText(p.description || "");
                         }}
-                        className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors hover:underline"
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors hover:underline inline-flex items-center gap-1"
                       >
-                        Edit
+                        <Edit size={14} /> Edit
                       </button>
                       <button
                         onClick={() => handleDelete(p._id)}
-                        className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors hover:underline"
+                        className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors hover:underline inline-flex items-center gap-1"
                       >
-                        Delete
+                        <Trash2 size={14} /> Delete
                       </button>
                     </td>
                   </motion.tr>
@@ -417,7 +494,9 @@ export default function AdminProductsPage() {
             </tbody>
           </table>
           {filteredProducts.length === 0 && (
-            <div className="text-center py-8 text-soil/50">No products found matching your search.</div>
+            <div className="text-center py-8 text-soil/50">
+              No products found matching your search.
+            </div>
           )}
         </div>
 
@@ -425,31 +504,42 @@ export default function AdminProductsPage() {
         {filteredProducts.length > 0 && (
           <div className="bg-gray-50 p-3 border-t flex items-center justify-between">
             <div className="text-sm text-soil/60">
-              Showing <span className="font-medium">{startIndex + 1}</span> to <span className="font-medium">{Math.min(startIndex + itemsPerPage, filteredProducts.length)}</span> of <span className="font-medium">{filteredProducts.length}</span> results
+              Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
+              <span className="font-medium">
+                {Math.min(startIndex + itemsPerPage, filteredProducts.length)}
+              </span>{" "}
+              of <span className="font-medium">{filteredProducts.length}</span>{" "}
+              results
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200"
+                className="px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 inline-flex items-center gap-1"
               >
-                Previous
+                <ChevronLeft size={16} /> Previous
               </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => goToPage(page)}
-                  className={`px-3 py-1 border rounded text-sm ${currentPage === page ? 'bg-black text-white' : 'hover:bg-gray-200'}`}
-                >
-                  {page}
-                </button>
-              ))}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => goToPage(page)}
+                    className={`px-3 py-1 border rounded text-sm ${
+                      currentPage === page
+                        ? "bg-black text-white"
+                        : "hover:bg-gray-200"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
               <button
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200"
+                className="px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 inline-flex items-center gap-1"
               >
-                Next
+                Next <ChevronRight size={16} />
               </button>
             </div>
           </div>
@@ -462,27 +552,82 @@ export default function AdminProductsPage() {
           <div className="bg-white rounded-2xl shadow-lg w-full max-w-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-semibold">Edit Product</h3>
-              <button onClick={() => setEditingId(null)} className="text-soil/60">Close</button>
+              <button
+                onClick={() => setEditingId(null)}
+                className="text-soil/60 hover:text-soil inline-flex items-center gap-1"
+              >
+                <X size={18} /> Close
+              </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm text-soil mb-1">Name</label>
-                <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="border p-2 w-full" />
+                <input
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="border p-2 w-full"
+                />
 
-                <label className="block text-sm text-soil mt-3 mb-1">Price</label>
-                <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value === "" ? "" : Number(e.target.value) })} className="border p-2 w-full" />
+                <label className="block text-sm text-soil mt-3 mb-1">
+                  Price
+                </label>
+                <input
+                  type="number"
+                  value={form.price}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      price:
+                        e.target.value === "" ? "" : Number(e.target.value),
+                    })
+                  }
+                  className="border p-2 w-full"
+                />
 
-                <label className="block text-sm text-soil mt-3 mb-1">Stock</label>
-                <input type="number" value={form.stockQuantity} onChange={(e) => setForm({ ...form, stockQuantity: e.target.value === "" ? "" : Number(e.target.value) })} className="border p-2 w-full" />
+                <label className="block text-sm text-soil mt-3 mb-1">
+                  Stock
+                </label>
+                <input
+                  type="number"
+                  value={form.stockQuantity}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      stockQuantity:
+                        e.target.value === "" ? "" : Number(e.target.value),
+                    })
+                  }
+                  className="border p-2 w-full"
+                />
 
-                <label className="block text-sm text-soil mt-3 mb-1">Weight (grams)</label>
-                <input type="number" value={form.weightGrams} onChange={(e) => setForm({ ...form, weightGrams: e.target.value === "" ? "" : Number(e.target.value) })} className="border p-2 w-full" placeholder="e.g. 500" />
+                <label className="block text-sm text-soil mt-3 mb-1">
+                  Weight (grams)
+                </label>
+                <input
+                  type="number"
+                  value={form.weightGrams}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      weightGrams:
+                        e.target.value === "" ? "" : Number(e.target.value),
+                    })
+                  }
+                  className="border p-2 w-full"
+                  placeholder="e.g. 500"
+                />
 
-                <label className="block text-sm text-soil mt-3 mb-1">Category</label>
+                <label className="block text-sm text-soil mt-3 mb-1">
+                  Category
+                </label>
                 <div className="space-y-2">
                   <select
-                    value={PRODUCT_CATEGORIES.some(c => c.id === category) ? category : "other"}
+                    value={
+                      PRODUCT_CATEGORIES.some((c) => c.id === category)
+                        ? category
+                        : "other"
+                    }
                     onChange={(e) => {
                       if (e.target.value === "other") {
                         setCategory(""); // Clear to allow typing, or keep existing if it was already custom?
@@ -494,14 +639,18 @@ export default function AdminProductsPage() {
                     className="border p-2 w-full"
                   >
                     <option value="">Select category</option>
-                    {PRODUCT_CATEGORIES.filter(c => c.id !== 'all').map((cat) => (
-                      <option key={cat.id} value={cat.id}>{cat.label}</option>
-                    ))}
+                    {PRODUCT_CATEGORIES.filter((c) => c.id !== "all").map(
+                      (cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.label}
+                        </option>
+                      )
+                    )}
                     <option value="other">Other (Add New)</option>
                   </select>
 
                   {/* Show input if category is NOT in the predefined list (meaning it's custom or "other" selected) */}
-                  {!PRODUCT_CATEGORIES.some(c => c.id === category) && (
+                  {!PRODUCT_CATEGORIES.some((c) => c.id === category) && (
                     <input
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
@@ -511,9 +660,14 @@ export default function AdminProductsPage() {
                   )}
                 </div>
 
-                <label className="block text-sm text-soil mt-3 mb-1">Short description</label>
-                <input value={descriptionText} onChange={(e) => setDescriptionText(e.target.value)} className="border p-2 w-full" />
-
+                <label className="block text-sm text-soil mt-3 mb-1">
+                  Short description
+                </label>
+                <input
+                  value={descriptionText}
+                  onChange={(e) => setDescriptionText(e.target.value)}
+                  className="border p-2 w-full"
+                />
               </div>
 
               <div>
@@ -521,24 +675,56 @@ export default function AdminProductsPage() {
                 <div className="flex gap-2 flex-wrap mb-3">
                   {(form.images || []).map((img, idx) => (
                     <div key={idx} className="relative">
-                      <img src={img} className="w-24 h-24 object-cover rounded" />
-                      <button type="button" onClick={() => setForm((prev) => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }))} className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 text-xs">×</button>
+                      <img
+                        src={img}
+                        className="w-24 h-24 object-cover rounded"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setForm((prev) => ({
+                            ...prev,
+                            images: prev.images.filter((_, i) => i !== idx),
+                          }))
+                        }
+                        className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 text-xs"
+                      >
+                        ×
+                      </button>
                     </div>
                   ))}
                 </div>
 
-                <UploadInput uploadPreset={"products_unsigned"} folder={"products/"} onUploaded={(urls) => setForm((prev) => ({ ...prev, images: [...(prev.images || []), ...urls] }))} />
+                <UploadInput
+                  uploadPreset={"products_unsigned"}
+                  folder={"products/"}
+                  onUploaded={(urls) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      images: [...(prev.images || []), ...urls],
+                    }))
+                  }
+                />
 
                 <div className="mt-6 flex gap-3 justify-end">
-                  <button onClick={() => setEditingId(null)} className="px-4 py-2 border rounded">Cancel</button>
-                  <button onClick={() => editingId && handleUpdate(editingId)} className="px-4 py-2 bg-clay text-white rounded">Save</button>
+                  <button
+                    onClick={() => setEditingId(null)}
+                    className="px-4 py-2 border rounded hover:bg-gray-50 inline-flex items-center gap-2"
+                  >
+                    <X size={16} /> Cancel
+                  </button>
+                  <button
+                    onClick={() => editingId && handleUpdate(editingId)}
+                    className="px-4 py-2 bg-clay text-white rounded hover:bg-clay/90 inline-flex items-center gap-2"
+                  >
+                    <Save size={16} /> Save
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       )}
-
     </motion.div>
   );
 }

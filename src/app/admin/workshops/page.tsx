@@ -3,7 +3,16 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import UploadInput from "@/components/UploadInput";
-import { Loader2 } from "lucide-react";
+import {
+  Loader2,
+  Plus,
+  Edit,
+  Trash2,
+  Save,
+  X,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 const WORKSHOP_TYPES = [
   { id: "group", label: "Group" },
@@ -83,7 +92,9 @@ interface PreviousWorkshop {
 }
 
 export default function WorkshopPage() {
-  const [activeTab, setActiveTab] = useState<'workshops' | 'inquiries' | 'previous'>('workshops');
+  const [activeTab, setActiveTab] = useState<
+    "workshops" | "inquiries" | "previous"
+  >("workshops");
 
   // --- Workshop State ---
   const [workshops, setWorkshops] = useState<any[]>([]);
@@ -99,7 +110,9 @@ export default function WorkshopPage() {
   const [loadingInquiries, setLoadingInquiries] = useState(false);
 
   // --- Previous Workshops State ---
-  const [previousWorkshops, setPreviousWorkshops] = useState<PreviousWorkshop[]>([]);
+  const [previousWorkshops, setPreviousWorkshops] = useState<
+    PreviousWorkshop[]
+  >([]);
   const [pImages, setPImages] = useState<string[]>([]);
   const [pDescription, setPDescription] = useState("");
   const [pLoading, setPLoading] = useState(false);
@@ -141,9 +154,9 @@ export default function WorkshopPage() {
 
   // Fetch specialized data on tab change to avoid unnecessary calls
   useEffect(() => {
-    if (activeTab === 'inquiries') {
+    if (activeTab === "inquiries") {
       fetchInquiries();
-    } else if (activeTab === 'previous') {
+    } else if (activeTab === "previous") {
       fetchPreviousWorkshops();
     }
   }, [activeTab]);
@@ -285,7 +298,7 @@ export default function WorkshopPage() {
         method: "DELETE",
       });
       if (res.ok) {
-        setInquiries(inquiries.filter(i => i._id !== id));
+        setInquiries(inquiries.filter((i) => i._id !== id));
         alert("Inquiry deleted");
       } else {
         alert("Failed to delete");
@@ -385,27 +398,39 @@ export default function WorkshopPage() {
       {/* TABS */}
       <div className="flex gap-4 mb-8 border-b border-gray-200">
         <button
-          onClick={() => setActiveTab('workshops')}
-          className={`pb-4 px-4 font-medium transition-colors ${activeTab === 'workshops' ? 'border-b-2 border-clay text-clay' : 'text-soil/60 hover:text-soil'}`}
+          onClick={() => setActiveTab("workshops")}
+          className={`pb-4 px-4 font-medium transition-colors ${
+            activeTab === "workshops"
+              ? "border-b-2 border-clay text-clay"
+              : "text-soil/60 hover:text-soil"
+          }`}
         >
           Manage Workshops
         </button>
         <button
-          onClick={() => setActiveTab('inquiries')}
-          className={`pb-4 px-4 font-medium transition-colors ${activeTab === 'inquiries' ? 'border-b-2 border-clay text-clay' : 'text-soil/60 hover:text-soil'}`}
+          onClick={() => setActiveTab("inquiries")}
+          className={`pb-4 px-4 font-medium transition-colors ${
+            activeTab === "inquiries"
+              ? "border-b-2 border-clay text-clay"
+              : "text-soil/60 hover:text-soil"
+          }`}
         >
           Custom Inquiries
         </button>
         <button
-          onClick={() => setActiveTab('previous')}
-          className={`pb-4 px-4 font-medium transition-colors ${activeTab === 'previous' ? 'border-b-2 border-clay text-clay' : 'text-soil/60 hover:text-soil'}`}
+          onClick={() => setActiveTab("previous")}
+          className={`pb-4 px-4 font-medium transition-colors ${
+            activeTab === "previous"
+              ? "border-b-2 border-clay text-clay"
+              : "text-soil/60 hover:text-soil"
+          }`}
         >
           Previous Workshops
         </button>
       </div>
 
       {/* --- WORKSHOPS TAB --- */}
-      {activeTab === 'workshops' && (
+      {activeTab === "workshops" && (
         <>
           {/* ADD WORKSHOP FORM */}
           <form
@@ -426,7 +451,9 @@ export default function WorkshopPage() {
               />
               <input
                 value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
                 placeholder="Description"
                 required
                 className="border p-2 rounded"
@@ -531,7 +558,9 @@ export default function WorkshopPage() {
                 <UploadInput
                   uploadPreset="products_unsigned"
                   folder="workshops"
-                  onUploaded={(urls) => setForm({ ...form, image: urls[0] || "" })}
+                  onUploaded={(urls) =>
+                    setForm({ ...form, image: urls[0] || "" })
+                  }
                 />
               </div>
               {form.image && (
@@ -553,8 +582,13 @@ export default function WorkshopPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800 disabled:opacity-50"
+                className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800 disabled:opacity-50 inline-flex items-center gap-2"
               >
+                {loading ? (
+                  <Loader2 className="animate-spin" size={18} />
+                ) : (
+                  <Plus size={18} />
+                )}
                 {loading ? "Creating..." : "Add Workshop"}
               </button>
             </div>
@@ -576,14 +610,26 @@ export default function WorkshopPage() {
               <table className="w-full table-fixed">
                 <thead className="bg-gray-50 text-soil/80 border-b">
                   <tr>
-                    <th className="w-1/12 p-3 text-left font-semibold">Image</th>
-                    <th className="w-2/12 p-3 text-left font-semibold">Title</th>
+                    <th className="w-1/12 p-3 text-left font-semibold">
+                      Image
+                    </th>
+                    <th className="w-2/12 p-3 text-left font-semibold">
+                      Title
+                    </th>
                     <th className="w-1/12 p-3 text-left font-semibold">Type</th>
                     <th className="w-1/12 p-3 text-left font-semibold">Date</th>
-                    <th className="w-1/12 p-3 text-left font-semibold">Price</th>
-                    <th className="w-1/12 p-3 text-left font-semibold">Seats</th>
-                    <th className="w-1/12 p-3 text-left font-semibold">Status</th>
-                    <th className="w-2/12 p-3 text-right font-semibold">Actions</th>
+                    <th className="w-1/12 p-3 text-left font-semibold">
+                      Price
+                    </th>
+                    <th className="w-1/12 p-3 text-left font-semibold">
+                      Seats
+                    </th>
+                    <th className="w-1/12 p-3 text-left font-semibold">
+                      Status
+                    </th>
+                    <th className="w-2/12 p-3 text-right font-semibold">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -623,14 +669,15 @@ export default function WorkshopPage() {
                       </td>
                       <td className="p-3 align-middle">
                         <span
-                          className={`text-xs px-2 py-1 rounded-full font-medium ${w.status === "upcoming"
-                            ? "bg-green-100 text-green-700"
-                            : w.status === "full"
+                          className={`text-xs px-2 py-1 rounded-full font-medium ${
+                            w.status === "upcoming"
+                              ? "bg-green-100 text-green-700"
+                              : w.status === "full"
                               ? "bg-orange-100 text-orange-700"
                               : w.status === "completed"
-                                ? "bg-gray-100 text-gray-700"
-                                : "bg-red-100 text-red-700"
-                            }`}
+                              ? "bg-gray-100 text-gray-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
                         >
                           {w.status}
                         </span>
@@ -658,15 +705,15 @@ export default function WorkshopPage() {
                               status: w.status || "upcoming",
                             });
                           }}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
+                          className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors inline-flex items-center gap-1"
                         >
-                          Edit
+                          <Edit size={14} /> Edit
                         </button>
                         <button
                           onClick={() => handleDelete(w._id)}
-                          className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors"
+                          className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors inline-flex items-center gap-1"
                         >
-                          Delete
+                          <Trash2 size={14} /> Delete
                         </button>
                       </td>
                     </tr>
@@ -684,11 +731,18 @@ export default function WorkshopPage() {
             {filteredWorkshops.length > 0 && (
               <div className="bg-gray-50 p-3 border-t flex items-center justify-between">
                 <div className="text-sm text-soil/60">
-                  Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
+                  Showing <span className="font-medium">{startIndex + 1}</span>{" "}
+                  to{" "}
                   <span className="font-medium">
-                    {Math.min(startIndex + itemsPerPage, filteredWorkshops.length)}
+                    {Math.min(
+                      startIndex + itemsPerPage,
+                      filteredWorkshops.length
+                    )}
                   </span>{" "}
-                  of <span className="font-medium">{filteredWorkshops.length}</span>{" "}
+                  of{" "}
+                  <span className="font-medium">
+                    {filteredWorkshops.length}
+                  </span>{" "}
                   results
                 </div>
                 <div className="flex gap-2">
@@ -704,10 +758,11 @@ export default function WorkshopPage() {
                       <button
                         key={page}
                         onClick={() => goToPage(page)}
-                        className={`px-3 py-1 border rounded text-sm ${currentPage === page
-                          ? "bg-black text-white"
-                          : "hover:bg-gray-200"
-                          }`}
+                        className={`px-3 py-1 border rounded text-sm ${
+                          currentPage === page
+                            ? "bg-black text-white"
+                            : "hover:bg-gray-200"
+                        }`}
                       >
                         {page}
                       </button>
@@ -728,7 +783,7 @@ export default function WorkshopPage() {
       )}
 
       {/* --- INQUIRIES TAB --- */}
-      {activeTab === 'inquiries' && (
+      {activeTab === "inquiries" && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           {loadingInquiries ? (
             <div className="flex justify-center py-12">
@@ -737,8 +792,12 @@ export default function WorkshopPage() {
           ) : inquiries.length === 0 ? (
             <div className="text-center py-16 px-4">
               <div className="text-4xl mb-4">📧</div>
-              <h3 className="text-xl font-bold text-soil mb-2">No Inquiries Yet</h3>
-              <p className="text-soil/60">Custom workshop inquiries will appear here.</p>
+              <h3 className="text-xl font-bold text-soil mb-2">
+                No Inquiries Yet
+              </h3>
+              <p className="text-soil/60">
+                Custom workshop inquiries will appear here.
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -754,25 +813,40 @@ export default function WorkshopPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {inquiries.map((inquiry) => (
-                    <tr key={inquiry._id} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={inquiry._id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <td className="p-4 align-top">
-                        <div className="font-bold text-soil">{inquiry.name}</div>
-                        <div className="text-xs text-soil/60">{inquiry.email}</div>
-                        <div className="text-xs text-soil/60">{inquiry.phone}</div>
+                        <div className="font-bold text-soil">
+                          {inquiry.name}
+                        </div>
+                        <div className="text-xs text-soil/60">
+                          {inquiry.email}
+                        </div>
+                        <div className="text-xs text-soil/60">
+                          {inquiry.phone}
+                        </div>
                       </td>
                       <td className="p-4 align-top">
                         <div className="text-sm">
-                          <span className="font-semibold">Group Size:</span> {inquiry.groupSize}
+                          <span className="font-semibold">Group Size:</span>{" "}
+                          {inquiry.groupSize}
                         </div>
                         {inquiry.preferredDate && (
                           <div className="text-sm">
-                            <span className="font-semibold">Pref. Date:</span> {inquiry.preferredDate}
+                            <span className="font-semibold">Pref. Date:</span>{" "}
+                            {inquiry.preferredDate}
                           </div>
                         )}
                       </td>
                       <td className="p-4 align-top">
-                        <div className="text-xs font-bold uppercase tracking-wide text-clay mb-1">{inquiry.occasion}</div>
-                        <div className="text-sm text-soil/80 max-w-sm whitespace-pre-wrap">{inquiry.message}</div>
+                        <div className="text-xs font-bold uppercase tracking-wide text-clay mb-1">
+                          {inquiry.occasion}
+                        </div>
+                        <div className="text-sm text-soil/80 max-w-sm whitespace-pre-wrap">
+                          {inquiry.message}
+                        </div>
                       </td>
                       <td className="p-4 align-top text-sm text-soil/70">
                         {new Date(inquiry.createdAt).toLocaleDateString()}
@@ -795,7 +869,7 @@ export default function WorkshopPage() {
       )}
 
       {/* --- PREVIOUS WORKSHOPS TAB --- */}
-      {activeTab === 'previous' && (
+      {activeTab === "previous" && (
         <div className="max-w-4xl mx-auto">
           <div className="bg-white p-6 rounded-lg shadow-md mb-8">
             <h2 className="text-xl font-semibold mb-4">Add New Entry</h2>
@@ -822,7 +896,9 @@ export default function WorkshopPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Description</label>
+                <label className="block text-sm font-medium mb-1">
+                  Description
+                </label>
                 <textarea
                   value={pDescription}
                   onChange={(e) => setPDescription(e.target.value)}
@@ -845,7 +921,10 @@ export default function WorkshopPage() {
           <div className="grid gap-6">
             <h2 className="text-xl font-semibold">Existing Entries</h2>
             {previousWorkshops.map((workshop) => (
-              <div key={workshop._id} className="bg-white p-4 rounded-lg shadow border flex flex-col md:flex-row gap-4">
+              <div
+                key={workshop._id}
+                className="bg-white p-4 rounded-lg shadow border flex flex-col md:flex-row gap-4"
+              >
                 <div className="w-32 h-32 relative flex-shrink-0">
                   {workshop.images[0] && (
                     <img
@@ -879,7 +958,7 @@ export default function WorkshopPage() {
       )}
 
       {/* Edit Modal (Only for Workshops) */}
-      {editingId && activeTab === 'workshops' && (
+      {editingId && activeTab === "workshops" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-2xl shadow-lg w-full max-w-3xl p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
