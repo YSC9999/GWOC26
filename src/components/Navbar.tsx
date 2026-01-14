@@ -96,7 +96,7 @@ export default function Navbar() {
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: "spring", stiffness: 100, damping: 20 }}
-      className="fixed w-full top-1 z-50 left-0 right-0 flex justify-center"
+      className="fixed w-full top-1 z-40 left-0 right-0 flex justify-center"
     >
       <div className="bg-[#EFE5D8]/90 backdrop-blur-md rounded-2xl border-2 border-[#5A3E36] w-11/12 max-w-6xl px-4 py-2.5 md:px-6 md:py-4 flex justify-between items-center gap-2 lg:gap-4 transition-all duration-300 shadow-xl">
         {/* Logo */}
@@ -137,13 +137,12 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   onMouseEnter={() => setHoveredPath(link.href)}
-                  className={`relative px-3 py-2 rounded-full transition-colors duration-200 group ${
-                    isActive
-                      ? "text-[#EFE5D8]"
-                      : isHovered
+                  className={`relative px-3 py-2 rounded-full transition-colors duration-200 group ${isActive
+                    ? "text-[#EFE5D8]"
+                    : isHovered
                       ? "text-[#C97C5D]"
                       : "hover:text-[#C97C5D]"
-                  }`}
+                    }`}
                 >
                   {isActive && (
                     <motion.div
@@ -182,16 +181,14 @@ export default function Navbar() {
                       className="flex flex-col items-center"
                     >
                       <span
-                        className={`block ${
-                          isActive ? "font-bold" : "font-semibold"
-                        }`}
+                        className={`block ${isActive ? "font-bold" : "font-semibold"
+                          }`}
                       >
                         {link.label}
                       </span>
                       <span
-                        className={`block absolute top-full ${
-                          isActive ? "font-bold" : "font-semibold"
-                        }`}
+                        className={`block absolute top-full ${isActive ? "font-bold" : "font-semibold"
+                          }`}
                       >
                         {link.label}
                       </span>
@@ -306,11 +303,10 @@ export default function Navbar() {
                                   {user?.email}
                                 </p>
                                 <span
-                                  className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 text-xs font-medium rounded-full ${
-                                    user?.role === "admin"
-                                      ? "bg-[#5A3E36]/10 text-[#5A3E36]"
-                                      : "bg-[#C97C5D]/10 text-[#C97C5D]"
-                                  }`}
+                                  className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 text-xs font-medium rounded-full ${user?.role === "admin"
+                                    ? "bg-[#5A3E36]/10 text-[#5A3E36]"
+                                    : "bg-[#C97C5D]/10 text-[#C97C5D]"
+                                    }`}
                                 >
                                   {user?.role === "admin" ? (
                                     "⛩️"
@@ -326,7 +322,7 @@ export default function Navbar() {
                           {/* Menu Items */}
                           <div className="py-2 px-3 space-y-1">
                             <Link
-                              href="/account/profile"
+                              href="/account"
                               className="flex items-center gap-4 px-3 py-3 rounded-xl hover:bg-[#5A3E36]/5 transition-colors group"
                             >
                               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4A574] to-[#C97C5D] flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform">
@@ -334,7 +330,7 @@ export default function Navbar() {
                               </div>
                               <div>
                                 <p className="text-sm font-semibold text-[#5A3E36]">
-                                  Profile
+                                  Account
                                 </p>
                                 <p className="text-xs text-[#5A3E36]/50">
                                   Manage your account
