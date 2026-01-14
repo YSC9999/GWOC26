@@ -22,6 +22,14 @@ interface CustomOrder {
   description: string;
   budget: string;
   referenceImages: string[];
+  productType: string;
+  quantity: number;
+  material: string;
+  glazePreference: string[];
+  dimensions: { height: string; width: string; depth: string };
+  colorPreferences: string;
+  specialRequirements: string;
+  timeline: string;
   items: CustomOrderItem[];
   status: string;
   totalPrice?: number;
@@ -68,13 +76,6 @@ export default function AdminCustomOrderDetailPage({ params }: { params: Promise
   const handleRemoveItem = (index: number) => {
     const reason = prompt("Enter reason for removal (e.g., 'Out of stock', 'Cannot make'):");
     if (!reason) return;
-
-    // If it's a new item (no _id), just remove it? Or keep it as rejected?
-    // Let's mark as rejected so user knows we considered it? 
-    // Actually simplicity: if added by admin, just remove. If requested by user (future feature), mark rejected.
-    // Since currently all items are added by Admin (based on global description), we can just remove them or mark rejected if we want to be explicit.
-    // The user prompt asked: "if product removed then user has to see that product removed and below that product it has to show why removed"
-    // So we MUST keep it and mark 'rejected'.
 
     const updatedItems = [...items];
     updatedItems[index].status = 'rejected';
@@ -183,12 +184,72 @@ export default function AdminCustomOrderDetailPage({ params }: { params: Promise
           </div>
 
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <h2 className="text-xl font-bold text-soil mb-4">Initial Request</h2>
-            <p className="text-soil/80 whitespace-pre-wrap">{order.description}</p>
+            <h2 className="text-xl font-bold text-soil mb-4">Request Details</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-soil/50 uppercase block">Product</label>
+                <span className="font-medium text-soil">{order.productType}</span>
+              </div>
+              <div>
+                <label className="text-xs text-soil/50 uppercase block">Material</label>
+                <span className="font-medium text-soil">{order.material}</span>
+              </div>
+              <div>
+                <label className="text-xs text-soil/50 uppercase block">Quantity</label>
+                <span className="font-medium text-soil">{order.quantity}</span>
+              </div>
+              {order.dimensions && (
+                <div>
+                  <label className="text-xs text-soil/50 uppercase block">Dimensions</label>
+                  <span className="font-medium text-soil">
+                    {order.dimensions.height} x {order.dimensions.width} x {order.dimensions.depth} cm
+                  </span>
+                </div>
+              )}
+              {order.glazePreference?.length > 0 && (
+                <div>
+                  <label className="text-xs text-soil/50 uppercase block">Finishes</label>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {order.glazePreference.map(g => (
+                      <span key={g} className="text-xs bg-gray-100 px-2 py-1 rounded">{g}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {order.colorPreferences && (
+                <div>
+                  <label className="text-xs text-soil/50 uppercase block">Colors</label>
+                  <p className="text-sm text-soil/80">{order.colorPreferences}</p>
+                </div>
+              )}
+              {order.specialRequirements && (
+                <div>
+                  <label className="text-xs text-soil/50 uppercase block">Special Req.</label>
+                  <p className="text-sm text-soil/80">{order.specialRequirements}</p>
+                </div>
+              )}
+              {order.timeline && (
+                <div>
+                  <label className="text-xs text-soil/50 uppercase block">Timeline</label>
+                  <span className="font-medium text-soil">{order.timeline}</span>
+                </div>
+              )}
+              {order.referenceImages?.length > 0 && (
+                <div>
+                  <label className="text-xs text-soil/50 uppercase block mb-2">References</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {order.referenceImages.map((img, i) => (
+                      <a key={i} href={img} target="_blank" rel="noopener noreferrer" className="block aspect-square relative hover:opacity-80 transition-opacity">
+                        <img src={img} alt="ref" className="w-full h-full object-cover rounded-lg border border-gray-100" />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Items Management */}
         <div className="lg:col-span-2 space-y-8">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <div className="flex justify-between items-center mb-6">

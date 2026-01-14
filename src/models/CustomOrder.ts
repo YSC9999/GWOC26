@@ -13,7 +13,22 @@ const CustomOrderSchema = new mongoose.Schema({
 
     // Custom requirements
     // Keeping top-level description for the initial request
-    description: { type: String, required: true },
+    // Custom requirements
+    productType: { type: String, required: true },
+    quantity: { type: Number, required: true, default: 1 },
+    material: { type: String, required: true },
+
+    glazePreference: [String],
+    dimensions: {
+        height: String,
+        width: String,
+        depth: String
+    },
+    colorPreferences: String,
+    specialRequirements: String,
+    timeline: String,
+
+    description: { type: String, required: false }, // Made optional as detailed fields cover most info
     referenceImages: [String],
     budget: {
         type: String,
@@ -48,7 +63,7 @@ const CustomOrderSchema = new mongoose.Schema({
         enum: ['pending', 'quoted', 'accepted', 'in_progress', 'completed', 'cancelled', 'declined'],
         default: 'pending'
     },
-    
+
     // Link to actual order when paid
     orderId: {
         type: mongoose.Schema.Types.ObjectId,

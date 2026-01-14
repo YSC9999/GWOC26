@@ -42,15 +42,22 @@ export async function POST(req: Request) {
             email,
             phone,
             quantity,
+            productType,
+            material,
+            glazePreference,
+            dimensions,
+            colorPreferences,
+            specialRequirements,
+            timeline,
             description,
             referenceImages,
             budget
         } = body;
 
         // Validate required fields
-        if (!name || !email || !phone || !description || !budget) {
+        if (!name || !email || !phone || !budget || !productType || !material) {
             return NextResponse.json(
-                { error: "All fields are required" },
+                { error: "Please fill in all required fields" },
                 { status: 400 }
             );
         }
@@ -59,16 +66,23 @@ export async function POST(req: Request) {
 
         // Create custom order
         const customOrder = await CustomOrder.create({
-            userId: user?.id, // Optional linkage
+            userId: user?.id,
             name,
             email,
             phone,
-            quantity: quantity || 1, // Default to 1 if not provided, though form usually provides it
+            productType,
+            material,
+            quantity: quantity || 1,
+            glazePreference: glazePreference || [],
+            dimensions,
+            colorPreferences,
+            specialRequirements,
+            timeline,
             description,
             referenceImages: referenceImages || [],
             budget,
             status: "pending",
-            items: [] // Initialize empty items array for Admin to populate
+            items: []
         });
 
         return NextResponse.json({

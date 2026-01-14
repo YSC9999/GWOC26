@@ -24,6 +24,7 @@ import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import ProductModal from "@/components/ProductModal";
 import { Carousel } from "@/components/Carousel";
+import UploadInput from "@/components/UploadInput";
 
 interface Product {
   _id: string;
@@ -80,7 +81,15 @@ export default function Products() {
     name: "",
     email: "",
     phone: "",
-    description: "",
+    productType: "",
+    material: "",
+    quantity: 1,
+    glazePreference: [] as string[],
+    dimensions: { height: "", width: "", depth: "" },
+    colorPreferences: "",
+    specialRequirements: "",
+    timeline: "",
+    description: "", // Keep for compatibility if needed, but not primary
     budget: "",
   });
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
@@ -89,6 +98,28 @@ export default function Products() {
   const [customError, setCustomError] = useState("");
   const [previousOrders, setPreviousOrders] = useState<any[]>([]);
   const [otp, setOtp] = useState("");
+
+  // Studio Info State for contact email
+  const [studioEmail, setStudioEmail] = useState("hello@basho.com");
+
+  useEffect(() => {
+    // Fetch studio info for dynamic email
+    const fetchStudioInfo = async () => {
+      try {
+        const res = await fetch("/api/studio");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.studioInfo?.email) {
+            setStudioEmail(data.studioInfo.email);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch studio info:", err);
+      }
+    };
+    fetchStudioInfo();
+  }, []);
+
   const [otpSent, setOtpSent] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
@@ -136,12 +167,16 @@ export default function Products() {
     >
   ) => {
     const { name, value } = e.target;
-    setCustomFormData((prev) => ({ ...prev, [name]: value }));
+
+    // For phone, only allow numbers
     if (name === "phone") {
+      if (!/^\d*$/.test(value)) return;
       setPhoneVerified(false);
       setOtpSent(false);
       setOtp("");
     }
+
+    setCustomFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSendOtp = async () => {
@@ -198,6 +233,8 @@ export default function Products() {
     }
   };
 
+
+
   const handleCustomSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setCustomLoading(true);
@@ -229,6 +266,14 @@ export default function Products() {
       name: "",
       email: "",
       phone: "",
+      productType: "",
+      material: "",
+      quantity: 1,
+      glazePreference: [],
+      dimensions: { height: "", width: "", depth: "" },
+      colorPreferences: "",
+      specialRequirements: "",
+      timeline: "",
       description: "",
       budget: "",
     });
@@ -552,17 +597,15 @@ export default function Products() {
                           !isOutOfStock &&
                           setSelectedProductId(product.slug || product._id)
                         }
-                        className={`relative h-48 bg-gradient-to-br from-sand to-sand/50 overflow-hidden ${
-                          isOutOfStock ? "cursor-not-allowed" : "cursor-pointer"
-                        }`}
+                        className={`relative h-48 bg-gradient-to-br from-sand to-sand/50 overflow-hidden ${isOutOfStock ? "cursor-not-allowed" : "cursor-pointer"
+                          }`}
                       >
                         {getProductImage(product) ? (
                           <img
                             src={getProductImage(product)!}
                             alt={product.name}
-                            className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${
-                              isOutOfStock ? "grayscale opacity-75" : ""
-                            }`}
+                            className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${isOutOfStock ? "grayscale opacity-75" : ""
+                              }`}
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-7xl group-hover:scale-110 transition-transform duration-500">
@@ -607,7 +650,7 @@ export default function Products() {
                               <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                                 {Math.round(
                                   (1 - product.price / product.originalPrice) *
-                                    100
+                                  100
                                 )}
                                 % OFF
                               </span>
@@ -716,11 +759,10 @@ export default function Products() {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  currentPage === 1
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === 1
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+                  }`}
               >
                 Previous
               </button>
@@ -737,11 +779,10 @@ export default function Products() {
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
-                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                        currentPage === page
-                          ? "bg-clay text-white shadow-lg"
-                          : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-                      }`}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === page
+                        ? "bg-clay text-white shadow-lg"
+                        : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+                        }`}
                     >
                       {page}
                     </button>
@@ -762,11 +803,10 @@ export default function Products() {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  currentPage === totalPages
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === totalPages
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+                  }`}
               >
                 Next
               </button>
@@ -871,9 +911,9 @@ export default function Products() {
                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-sand/50 to-transparent rounded-tr-full"></div>
 
                 <div className="flex items-center gap-3 mb-6 relative">
-                  <span className="text-3xl">✍️</span>
+                  <span className="text-3xl">✨</span>
                   <h3 className="text-2xl font-bold text-soil font-serif">
-                    Tell Us About Your Vision
+                    Custom Order Request
                   </h3>
                 </div>
 
@@ -883,42 +923,40 @@ export default function Products() {
                   </div>
                 )}
 
-                <form onSubmit={handleCustomSubmit} className="space-y-6">
+                <form onSubmit={handleCustomSubmit} className="space-y-8">
+
+                  {/* Personal Details */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-soil mb-2">
-                        Your Name *
-                      </label>
+                      <label className="block text-sm font-medium text-soil mb-2">Your Name *</label>
                       <input
                         type="text"
                         name="name"
                         value={customFormData.name}
                         onChange={handleCustomChange}
                         required
-                        className="w-full px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors"
+                        className="w-full px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none transition-colors"
                         placeholder="Enter your name"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-soil mb-2">
-                        Email *
-                      </label>
+                      <label className="block text-sm font-medium text-soil mb-2">Email *</label>
                       <input
                         type="email"
                         name="email"
                         value={customFormData.email}
                         onChange={handleCustomChange}
                         required
-                        className="w-full px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors"
+                        className="w-full px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none transition-colors"
                         placeholder="your@email.com"
                       />
                     </div>
                   </div>
 
+                  {/* Phone & OTP */}
+                  {/* Phone & OTP */}
                   <div>
-                    <label className="block text-sm font-medium text-soil mb-2">
-                      Phone Number *
-                    </label>
+                    <label className="block text-sm font-medium text-soil mb-2">Phone Number *</label>
                     <div className="space-y-3">
                       <div className="flex flex-col sm:flex-row gap-2">
                         <input
@@ -928,21 +966,18 @@ export default function Products() {
                           onChange={handleCustomChange}
                           required
                           disabled={phoneVerified}
-                          className="flex-1 px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
-                          placeholder="+91 98765 43210"
+                          className="flex-1 px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
+                          placeholder="9876543210"
+                          maxLength={10}
                         />
                         {!phoneVerified && !otpSent && (
                           <button
                             type="button"
                             onClick={handleSendOtp}
-                            disabled={sendingOtp || !customFormData.phone}
+                            disabled={sendingOtp || !customFormData.phone || customFormData.phone.length !== 10}
                             className="px-4 py-3 bg-clay text-white rounded-xl font-medium hover:bg-clay/90 transition-colors disabled:opacity-50 whitespace-nowrap"
                           >
-                            {sendingOtp ? (
-                              <Loader2 className="w-5 h-5 animate-spin" />
-                            ) : (
-                              "Send OTP"
-                            )}
+                            {sendingOtp ? <Loader2 className="w-5 h-5 animate-spin" /> : "Send OTP"}
                           </button>
                         )}
                         {phoneVerified && (
@@ -957,14 +992,10 @@ export default function Products() {
                           <input
                             type="text"
                             value={otp}
-                            onChange={(e) =>
-                              setOtp(
-                                e.target.value.replace(/\D/g, "").slice(0, 6)
-                              )
-                            }
+                            onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
                             placeholder="Enter 6-digit OTP"
                             maxLength={6}
-                            className="flex-1 px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors"
+                            className="flex-1 px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none transition-colors"
                           />
                           <button
                             type="button"
@@ -972,113 +1003,254 @@ export default function Products() {
                             disabled={verifyingOtp || otp.length !== 6}
                             className="px-4 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors disabled:opacity-50 whitespace-nowrap"
                           >
-                            {verifyingOtp ? (
-                              <Loader2 className="w-5 h-5 animate-spin" />
-                            ) : (
-                              "Verify"
-                            )}
+                            {verifyingOtp ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify"}
                           </button>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-soil mb-2">
-                      Describe what you're looking for *
-                    </label>
-                    <p className="text-xs text-soil/60 mb-2">
-                      Please describe the items you need, including quantities,
-                      shapes, and sizes.
-                    </p>
-                    <textarea
-                      name="description"
-                      value={customFormData.description}
-                      onChange={handleCustomChange}
-                      required
-                      rows={5}
-                      className="w-full px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors resize-none"
-                      placeholder="Tell us about your vision: e.g., 4 Dinner Plates, 4 BOWLS, in blue glaze..."
-                    />
+                  {/* Product Type & Quantity */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-soil mb-2">Product Type *</label>
+                      <select
+                        name="productType"
+                        value={customFormData.productType}
+                        onChange={handleCustomChange}
+                        className="w-full px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none bg-white"
+                        required
+                      >
+                        <option value="">Select a product type</option>
+                        <option value="Dinner Set">Dinner Set</option>
+                        <option value="Mug">Mug</option>
+                        <option value="Bowl">Bowl</option>
+                        <option value="Vase">Vase</option>
+                        <option value="Planter">Planter</option>
+                        <option value="Sculpture">Sculpture</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-soil mb-2">Quantity</label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="number"
+                          min="1"
+                          name="quantity"
+                          value={customFormData.quantity}
+                          onChange={(e) => setCustomFormData(prev => ({ ...prev, quantity: Math.max(1, parseInt(e.target.value) || 1) }))}
+                          className="w-full px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none transition-colors text-center"
+                        />
+                        <span className="text-sm text-soil/50 whitespace-nowrap">piece{customFormData.quantity > 1 ? 's' : ''}</span>
+                      </div>
+                    </div>
                   </div>
 
+                  {/* Material */}
                   <div>
-                    <label className="block text-sm font-medium text-soil mb-2">
-                      Budget Range *
-                    </label>
+                    <label className="block text-sm font-medium text-soil mb-2">Material *</label>
                     <select
-                      value={customFormData.budget}
-                      onChange={(e) =>
-                        setCustomFormData((prev) => ({
-                          ...prev,
-                          budget: e.target.value,
-                        }))
-                      }
+                      name="material"
+                      value={customFormData.material}
+                      onChange={handleCustomChange}
+                      className="w-full px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none bg-white"
                       required
-                      className="w-full px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors bg-white appearance-none cursor-pointer"
-                      style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%235A3E36'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                        backgroundRepeat: "no-repeat",
-                        backgroundPosition: "right 1rem center",
-                        backgroundSize: "1.5rem",
-                      }}
                     >
-                      <option value="">Select your budget range</option>
-                      {budgetRanges.map((range) => (
-                        <option key={range.id} value={range.id}>
-                          {range.label}
-                        </option>
-                      ))}
+                      <option value="">Select Material</option>
+                      <option value="Stoneware">Stoneware</option>
+                      <option value="Porcelain">Porcelain</option>
+                      <option value="Raku">Raku</option>
+                      <option value="Terracotta">Terracotta</option>
+                      <option value="Earthenware">Earthenware</option>
+                      <option value="Unglazed Clay">Unglazed Clay</option>
                     </select>
                   </div>
 
+                  {/* Glaze / Finish Preference */}
                   <div>
-                    <label className="block text-sm font-medium text-soil mb-2">
-                      Reference Images (optional)
-                    </label>
-                    <div className="border-2 border-dashed border-clay/30 rounded-xl p-8 text-center bg-gradient-to-br from-sand/30 to-transparent hover:border-clay/50 transition-colors cursor-pointer group">
-                      <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">
-                        📸
+                    <label className="block text-sm font-medium text-soil mb-3">Glaze / Finish Preference</label>
+                    <div className="flex flex-wrap gap-3">
+                      {['Matt Finish', 'Glossy Finish', 'Crackle Glaze', 'Celadon', 'Tenmoku', 'Shino', 'Ash Glaze', 'Cobalt Blue', 'Copper Red'].map(glaze => (
+                        <button
+                          key={glaze}
+                          type="button"
+                          onClick={() => {
+                            const current = customFormData.glazePreference;
+                            const newGlazes = current.includes(glaze)
+                              ? current.filter(g => g !== glaze)
+                              : [...current, glaze];
+                            setCustomFormData(prev => ({ ...prev, glazePreference: newGlazes }));
+                          }}
+                          className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${customFormData.glazePreference.includes(glaze)
+                            ? 'bg-clay text-white border-clay'
+                            : 'bg-white text-soil/70 border-soil/20 hover:border-clay/50'
+                            }`}
+                        >
+                          {glaze}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Dimensions */}
+                  <div>
+                    <label className="block text-sm font-medium text-soil mb-2">Dimensions (in cm)</label>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <span className="text-xs text-soil/50 mb-1 block">Height</span>
+                        <input
+                          type="number"
+                          placeholder="15"
+                          min="0"
+                          className="w-full px-3 py-2 border border-soil/20 rounded-lg focus:border-clay outline-none"
+                          value={customFormData.dimensions.height}
+                          onChange={(e) => setCustomFormData(prev => ({ ...prev, dimensions: { ...prev.dimensions, height: e.target.value } }))}
+                        />
                       </div>
-                      <p className="text-soil/70 text-sm mb-2 font-medium">
-                        Share inspiration images with us
-                      </p>
-                      <p className="text-soil/50 text-xs">
-                        Email your reference images to{" "}
-                        <span className="text-clay font-medium">
-                          hello@basho.com
-                        </span>{" "}
-                        after submitting
-                      </p>
+                      <div>
+                        <span className="text-xs text-soil/50 mb-1 block">Width</span>
+                        <input
+                          type="number"
+                          placeholder="20"
+                          min="0"
+                          className="w-full px-3 py-2 border border-soil/20 rounded-lg focus:border-clay outline-none"
+                          value={customFormData.dimensions.width}
+                          onChange={(e) => setCustomFormData(prev => ({ ...prev, dimensions: { ...prev.dimensions, width: e.target.value } }))}
+                        />
+                      </div>
+                      <div>
+                        <span className="text-xs text-soil/50 mb-1 block">Depth</span>
+                        <input
+                          type="number"
+                          placeholder="10"
+                          min="0"
+                          className="w-full px-3 py-2 border border-soil/20 rounded-lg focus:border-clay outline-none"
+                          value={customFormData.dimensions.depth}
+                          onChange={(e) => setCustomFormData(prev => ({ ...prev, dimensions: { ...prev.dimensions, depth: e.target.value } }))}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Color Preferences */}
+                  <div>
+                    <label className="block text-sm font-medium text-soil mb-2">Color Preferences</label>
+                    <textarea
+                      rows={2}
+                      className="w-full px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none"
+                      placeholder="Describe your preferred colors, patterns, or decorative elements..."
+                      value={customFormData.colorPreferences}
+                      onChange={(e) => setCustomFormData(prev => ({ ...prev, colorPreferences: e.target.value }))}
+                    />
+                  </div>
+
+                  {/* Reference Images */}
+                  <div>
+                    <label className="block text-sm font-medium text-soil mb-2">Reference Images (Max 5)</label>
+                    <div className="space-y-4">
+                      <div className="bg-sand/10 hover:bg-sand/20 transition-colors rounded-xl overflow-hidden">
+                        <UploadInput
+                          uploadPreset="products_unsigned" // Using known working preset
+                          folder="custom_orders"
+                          onUploaded={(urls) => {
+                            setReferenceImages((prev) => [...prev, ...urls].slice(0, 5));
+                          }}
+                        >
+                          <div className="border-2 border-dashed border-clay/30 rounded-xl p-8 text-center cursor-pointer group hover:border-clay/50 transition-colors w-full h-full flex flex-col items-center justify-center">
+                            <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">📸</div>
+                            <p className="text-soil/70 text-sm mb-1 font-medium">Click to upload images or drag and drop</p>
+                            <p className="text-soil/40 text-xs text-center">PNG, JPG, GIF up to 5MB</p>
+                          </div>
+                        </UploadInput>
+                      </div>
+
+                      {/* Image Previews */}
+                      {referenceImages.length > 0 && (
+                        <div className="flex gap-3 flex-wrap">
+                          <AnimatePresence>
+                            {referenceImages.map((img, idx) => (
+                              <motion.div
+                                key={img + idx}
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.5 }}
+                                className="relative group w-20 h-20"
+                              >
+                                <img
+                                  src={img}
+                                  alt={`Reference ${idx + 1}`}
+                                  className="w-full h-full object-cover rounded-lg shadow-sm border border-soil/10"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setReferenceImages(prev => prev.filter((_, i) => i !== idx))}
+                                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs shadow-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center transform hover:scale-110"
+                                >
+                                  ×
+                                </button>
+                              </motion.div>
+                            ))}
+                          </AnimatePresence>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Special Requirements */}
+                  <div>
+                    <label className="block text-sm font-medium text-soil mb-2">Special Requirements</label>
+                    <textarea
+                      rows={3}
+                      className="w-full px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none"
+                      placeholder="Any special features, inscriptions, or functional requirements..."
+                      value={customFormData.specialRequirements}
+                      onChange={(e) => setCustomFormData(prev => ({ ...prev, specialRequirements: e.target.value }))}
+                    />
+                  </div>
+
+                  {/* Timeline & Budget */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-soil mb-2">Desired Timeline</label>
+                      <input
+                        type="text"
+                        placeholder="e.g., 6 weeks, by Christmas, etc."
+                        className="w-full px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none"
+                        value={customFormData.timeline}
+                        onChange={(e) => setCustomFormData(prev => ({ ...prev, timeline: e.target.value }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-soil mb-2">Budget Range *</label>
+                      <select
+                        value={customFormData.budget}
+                        onChange={(e) => setCustomFormData((prev) => ({ ...prev, budget: e.target.value }))}
+                        required
+                        className="w-full px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none bg-white"
+                      >
+                        <option value="">Select budget range</option>
+                        {budgetRanges.map((range) => (
+                          <option key={range.id} value={range.id}>{range.label}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
 
                   <button
                     type="submit"
-                    disabled={
-                      customLoading ||
-                      !customFormData.description ||
-                      !customFormData.budget ||
-                      !phoneVerified
-                    }
+                    disabled={customLoading || !customFormData.productType || !customFormData.budget || !phoneVerified}
                     className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-clay to-clay/90 text-white py-4 rounded-full font-semibold text-lg hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
                     {customLoading ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        Submitting...
-                      </>
+                      <><Loader2 className="w-5 h-5 animate-spin" /> Submitting...</>
                     ) : (
-                      <>
-                        <Send className="w-5 h-5" />
-                        Submit Request
-                      </>
+                      <><Send className="w-5 h-5" /> Submit Request</>
                     )}
                   </button>
+
                   {!phoneVerified && (
-                    <p className="text-sm text-red-500 text-center -mt-2">
-                      Please verify your phone number before submitting
-                    </p>
+                    <p className="text-sm text-red-500 text-center">Please verify your phone number before submitting</p>
                   )}
                 </form>
               </div>
@@ -1209,10 +1381,10 @@ export default function Products() {
                   We're happy to help with your custom order inquiry.
                 </p>
                 <a
-                  href="mailto:hello@basho.com"
+                  href={`mailto:${studioEmail}`}
                   className="inline-flex items-center gap-2 text-clay font-semibold hover:underline bg-white/50 px-4 py-2 rounded-full transition-colors hover:bg-white"
                 >
-                  ✉️ hello@basho.com
+                  ✉️ {studioEmail}
                 </a>
               </div>
             </motion.div>
