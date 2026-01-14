@@ -838,7 +838,7 @@ export default function Workshops() {
                             </span>
                           )}
                         </label>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <input
                             type="tel"
                             required
@@ -864,7 +864,7 @@ export default function Workshops() {
                               disabled={
                                 sendingOtp || bookingForm.phone.length < 10
                               }
-                              className="px-4 py-2 bg-clay text-white text-xs rounded-lg hover:bg-clay/90 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex items-center gap-1"
+                              className="px-4 py-2 bg-clay text-white text-xs rounded-lg hover:bg-clay/90 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex items-center justify-center gap-1"
                             >
                               {sendingOtp ? (
                                 <Loader2 size={12} className="animate-spin" />
@@ -926,7 +926,7 @@ export default function Workshops() {
                           <label className="block text-xs font-medium text-amber-800 mb-2">
                             Enter the OTP sent to your phone
                           </label>
-                          <div className="flex gap-2">
+                          <div className="flex flex-col sm:flex-row gap-2">
                             <input
                               type="text"
                               value={otp}
@@ -943,7 +943,7 @@ export default function Workshops() {
                               type="button"
                               onClick={verifyOtp}
                               disabled={verifyingOtp || otp.length < 4}
-                              className="px-4 py-2 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                              className="px-4 py-2 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
                             >
                               {verifyingOtp ? (
                                 <Loader2 size={12} className="animate-spin" />

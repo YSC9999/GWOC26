@@ -10,6 +10,9 @@ import {
   ArrowRight,
   Heart,
   XCircle,
+  Send,
+  Check,
+  Image as ImageIcon,
 } from "lucide-react";
 import {
   fadeInUp,
@@ -20,6 +23,7 @@ import {
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import ProductModal from "@/components/ProductModal";
+import { Carousel } from "@/components/Carousel";
 
 interface Product {
   _id: string;
@@ -47,6 +51,14 @@ import { PRODUCT_CATEGORIES, CATEGORY_EMOJIS } from "@/lib/categories";
 const categories = PRODUCT_CATEGORIES;
 const categoryEmojis = CATEGORY_EMOJIS;
 
+const budgetRanges = [
+  { id: "under-1000", label: "Under ₹1,000" },
+  { id: "1000-3000", label: "₹1,000 - ₹3,000" },
+  { id: "3000-5000", label: "₹3,000 - ₹5,000" },
+  { id: "5000-10000", label: "₹5,000 - ₹10,000" },
+  { id: "above-10000", label: "Above ₹10,000" },
+];
+
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,8 +75,36 @@ export default function Products() {
   const cart = useCart();
   const { user, login } = useAuth();
 
+  // Custom order state
+  const [customFormData, setCustomFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    description: "",
+    budget: "",
+  });
+  const [referenceImages, setReferenceImages] = useState<string[]>([]);
+  const [customLoading, setCustomLoading] = useState(false);
+  const [customSubmitted, setCustomSubmitted] = useState(false);
+  const [customError, setCustomError] = useState("");
+  const [previousOrders, setPreviousOrders] = useState<any[]>([]);
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+
   useEffect(() => {
     fetchProducts();
+    // Fetch previous custom orders for carousel
+    fetch("/api/previous-custom-orders")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setPreviousOrders(data.data);
+        }
+      })
+      .catch((err) => console.error(err));
   }, [selectedCategory, searchQuery]);
 
   useEffect(() => {
@@ -87,6 +127,115 @@ export default function Products() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Custom order handlers
+  const handleCustomChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setCustomFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "phone") {
+      setPhoneVerified(false);
+      setOtpSent(false);
+      setOtp("");
+    }
+  };
+
+  const handleSendOtp = async () => {
+    if (!customFormData.phone || customFormData.phone.length < 10) {
+      setCustomError("Please enter a valid phone number");
+      return;
+    }
+    setSendingOtp(true);
+    setCustomError("");
+    try {
+      const res = await fetch("/api/auth/send-phone-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: customFormData.phone }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setOtpSent(true);
+      } else {
+        setCustomError(data.error || "Failed to send OTP");
+      }
+    } catch (err) {
+      setCustomError("Failed to send OTP");
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otp || otp.length !== 6) {
+      setCustomError("Please enter a valid 6-digit OTP");
+      return;
+    }
+    setVerifyingOtp(true);
+    setCustomError("");
+    try {
+      const res = await fetch("/api/auth/verify-phone-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: customFormData.phone, otp }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPhoneVerified(true);
+        setOtpSent(false);
+        setOtp("");
+      } else {
+        setCustomError(data.error || "Invalid OTP");
+      }
+    } catch (err) {
+      setCustomError("Failed to verify OTP");
+    } finally {
+      setVerifyingOtp(false);
+    }
+  };
+
+  const handleCustomSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCustomLoading(true);
+    setCustomError("");
+    try {
+      const res = await fetch("/api/custom-orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...customFormData,
+          referenceImages,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+      setCustomSubmitted(true);
+    } catch (err: any) {
+      setCustomError(err.message);
+    } finally {
+      setCustomLoading(false);
+    }
+  };
+
+  const resetCustomForm = () => {
+    setCustomSubmitted(false);
+    setCustomFormData({
+      name: "",
+      email: "",
+      phone: "",
+      description: "",
+      budget: "",
+    });
+    setReferenceImages([]);
+    setPhoneVerified(false);
+    setOtpSent(false);
+    setOtp("");
   };
 
   const handleAddToCart = (product: Product) => {
@@ -376,7 +525,7 @@ export default function Products() {
             initial="hidden"
             animate="visible"
             layout
-            className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8 px-4 md:px-8 max-w-7xl mx-auto"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8 px-4 md:px-8 max-w-7xl mx-auto"
           >
             <AnimatePresence mode="popLayout">
               {paginatedProducts.map((product) => {
@@ -626,36 +775,449 @@ export default function Products() {
         </>
       )}
 
-      {/* Bottom CTA */}
+      {/* Custom Order Section */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="mt-16 text-center px-4"
+        transition={{ duration: 0.8 }}
+        className="mt-20 px-4 py-16 bg-gradient-to-b from-sand/30 via-sand/50 to-sand/30 relative overflow-hidden"
+        id="custom-order"
       >
-        <div className="bg-gradient-to-br from-clay to-clay/80 rounded-2xl p-8 md:p-10 text-white max-w-3xl mx-auto shadow-lg">
-          <motion.div
-            initial={{ scale: 0.9 }}
-            whileInView={{ scale: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <span className="text-3xl mb-3 block">🎨</span>
-            <h2 className="text-2xl md:text-3xl font-bold mb-3 font-serif">
-              Looking for something unique?
-            </h2>
-            <p className="text-base text-white/90 mb-6 max-w-lg mx-auto leading-relaxed">
-              We create custom pieces tailored to your vision. Let's craft
-              something special together.
-            </p>
-            <Link
-              href="/custom-orders"
-              className="inline-flex items-center gap-2 bg-white text-clay font-bold px-6 py-3 rounded-full transition-all hover:scale-105 hover:shadow-lg text-sm md:text-base"
-            >
-              Request Custom Order
-              <ArrowRight size={18} />
-            </Link>
-          </motion.div>
+        {/* Decorative Elements */}
+        <div className="absolute bottom-10 right-10 text-6xl opacity-10 -rotate-12">
+          🎨
         </div>
+        <div className="absolute top-1/2 left-5 text-4xl opacity-5">✨</div>
+        <div className="absolute top-1/4 right-20 text-5xl opacity-5">🍵</div>
+
+        <div className="text-center mb-12 relative z-10">
+          <motion.div
+            initial={{ scale: 0 }}
+            whileInView={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+            className="inline-block mb-4"
+          ></motion.div>
+          <h2 className="text-4xl md:text-5xl font-bold text-soil mb-6 font-serif">
+            Custom Orders
+          </h2>
+          <p className="text-xl text-soil/70 max-w-2xl mx-auto leading-relaxed">
+            Have a specific vision? We'll bring it to life. From personalized
+            gifts to bespoke tableware sets, every piece is crafted with care.
+          </p>
+          <span className="block text-clay font-medium mb-4 tracking-wider uppercase text-sm">
+            Made Just for You
+          </span>
+        </div>
+
+        {/* Previous Custom Orders Showcase - Carousel */}
+        {previousOrders.length > 0 && (
+          <div className="mb-16 max-w-6xl mx-auto">
+            <Carousel
+              items={previousOrders.flatMap((order) =>
+                order.images.map((img: string) => ({
+                  image: img,
+                  description: order.description,
+                  id: order._id + "-" + img,
+                }))
+              )}
+            />
+          </div>
+        )}
+
+        {customSubmitted ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-gradient-to-br from-white to-sand/50 rounded-3xl p-12 text-center max-w-lg mx-auto shadow-xl border border-clay/10 relative overflow-hidden"
+          >
+            <div className="absolute top-4 right-4 text-3xl opacity-20">🌿</div>
+            <div className="absolute bottom-4 left-4 text-3xl opacity-20">
+              🍃
+            </div>
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200 }}
+              className="w-20 h-20 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"
+            >
+              <Check className="w-10 h-10 text-green-600" />
+            </motion.div>
+            <h3 className="text-3xl font-bold text-soil mb-4 font-serif">
+              Request Submitted!
+            </h3>
+            <p className="text-soil/70 mb-8 leading-relaxed">
+              Thank you for your custom order request. Our artisans will review
+              your requirements and get back to you within 24-48 hours with a
+              quotation.
+            </p>
+            <button
+              onClick={resetCustomForm}
+              className="bg-gradient-to-r from-clay to-clay/90 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg hover:scale-105 transition-all"
+            >
+              Submit Another Request
+            </button>
+          </motion.div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 max-w-7xl mx-auto relative z-10">
+            {/* Form */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              className="lg:col-span-3"
+            >
+              <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-clay/5 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-clay/5 to-transparent rounded-bl-full"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-sand/50 to-transparent rounded-tr-full"></div>
+
+                <div className="flex items-center gap-3 mb-6 relative">
+                  <span className="text-3xl">✍️</span>
+                  <h3 className="text-2xl font-bold text-soil font-serif">
+                    Tell Us About Your Vision
+                  </h3>
+                </div>
+
+                {customError && (
+                  <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-xl mb-6">
+                    {customError}
+                  </div>
+                )}
+
+                <form onSubmit={handleCustomSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-soil mb-2">
+                        Your Name *
+                      </label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={customFormData.name}
+                        onChange={handleCustomChange}
+                        required
+                        className="w-full px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors"
+                        placeholder="Enter your name"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-soil mb-2">
+                        Email *
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={customFormData.email}
+                        onChange={handleCustomChange}
+                        required
+                        className="w-full px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors"
+                        placeholder="your@email.com"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-soil mb-2">
+                      Phone Number *
+                    </label>
+                    <div className="space-y-3">
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={customFormData.phone}
+                          onChange={handleCustomChange}
+                          required
+                          disabled={phoneVerified}
+                          className="flex-1 px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors disabled:bg-gray-50 disabled:cursor-not-allowed"
+                          placeholder="+91 98765 43210"
+                        />
+                        {!phoneVerified && !otpSent && (
+                          <button
+                            type="button"
+                            onClick={handleSendOtp}
+                            disabled={sendingOtp || !customFormData.phone}
+                            className="px-4 py-3 bg-clay text-white rounded-xl font-medium hover:bg-clay/90 transition-colors disabled:opacity-50 whitespace-nowrap"
+                          >
+                            {sendingOtp ? (
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                              "Send OTP"
+                            )}
+                          </button>
+                        )}
+                        {phoneVerified && (
+                          <div className="flex items-center justify-center px-4 py-3 bg-green-100 text-green-700 rounded-xl">
+                            <Check className="w-5 h-5" />
+                          </div>
+                        )}
+                      </div>
+
+                      {otpSent && !phoneVerified && (
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input
+                            type="text"
+                            value={otp}
+                            onChange={(e) =>
+                              setOtp(
+                                e.target.value.replace(/\D/g, "").slice(0, 6)
+                              )
+                            }
+                            placeholder="Enter 6-digit OTP"
+                            maxLength={6}
+                            className="flex-1 px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleVerifyOtp}
+                            disabled={verifyingOtp || otp.length !== 6}
+                            className="px-4 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors disabled:opacity-50 whitespace-nowrap"
+                          >
+                            {verifyingOtp ? (
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                              "Verify"
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-soil mb-2">
+                      Describe what you're looking for *
+                    </label>
+                    <p className="text-xs text-soil/60 mb-2">
+                      Please describe the items you need, including quantities,
+                      shapes, and sizes.
+                    </p>
+                    <textarea
+                      name="description"
+                      value={customFormData.description}
+                      onChange={handleCustomChange}
+                      required
+                      rows={5}
+                      className="w-full px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors resize-none"
+                      placeholder="Tell us about your vision: e.g., 4 Dinner Plates, 4 BOWLS, in blue glaze..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-soil mb-2">
+                      Budget Range *
+                    </label>
+                    <select
+                      value={customFormData.budget}
+                      onChange={(e) =>
+                        setCustomFormData((prev) => ({
+                          ...prev,
+                          budget: e.target.value,
+                        }))
+                      }
+                      required
+                      className="w-full px-4 py-3 border-2 border-soil/10 rounded-xl focus:border-clay focus:outline-none transition-colors bg-white appearance-none cursor-pointer"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%235A3E36'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "right 1rem center",
+                        backgroundSize: "1.5rem",
+                      }}
+                    >
+                      <option value="">Select your budget range</option>
+                      {budgetRanges.map((range) => (
+                        <option key={range.id} value={range.id}>
+                          {range.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-soil mb-2">
+                      Reference Images (optional)
+                    </label>
+                    <div className="border-2 border-dashed border-clay/30 rounded-xl p-8 text-center bg-gradient-to-br from-sand/30 to-transparent hover:border-clay/50 transition-colors cursor-pointer group">
+                      <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">
+                        📸
+                      </div>
+                      <p className="text-soil/70 text-sm mb-2 font-medium">
+                        Share inspiration images with us
+                      </p>
+                      <p className="text-soil/50 text-xs">
+                        Email your reference images to{" "}
+                        <span className="text-clay font-medium">
+                          hello@basho.com
+                        </span>{" "}
+                        after submitting
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={
+                      customLoading ||
+                      !customFormData.description ||
+                      !customFormData.budget ||
+                      !phoneVerified
+                    }
+                    className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-clay to-clay/90 text-white py-4 rounded-full font-semibold text-lg hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  >
+                    {customLoading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-5 h-5" />
+                        Submit Request
+                      </>
+                    )}
+                  </button>
+                  {!phoneVerified && (
+                    <p className="text-sm text-red-500 text-center -mt-2">
+                      Please verify your phone number before submitting
+                    </p>
+                  )}
+                </form>
+              </div>
+            </motion.div>
+
+            {/* Sidebar Info */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="lg:col-span-2 space-y-6"
+            >
+              <div className="bg-gradient-to-br from-sand/80 to-sand rounded-3xl p-8 border border-clay/10 relative overflow-hidden">
+                <div className="absolute top-2 right-2 text-2xl opacity-30">
+                  🌸
+                </div>
+                <div className="flex items-center gap-2 mb-6">
+                  <span className="text-2xl">📋</span>
+                  <h4 className="text-xl font-bold text-soil font-serif">
+                    How It Works
+                  </h4>
+                </div>
+                <div className="space-y-4">
+                  {[
+                    {
+                      step: "1",
+                      title: "Submit Your Request",
+                      desc: "Fill out the form with your requirements",
+                      emoji: "📝",
+                    },
+                    {
+                      step: "2",
+                      title: "Receive Quotation",
+                      desc: "We'll send you a detailed quote within 48 hours",
+                      emoji: "💌",
+                    },
+                    {
+                      step: "3",
+                      title: "Confirm & Pay",
+                      desc: "50% advance to begin crafting",
+                      emoji: "✅",
+                    },
+                    {
+                      step: "4",
+                      title: "Creation",
+                      desc: "Your piece is handcrafted with care",
+                      emoji: "🏺",
+                    },
+                    {
+                      step: "5",
+                      title: "Delivery",
+                      desc: "Receive your unique creation",
+                      emoji: "📦",
+                    },
+                  ].map((item) => (
+                    <motion.div
+                      key={item.step}
+                      className="flex gap-4 group"
+                      whileHover={{ x: 5 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
+                      <div className="w-10 h-10 bg-gradient-to-br from-clay to-clay/80 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-md group-hover:scale-110 transition-transform">
+                        {item.emoji}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-soil">
+                          {item.title}
+                        </div>
+                        <div className="text-sm text-soil/60">{item.desc}</div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-clay/5 relative overflow-hidden">
+                <div className="absolute -top-4 -right-4 text-6xl opacity-10">
+                  ⏱️
+                </div>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-2xl">🕐</span>
+                  <h4 className="text-xl font-bold text-soil font-serif">
+                    Typical Timeline
+                  </h4>
+                </div>
+                <p className="text-soil/60 mb-4">
+                  Custom pieces take approximately{" "}
+                  <span className="font-semibold text-clay bg-clay/10 px-2 py-0.5 rounded-full">
+                    3-4 weeks
+                  </span>{" "}
+                  to complete, including:
+                </p>
+                <ul className="space-y-3 text-sm text-soil/70">
+                  {[
+                    "Design consultation",
+                    "Hand-building or wheel throwing",
+                    "Drying time (1 week)",
+                    "First firing (bisque)",
+                    "Glazing & final firing",
+                  ].map((item, idx) => (
+                    <li key={idx} className="flex items-center gap-3">
+                      <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Check size={12} className="text-green-600" />
+                      </div>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="bg-gradient-to-br from-clay/20 via-clay/10 to-sand rounded-3xl p-8 text-center border border-clay/10 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-clay/30 to-transparent"></div>
+                <motion.div
+                  className="text-5xl mb-4"
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 3,
+                    ease: "easeInOut",
+                  }}
+                >
+                  💬
+                </motion.div>
+                <h4 className="text-lg font-bold text-soil mb-2">
+                  Have Questions?
+                </h4>
+                <p className="text-sm text-soil/60 mb-4">
+                  We're happy to help with your custom order inquiry.
+                </p>
+                <a
+                  href="mailto:hello@basho.com"
+                  className="inline-flex items-center gap-2 text-clay font-semibold hover:underline bg-white/50 px-4 py-2 rounded-full transition-colors hover:bg-white"
+                >
+                  ✉️ hello@basho.com
+                </a>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </motion.section>
 
       {/* Product Modal */}

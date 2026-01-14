@@ -70,7 +70,7 @@ export default function MyCustomOrders() {
                     <Clock className="w-16 h-16 text-soil/20 mx-auto mb-4" />
                     <h2 className="text-xl font-bold text-soil mb-2">No custom requests</h2>
                     <p className="text-soil/60 mb-6">You haven't requested any custom pieces yet.</p>
-                    <Link href="/custom-orders" className="btn-primary">
+                    <Link href="/products#custom-order" className="btn-primary">
                         Make a Request
                     </Link>
                 </div>

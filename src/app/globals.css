@@ -94,20 +94,21 @@ button {
   padding: 0.4rem 1rem;
   border-radius: 0.5rem;
   font-weight: 600;
-  border: none;
+  border: 2px solid #C97C5D;
   font-size: 0.9rem;
   transition: all 0.3s ease;
   box-shadow: 0 4px 6px rgba(193, 117, 93, 0.2);
 }
 
 .btn-primary:hover {
-  background-color: #a85a47;
+  background-color: white;
+  color: #C97C5D;
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(201, 124, 93, 0.3);
 }
 
 .btn-secondary {
-  background-color: transparent;
+  background-color: white;
   color: #C97C5D;
   padding: 0.4rem 1rem;
   border-radius: 0.5rem;

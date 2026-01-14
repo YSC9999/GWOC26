@@ -113,8 +113,14 @@ export default function Home() {
       setDynamicFrames(newFrames);
 
       // Cache the data
-      sessionStorage.setItem("home_collections", JSON.stringify(newCollections));
-      sessionStorage.setItem("home_testimonials", JSON.stringify(newTestimonials));
+      sessionStorage.setItem(
+        "home_collections",
+        JSON.stringify(newCollections)
+      );
+      sessionStorage.setItem(
+        "home_testimonials",
+        JSON.stringify(newTestimonials)
+      );
       sessionStorage.setItem("home_frames", JSON.stringify(newFrames));
 
       // Preload images for frames
@@ -133,10 +139,9 @@ export default function Home() {
         // Wait for images to load, but set a timeout to avoid hanging forever
         await Promise.race([
           Promise.all(imagePromises),
-          new Promise((resolve) => setTimeout(resolve, 3000)) // 3s max wait time
+          new Promise((resolve) => setTimeout(resolve, 3000)), // 3s max wait time
         ]);
       }
-
     } catch (error) {
       console.error("Failed to fetch data:", error);
     } finally {
@@ -210,9 +215,9 @@ export default function Home() {
                     <ShoppingBag size={16} className="md:w-5 md:h-5" />
                   </button>
                 </Link>
-                <Link href="/custom-orders">
+                <Link href="/workshops">
                   <button className="btn-secondary flex items-center gap-2 px-5 py-2.5 md:px-8 md:py-4 text-sm md:text-lg hover:scale-105 transition-transform">
-                    CUSTOM ORDER
+                    Workshop
                     <ArrowRight size={16} className="md:w-5 md:h-5" />
                   </button>
                 </Link>
