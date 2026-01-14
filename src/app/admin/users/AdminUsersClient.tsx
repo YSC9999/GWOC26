@@ -1,7 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Loader2, Trash2, Edit2 } from "lucide-react";
+import {
+  Loader2,
+  Trash2,
+  Edit2,
+  Search,
+  UserPlus,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Save,
+} from "lucide-react";
 
 interface UserItem {
   _id: string;
@@ -157,17 +167,26 @@ export default function AdminUsers() {
       </div>
 
       <div className="mb-6 flex flex-col md:flex-row md:items-center gap-3">
-        <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder="Search by name or email" className="input-field px-3 py-2 rounded-md w-full md:w-auto flex-1" />
-        <select value={role} onChange={(e) => setRole(e.target.value)} className="input-field px-3 py-2 rounded-md w-full md:w-auto">
+        <input
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          placeholder="Search by name or email"
+          className="input-field px-3 py-2 rounded-md w-full md:w-auto flex-1"
+        />
+        <select
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          className="input-field px-3 py-2 rounded-md w-full md:w-auto"
+        >
           <option value="all">All</option>
           <option value="customer">Customer</option>
           <option value="admin">Admin</option>
         </select>
         <button onClick={() => { setPage(1); fetchUsers(); }} className="bg-clay text-white px-4 py-2 rounded-md w-full md:w-auto">Search</button>
-        <div className="ml-auto w-full md:w-auto flex gap-2">
-          <button onClick={cleanupUnverified} className="bg-red-100 text-red-700 hover:bg-red-200 px-4 py-2 rounded w-full md:w-auto border border-red-200">
-            Cleanup Unverified
-          </button>
+        <div className="ml-auto w-full md:w-auto">
           <button onClick={() => setShowAdd(true)} className="bg-green-600 text-white px-4 py-2 rounded w-full md:w-auto">Add User</button>
         </div>
       </div>
@@ -232,17 +251,17 @@ export default function AdminUsers() {
               <button
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="px-3 py-1 border rounded"
+                className="px-3 py-1 border rounded inline-flex items-center gap-1 disabled:opacity-50"
               >
-                Prev
+                <ChevronLeft size={16} /> Prev
               </button>
               <div>Page {page}</div>
               <button
                 disabled={page * limit >= total}
                 onClick={() => setPage((p) => p + 1)}
-                className="px-3 py-1 border rounded"
+                className="px-3 py-1 border rounded inline-flex items-center gap-1 disabled:opacity-50"
               >
-                Next
+                Next <ChevronRight size={16} />
               </button>
             </div>
           </div>
