@@ -290,41 +290,97 @@ export default function Navbar() {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
                           transition={{ duration: 0.2 }}
-                          className="absolute right-0 mt-4 w-64 bg-[#EFE5D8] rounded-2xl shadow-2xl border-2 border-[#5A3E36] py-2 overflow-hidden z-50"
+                          className="absolute right-0 mt-6 w-72 bg-gradient-to-b from-[#FDF8F3] to-[#F5EDE4] rounded-2xl shadow-2xl border-[3px] border-[#5A3E36] py-4 overflow-hidden z-50"
                         >
-                          <div className="px-5 py-3 border-b border-[#5A3E36]/10 bg-[#5A3E36]/5">
-                            <p className="text-sm font-bold text-[#5A3E36] truncate">
-                              {user?.name?.replace(" undefined", "")}
-                            </p>
-                            <p className="text-xs text-[#5A3E36]/70 truncate">
-                              {user?.email}
-                            </p>
+                          {/* Profile Header */}
+                          <div className="px-5 py-4 border-b-2 border-[#5A3E36]/20">
+                            <div className="flex items-center gap-4">
+                              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#C97C5D] to-[#a85a47] flex items-center justify-center text-white text-xl font-bold shadow-lg">
+                                {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-base font-bold text-[#5A3E36] truncate">
+                                  {user?.name?.replace(" undefined", "")}
+                                </p>
+                                <p className="text-xs text-gray-500 truncate">
+                                  {user?.email}
+                                </p>
+                                <span
+                                  className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 text-xs font-medium rounded-full ${
+                                    user?.role === "admin"
+                                      ? "bg-[#5A3E36]/10 text-[#5A3E36]"
+                                      : "bg-[#C97C5D]/10 text-[#C97C5D]"
+                                  }`}
+                                >
+                                  {user?.role === "admin" ? (
+                                    "⛩️"
+                                  ) : (
+                                    <User size={10} />
+                                  )}{" "}
+                                  {user?.role === "admin" ? "Admin" : "Member"}
+                                </span>
+                              </div>
+                            </div>
                           </div>
 
-                          <Link
-                            href="/account"
-                            className="flex items-center gap-3 px-5 py-3 hover:bg-[#C97C5D]/10 text-sm text-[#5A3E36] transition-colors"
-                          >
-                            👤 My Account
-                          </Link>
-
-                          {user?.role === "admin" && (
+                          {/* Menu Items */}
+                          <div className="py-2 px-3 space-y-1">
                             <Link
-                              href="/admin"
-                              className="flex items-center gap-3 px-5 py-3 hover:bg-[#C97C5D]/10 text-sm text-[#5A3E36] transition-colors"
+                              href="/account/profile"
+                              className="flex items-center gap-4 px-3 py-3 rounded-xl hover:bg-[#5A3E36]/5 transition-colors group"
                             >
-                              ⚡ Admin Dashboard
+                              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4A574] to-[#C97C5D] flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform">
+                                <User size={18} />
+                              </div>
+                              <div>
+                                <p className="text-sm font-semibold text-[#5A3E36]">
+                                  Profile
+                                </p>
+                                <p className="text-xs text-[#5A3E36]/50">
+                                  Manage your account
+                                </p>
+                              </div>
                             </Link>
-                          )}
 
-                          {/* Cart Removed from Dropdown */}
+                            {user?.role === "admin" && (
+                              <Link
+                                href="/admin"
+                                className="flex items-center gap-4 px-3 py-3 rounded-xl hover:bg-[#5A3E36]/5 transition-colors group"
+                              >
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4A574] to-[#C97C5D] flex items-center justify-center text-lg shadow-sm group-hover:scale-110 transition-transform">
+                                  ⛩️
+                                </div>
+                                <div>
+                                  <p className="text-sm font-semibold text-[#5A3E36]">
+                                    Admin Panel
+                                  </p>
+                                  <p className="text-xs text-[#5A3E36]/50">
+                                    Manage your store
+                                  </p>
+                                </div>
+                              </Link>
+                            )}
+                          </div>
 
-                          <button
-                            onClick={handleLogout}
-                            className="w-full flex items-center gap-3 px-5 py-3 hover:bg-red-50 text-sm text-red-600 transition-colors font-medium border-t border-[#5A3E36]/10"
-                          >
-                            <LogOut size={16} /> Sign Out
-                          </button>
+                          {/* Logout */}
+                          <div className="px-3 pt-2 border-t-2 border-[#5A3E36]/20 mt-2">
+                            <button
+                              onClick={handleLogout}
+                              className="w-full flex items-center gap-4 px-3 py-3 rounded-xl hover:bg-[#C97C5D]/10 transition-colors group"
+                            >
+                              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4A574] to-[#C97C5D] flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform">
+                                <LogOut size={18} />
+                              </div>
+                              <div className="text-left">
+                                <p className="text-sm font-semibold text-[#5A3E36]">
+                                  Log out
+                                </p>
+                                <p className="text-xs text-[#5A3E36]/50">
+                                  Sign out of your account
+                                </p>
+                              </div>
+                            </button>
+                          </div>
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -353,17 +409,17 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 200, damping: 25 }}
-            className="lg:hidden bg-[#EFE5D8] border-4 border-[#5A3E36] rounded-2xl mt-1 mx-auto w-11/12 max-w-6xl px-5 py-6 absolute top-16 md:top-24 z-40 shadow-2xl"
+            className="lg:hidden bg-[#EFE5D8] border-4 border-[#5A3E36] rounded-2xl mt-2 mx-auto w-11/12 max-w-6xl px-5 py-6 absolute top-20 md:top-24 z-40 shadow-2xl"
           >
             <div
-              className="flex flex-col space-y-4 uppercase tracking-widest text-xs text-center text-[#5A3E36]"
+              className="flex flex-col space-y-2 uppercase tracking-widest text-xs text-center text-[#5A3E36]"
               style={{ fontFamily: "var(--font-edu-nsw-act)" }}
             >
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="nav-link hover:text-[#C97C5D] py-2 border-b border-[#5A3E36]/10 font-bold"
+                  className="nav-link hover:text-[#C97C5D] py-3 border-b border-[#5A3E36]/10 font-bold"
                   onClick={() => setOpen(false)}
                 >
                   {link.label}
@@ -371,7 +427,7 @@ export default function Navbar() {
               ))}
 
               {!isAuthenticated ? (
-                <div className="flex flex-col gap-3 mt-4 pt-4">
+                <div className="flex flex-col gap-3 mt-6 pt-4">
                   <Link
                     href="/login"
                     className="text-xs uppercase tracking-widest px-4 py-3 border-2 border-[#5A3E36] rounded-lg hover:bg-[#5A3E36] hover:text-[#EFE5D8] transition text-[#5A3E36] font-bold"
@@ -388,35 +444,35 @@ export default function Navbar() {
                   </Link>
                 </div>
               ) : (
-                <div className="mt-4 space-y-3 pt-4">
+                <div className="mt-6 space-y-2 pt-4 border-t-2 border-[#5A3E36]/20">
                   {user?.role === "admin" && (
                     <Link
                       href="/admin"
-                      className="nav-link hover:text-[#C97C5D] block font-bold"
+                      className="nav-link hover:text-[#C97C5D] block font-bold py-3 border-b border-[#5A3E36]/10"
                       onClick={() => setOpen(false)}
                     >
-                      Admin Dashboard
+                      ⛩️ Admin Dashboard
                     </Link>
                   )}
                   <Link
                     href="/cart"
-                    className="nav-link hover:text-[#C97C5D] block font-bold"
+                    className="nav-link hover:text-[#C97C5D] block font-bold py-3 border-b border-[#5A3E36]/10"
                     onClick={() => setOpen(false)}
                   >
-                    Cart ({cartCount})
+                    🛍️ Cart ({cartCount})
                   </Link>
                   <Link
                     href="/account"
-                    className="nav-link hover:text-[#C97C5D] block font-bold"
+                    className="nav-link hover:text-[#C97C5D] block font-bold py-3 border-b border-[#5A3E36]/10"
                     onClick={() => setOpen(false)}
                   >
-                    My Account
+                    👤 My Account
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="w-full text-center px-4 py-2 text-red-600 font-bold text-xs"
+                    className="w-full text-center px-4 py-3 text-[#C97C5D] font-bold text-xs mt-2 hover:bg-[#C97C5D]/10 rounded-lg transition"
                   >
-                    Sign Out
+                    🚪 Sign Out
                   </button>
                 </div>
               )}
