@@ -410,7 +410,7 @@ export default function AdminShipping() {
                                     placeholder="e.g. 110001"
                                 />
 
-                                <label className="block text-sm font-bold text-soil/70 mb-1">Your Desired Price (for 500g to Reference Pincode)</label>
+                                <label className="block text-sm font-bold text-soil/70 mb-1">Your Desired Price</label>
                                 <input
                                     type="number"
                                     value={settings.shiprocketReferencePrice || ''}
@@ -418,16 +418,6 @@ export default function AdminShipping() {
                                     className="w-full max-w-xs p-2 rounded-lg border border-soil/20 focus:outline-none focus:border-clay"
                                     placeholder="e.g. 50"
                                 />
-
-                                <p className="text-xs text-soil/50 mt-2 bg-yellow-50 p-2 rounded border border-yellow-100">
-                                    <b>How it works:</b> The system checks the actual Shiprocket cost for shipping <b>500g</b> to your Reference Pincode.
-                                    <br />
-                                    It calculates a multiplier: <code>(Your Price / Actual Cost)</code>.
-                                    <br />
-                                    This multiplier is then applied to the <b>Real-time Shiprocket Cost</b> for every customer order.
-                                    <br />
-                                    <i>Example: Actual=40, Your=50 → Multiplier=1.25. If Customer Actual=100, they pay 125.</i>
-                                </p>
                             </div>
                         )}
                     </div>
