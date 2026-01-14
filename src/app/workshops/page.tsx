@@ -1,9 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
-import Link from "next/link";
+import { useState, useEffect, useRef } from "react";
 import Script from "next/script";
 import { motion, AnimatePresence } from "framer-motion";
-import { fadeInUp, staggerContainer, hoverScale } from "@/lib/animations";
+import { fadeInUp, staggerContainer } from "@/lib/animations";
 import {
   Calendar,
   Users,
@@ -12,19 +11,19 @@ import {
   ArrowRight,
   Loader2,
   Check,
-  Search,
   X,
-  Minus,
+  Phone,
+  Mail,
+  Send,
   Plus,
-  Shield,
-  Star,
+  Minus
 } from "lucide-react";
 import { Carousel } from "@/components/Carousel";
+import EventCalendar from "@/components/EventCalendar";
 
 interface Workshop {
   _id: string;
   title: string;
-  slug: string;
   description: string;
   type: string;
   image: string;
@@ -38,7 +37,6 @@ interface Workshop {
   location: string;
   level: string;
   status: string;
-  createdAt?: string;
 }
 
 const typeLabels: Record<string, string> = {
@@ -57,8 +55,14 @@ const levelColors: Record<string, string> = {
 export default function Workshops() {
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedType, setSelectedType] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  // Refs for scrolling
+  const inquiryFormRef = useRef<HTMLDivElement>(null);
+
+  const scrollToInquiry = () => {
+    inquiryFormRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   // Booking Modal State
   const [bookingWorkshop, setBookingWorkshop] = useState<Workshop | null>(null);
@@ -81,19 +85,27 @@ export default function Workshops() {
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
 
+  // Inquiry Form State
+  const [inquiryForm, setInquiryForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    groupSize: 1,
+    occasion: "",
+    message: "",
+    preferredDate: ""
+  });
+  const [inquiryLoading, setInquiryLoading] = useState(false);
+  const [inquirySuccess, setInquirySuccess] = useState(false);
+
   useEffect(() => {
     fetchWorkshops();
-  }, [selectedType, searchQuery]);
+  }, []);
 
   const fetchWorkshops = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (selectedType !== "all") params.append("type", selectedType);
-      if (searchQuery) params.append("search", searchQuery);
-      params.append("status", "upcoming");
-
-      const res = await fetch(`/api/workshops?${params}`);
+      const res = await fetch(`/api/workshops?status=all`);
       const data = await res.json();
       setWorkshops(data.workshops || []);
     } catch (error) {
@@ -117,7 +129,36 @@ export default function Workshops() {
     return workshop.maxParticipants - workshop.enrolledCount;
   };
 
-  // Reset OTP state when phone changes
+  // --- Derived State ---
+  const now = new Date();
+  const calendarEvents = workshops.map(w => ({
+    _id: w._id,
+    title: w.title,
+    startDate: w.date,
+    endDate: w.date,
+    type: w.type,
+  }));
+
+  const upcomingWorkshops = workshops
+    .filter(w => new Date(w.date) >= new Date(now.setHours(0, 0, 0, 0)))
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  const completedWorkshops = workshops
+    .filter(w => new Date(w.date) < new Date(now.setHours(0, 0, 0, 0)))
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const displayedUpcoming = selectedDate
+    ? upcomingWorkshops.filter(w => {
+      const wDate = new Date(w.date);
+      // Strip time components for accurate date comparison
+      const checkDate = new Date(wDate.getFullYear(), wDate.getMonth(), wDate.getDate());
+      const selected = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+
+      return checkDate.getTime() === selected.getTime();
+    })
+    : upcomingWorkshops;
+
+  // --- Booking Logic ---
   useEffect(() => {
     if (phoneVerified) {
       setPhoneVerified(false);
@@ -125,10 +166,8 @@ export default function Workshops() {
       setShowOtpInput(false);
       setOtp("");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookingForm.phone]);
 
-  // Send OTP
   const sendOtp = async () => {
     if (!bookingForm.phone || bookingForm.phone.length < 10) {
       setBookingError("Please enter a valid phone number");
@@ -150,14 +189,12 @@ export default function Workshops() {
         setBookingError(data.error || "Failed to send OTP");
       }
     } catch (err) {
-      console.error(err);
       setBookingError("Failed to send OTP");
     } finally {
       setSendingOtp(false);
     }
   };
 
-  // Verify OTP
   const verifyOtp = async () => {
     setVerifyingOtp(true);
     setBookingError("");
@@ -174,29 +211,22 @@ export default function Workshops() {
         setBookingError("Invalid OTP. Please try again.");
       }
     } catch (err) {
-      console.error(err);
       setBookingError("Failed to verify OTP");
     } finally {
       setVerifyingOtp(false);
     }
   };
 
-  // Handle booking submission with Razorpay payment
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!bookingWorkshop) return;
-
-    // Check phone verification
     if (!phoneVerified) {
       setBookingError("Please verify your phone number first");
       return;
     }
-
     setBookingLoading(true);
     setBookingError("");
-
     try {
-      // 1. Create registration and get Razorpay order
       const res = await fetch(
         `/api/workshops/${bookingWorkshop._id}/register`,
         {
@@ -205,16 +235,12 @@ export default function Workshops() {
           body: JSON.stringify(bookingForm),
         }
       );
-
       const data = await res.json();
-
       if (!res.ok) {
         setBookingError(data.error || "Failed to register");
         setBookingLoading(false);
         return;
       }
-
-      // 2. Open Razorpay checkout
       const options = {
         key: data.key,
         amount: data.amount,
@@ -223,7 +249,6 @@ export default function Workshops() {
         description: `Workshop: ${data.workshopTitle}`,
         order_id: data.razorpayOrderId,
         handler: async function (response: any) {
-          // 3. Verify Payment
           try {
             const verifyRes = await fetch(
               `/api/workshops/${bookingWorkshop._id}/verify`,
@@ -237,36 +262,25 @@ export default function Workshops() {
                 }),
               }
             );
-
             if (verifyRes.ok) {
               setBookingSuccess(true);
-              fetchWorkshops(); // Refresh to update enrolled count
+              fetchWorkshops();
             } else {
-              setBookingError(
-                "Payment verification failed. Please contact support."
-              );
+              setBookingError("Payment verification failed. Please contact support.");
             }
           } catch (err) {
-            console.error(err);
             setBookingError("Payment verification failed");
           }
           setBookingLoading(false);
         },
-        modal: {
-          ondismiss: function () {
-            setBookingLoading(false);
-          },
-        },
+        modal: { ondismiss: function () { setBookingLoading(false); } },
         prefill: {
           name: bookingForm.name,
           email: bookingForm.email,
           contact: bookingForm.phone,
         },
-        theme: {
-          color: "#D97757", // Clay color
-        },
+        theme: { color: "#D97757" },
       };
-
       const rzp = new (window as any).Razorpay(options);
       rzp.open();
     } catch (err: any) {
@@ -275,321 +289,318 @@ export default function Workshops() {
     }
   };
 
-  // Reset booking modal
   const closeBookingModal = () => {
     setBookingWorkshop(null);
-    setBookingForm({
-      name: "",
-      email: "",
-      phone: "",
-      numberOfParticipants: 1,
-      specialRequests: "",
-    });
+    setBookingForm({ name: "", email: "", phone: "", numberOfParticipants: 1, specialRequests: "" });
     setBookingError("");
     setBookingSuccess(false);
-    // Reset OTP state
     setOtp("");
     setShowOtpInput(false);
     setPhoneVerified(false);
     setOtpSent(false);
   };
 
-  // Close on escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeBookingModal();
-    };
-    window.addEventListener("keydown", handleEscape);
-    return () => window.removeEventListener("keydown", handleEscape);
-  }, []);
-
-  // Prevent body scroll when modal is open
-  useEffect(() => {
-    if (bookingWorkshop) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
+  // --- Inquiry Form Logic ---
+  const handleInquirySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setInquiryLoading(true);
+    try {
+      const res = await fetch("/api/workshops/inquire", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(inquiryForm),
+      });
+      if (res.ok) {
+        setInquirySuccess(true);
+        setInquiryForm({
+          name: "",
+          email: "",
+          phone: "",
+          groupSize: 1,
+          occasion: "",
+          message: "",
+          preferredDate: ""
+        });
+      } else {
+        alert("Failed to submit inquiry");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    } finally {
+      setInquiryLoading(false);
     }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [bookingWorkshop]);
+  };
+
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-clay" /></div>;
 
   return (
-    <div className="min-h-screen py-12">
+    <div className="min-h-screen py-8 bg-sand/10">
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
 
-      {/* Featured Workshops Slider */}
-      {workshops.length > 0 && (
-        <section className="mb-16 px-4 md:px-8">
-          <Carousel
-            items={workshops
-              .filter((w) => w.image && w.image.trim() !== "")
-              .slice(0, 4)
-              .map((workshop) => ({
-                id: workshop._id,
-                image: workshop.image,
-                title: workshop.title,
-                description: workshop.description,
-              }))}
-          />
-        </section>
-      )}
+      <div className="max-w-7xl mx-auto px-4 md:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative items-start">
 
-      {/* Search & Filter */}
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={fadeInUp}
-        className="mb-8"
-      >
-        {/* Search */}
-        <div className="relative max-w-md mx-auto mb-6">
-          <Search
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-soil/50"
-            size={20}
-          />
-          <input
-            type="text"
-            placeholder="Search workshops..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-white border-2 border-soil/20 rounded-full focus:border-clay focus:outline-none transition-colors"
-          />
-        </div>
+          {/* LEFT: Upcoming Workshops List & Completed Workshops */}
+          <div className="lg:col-span-8 order-2 lg:order-1 pt-2">
+            <h2 className="text-2xl md:text-3xl font-bold text-soil mb-6 flex items-center gap-2 font-serif">
+              Upcoming Workshops
+              {selectedDate && <span className="text-sm font-normal font-sans text-soil/50 bg-white px-3 py-1 rounded-full border border-soil/10">Filtered: {selectedDate.toLocaleDateString()}</span>}
+              {selectedDate && (
+                <button onClick={() => setSelectedDate(null)} className="text-xs text-clay hover:underline ml-2 font-sans">
+                  Clear
+                </button>
+              )}
+            </h2>
 
-        {/* Type Pills */}
-        <div className="flex flex-wrap justify-center gap-3">
-          {[
-            { id: "all", label: "All Workshops" },
-            { id: "group", label: "Group Classes" },
-            { id: "one-on-one", label: "Private Sessions" },
-            { id: "couples", label: "Couples" },
-            { id: "corporate", label: "Corporate" },
-          ].map((type) => (
-            <button
-              key={type.id}
-              onClick={() => setSelectedType(type.id)}
-              className={`px-6 py-2.5 rounded-full font-medium transition-all duration-300 ${
-                selectedType === type.id
-                  ? "bg-clay text-white shadow-lg shadow-clay/30"
-                  : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-              }`}
-            >
-              {type.label}
-            </button>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Workshops Grid */}
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-clay" />
-          <span className="ml-3 text-soil/70">Loading workshops...</span>
-        </div>
-      ) : workshops.length === 0 ? (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.2 }}
-          className="text-center py-20"
-        >
-          <div className="text-6xl mb-4">🎨</div>
-          <h3 className="text-2xl font-bold text-soil mb-2">
-            No workshops found
-          </h3>
-          <p className="text-soil/60">
-            Try adjusting your search or filter criteria.
-          </p>
-        </motion.div>
-      ) : (
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={staggerContainer}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-8"
-        >
-          {workshops.map((workshop, idx) => (
             <motion.div
-              key={workshop._id}
-              variants={fadeInUp}
-              whileHover={hoverScale}
-              className="group"
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+              className="space-y-6"
             >
-              <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
-                {/* Image Header */}
-                <div className="relative h-64 bg-gradient-to-br from-clay/20 to-sand overflow-hidden">
-                  {workshop.image ? (
-                    <img
-                      src={workshop.image}
-                      alt={workshop.title}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-8xl opacity-50 group-hover:scale-110 transition-transform duration-500">
-                      {workshop.type === "couples"
-                        ? "💑"
-                        : workshop.type === "corporate"
-                        ? "🏢"
-                        : workshop.type === "one-on-one"
-                        ? "🎯"
-                        : "🎨"}
-                    </div>
-                  )}
-
-                  {/* Type Badge */}
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-soil text-white text-sm font-medium px-4 py-1.5 rounded-full">
-                      {typeLabels[workshop.type] || workshop.type}
-                    </span>
-                  </div>
-
-                  {/* Spots indicator */}
-                  <div className="absolute bottom-4 right-4">
-                    {getAvailableSpots(workshop) <= 3 &&
-                    getAvailableSpots(workshop) > 0 ? (
-                      <span className="bg-orange-500 text-white text-sm font-bold px-3 py-1 rounded-full animate-pulse">
-                        Only {getAvailableSpots(workshop)} spots left!
-                      </span>
-                    ) : getAvailableSpots(workshop) === 0 ? (
-                      <span className="bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full">
-                        Fully Booked
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-3">
-                  <h3 className="text-lg font-bold text-soil mb-1 font-serif group-hover:text-clay transition-colors">
-                    {workshop.title}
-                  </h3>
-
-                  <p className="text-soil/60 mb-2 line-clamp-1 text-xs">
-                    {workshop.description}
-                  </p>
-
-                  {/* Details Grid */}
-                  <div className="grid grid-cols-2 gap-1 mb-3 py-2 border-y border-soil/10 text-xs">
-                    <div className="flex items-center gap-1">
-                      <Calendar size={12} className="text-clay" />
-                      <span className="text-soil/70">
-                        {formatDate(workshop.date)}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock size={12} className="text-clay" />
-                      <span className="text-soil/70">{workshop.time}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock size={12} className="text-clay" />
-                      <span className="text-soil/70">{workshop.duration}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Users size={12} className="text-clay" />
-                      <span className="text-soil/70">
-                        {workshop.enrolledCount}/{workshop.maxParticipants}{" "}
-                        enrolled
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Includes */}
-                  {workshop.includes && workshop.includes.length > 0 && (
-                    <div className="mb-2">
-                      <div className="flex flex-wrap gap-1">
-                        {workshop.includes.slice(0, 2).map((item, i) => (
-                          <span
-                            key={i}
-                            className="inline-flex items-center gap-0.5 text-[10px] text-soil/60 bg-sand px-1.5 py-0.5 rounded-full"
-                          >
-                            <Check size={10} className="text-green-500" />
-                            {item}
-                          </span>
-                        ))}
-                        {workshop.includes.length > 2 && (
-                          <span className="text-[10px] text-clay">
-                            +{workshop.includes.length - 2} more
-                          </span>
-                        )}
+              {displayedUpcoming.length > 0 ? (
+                displayedUpcoming.map((workshop) => (
+                  <motion.div
+                    key={workshop._id}
+                    variants={fadeInUp}
+                    className="bg-white rounded-3xl p-5 shadow-sm hover:shadow-lg transition-all border border-soil/5 flex flex-col md:flex-row gap-6 group"
+                  >
+                    {/* Image */}
+                    <div className="w-full md:w-48 h-48 rounded-2xl overflow-hidden bg-sand shrink-0 relative">
+                      {workshop.image ? (
+                        <img src={workshop.image} alt={workshop.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-4xl">🎨</div>
+                      )}
+                      <div className="absolute top-2 left-2">
+                        <span className="bg-white/90 backdrop-blur text-soil text-xs font-bold px-3 py-1 rounded-full shadow-sm">{typeLabels[workshop.type] || workshop.type}</span>
                       </div>
                     </div>
-                  )}
 
-                  {/* Price & CTA */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-xl font-bold text-clay">
-                        ₹{workshop.price.toLocaleString()}
-                      </span>
-                      <span className="text-soil/50 text-[10px] ml-0.5">
-                        {workshop.type === "corporate"
-                          ? "for group"
-                          : "/person"}
-                      </span>
+                    {/* Content */}
+                    <div className="flex-1 flex flex-col justify-between py-1">
+                      <div>
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="text-lg font-bold text-soil font-serif leading-tight">{workshop.title}</h3>
+                          <div className="text-right shrink-0 ml-4">
+                            <div className="text-base font-bold text-clay">₹{workshop.price.toLocaleString()}</div>
+                          </div>
+                        </div>
+
+                        <p className="text-soil/70 text-sm mb-4 line-clamp-2">{workshop.description}</p>
+
+                        <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-xs text-soil/60 mb-4 bg-sand/20 p-3 rounded-xl">
+                          <div className="flex items-center gap-2"><Calendar size={14} className="text-clay" /> {formatDate(workshop.date)}</div>
+                          <div className="flex items-center gap-2"><Clock size={14} className="text-clay" /> {workshop.time} ({workshop.duration})</div>
+                          <div className="flex items-center gap-2"><MapPin size={14} className="text-clay" /> {workshop.location}</div>
+                          <div className="flex items-center gap-2">
+                            <Users size={14} className="text-clay" />
+                            <span className={getAvailableSpots(workshop) < 3 ? "text-orange-600 font-bold" : ""}>
+                              {getAvailableSpots(workshop)} spots left
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end pt-2">
+                        <button
+                          onClick={() => getAvailableSpots(workshop) > 0 && setBookingWorkshop(workshop)}
+                          disabled={getAvailableSpots(workshop) === 0}
+                          className={`w-full md:w-auto px-6 py-2 rounded-full font-semibold text-xs transition-all flex items-center justify-center gap-2 ${getAvailableSpots(workshop) === 0
+                            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                            : "bg-soil text-white hover:bg-clay hover:scale-105 shadow-md hover:shadow-lg"
+                            }`}
+                        >
+                          {getAvailableSpots(workshop) === 0 ? "Fully Booked" : "Book Now"}
+                          {getAvailableSpots(workshop) > 0 && <ArrowRight size={14} />}
+                        </button>
+                      </div>
                     </div>
+                  </motion.div>
+                ))
+              ) : (
+                <div className="bg-white rounded-3xl p-16 text-center border border-dashed border-soil/20">
+                  <div className="text-4xl mb-4">🗓️</div>
+                  <h3 className="text-xl font-bold text-soil mb-2">No workshops found</h3>
+                  <p className="text-soil/60">
+                    {selectedDate
+                      ? "There are no workshops scheduled for this date."
+                      : "We don't have any upcoming workshops scheduled right now."}
+                  </p>
+                  {selectedDate && <button onClick={() => setSelectedDate(null)} className="mt-4 text-clay font-bold hover:underline">View All</button>}
+                </div>
+              )}
+            </motion.div>
 
-                    <button
-                      onClick={() =>
-                        getAvailableSpots(workshop) > 0 &&
-                        setBookingWorkshop(workshop)
-                      }
-                      disabled={getAvailableSpots(workshop) === 0}
-                      className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full font-semibold text-xs transition-all ${
-                        getAvailableSpots(workshop) === 0
-                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                          : "bg-clay text-white hover:bg-clay/90 hover:scale-105"
-                      }`}
-                    >
-                      {getAvailableSpots(workshop) === 0
-                        ? "Sold Out"
-                        : "Book Now"}
-                      {getAvailableSpots(workshop) > 0 && (
-                        <ArrowRight size={18} />
-                      )}
-                    </button>
-                  </div>
+            {/* COMPLETED WORKSHOPS SECTION (Inside Left Column) */}
+            {completedWorkshops.length > 0 && (
+              <div className="mt-16 border-t border-soil/10 pt-10 text-center md:text-left">
+                <h2 className="text-2xl font-bold text-soil font-serif mb-6">Completed Workshops</h2>
+                <Carousel
+                  items={completedWorkshops.map(w => ({
+                    id: w._id,
+                    image: w.image,
+                    title: w.title,
+                    description: formatDate(w.date)
+                  }))}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* RIGHT: Sticky Sidebar (Get in Touch + Calendar) */}
+          <div className="lg:col-span-4 order-1 lg:order-2 h-full">
+            <div className="sticky top-6 space-y-4">
+              {/* Get in Touch Card - Reduced Padding/Size */}
+              <div className="bg-clay text-white rounded-2xl p-5 shadow-xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8 bg-white/10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2"></div>
+                <div className="relative z-10">
+                  <h3 className="text-lg font-bold font-serif mb-1">Private Workshops</h3>
+                  <p className="text-white/80 text-xs mb-3 leading-relaxed">
+                    Looking for a unique team building event or a private detailed session? We craft custom experiences just for you.
+                  </p>
+                  <button
+                    onClick={scrollToInquiry}
+                    className="w-full bg-white text-clay font-bold py-2 rounded-lg hover:bg-soil hover:text-white transition-all shadow-md flex items-center justify-center gap-2 text-sm"
+                  >
+                    Get in Touch <ArrowRight size={14} />
+                  </button>
                 </div>
               </div>
-            </motion.div>
-          ))}
-        </motion.div>
-      )}
 
-      {/* CTA Section */}
-      <motion.section
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        variants={fadeInUp}
-        className="mt-20 bg-gradient-to-br from-sand to-sand/50 rounded-3xl p-12 text-center text-soil border border-soil/10 relative overflow-hidden"
-      >
-        <div className="absolute inset-0 bg-[url('/pottery-pattern.png')] opacity-10 bg-repeat bg-[length:400px_auto]" />
-        <div className="relative z-10">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 font-serif">
-            Looking for a private experience?
-          </h2>
-          <p className="text-lg text-soil/70 mb-8 max-w-2xl mx-auto">
-            Book a one-on-one session tailored to your interests, or organize a
-            corporate team-building event for your company.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link
-              href="/contact"
-              className="inline-block bg-clay text-white font-semibold px-8 py-4 rounded-full hover:scale-105 transition-transform"
-            >
-              Contact Us
-            </Link>
-            <Link
-              href="/corporate"
-              className="inline-block bg-white border-2 border-clay text-clay font-semibold px-8 py-4 rounded-full hover:scale-105 transition-transform"
-            >
-              Corporate Inquiries
-            </Link>
+              {/* Compact Calendar - Scaled Down */}
+              <div className="transform scale-90 origin-top -mt-2">
+                <EventCalendar
+                  events={calendarEvents}
+                  selectedDate={selectedDate}
+                  onDateSelect={setSelectedDate}
+                />
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* CUSTOM INQUIRY FORM SECTION (Full Width, Outside Grid) */}
+        <div ref={inquiryFormRef} className="mt-24 max-w-4xl mx-auto">
+          <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-soil/5 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-clay to-sand"></div>
+
+            <div className="text-center mb-10">
+              <span className="text-clay font-bold tracking-widest text-xs uppercase mb-2 block">Custom Experience</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-soil font-serif mb-4">Host a Private Workshop</h2>
+              <p className="text-soil/60 max-w-xl mx-auto">
+                Fill out the form below to inquire about private group sessions, corporate events, or personalized one-on-one classes.
+              </p>
+            </div>
+
+            {inquirySuccess ? (
+              <div className="text-center py-12">
+                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Check size={40} className="text-green-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-soil mb-2">Inquiry Sent!</h3>
+                <p className="text-soil/60 mb-6">We'll get back to you shortly to plan your event.</p>
+                <button
+                  onClick={() => setInquirySuccess(false)}
+                  className="px-6 py-2 bg-soil text-white rounded-full text-sm font-semibold hover:bg-clay transition-colors"
+                >
+                  Send Another
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleInquirySubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-soil uppercase tracking-wide">Your Name</label>
+                    <input
+                      required
+                      type="text"
+                      value={inquiryForm.name}
+                      onChange={e => setInquiryForm({ ...inquiryForm, name: e.target.value })}
+                      className="w-full p-3 bg-sand/20 border border-transparent focus:border-clay focus:bg-white rounded-xl transition-all outline-none"
+                      placeholder="Jane Doe"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-soil uppercase tracking-wide">Email Address</label>
+                    <input
+                      required
+                      type="email"
+                      value={inquiryForm.email}
+                      onChange={e => setInquiryForm({ ...inquiryForm, email: e.target.value })}
+                      className="w-full p-3 bg-sand/20 border border-transparent focus:border-clay focus:bg-white rounded-xl transition-all outline-none"
+                      placeholder="jane@example.com"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-soil uppercase tracking-wide">Phone Number</label>
+                    <input
+                      required
+                      type="tel"
+                      value={inquiryForm.phone}
+                      onChange={e => setInquiryForm({ ...inquiryForm, phone: e.target.value })}
+                      className="w-full p-3 bg-sand/20 border border-transparent focus:border-clay focus:bg-white rounded-xl transition-all outline-none"
+                      placeholder="+91 98765 43210"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-soil uppercase tracking-wide">Group Size (Approx)</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={inquiryForm.groupSize}
+                      onChange={e => setInquiryForm({ ...inquiryForm, groupSize: parseInt(e.target.value) })}
+                      className="w-full p-3 bg-sand/20 border border-transparent focus:border-clay focus:bg-white rounded-xl transition-all outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-soil uppercase tracking-wide">Occasion / Event Type</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['Birthday', 'Corporate', 'Bachelorette', 'Date Night', 'Just for Fun', 'Deep Learning'].map(opt => (
+                      <button
+                        key={opt}
+                        type="button"
+                        onClick={() => setInquiryForm({ ...inquiryForm, occasion: opt })}
+                        className={`px-4 py-2 rounded-full text-xs font-bold border transition-all ${inquiryForm.occasion === opt ? 'bg-soil text-white border-soil' : 'bg-white text-soil border-soil/20 hover:border-clay'}`}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-soil uppercase tracking-wide">Message / Specific Requirements</label>
+                  <textarea
+                    rows={4}
+                    value={inquiryForm.message}
+                    onChange={e => setInquiryForm({ ...inquiryForm, message: e.target.value })}
+                    className="w-full p-3 bg-sand/20 border border-transparent focus:border-clay focus:bg-white rounded-xl transition-all outline-none resize-none"
+                    placeholder="Tell us about the dates you have in mind or any specific requests..."
+                  />
+                </div>
+
+                <div className="flex justify-end pt-4">
+                  <button
+                    type="submit"
+                    disabled={inquiryLoading}
+                    className="bg-clay text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-soil hover:scale-105 transition-all flex items-center gap-2 disabled:opacity-50 disabled:hover:scale-100"
+                  >
+                    {inquiryLoading ? <Loader2 className="animate-spin" /> : <Send size={18} />}
+                    Submit Inquiry
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
-      </motion.section>
+
+      </div>
 
       {/* Booking Modal */}
       <AnimatePresence>
@@ -609,7 +620,6 @@ export default function Workshops() {
               className="relative bg-white rounded-2xl sm:rounded-3xl w-full max-w-md sm:max-w-lg max-h-[85vh] sm:max-h-[80vh] overflow-hidden shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close Button */}
               <button
                 onClick={closeBookingModal}
                 className="absolute top-4 right-4 z-10 p-2 bg-white/90 hover:bg-white rounded-full shadow-lg text-soil hover:text-clay transition-colors"
@@ -617,7 +627,6 @@ export default function Workshops() {
                 <X size={24} />
               </button>
 
-              {/* Success State - Full Width */}
               {bookingSuccess ? (
                 <div className="p-6 sm:p-10 text-center">
                   <motion.div
@@ -637,413 +646,219 @@ export default function Workshops() {
                       {bookingWorkshop.title}
                     </span>
                   </p>
-                  <p className="text-soil/50 mb-6 text-sm">
-                    We've sent a confirmation email with all the details.
-                  </p>
-                  <div className="bg-sand/50 rounded-xl p-4 max-w-sm mx-auto mb-6">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Calendar size={16} className="text-clay" />
-                        <span className="text-soil/70">
-                          {formatDate(bookingWorkshop.date)}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock size={16} className="text-clay" />
-                        <span className="text-soil/70">
-                          {bookingWorkshop.time}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
                   <button
                     onClick={closeBookingModal}
-                    className="bg-clay text-white px-6 py-3 rounded-full font-semibold hover:bg-clay/90 transition-all hover:scale-105 text-sm sm:text-base"
+                    className="mt-6 bg-clay text-white px-6 py-3 rounded-full font-semibold hover:bg-clay/90 transition-all hover:scale-105 text-sm sm:text-base"
                   >
                     Done
                   </button>
                 </div>
               ) : (
-                /* Single Column Layout */
-                <div>
-                  {/* Details & Form Section */}
-                  <div className="p-4 sm:p-6 space-y-4 overflow-y-auto max-h-[75vh]">
-                    {/* Type & Level Badges */}
-                    <div className="flex flex-wrap gap-2">
-                      <span className="bg-soil text-white text-xs sm:text-sm font-medium px-3 py-1.5 rounded-full">
-                        {typeLabels[bookingWorkshop.type] ||
-                          bookingWorkshop.type}
-                      </span>
-                      <span
-                        className={`text-xs sm:text-sm font-medium px-2.5 py-1 rounded-full ${
-                          levelColors[bookingWorkshop.level] ||
-                          levelColors["all-levels"]
-                        }`}
-                      >
-                        {bookingWorkshop.level === "all-levels"
-                          ? "All Levels"
-                          : bookingWorkshop.level}
-                      </span>
-                    </div>
-                    {/* Title */}
-                    <h2 className="text-xl sm:text-2xl font-bold text-soil font-serif">
-                      {bookingWorkshop.title}
-                    </h2>
+                <div className="p-6 space-y-4 overflow-y-auto max-h-[75vh] custom-scrollbar">
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    <span className="bg-soil text-white text-xs font-bold px-3 py-1 rounded-full">{typeLabels[bookingWorkshop.type] || bookingWorkshop.type}</span>
+                  </div>
+                  <h2 className="text-2xl font-bold text-soil font-serif">{bookingWorkshop.title}</h2>
+                  <div className="flex items-center gap-4 text-sm text-soil/70 border-b border-soil/10 pb-4">
+                    <div className="flex items-center gap-1"><Calendar size={14} /> {formatDate(bookingWorkshop.date)}</div>
+                    <div className="flex items-center gap-1"><Clock size={14} /> {bookingWorkshop.time}</div>
+                  </div>
 
-                    {/* Description */}
-                    <p className="text-soil/70 leading-relaxed text-sm">
-                      {bookingWorkshop.description}
-                    </p>
-
-                    {/* Workshop Info Grid */}
-                    <div className="grid grid-cols-2 gap-3 py-3 border-y border-soil/10">
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-clay/10 rounded-full text-clay">
-                          <Calendar size={14} />
-                        </div>
-                        <div>
-                          <div className="text-[10px] text-soil/50">Date</div>
-                          <div className="font-medium text-soil text-xs">
-                            {formatDate(bookingWorkshop.date)}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-clay/10 rounded-full text-clay">
-                          <Clock size={14} />
-                        </div>
-                        <div>
-                          <div className="text-[10px] text-soil/50">Time</div>
-                          <div className="font-medium text-soil text-xs">
-                            {bookingWorkshop.time}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-clay/10 rounded-full text-clay">
-                          <Users size={14} />
-                        </div>
-                        <div>
-                          <div className="text-[10px] text-soil/50">
-                            Spots Left
-                          </div>
-                          <div className="font-medium text-soil text-xs">
-                            {getAvailableSpots(bookingWorkshop)} available
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-clay/10 rounded-full text-clay">
-                          <MapPin size={14} />
-                        </div>
-                        <div>
-                          <div className="text-[10px] text-soil/50">
-                            Location
-                          </div>
-                          <div className="font-medium text-soil text-xs capitalize">
-                            {bookingWorkshop.location}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* What's Included */}
-                    {bookingWorkshop.includes &&
-                      bookingWorkshop.includes.length > 0 && (
-                        <div>
-                          <div className="text-xs font-semibold text-soil mb-1.5">
-                            What's included:
-                          </div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {bookingWorkshop.includes.map((item, i) => (
-                              <span
-                                key={i}
-                                className="inline-flex items-center gap-1 text-[10px] text-soil/70 bg-green-50 text-green-700 px-2 py-1 rounded-full"
-                              >
-                                <Check size={10} />
-                                {item}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                    {/* Price */}
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-2xl font-bold text-clay">
-                        ₹{bookingWorkshop.price.toLocaleString()}
-                      </span>
-                      <span className="text-soil/50 text-sm">/person</span>
-                    </div>
-
-                    {/* Error */}
-                    {bookingError && (
-                      <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm flex items-center gap-2">
-                        <X size={16} />
-                        {bookingError}
-                      </div>
-                    )}
-
-                    {/* Booking Form */}
-                    <form
-                      onSubmit={handleBookingSubmit}
-                      className="space-y-3 pt-3 border-t border-soil/10"
-                    >
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-xs font-medium text-soil mb-1">
-                            Full Name *
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            value={bookingForm.name}
-                            onChange={(e) =>
-                              setBookingForm({
-                                ...bookingForm,
-                                name: e.target.value,
-                              })
-                            }
-                            className="w-full border border-soil/20 rounded-lg px-3 py-2 text-sm focus:border-clay focus:outline-none transition-colors"
-                            placeholder="Your full name"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-soil mb-1">
-                            Email *
-                          </label>
-                          <input
-                            type="email"
-                            required
-                            value={bookingForm.email}
-                            onChange={(e) =>
-                              setBookingForm({
-                                ...bookingForm,
-                                email: e.target.value,
-                              })
-                            }
-                            className="w-full border border-soil/20 rounded-lg px-3 py-2 text-sm focus:border-clay focus:outline-none transition-colors"
-                            placeholder="you@example.com"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Phone - Full width row */}
+                  {/* Upstream/Better Booking Form Logic */}
+                  <form onSubmit={handleBookingSubmit} className="space-y-4 pt-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-medium text-soil mb-1">
-                          Phone *
-                          {phoneVerified && (
-                            <span className="text-green-600 ml-1 inline-flex items-center gap-0.5">
-                              <Check size={10} /> Verified
-                            </span>
-                          )}
-                        </label>
-                        <div className="flex flex-col sm:flex-row gap-2">
-                          <input
-                            type="tel"
-                            required
-                            value={bookingForm.phone}
-                            onChange={(e) =>
-                              setBookingForm({
-                                ...bookingForm,
-                                phone: e.target.value,
-                              })
-                            }
-                            disabled={phoneVerified}
-                            className={`flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none transition-colors ${
-                              phoneVerified
-                                ? "bg-green-50 border-green-300 text-green-700"
-                                : "border-soil/20 focus:border-clay"
-                            }`}
-                            placeholder="+91 98765 43210"
-                          />
-                          {!phoneVerified && (
-                            <button
-                              type="button"
-                              onClick={sendOtp}
-                              disabled={
-                                sendingOtp || bookingForm.phone.length < 10
-                              }
-                              className="px-4 py-2 bg-clay text-white text-xs rounded-lg hover:bg-clay/90 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex items-center justify-center gap-1"
-                            >
-                              {sendingOtp ? (
-                                <Loader2 size={12} className="animate-spin" />
-                              ) : otpSent ? (
-                                "Resend"
-                              ) : (
-                                "Get OTP"
-                              )}
-                            </button>
-                          )}
-                        </div>
+                        <label className="text-xs font-bold text-soil uppercase tracking-wide">Full Name</label>
+                        <input
+                          type="text"
+                          required
+                          value={bookingForm.name}
+                          onChange={(e) => setBookingForm({ ...bookingForm, name: e.target.value })}
+                          className="w-full px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none text-sm"
+                          placeholder="John Doe"
+                        />
                       </div>
-
-                      {/* Participants - Full width row */}
                       <div>
-                        <label className="block text-xs font-medium text-soil mb-1">
-                          Number of Participants *
-                        </label>
-                        <div className="flex items-center justify-center bg-sand rounded-lg h-[42px] max-w-[200px]">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setBookingForm({
-                                ...bookingForm,
-                                numberOfParticipants: Math.max(
-                                  1,
-                                  bookingForm.numberOfParticipants - 1
-                                ),
-                              })
-                            }
-                            className="px-4 py-2 hover:text-clay transition-colors"
-                          >
-                            <Minus size={16} />
-                          </button>
-                          <span className="w-12 text-center font-bold text-lg">
-                            {bookingForm.numberOfParticipants}
+                        <label className="text-xs font-bold text-soil uppercase tracking-wide">Email</label>
+                        <input
+                          type="email"
+                          required
+                          value={bookingForm.email}
+                          onChange={(e) => setBookingForm({ ...bookingForm, email: e.target.value })}
+                          className="w-full px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none text-sm"
+                          placeholder="john@example.com"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-soil mb-1">
+                        Phone *
+                        {phoneVerified && (
+                          <span className="text-green-600 ml-1 inline-flex items-center gap-0.5">
+                            <Check size={10} /> Verified
                           </span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setBookingForm({
-                                ...bookingForm,
-                                numberOfParticipants: Math.min(
-                                  getAvailableSpots(bookingWorkshop),
-                                  bookingForm.numberOfParticipants + 1
-                                ),
-                              })
-                            }
-                            className="px-4 py-2 hover:text-clay transition-colors"
-                          >
-                            <Plus size={16} />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* OTP Input - Separate row */}
-                      {showOtpInput && !phoneVerified && (
-                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                          <label className="block text-xs font-medium text-amber-800 mb-2">
-                            Enter the OTP sent to your phone
-                          </label>
-                          <div className="flex flex-col sm:flex-row gap-2">
-                            <input
-                              type="text"
-                              value={otp}
-                              onChange={(e) =>
-                                setOtp(
-                                  e.target.value.replace(/\D/g, "").slice(0, 6)
-                                )
-                              }
-                              placeholder="Enter 6-digit OTP"
-                              maxLength={6}
-                              className="flex-1 border border-amber-300 bg-white rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:outline-none text-center tracking-widest font-mono"
-                            />
-                            <button
-                              type="button"
-                              onClick={verifyOtp}
-                              disabled={verifyingOtp || otp.length < 4}
-                              className="px-4 py-2 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
-                            >
-                              {verifyingOtp ? (
-                                <Loader2 size={12} className="animate-spin" />
-                              ) : (
-                                <>
-                                  <Check size={12} />
-                                  Verify
-                                </>
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      <div>
-                        <label className="block text-xs font-medium text-soil mb-1">
-                          Special Requests (optional)
-                        </label>
-                        <textarea
-                          value={bookingForm.specialRequests}
+                        )}
+                      </label>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <input
+                          type="tel"
+                          required
+                          value={bookingForm.phone}
                           onChange={(e) =>
                             setBookingForm({
                               ...bookingForm,
-                              specialRequests: e.target.value,
+                              phone: e.target.value,
                             })
                           }
-                          rows={2}
-                          className="w-full border border-soil/20 rounded-lg px-3 py-2 text-sm focus:border-clay focus:outline-none transition-colors resize-none"
-                          placeholder="Any special requirements..."
+                          disabled={phoneVerified}
+                          className={`flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none transition-colors ${phoneVerified
+                              ? "bg-green-50 border-green-300 text-green-700"
+                              : "border-soil/20 focus:border-clay"
+                            }`}
+                          placeholder="+91 98765 43210"
                         />
-                      </div>
-
-                      {/* Total */}
-                      <div className="bg-sand/50 rounded-lg p-3 flex items-center justify-between">
-                        <span className="font-semibold text-soil text-sm">
-                          Total Amount
-                        </span>
-                        <span className="text-xl font-bold text-clay">
-                          ₹
-                          {(
-                            bookingWorkshop.price *
-                            bookingForm.numberOfParticipants
-                          ).toLocaleString()}
-                        </span>
-                      </div>
-
-                      {/* Submit Button */}
-                      <button
-                        type="submit"
-                        disabled={bookingLoading || !phoneVerified}
-                        className={`w-full flex items-center justify-center gap-2 py-3 rounded-full font-semibold text-sm transition-all ${
-                          bookingLoading || !phoneVerified
-                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                            : "bg-clay text-white hover:bg-clay/90 hover:scale-[1.02]"
-                        }`}
-                      >
-                        {bookingLoading ? (
-                          <>
-                            <Loader2 size={16} className="animate-spin" />
-                            Processing...
-                          </>
-                        ) : !phoneVerified ? (
-                          <>
-                            <Shield size={14} />
-                            Verify Phone to Continue
-                          </>
-                        ) : (
-                          <>
-                            Pay & Book Now
-                            <ArrowRight size={16} />
-                          </>
+                        {!phoneVerified && (
+                          <button
+                            type="button"
+                            onClick={sendOtp}
+                            disabled={
+                              sendingOtp || bookingForm.phone.length < 10
+                            }
+                            className="px-4 py-2 bg-clay text-white text-xs rounded-lg hover:bg-clay/90 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex items-center justify-center gap-1"
+                          >
+                            {sendingOtp ? (
+                              <Loader2 size={12} className="animate-spin" />
+                            ) : otpSent ? (
+                              "Resend"
+                            ) : (
+                              "Get OTP"
+                            )}
+                          </button>
                         )}
-                      </button>
-
-                      {/* Secure Payment Note */}
-                      <div className="flex items-center justify-center gap-1.5 text-[10px] text-soil/50">
-                        <Check size={10} /> Secure Checkout via Razorpay
                       </div>
+                    </div>
 
-                      {/* Benefits */}
-                      <div className="grid grid-cols-2 gap-2 pt-3 border-t border-soil/10">
-                        <div className="flex items-center gap-1.5">
-                          <div className="p-1.5 bg-clay/10 rounded-full text-clay">
-                            <Shield size={12} />
-                          </div>
-                          <div className="text-[10px] text-soil/70">
-                            Secure Payment
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="p-1.5 bg-clay/10 rounded-full text-clay">
-                            <Check size={12} />
-                          </div>
-                          <div className="text-[10px] text-soil/70">
-                            Instant Confirmation
-                          </div>
+                    {/* Participants - Full width row */}
+                    <div>
+                      <label className="block text-xs font-medium text-soil mb-1">
+                        Number of Participants *
+                      </label>
+                      <div className="flex items-center justify-center bg-sand rounded-lg h-[42px] max-w-[200px]">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setBookingForm({
+                              ...bookingForm,
+                              numberOfParticipants: Math.max(
+                                1,
+                                bookingForm.numberOfParticipants - 1
+                              ),
+                            })
+                          }
+                          className="px-4 py-2 hover:text-clay transition-colors"
+                        >
+                          <Minus size={16} />
+                        </button>
+                        <span className="w-12 text-center font-bold text-lg">
+                          {bookingForm.numberOfParticipants}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setBookingForm({
+                              ...bookingForm,
+                              numberOfParticipants: Math.min(
+                                getAvailableSpots(bookingWorkshop),
+                                bookingForm.numberOfParticipants + 1
+                              ),
+                            })
+                          }
+                          className="px-4 py-2 hover:text-clay transition-colors"
+                        >
+                          <Plus size={16} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* OTP Input - Separate row */}
+                    {showOtpInput && !phoneVerified && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                        <label className="block text-xs font-medium text-amber-800 mb-2">
+                          Enter the OTP sent to your phone
+                        </label>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input
+                            type="text"
+                            value={otp}
+                            onChange={(e) =>
+                              setOtp(
+                                e.target.value.replace(/\D/g, "").slice(0, 6)
+                              )
+                            }
+                            placeholder="Enter 6-digit OTP"
+                            maxLength={6}
+                            className="flex-1 border border-amber-300 bg-white rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:outline-none text-center tracking-widest font-mono"
+                          />
+                          <button
+                            type="button"
+                            onClick={verifyOtp}
+                            disabled={verifyingOtp || otp.length < 4}
+                            className="px-4 py-2 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
+                          >
+                            {verifyingOtp ? (
+                              <Loader2 size={12} className="animate-spin" />
+                            ) : (
+                              <>
+                                <Check size={12} />
+                                Verify
+                              </>
+                            )}
+                          </button>
                         </div>
                       </div>
-                    </form>
-                  </div>
+                    )}
+
+                    <div>
+                      <label className="block text-xs font-medium text-soil mb-1">
+                        Special Requests (optional)
+                      </label>
+                      <textarea
+                        value={bookingForm.specialRequests}
+                        onChange={(e) =>
+                          setBookingForm({
+                            ...bookingForm,
+                            specialRequests: e.target.value,
+                          })
+                        }
+                        rows={2}
+                        className="w-full border border-soil/20 rounded-lg px-3 py-2 text-sm focus:border-clay focus:outline-none transition-colors resize-none"
+                        placeholder="Any special requirements..."
+                      />
+                    </div>
+
+                    {/* Total */}
+                    <div className="bg-sand/50 rounded-lg p-3 flex items-center justify-between">
+                      <span className="font-semibold text-soil text-sm">
+                        Total Amount
+                      </span>
+                      <span className="text-xl font-bold text-clay">
+                        ₹
+                        {(
+                          bookingWorkshop.price *
+                          bookingForm.numberOfParticipants
+                        ).toLocaleString()}
+                      </span>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={bookingLoading || !phoneVerified}
+                      className="w-full bg-clay text-white py-4 rounded-xl font-bold hover:bg-clay/90 transition-colors disabled:opacity-50 text-lg shadow-lg"
+                    >
+                      {bookingLoading ? "Processing..." : "Proceed to Payment"}
+                    </button>
+                  </form>
                 </div>
               )}
             </motion.div>
