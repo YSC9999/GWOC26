@@ -80,6 +80,20 @@ export default function Home() {
 
   const fetchData = async () => {
     try {
+      // Check session storage for cached data
+      const cachedCollections = sessionStorage.getItem("home_collections");
+      const cachedTestimonials = sessionStorage.getItem("home_testimonials");
+      const cachedFrames = sessionStorage.getItem("home_frames");
+
+      if (cachedCollections && cachedTestimonials && cachedFrames) {
+        setCollections(JSON.parse(cachedCollections));
+        setTestimonials(JSON.parse(cachedTestimonials));
+        setDynamicFrames(JSON.parse(cachedFrames));
+        setLoading(false);
+        setShowPreloader(false);
+        return;
+      }
+
       const [collectionsRes, testimonialsRes, framesRes] = await Promise.all([
         fetch("/api/featured-collections?active=true"),
         fetch("/api/testimonials?featured=true&limit=3"),
@@ -90,11 +104,39 @@ export default function Home() {
       const testimonialsData = await testimonialsRes.json();
       const framesData = await framesRes.json();
 
-      setCollections(collectionsData.collections || []);
-      setTestimonials(testimonialsData.testimonials || []);
-      setDynamicFrames(framesData.frames || []);
+      const newCollections = collectionsData.collections || [];
+      const newTestimonials = testimonialsData.testimonials || [];
+      const newFrames = framesData.frames || [];
 
-      // Image preloading removed to speed up initial render
+      setCollections(newCollections);
+      setTestimonials(newTestimonials);
+      setDynamicFrames(newFrames);
+
+      // Cache the data
+      sessionStorage.setItem("home_collections", JSON.stringify(newCollections));
+      sessionStorage.setItem("home_testimonials", JSON.stringify(newTestimonials));
+      sessionStorage.setItem("home_frames", JSON.stringify(newFrames));
+
+      // Preload images for frames
+      if (newFrames && Array.isArray(newFrames)) {
+        const imagePromises = newFrames
+          .filter((frame: any) => frame.product?.images?.[0])
+          .map((frame: any) => {
+            return new Promise((resolve, reject) => {
+              const img = new window.Image();
+              img.src = frame.product.images[0];
+              img.onload = resolve;
+              img.onerror = resolve; // Continue even if one fails
+            });
+          });
+
+        // Wait for images to load, but set a timeout to avoid hanging forever
+        await Promise.race([
+          Promise.all(imagePromises),
+          new Promise((resolve) => setTimeout(resolve, 3000)) // 3s max wait time
+        ]);
+      }
+
     } catch (error) {
       console.error("Failed to fetch data:", error);
     } finally {
