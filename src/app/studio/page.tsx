@@ -208,8 +208,8 @@ export default function Studio() {
             <h2 className="text-3xl md:text-5xl font-bold text-soil font-serif mb-6">Exhibitions & Events</h2>
 
             {/* Filter Buttons */}
-            {!selectedDate ? (
-              <div className="inline-flex bg-white p-1 rounded-full shadow-sm mb-8">
+            <div className="flex flex-col items-center gap-6 mb-12">
+              <div className="inline-flex bg-white p-1 rounded-full shadow-sm">
                 <button
                   onClick={() => setEventFilter("upcoming")}
                   className={`px-8 py-3 rounded-full font-medium transition-all ${eventFilter === "upcoming" ? "bg-clay text-white shadow-md" : "text-soil/60 hover:text-soil"
@@ -225,17 +225,21 @@ export default function Studio() {
                   Past
                 </button>
               </div>
-            ) : (
-              <div className="mb-8 flex flex-col items-center">
-                <p className="text-soil/60 mb-3">Showing events for <span className="font-bold text-soil">{selectedDate.toLocaleDateString()}</span></p>
-                <button
-                  onClick={() => setSelectedDate(null)}
-                  className="px-6 py-2 rounded-full bg-white text-clay border border-clay/20 hover:bg-clay hover:text-white transition-all text-sm font-medium"
-                >
-                  Clear Filter
-                </button>
-              </div>
-            )}
+
+              {selectedDate && (
+                <div className="flex flex-col items-center animate-in fade-in slide-in-from-top-2">
+                  <p className="text-soil/60 mb-2 text-sm">
+                    Showing events for <span className="font-bold text-soil">{selectedDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                  </p>
+                  <button
+                    onClick={() => setSelectedDate(null)}
+                    className="text-clay hover:text-clay/80 text-sm font-medium underline underline-offset-4"
+                  >
+                    Clear Date Filter
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
