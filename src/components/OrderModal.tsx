@@ -1,4 +1,4 @@
- "use client";
+"use client";
 import React from "react";
 import { X, MapPin, CreditCard, Package, User, Mail, Phone, Calendar } from "lucide-react";
 
@@ -11,7 +11,7 @@ export default function OrderModal({ order, onClose }: OrderModalProps) {
     if (!order) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div className="fixed inset-0 !z-[99999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
             <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
 
                 {/* Header */}
@@ -101,7 +101,7 @@ export default function OrderModal({ order, onClose }: OrderModalProps) {
                                     )}
                                     <div className="flex justify-between">
                                         <span>Shipping</span>
-                                        <span>₹0</span>
+                                        <span>₹{order.shippingCost ? order.shippingCost.toLocaleString() : '0'}</span>
                                     </div>
                                     <div className="flex justify-between pt-4 mt-2 border-t border-slate-200 font-bold text-lg text-slate-800">
                                         <span>Total</span>
@@ -148,6 +148,12 @@ export default function OrderModal({ order, onClose }: OrderModalProps) {
                                             {order.paymentStatus}
                                         </span>
                                     </div>
+                                    {(order.customerGstNumber || order.gstNumber) && (
+                                        <div className="flex justify-between pt-2 mt-2 border-t border-slate-100">
+                                            <span>GSTIN</span>
+                                            <span className="font-bold text-slate-800">{order.customerGstNumber || order.gstNumber}</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
