@@ -107,7 +107,7 @@ export default function FeaturedCollections({ collections }: FeaturedCollections
         <motion.section
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
-            className="border-b border-soil/5"
+            className="border-b border-soil/5 py-10 md:py-16"
         >
             <div className="text-center mb-8 px-4">
                 <h2 className="text-2xl md:text-4xl font-bold text-soil font-serif">

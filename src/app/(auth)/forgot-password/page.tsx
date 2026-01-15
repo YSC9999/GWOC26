@@ -77,12 +77,12 @@ export default function ForgotPasswordPage() {
     };
 
     return (
-        <div className="min-h-screen bg-sand-50 py-20 px-4">
+        <div className="min-h-screen bg-sand-50 py-12 md:py-20 px-1.5 sm:px-4 flex items-center justify-center">
             <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={fadeInUp}
-                className="max-w-md mx-auto bg-white rounded-2xl shadow-sm p-8 border border-stone-100"
+                className="max-w-md w-full mx-auto bg-white rounded-2xl shadow-lg p-4 sm:p-8 border border-sand/30"
             >
                 <div className="text-center mb-8">
                     <h1 className="text-2xl font-serif text-soil mb-2">Reset Password</h1>
@@ -121,7 +121,7 @@ export default function ForgotPasswordPage() {
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-4 py-3 rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-clay/20 focus:border-clay transition-all"
+                                className="w-full min-w-0 px-4 py-3 rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-clay/20 focus:border-clay transition-all"
                                 placeholder="name@example.com"
                                 required
                             />
@@ -144,7 +144,7 @@ export default function ForgotPasswordPage() {
                                 type="text"
                                 value={otp}
                                 onChange={(e) => setOtp(e.target.value)}
-                                className="w-full px-4 py-3 rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-clay/20 focus:border-clay transition-all"
+                                className="w-full min-w-0 px-4 py-3 rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-clay/20 focus:border-clay transition-all"
                                 placeholder="Enter 6-digit code"
                                 required
                             />
@@ -155,7 +155,7 @@ export default function ForgotPasswordPage() {
                                 type="password"
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
-                                className="w-full px-4 py-3 rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-clay/20 focus:border-clay transition-all"
+                                className="w-full min-w-0 px-4 py-3 rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-clay/20 focus:border-clay transition-all"
                                 placeholder="••••••••"
                                 required
                                 minLength={6}
@@ -167,7 +167,7 @@ export default function ForgotPasswordPage() {
                                 type="password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="w-full px-4 py-3 rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-clay/20 focus:border-clay transition-all"
+                                className="w-full min-w-0 px-4 py-3 rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-clay/20 focus:border-clay transition-all"
                                 placeholder="••••••••"
                                 required
                             />

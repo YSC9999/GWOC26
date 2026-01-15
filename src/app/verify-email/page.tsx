@@ -122,9 +122,9 @@ function VerifyEmailContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-pink-100 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-sand-50 flex items-center justify-center px-1.5 sm:px-4 py-8">
       <div className="w-full max-w-md">
-        <div className="card p-8 shadow-xl text-center">
+        <div className="bg-white p-4 sm:p-8 rounded-2xl shadow-lg border border-sand/30 text-center">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Verify Email
           </h1>
@@ -155,7 +155,7 @@ function VerifyEmailContent() {
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
                 maxLength={6}
                 placeholder="000000"
-                className="input-field text-center text-2xl tracking-widest w-full"
+                className="input-field text-center text-2xl tracking-widest w-full min-w-0"
               />
               <p className="text-sm text-gray-500">
                 6-digit code (OTP expires in 10 minutes)

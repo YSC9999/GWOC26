@@ -84,15 +84,15 @@ export default function Signup() {
   };
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center px-4 py-8 bg-sand-50">
+    <div className="w-full min-h-screen flex items-center justify-center px-1.5 sm:px-4 py-8 bg-sand-50">
       <div className="w-full max-w-md">
         <motion.div
           initial="hidden"
           animate="visible"
           variants={fadeInUp}
-          className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg"
+          className="bg-white p-3.5 sm:p-6 md:p-8 rounded-2xl shadow-lg border border-sand/30"
         >
-          <h1 className="text-3xl font-bold text-center text-blue-700 mb-2">
+          <h1 className="text-3xl font-bold text-center text-soil mb-2 font-serif">
             Create Account
           </h1>
           <p className="text-center text-gray-500 mb-6">
@@ -122,7 +122,7 @@ export default function Signup() {
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="First name"
                     required
-                    className="bg-transparent ml-2 flex-1 min-w-0 outline-none text-gray-700 placeholder-gray-400"
+                    className="bg-transparent ml-2 flex-1 w-full min-w-0 outline-none text-gray-700 placeholder-gray-400"
                   />
                 </div>
               </div>
@@ -136,7 +136,7 @@ export default function Signup() {
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Last name"
                     required
-                    className="bg-transparent ml-2 flex-1 min-w-0 outline-none text-gray-700 placeholder-gray-400"
+                    className="bg-transparent ml-2 flex-1 w-full min-w-0 outline-none text-gray-700 placeholder-gray-400"
                   />
                 </div>
               </div>
@@ -153,7 +153,7 @@ export default function Signup() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
                   required
-                  className="bg-transparent ml-2 flex-1 min-w-0 outline-none text-gray-700 placeholder-gray-400"
+                  className="bg-transparent ml-2 flex-1 w-full min-w-0 outline-none text-gray-700 placeholder-gray-400"
                 />
               </div>
             </div>
@@ -169,7 +169,7 @@ export default function Signup() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Create a password"
                   required
-                  className="bg-transparent ml-2 flex-1 min-w-0 outline-none text-gray-700 placeholder-gray-400"
+                  className="bg-transparent ml-2 flex-1 w-full min-w-0 outline-none text-gray-700 placeholder-gray-400"
                 />
               </div>
             </div>
@@ -185,7 +185,7 @@ export default function Signup() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm your password"
                   required
-                  className="bg-transparent ml-2 flex-1 min-w-0 outline-none text-gray-700 placeholder-gray-400"
+                  className="bg-transparent ml-2 flex-1 w-full min-w-0 outline-none text-gray-700 placeholder-gray-400"
                 />
               </div>
             </div>

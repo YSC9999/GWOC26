@@ -97,15 +97,15 @@ export default function Login() {
   };
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center px-4 py-8 bg-sand-50">
+    <div className="w-full min-h-screen flex items-center justify-center px-1.5 sm:px-4 py-8 bg-sand-50">
       <div className="w-full max-w-md mx-auto">
         <motion.div
           initial="hidden"
           animate="visible"
           variants={fadeInUp}
-          className="bg-white p-6 md:p-8 rounded-2xl shadow-lg"
+          className="bg-white p-3.5 sm:p-6 md:p-8 rounded-2xl shadow-lg border border-sand/30"
         >
-          <h1 className="text-3xl font-bold text-center text-blue-700 mb-2">
+          <h1 className="text-3xl font-bold text-center text-soil mb-2 font-serif">
             {step === 'login' ? 'Sign In' : 'Verify OTP'}
           </h1>
           <p className="text-center text-gray-500 mb-6">
@@ -131,14 +131,14 @@ export default function Login() {
                     Email Address
                   </label>
                   <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-200 transition-shadow">
-                    <span className="text-gray-400">✉️</span>
+                    <span className="text-gray-400 flex-shrink-0">✉️</span>
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter your email"
                       required
-                      className="bg-transparent ml-2 flex-1 outline-none text-gray-700 placeholder-gray-400"
+                      className="bg-transparent ml-2 flex-1 w-full min-w-0 outline-none text-gray-700 placeholder-gray-400"
                     />
                   </div>
                 </div>
@@ -149,14 +149,14 @@ export default function Login() {
                     Password
                   </label>
                   <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-200 transition-shadow">
-                    <span className="text-gray-400">🔒</span>
+                    <span className="text-gray-400 flex-shrink-0">🔒</span>
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
                       required
-                      className="bg-transparent ml-2 flex-1 outline-none text-gray-700 placeholder-gray-400"
+                      className="bg-transparent ml-2 flex-1 w-full min-w-0 outline-none text-gray-700 placeholder-gray-400"
                     />
                   </div>
                 </div>
@@ -168,7 +168,7 @@ export default function Login() {
                   One-Time Password
                 </label>
                 <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
-                  <span className="text-gray-400">🔑</span>
+                  <span className="text-gray-400 flex-shrink-0">🔑</span>
                   <input
                     type="text"
                     value={otp}
@@ -226,16 +226,18 @@ export default function Login() {
               </div>
             )}
 
-            {/* Signup Link */}
-            <p className="text-center mt-6 text-gray-600">
-              Don't have an account?{" "}
-              <Link
-                href="/signup"
-                className="text-teal-600 font-semibold hover:underline"
-              >
-                Create one
-              </Link>
-            </p>
+            {/* Signup Link - Only in login step */}
+            {step === 'login' && (
+              <p className="text-center mt-6 text-gray-600">
+                Don't have an account?{" "}
+                <Link
+                  href="/signup"
+                  className="text-teal-600 font-semibold hover:underline"
+                >
+                  Create one
+                </Link>
+              </p>
+            )}
           </form>
         </motion.div>
       </div>
