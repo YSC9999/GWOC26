@@ -147,8 +147,8 @@ export default function Cart() {
   const updateShippingRate = async (pincode: string) => {
     // We send items to server to calculate weight accurately based on DB values
     const payload = {
-      items: items.map(i => ({ id: i.id, qty: i.qty })),
-      pincode: pincode // Added Pincode
+      items: items.map((i) => ({ id: i.id, qty: i.qty })),
+      pincode: pincode, // Added Pincode
     };
 
     setCalculatingShipping(true);
@@ -157,7 +157,7 @@ export default function Cart() {
       const res = await fetch("/api/shipping/calculate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
 
@@ -404,8 +404,6 @@ export default function Cart() {
     }
   }, [formData.pincode]);
 
-
-
   const handleCheckout = async () => {
     if (!phoneVerified) {
       alert("Please verify your phone number first.");
@@ -529,8 +527,8 @@ export default function Cart() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center py-20 px-4">
-          <div className="text-6xl mb-6">🔒</div>
-          <h1 className="text-2xl md:text-3xl font-bold text-soil mb-4 font-serif">
+          <div className="text-4xl sm:text-5xl md:text-6xl mb-6">🔒</div>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-soil mb-4 font-serif">
             Members Only
           </h1>
           <p className="text-soil/60 mb-8 max-w-md mx-auto">
@@ -554,7 +552,7 @@ export default function Cart() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center py-20 px-4">
           <ShoppingBag className="w-20 h-20 mx-auto text-soil/20 mb-6" />
-          <h1 className="text-3xl font-bold text-soil mb-4 font-serif">
+          <h1 className="text-2xl sm:text-3xl font-bold text-soil mb-4 font-serif">
             Your cart is empty
           </h1>
           <p className="text-soil/60 mb-8 max-w-md mx-auto">
@@ -595,7 +593,7 @@ export default function Cart() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Main Content */}
           <div className="lg:col-span-2">
-            <h1 className="text-2xl md:text-4xl font-bold text-soil mb-6 md:mb-8 font-serif">
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-soil mb-6 md:mb-8 font-serif">
               {checkoutStep === 1 ? "Shopping Cart" : "Shipping Details"}
             </h1>
 
@@ -654,10 +652,11 @@ export default function Cart() {
                         <button
                           onClick={() => updateQty(item.id, item.qty + 1)}
                           disabled={item.qty >= item.stock}
-                          className={`p-2 transition-colors ${item.qty >= item.stock
-                            ? "text-gray-300 cursor-not-allowed"
-                            : "hover:text-clay"
-                            }`}
+                          className={`p-2 transition-colors ${
+                            item.qty >= item.stock
+                              ? "text-gray-300 cursor-not-allowed"
+                              : "hover:text-clay"
+                          }`}
                         >
                           <Plus size={16} />
                         </button>
@@ -691,10 +690,11 @@ export default function Cart() {
                     {savedAddresses.map((addr) => (
                       <div
                         key={addr._id}
-                        className={`p-4 rounded-xl border-2 transition-all relative group ${selectedAddressId === addr._id
-                          ? "border-clay bg-clay/5"
-                          : "border-gray-100 hover:border-gray-200"
-                          }`}
+                        className={`p-4 rounded-xl border-2 transition-all relative group ${
+                          selectedAddressId === addr._id
+                            ? "border-clay bg-clay/5"
+                            : "border-gray-100 hover:border-gray-200"
+                        }`}
                         onClick={() => handleAddressSelect(addr._id)}
                       >
                         <div className="flex justify-between items-start">
@@ -753,10 +753,11 @@ export default function Cart() {
                     ))}
                     <div
                       onClick={() => handleAddressSelect("new")}
-                      className={`p-4 rounded-xl border-2 cursor-pointer border-dashed flex items-center justify-center gap-2 ${selectedAddressId === "new"
-                        ? "border-clay bg-clay/5"
-                        : "border-gray-200 text-soil/50 hover:text-clay hover:border-clay"
-                        }`}
+                      className={`p-4 rounded-xl border-2 cursor-pointer border-dashed flex items-center justify-center gap-2 ${
+                        selectedAddressId === "new"
+                          ? "border-clay bg-clay/5"
+                          : "border-gray-200 text-soil/50 hover:text-clay hover:border-clay"
+                      }`}
                     >
                       <Plus size={20} /> Add New Address
                     </div>
@@ -765,10 +766,11 @@ export default function Cart() {
 
                 {/* Shared Form */}
                 <div
-                  className={`space-y-6 ${!editingAddressId && selectedAddressId !== "new"
-                    ? "opacity-80 pointer-events-none grayscale"
-                    : ""
-                    }`}
+                  className={`space-y-6 ${
+                    !editingAddressId && selectedAddressId !== "new"
+                      ? "opacity-80 pointer-events-none grayscale"
+                      : ""
+                  }`}
                 >
                   {" "}
                   {/* Disable form if saved address selected */}
@@ -848,10 +850,11 @@ export default function Cart() {
                             sendingOtp ||
                             formData.phone.length < 10
                           }
-                          className={`px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-colors ${phoneVerified
-                            ? "bg-green-100 text-green-700"
-                            : "bg-clay text-white hover:bg-clay/90 disabled:opacity-50"
-                            }`}
+                          className={`px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-colors ${
+                            phoneVerified
+                              ? "bg-green-100 text-green-700"
+                              : "bg-clay text-white hover:bg-clay/90 disabled:opacity-50"
+                          }`}
                         >
                           {sendingOtp ? (
                             <Loader2 className="animate-spin" />
@@ -964,7 +967,8 @@ export default function Cart() {
                   {/* GSTIN Field */}
                   <div className="mt-6">
                     <label className="block text-sm font-medium text-soil mb-2">
-                      GST Number <span className="text-soil/50 text-xs">(Optional)</span>
+                      GST Number{" "}
+                      <span className="text-soil/50 text-xs">(Optional)</span>
                     </label>
                     <input
                       type="text"
@@ -991,7 +995,7 @@ export default function Cart() {
           {/* Checkout Summary */}
           <div>
             <div className="bg-sand/30 rounded-3xl p-8 sticky top-32">
-              <h2 className="text-2xl font-bold text-soil mb-6 font-serif">
+              <h2 className="text-xl sm:text-2xl font-bold text-soil mb-6 font-serif">
                 Order Summary
               </h2>
 

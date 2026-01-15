@@ -119,7 +119,7 @@ export default function Contact() {
         <span className="inline-block text-clay font-medium mb-4 tracking-wider uppercase">
           Get in Touch
         </span>
-        <h1 className="text-3xl md:text-6xl font-bold text-soil mb-4 md:mb-6 font-serif">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-soil mb-4 md:mb-6 font-serif">
           Visit & Contact Us
         </h1>
         <p className="text-base md:text-xl text-soil/70 max-w-2xl mx-auto">
@@ -137,7 +137,7 @@ export default function Contact() {
         >
           {/* Quick Contact */}
           <div className="bg-white rounded-3xl p-8 shadow-sm border border-soil/10">
-            <h3 className="text-2xl font-bold text-soil mb-6 font-serif">
+            <h3 className="text-xl sm:text-2xl font-bold text-soil mb-6 font-serif">
               Contact Info
             </h3>
 
@@ -227,7 +227,7 @@ export default function Contact() {
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Check className="w-10 h-10 text-green-500" />
               </div>
-              <h2 className="text-3xl font-bold text-soil mb-4 font-serif">
+              <h2 className="text-2xl sm:text-3xl font-bold text-soil mb-4 font-serif">
                 Message Sent!
               </h2>
               <p className="text-soil/70 mb-8 max-w-md">
@@ -249,7 +249,7 @@ export default function Contact() {
             </motion.div>
           ) : (
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-soil/10">
-              <h2 className="text-2xl font-bold text-soil mb-6 font-serif">
+              <h2 className="text-xl sm:text-2xl font-bold text-soil mb-6 font-serif">
                 Send Us a Message
               </h2>
 
@@ -356,7 +356,7 @@ export default function Contact() {
       {/* FAQ Section */}
       <div className="max-w-4xl mx-auto px-4 md:px-8 mb-20">
         <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold text-soil font-serif mb-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-soil font-serif mb-4">
             Frequently Asked Questions
           </h2>
           <p className="text-soil/70">
@@ -407,8 +407,6 @@ export default function Contact() {
           ))}
         </div>
       </div>
-
-
     </div>
   );
 }

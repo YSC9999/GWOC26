@@ -138,7 +138,7 @@ export default function GalleryPage() {
         animate={{ opacity: 1, y: 0 }}
         className="max-w-7xl mx-auto text-center mb-16"
       >
-        <h1 className="text-4xl md:text-6xl font-bold text-[#5A3E36] mb-4 font-serif">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#5A3E36] mb-4 font-serif">
           Our Gallery 🎨
         </h1>
         <p className="text-lg text-[#5A3E36]/70 max-w-2xl mx-auto">
@@ -455,7 +455,7 @@ export default function GalleryPage() {
                 className="w-full h-full object-contain rounded-2xl"
               />
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 rounded-b-2xl">
-                <h3 className="text-2xl font-bold text-white mb-2">
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
                   {selectedImage.title}
                 </h3>
                 {selectedImage.description && (

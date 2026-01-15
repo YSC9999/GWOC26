@@ -21,14 +21,18 @@ interface PreviousCustomOrder {
 }
 
 export default function AdminCustomOrdersPage() {
-  const [activeTab, setActiveTab] = useState<'requests' | 'previous'>('requests');
+  const [activeTab, setActiveTab] = useState<"requests" | "previous">(
+    "requests"
+  );
 
   // Requests State
   const [orders, setOrders] = useState<CustomOrder[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
 
   // Previous Orders State
-  const [previousOrders, setPreviousOrders] = useState<PreviousCustomOrder[]>([]);
+  const [previousOrders, setPreviousOrders] = useState<PreviousCustomOrder[]>(
+    []
+  );
   const [images, setImages] = useState<string[]>([]);
   const [description, setDescription] = useState("");
   const [loadingPrevious, setLoadingPrevious] = useState(false);
@@ -41,7 +45,7 @@ export default function AdminCustomOrdersPage() {
   const fetchOrders = async () => {
     setLoadingRequests(true);
     try {
-      const res = await fetch('/api/admin/custom-orders');
+      const res = await fetch("/api/admin/custom-orders");
       if (res.ok) {
         const data = await res.json();
         setOrders(data.orders || []);
@@ -117,18 +121,30 @@ export default function AdminCustomOrdersPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'quoted': return 'bg-blue-100 text-blue-800';
-      case 'accepted': return 'bg-purple-100 text-purple-800';
-      case 'in_progress': return 'bg-indigo-100 text-indigo-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "quoted":
+        return "bg-blue-100 text-blue-800";
+      case "accepted":
+        return "bg-purple-100 text-purple-800";
+      case "in_progress":
+        return "bg-indigo-100 text-indigo-800";
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const handleDeleteRequest = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this specific custom order request?")) return;
+    if (
+      !confirm(
+        "Are you sure you want to delete this specific custom order request?"
+      )
+    )
+      return;
 
     try {
       const res = await fetch(`/api/admin/custom-orders/${id}`, {
@@ -151,36 +167,54 @@ export default function AdminCustomOrdersPage() {
     <div className="min-h-screen py-8 px-4 md:py-12 md:px-8">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <Link href="/admin" className="text-soil/60 hover:text-clay">← Admin Home</Link>
-          <h1 className="text-3xl font-bold text-soil font-serif">Custom Orders</h1>
+          <Link href="/admin" className="text-soil/60 hover:text-clay">
+            ← Admin Home
+          </Link>
+          <h1 className="text-2xl sm:text-3xl font-bold text-soil font-serif">
+            Custom Orders
+          </h1>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-4 mb-8 border-b border-gray-200">
         <button
-          onClick={() => setActiveTab('requests')}
-          className={`pb-4 px-4 font-medium transition-colors ${activeTab === 'requests' ? 'border-b-2 border-clay text-clay' : 'text-soil/60 hover:text-soil'}`}
+          onClick={() => setActiveTab("requests")}
+          className={`pb-4 px-4 font-medium transition-colors ${
+            activeTab === "requests"
+              ? "border-b-2 border-clay text-clay"
+              : "text-soil/60 hover:text-soil"
+          }`}
         >
           Customer Requests
         </button>
         <button
-          onClick={() => setActiveTab('previous')}
-          className={`pb-4 px-4 font-medium transition-colors ${activeTab === 'previous' ? 'border-b-2 border-clay text-clay' : 'text-soil/60 hover:text-soil'}`}
+          onClick={() => setActiveTab("previous")}
+          className={`pb-4 px-4 font-medium transition-colors ${
+            activeTab === "previous"
+              ? "border-b-2 border-clay text-clay"
+              : "text-soil/60 hover:text-soil"
+          }`}
         >
           Manage Previous Works
         </button>
       </div>
 
       {/* Requests Tab */}
-      {activeTab === 'requests' && (
+      {activeTab === "requests" && (
         <>
           {loadingRequests ? (
-            <div className="flex justify-center py-12"><Loader2 className="animate-spin" /></div>
+            <div className="flex justify-center py-12">
+              <Loader2 className="animate-spin" />
+            </div>
           ) : orders.length === 0 ? (
             <div className="bg-sand/30 rounded-3xl p-12 text-center">
-              <h2 className="text-xl font-bold text-soil mb-2">No custom requests</h2>
-              <p className="text-soil/60">Wait for customers to submit requests.</p>
+              <h2 className="text-xl font-bold text-soil mb-2">
+                No custom requests
+              </h2>
+              <p className="text-soil/60">
+                Wait for customers to submit requests.
+              </p>
             </div>
           ) : (
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden overflow-x-auto">
@@ -197,24 +231,37 @@ export default function AdminCustomOrdersPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {orders.map((order) => (
-                    <tr key={order._id} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={order._id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <td className="p-4">
                         <div className="font-bold text-soil">{order.name}</div>
-                        <div className="text-xs text-soil/60">{order.email}</div>
+                        <div className="text-xs text-soil/60">
+                          {order.email}
+                        </div>
                       </td>
                       <td className="p-4">
-                        <div className="text-sm text-soil max-w-xs truncate">{order.description}</div>
+                        <div className="text-sm text-soil max-w-xs truncate">
+                          {order.description}
+                        </div>
                       </td>
                       <td className="p-4 text-sm text-soil/70">
                         {new Date(order.createdAt).toLocaleDateString()}
                       </td>
                       <td className="p-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${getStatusColor(order.status)}`}>
-                          {order.status.replace('_', ' ')}
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${getStatusColor(
+                            order.status
+                          )}`}
+                        >
+                          {order.status.replace("_", " ")}
                         </span>
                       </td>
                       <td className="p-4 font-bold text-soil">
-                        {order.totalPrice ? `₹${order.totalPrice.toLocaleString()}` : '-'}
+                        {order.totalPrice
+                          ? `₹${order.totalPrice.toLocaleString()}`
+                          : "-"}
                       </td>
                       <td className="p-4 text-right flex gap-2 justify-end">
                         <Link
@@ -240,7 +287,7 @@ export default function AdminCustomOrdersPage() {
       )}
 
       {/* Previous Orders Tab */}
-      {activeTab === 'previous' && (
+      {activeTab === "previous" && (
         <div className="max-w-4xl mx-auto">
           <div className="bg-white p-6 rounded-lg shadow-md mb-8">
             <h2 className="text-xl font-semibold mb-4">Add New Entry</h2>
@@ -267,7 +314,9 @@ export default function AdminCustomOrdersPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Description</label>
+                <label className="block text-sm font-medium mb-1">
+                  Description
+                </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -290,7 +339,10 @@ export default function AdminCustomOrdersPage() {
           <div className="grid gap-6">
             <h2 className="text-xl font-semibold">Existing Entries</h2>
             {previousOrders.map((order) => (
-              <div key={order._id} className="bg-white p-4 rounded-lg shadow border flex flex-col md:flex-row gap-4">
+              <div
+                key={order._id}
+                className="bg-white p-4 rounded-lg shadow border flex flex-col md:flex-row gap-4"
+              >
                 <div className="w-32 h-32 relative flex-shrink-0">
                   {order.images[0] && (
                     <img

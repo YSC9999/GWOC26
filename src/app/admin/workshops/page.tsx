@@ -392,7 +392,9 @@ export default function WorkshopPage() {
         <Link href="/admin" className="text-soil/60 hover:text-clay">
           ← Admin Home
         </Link>
-        <h1 className="text-3xl font-serif font-bold text-soil">Workshops</h1>
+        <h1 className="text-2xl sm:text-3xl font-serif font-bold text-soil">
+          Workshops
+        </h1>
       </div>
 
       {/* TABS */}

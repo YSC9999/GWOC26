@@ -59,8 +59,10 @@ export default function Blog() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
-        <h1 className="text-5xl font-bold text-soil mb-4">Blog</h1>
-        <p className="text-xl text-gray-700">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-soil mb-4">
+          Blog
+        </h1>
+        <p className="text-base sm:text-lg md:text-xl text-gray-700">
           Stay updated with the latest insights, tips, and trends in web
           development and design.
         </p>
@@ -77,7 +79,7 @@ export default function Blog() {
             className="card overflow-hidden hover:shadow-2xl group"
           >
             {/* Image */}
-            <div className="bg-sand h-48 flex items-center justify-center text-6xl overflow-hidden group-hover:scale-110 transition-transform duration-300">
+            <div className="bg-sand h-40 sm:h-48 flex items-center justify-center text-4xl sm:text-5xl md:text-6xl overflow-hidden group-hover:scale-110 transition-transform duration-300">
               {post.image}
             </div>
 
@@ -89,7 +91,7 @@ export default function Blog() {
               </div>
 
               {/* Title */}
-              <h3 className="text-2xl font-bold text-soil mb-2 line-clamp-2">
+              <h3 className="text-xl sm:text-2xl font-bold text-soil mb-2 line-clamp-2">
                 {post.title}
               </h3>
 
@@ -142,8 +144,10 @@ export default function Blog() {
         whileInView={{ opacity: 1 }}
         className="bg-gradient-clay text-white rounded-2xl p-12 text-center"
       >
-        <h2 className="text-4xl font-bold mb-4">Subscribe to Our Newsletter</h2>
-        <p className="text-lg mb-8 text-sand">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
+          Subscribe to Our Newsletter
+        </h2>
+        <p className="text-base sm:text-lg mb-8 text-sand">
           Get the latest articles and insights delivered to your inbox
         </p>
         <form className="flex gap-3 max-w-md mx-auto">

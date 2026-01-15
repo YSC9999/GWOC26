@@ -14,7 +14,7 @@ import {
   MessageSquare,
   Brush,
   Truck,
-  BarChart2
+  BarChart2,
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -139,7 +139,7 @@ export default function AdminDashboard() {
           >
             ⚡
           </motion.div>
-          <h1 className="text-5xl font-serif font-bold bg-gradient-to-r from-soil via-clay to-soil bg-clip-text text-transparent mb-3">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold bg-gradient-to-r from-soil via-clay to-soil bg-clip-text text-transparent mb-3">
             Admin Dashboard
           </h1>
           <p className="text-soil/60 text-lg">
@@ -174,7 +174,7 @@ export default function AdminDashboard() {
                       {link.icon}
                     </motion.div>
 
-                    <h3 className="text-2xl font-bold text-soil mb-2 group-hover:text-clay transition-colors duration-300">
+                    <h3 className="text-xl sm:text-2xl font-bold text-soil mb-2 group-hover:text-clay transition-colors duration-300">
                       {link.label}
                     </h3>
 
@@ -202,7 +202,6 @@ export default function AdminDashboard() {
                         />
                       </svg>
                     </motion.div>
-
                   </div>
                 </motion.div>
               </Link>
