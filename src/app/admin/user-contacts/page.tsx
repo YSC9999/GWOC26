@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Loader2, Mail, Trash2 } from "lucide-react";
+import { Loader2, Mail, Trash2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 interface Message {
@@ -101,8 +101,9 @@ export default function UserContactsAdmin() {
   return (
     <div>
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/admin" className="text-soil/60 hover:text-clay">
-          ← Admin Home
+        <Link href="/admin" className="flex items-center gap-2 text-soil/40 hover:text-soil transition-colors font-medium shrink-0">
+          <ArrowLeft size={20} />
+          <span>Admin</span>
         </Link>
         <h1 className="text-2xl sm:text-3xl font-serif font-bold text-soil">
           User Contacts
@@ -170,8 +171,8 @@ export default function UserContactsAdmin() {
                         )
                       }
                       className={`w-5 h-5 rounded-sm inline-block border flex-shrink-0 ${m.status === "read" || m.status === "replied"
-                          ? "bg-yellow-200 border-yellow-300"
-                          : "bg-white border-soil/20"
+                        ? "bg-yellow-200 border-yellow-300"
+                        : "bg-white border-soil/20"
                         }`}
                       aria-pressed={
                         m.status === "read" || m.status === "replied"
@@ -193,8 +194,8 @@ export default function UserContactsAdmin() {
                         )
                       }
                       className={`w-5 h-5 rounded-sm inline-block border flex-shrink-0 ${m.status === "replied"
-                          ? "bg-green-200 border-green-300"
-                          : "bg-white border-soil/20"
+                        ? "bg-green-200 border-green-300"
+                        : "bg-white border-soil/20"
                         }`}
                       aria-pressed={m.status === "replied"}
                       aria-label="Toggle Replied"
@@ -278,9 +279,9 @@ export default function UserContactsAdmin() {
                     <div className="flex items-center gap-1">
                       <div
                         className={`w-4 h-4 rounded-sm border ${selected.status === "read" ||
-                            selected.status === "replied"
-                            ? "bg-yellow-200 border-yellow-300"
-                            : "bg-white border-soil/20"
+                          selected.status === "replied"
+                          ? "bg-yellow-200 border-yellow-300"
+                          : "bg-white border-soil/20"
                           }`}
                       />
                       <span className="text-xs text-soil/60">Read</span>
@@ -288,8 +289,8 @@ export default function UserContactsAdmin() {
                     <div className="flex items-center gap-1">
                       <div
                         className={`w-4 h-4 rounded-sm border ${selected.status === "replied"
-                            ? "bg-green-200 border-green-300"
-                            : "bg-white border-soil/20"
+                          ? "bg-green-200 border-green-300"
+                          : "bg-white border-soil/20"
                           }`}
                       />
                       <span className="text-xs text-soil/60">Replied</span>

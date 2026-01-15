@@ -97,7 +97,7 @@ export default function AnalyticsPage() {
     }
   };
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen text-soil font-serif">Loading...</div>;
+  if (loading) return <div className="flex items-center justify-center min-h-screen text-soil font-serif bg-sand">Loading...</div>;
   if (!data) return <div className="flex items-center justify-center min-h-screen text-red-500 font-serif">Failed to load data</div>;
 
   const targetValue = parseInt(newTarget) || data.summary.target || 50000;
@@ -392,7 +392,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Billing & Transactions (Recent Orders) */}
-          <div className="bg-white/40 backdrop-blur-md p-4 rounded-3xl shadow-sm border border-white/50 h-[400px] overflow-hidden flex flex-col">
+          <div className="bg-white/5 backdrop-blur-xl p-4 rounded-3xl shadow-sm border border-white/10 h-[400px] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <div className="p-2 bg-clay/10 text-clay rounded-lg">
@@ -407,7 +407,7 @@ export default function AnalyticsPage() {
 
             <div className="overflow-y-auto space-y-4 pr-2 custom-scrollbar">
               {data.recentOrders.map((order: any) => (
-                <div key={order._id} className="flex items-center justify-between group p-2 hover:bg-white/50 rounded-xl transition-colors">
+                <div key={order._id} className="flex items-center justify-between group p-2 hover:bg-white/10 rounded-xl transition-colors">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-sand/30 flex items-center justify-center text-xs font-bold text-soil/70">
                       {order.userId?.name?.[0] || 'G'}

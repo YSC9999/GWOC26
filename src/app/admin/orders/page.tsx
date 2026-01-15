@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 import OrderModal from "@/components/admin/OrderModal";
 
@@ -138,7 +139,10 @@ export default function AdminOrdersPage() {
       <div className="flex flex-col gap-4 mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <Link href="/admin" className="text-soil/40 hover:text-soil transition-colors font-medium shrink-0">← Admin</Link>
+            <Link href="/admin" className="flex items-center gap-2 text-soil/40 hover:text-soil transition-colors font-medium shrink-0">
+              <ArrowLeft size={20} />
+              <span>Admin</span>
+            </Link>
             <h1 className="text-2xl md:text-3xl font-bold text-soil font-serif break-words">Orders</h1>
           </div>
           <input
@@ -146,7 +150,7 @@ export default function AdminOrdersPage() {
             placeholder="Search by Order ID, Name or Email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="border-soil/20 focus:border-soil focus:ring-0 rounded-lg px-4 py-2 bg-white/60 backdrop-blur-sm w-full md:w-80 text-soil placeholder:text-soil/40 transition-colors"
+            className="border-soil/10 focus:bg-white/10 focus:ring-4 focus:ring-clay/5 rounded-xl px-4 py-3 bg-sand/10 backdrop-blur-sm w-full md:w-80 text-soil placeholder:text-soil/30 transition-all outline-none"
           />
         </div>
       </div>
@@ -156,7 +160,7 @@ export default function AdminOrdersPage() {
         (typeof o.userId === 'object' && o.userId && 'name' in o.userId && o.userId.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (o.email && o.email.toLowerCase().includes(searchTerm.toLowerCase()))
       ) : orders).length === 0 ? (
-        <div className="bg-amber-50/40 backdrop-blur-md border border-white/50 rounded-3xl p-12 text-center">
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-12 text-center">
           <h2 className="text-xl font-bold text-soil mb-2">No orders yet</h2>
           <p className="text-soil/60">No orders found.</p>
         </div>
@@ -175,7 +179,7 @@ export default function AdminOrdersPage() {
             return (
               <div
                 key={order._id}
-                className="bg-amber-50/40 backdrop-blur-md rounded-2xl border border-white/50 p-6 shadow-sm hover:shadow-md transition-shadow group"
+                className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-6 shadow-sm hover:shadow-md transition-all group"
               >
                 <div
                   className="flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer"

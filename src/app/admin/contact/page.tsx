@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Loader2, Check } from "lucide-react";
+import { Loader2, Check, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 interface VisitingHours {
@@ -160,8 +160,9 @@ export default function AdminContact() {
   return (
     <div>
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/admin" className="text-soil/60 hover:text-clay">
-          ← Admin Home
+        <Link href="/admin" className="flex items-center gap-2 text-soil/40 hover:text-soil transition-colors font-medium shrink-0">
+          <ArrowLeft size={20} />
+          <span>Admin</span>
         </Link>
         <h1 className="text-2xl sm:text-3xl font-serif font-bold text-soil">
           Company Details
@@ -185,34 +186,62 @@ export default function AdminContact() {
       )}
 
       {loading ? (
-        <div className="p-8 bg-white rounded-xl text-center">
-          <Loader2 className="animate-spin mx-auto" />
+        <div className="p-8 bg-sand/20 backdrop-blur-md border border-soil/10 rounded-xl text-center">
+          <Loader2 className="animate-spin mx-auto text-clay" />
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">Company info</h2>
+          <div className="lg:col-span-2 bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-sm">
+            <h2 className="text-xl font-semibold mb-4 text-soil">Company info</h2>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Studio name</label>
-                <input value={studio.name || ''} onChange={(e) => handleChange('name', e.target.value)} className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm" />
+                <label className="block text-sm font-medium mb-1 text-soil/60">Studio name</label>
+                <input
+                  value={studio.name || ''}
+                  onChange={(e) => handleChange('name', e.target.value)}
+                  className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full text-base md:text-sm text-soil placeholder:text-soil/30"
+                />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Tagline</label>
-                <input value={studio.tagline || ''} onChange={(e) => handleChange('tagline', e.target.value)} className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm" />
+                <label className="block text-sm font-medium mb-1 text-soil/60">Tagline</label>
+                <input
+                  value={studio.tagline || ''}
+                  onChange={(e) => handleChange('tagline', e.target.value)}
+                  className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full text-base md:text-sm text-soil placeholder:text-soil/30"
+                />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">About text</label>
-                <textarea value={studio.aboutText || ''} onChange={(e) => handleChange('aboutText', e.target.value)} rows={4} className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm" />
+                <label className="block text-sm font-medium mb-1 text-soil/60">About text</label>
+                <textarea
+                  value={studio.aboutText || ''}
+                  onChange={(e) => handleChange('aboutText', e.target.value)}
+                  rows={4}
+                  className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full text-base md:text-sm text-soil placeholder:text-soil/30"
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <input value={studio.phone || ''} onChange={(e) => handleChange('phone', e.target.value)} placeholder="Phone" className="input-field px-3 py-2 rounded-md text-base md:text-sm" />
-                <input value={studio.email || ''} onChange={(e) => handleChange('email', e.target.value)} placeholder="Email" className="input-field px-3 py-2 rounded-md text-base md:text-sm" />
-                <input value={studio.whatsapp || ''} onChange={(e) => handleChange('whatsapp', e.target.value)} placeholder="Whatsapp" className="input-field px-3 py-2 rounded-md text-base md:text-sm" />
+                <input
+                  value={studio.phone || ''}
+                  onChange={(e) => handleChange('phone', e.target.value)}
+                  placeholder="Phone"
+                  className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil placeholder:text-soil/30"
+                />
+                <input
+                  value={studio.email || ''}
+                  onChange={(e) => handleChange('email', e.target.value)}
+                  placeholder="Email"
+                  className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil placeholder:text-soil/30"
+                />
+                <input
+                  value={studio.whatsapp || ''}
+                  onChange={(e) => handleChange('whatsapp', e.target.value)}
+                  placeholder="Whatsapp"
+                  className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil placeholder:text-soil/30"
+                />
               </div>
               <div className="mt-2 flex items-center gap-3">
                 <button
@@ -220,13 +249,13 @@ export default function AdminContact() {
                     saveSection(["phone", "email", "whatsapp"], "contact")
                   }
                   disabled={!!savingSections["contact"]}
-                  className="text-sm bg-white border px-3 py-1 rounded-md"
+                  className="text-sm bg-white/40 border border-soil/10 px-3 py-1 rounded-md hover:bg-white/60 transition-colors text-soil"
                 >
                   {savingSections["contact"] ? "Saving..." : "Save Contact"}
                 </button>
                 {savedSections["contact"] && (
                   <div className="text-green-600 flex items-center gap-2 text-sm">
-                    <Check /> Saved
+                    <Check size={16} /> Saved
                   </div>
                 )}
                 {errorSections["contact"] && (
@@ -237,12 +266,31 @@ export default function AdminContact() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Address</label>
-                <input value={studio.address || ''} onChange={(e) => handleChange('address', e.target.value)} className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm" />
+                <label className="block text-sm font-medium mb-1 text-soil/60">Address</label>
+                <input
+                  value={studio.address || ''}
+                  onChange={(e) => handleChange('address', e.target.value)}
+                  className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full text-base md:text-sm text-soil placeholder:text-soil/30"
+                />
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
-                  <input value={studio.city || ''} onChange={(e) => handleChange('city', e.target.value)} placeholder="City" className="input-field px-3 py-2 rounded-md text-base md:text-sm" />
-                  <input value={studio.state || ''} onChange={(e) => handleChange('state', e.target.value)} placeholder="State" className="input-field px-3 py-2 rounded-md text-base md:text-sm" />
-                  <input value={studio.pincode || ''} onChange={(e) => handleChange('pincode', e.target.value)} placeholder="Pincode" className="input-field px-3 py-2 rounded-md text-base md:text-sm" />
+                  <input
+                    value={studio.city || ''}
+                    onChange={(e) => handleChange('city', e.target.value)}
+                    placeholder="City"
+                    className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil placeholder:text-soil/30"
+                  />
+                  <input
+                    value={studio.state || ''}
+                    onChange={(e) => handleChange('state', e.target.value)}
+                    placeholder="State"
+                    className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil placeholder:text-soil/30"
+                  />
+                  <input
+                    value={studio.pincode || ''}
+                    onChange={(e) => handleChange('pincode', e.target.value)}
+                    placeholder="Pincode"
+                    className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil placeholder:text-soil/30"
+                  />
                 </div>
               </div>
 
@@ -268,7 +316,7 @@ export default function AdminContact() {
                   value={studio.mapUrl || ""}
                   onChange={(e) => handleChange("mapUrl", e.target.value)}
                   placeholder="https://www.google.com/maps/embed?pb=..."
-                  className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm"
+                  className="admin-input w-full px-3 py-2 rounded-md text-base md:text-sm"
                 />
               </div>
 
@@ -304,12 +352,12 @@ export default function AdminContact() {
 
               <div>
                 <label className="block text-sm font-medium mb-1">Visit Policy</label>
-                <textarea value={studio.visitPolicy || ''} onChange={(e) => handleChange('visitPolicy', e.target.value)} rows={3} className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm" />
+                <textarea value={studio.visitPolicy || ''} onChange={(e) => handleChange('visitPolicy', e.target.value)} rows={3} className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full text-base md:text-sm text-soil placeholder:text-soil/30" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">Collection Policy</label>
-                <textarea value={studio.collectionPolicy || ''} onChange={(e) => handleChange('collectionPolicy', e.target.value)} rows={3} className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm" />
+                <textarea value={studio.collectionPolicy || ''} onChange={(e) => handleChange('collectionPolicy', e.target.value)} rows={3} className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full text-base md:text-sm text-soil placeholder:text-soil/30" />
               </div>
 
               <div className="mt-2 flex items-center gap-3">
@@ -318,7 +366,7 @@ export default function AdminContact() {
                     saveSection(["visitPolicy", "collectionPolicy"], "policies")
                   }
                   disabled={!!savingSections["policies"]}
-                  className="text-sm bg-white border px-3 py-1 rounded-md"
+                  className="text-sm bg-sand/20 border border-soil/10 px-4 py-2 rounded-xl hover:bg-sand/30 transition-all text-soil font-medium"
                 >
                   {savingSections["policies"] ? "Saving..." : "Save Policies"}
                 </button>
@@ -356,7 +404,7 @@ export default function AdminContact() {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-sm">
+          <div className="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-sm self-start">
             <h2 className="text-xl font-semibold mb-4">
               Preview / Quick actions
             </h2>

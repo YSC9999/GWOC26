@@ -9,7 +9,9 @@ import {
   Image as ImageIcon,
   Save,
   Loader2,
+  ArrowLeft,
 } from "lucide-react";
+import Link from "next/link";
 
 interface Product {
   _id: string;
@@ -145,13 +147,19 @@ export default function AdminFramesPage() {
 
   return (
     <div className="min-h-screen pb-20">
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-soil mb-8 flex items-center gap-3"
-      >
-        <FrameIcon /> Manage Homepage Frames
-      </motion.h1>
+      <div className="flex items-center gap-4 mb-8">
+        <Link href="/admin" className="flex items-center gap-2 text-soil/40 hover:text-soil transition-colors font-medium shrink-0">
+          <ArrowLeft size={20} />
+          <span>Admin</span>
+        </Link>
+        <motion.h1
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-soil flex items-center gap-3"
+        >
+          Manage Homepage Frames
+        </motion.h1>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {frames.map((frame, index) => (
@@ -274,22 +282,3 @@ export default function AdminFramesPage() {
   );
 }
 
-function FrameIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="32"
-      height="32"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <line x1="4" x2="20" y1="12" y2="12" />
-      <line x1="4" x2="20" y1="6" y2="6" />
-      <line x1="4" x2="20" y1="18" y2="18" />
-    </svg>
-  );
-}

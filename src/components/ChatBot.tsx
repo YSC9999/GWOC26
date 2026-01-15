@@ -125,8 +125,8 @@ export default function ChatBot() {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
                         transition={instantSpring}
-                        className="mb-4 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-soil/10 overflow-hidden flex flex-col"
-                        style={{ maxHeight: "600px", height: "500px" }}
+                        className="fixed sm:static bottom-20 sm:bottom-0 right-4 sm:right-0 mb-4 w-[calc(100vw-2rem)] sm:w-96 bg-white rounded-2xl shadow-2xl border border-soil/10 overflow-hidden flex flex-col z-[60]"
+                        style={{ maxHeight: "calc(100vh - 120px)", height: "500px" }}
                     >
                         {/* Header */}
                         <div className="bg-soil text-white p-4 flex items-center justify-between">

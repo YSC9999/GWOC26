@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 import UploadInput from "@/components/UploadInput";
 
 interface CustomOrder {
@@ -167,8 +167,9 @@ export default function AdminCustomOrdersPage() {
     <div className="min-h-screen py-8 px-4 md:py-12 md:px-8">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <Link href="/admin" className="text-soil/60 hover:text-clay">
-            ← Admin Home
+          <Link href="/admin" className="flex items-center gap-2 text-soil/40 hover:text-soil transition-colors font-medium shrink-0">
+            <ArrowLeft size={20} />
+            <span>Admin</span>
           </Link>
           <h1 className="text-2xl sm:text-3xl font-bold text-soil font-serif">
             Custom Orders
@@ -180,21 +181,19 @@ export default function AdminCustomOrdersPage() {
       <div className="flex gap-4 mb-8 border-b border-gray-200">
         <button
           onClick={() => setActiveTab("requests")}
-          className={`pb-4 px-4 font-medium transition-colors ${
-            activeTab === "requests"
-              ? "border-b-2 border-clay text-clay"
-              : "text-soil/60 hover:text-soil"
-          }`}
+          className={`pb-4 px-4 font-medium transition-colors ${activeTab === "requests"
+            ? "border-b-2 border-clay text-clay"
+            : "text-soil/60 hover:text-soil"
+            }`}
         >
           Customer Requests
         </button>
         <button
           onClick={() => setActiveTab("previous")}
-          className={`pb-4 px-4 font-medium transition-colors ${
-            activeTab === "previous"
-              ? "border-b-2 border-clay text-clay"
-              : "text-soil/60 hover:text-soil"
-          }`}
+          className={`pb-4 px-4 font-medium transition-colors ${activeTab === "previous"
+            ? "border-b-2 border-clay text-clay"
+            : "text-soil/60 hover:text-soil"
+            }`}
         >
           Manage Previous Works
         </button>

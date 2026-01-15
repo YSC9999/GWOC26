@@ -245,7 +245,7 @@ export default function AdminShipping() {
           href="/admin"
           className="text-soil/40 hover:text-soil transition-colors font-medium flex items-center gap-2"
         >
-          <ArrowLeft size={18} /> Back to Admin
+          <ArrowLeft size={18} /> Admin
         </Link>
       </div>
       <h1 className="text-2xl sm:text-3xl font-bold text-soil mb-8 font-serif">

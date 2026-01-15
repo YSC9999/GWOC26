@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Upload,
@@ -8,10 +9,11 @@ import {
   Calendar,
   MapPin,
   Clock,
-  Image as ImageIcon,
+  ImageIcon,
   Loader2,
   X,
   Edit,
+  ArrowLeft,
 } from "lucide-react";
 
 export default function AdminStudio() {
@@ -20,9 +22,15 @@ export default function AdminStudio() {
   return (
     <div className="min-h-screen">
       <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-soil mb-2">
-          Studio Management
-        </h1>
+        <div className="flex items-center gap-4 mb-4">
+          <Link href="/admin" className="flex items-center gap-2 text-soil/40 hover:text-soil transition-colors font-medium shrink-0">
+            <ArrowLeft size={20} />
+            <span>Admin</span>
+          </Link>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-soil">
+            Studio Management
+          </h1>
+        </div>
         <p className="text-soil/60">
           Manage your studio slider images and exhibitions.
         </p>
@@ -116,7 +124,6 @@ function StudioImagesManager() {
     formData.append("images", file);
 
     try {
-      // 1. Upload to Cloudinary
       const uploadRes = await fetch("/api/admin/upload", {
         method: "POST",
         body: formData,
@@ -124,7 +131,6 @@ function StudioImagesManager() {
       const uploadData = await uploadRes.json();
 
       if (uploadData?.[0]) {
-        // 2. Create Gallery Entry
         const imageUrl = uploadData[0];
         const res = await fetch("/api/admin/gallery", {
           method: "POST",
@@ -239,7 +245,7 @@ function ExhibitsManager() {
 
   const fetchExhibits = async () => {
     try {
-      const res = await fetch("/api/admin/events"); // We created this GET route
+      const res = await fetch("/api/admin/events");
       const data = await res.json();
       setExhibits(data.events || []);
     } catch (error) {
@@ -262,14 +268,14 @@ function ExhibitsManager() {
 
   return (
     <div className="bg-white p-8 rounded-3xl shadow-sm border border-soil/10">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h2 className="text-2xl font-bold text-soil">Exhibitions</h2>
         <button
           onClick={() => {
             setEditingExhibit(null);
             setShowModal(true);
           }}
-          className="flex items-center gap-2 bg-soil text-white px-4 py-2 rounded-lg hover:bg-soil/90 transition-colors"
+          className="flex items-center gap-2 bg-soil text-white px-4 py-2 rounded-lg hover:bg-soil/90 transition-colors shrink-0"
         >
           <Plus className="w-4 h-4" />
           Add Exhibition
@@ -294,9 +300,9 @@ function ExhibitsManager() {
                   />
                 )}
               </div>
-              <div className="flex-1">
-                <div className="flex justify-between items-start">
-                  <div>
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-start gap-4">
+                  <div className="min-w-0">
                     <span
                       className={`inline-block px-2 py-0.5 rounded text-xs font-bold uppercase mb-1 ${new Date(ex.endDate) < new Date()
                         ? "bg-gray-100 text-gray-500"
@@ -305,27 +311,27 @@ function ExhibitsManager() {
                     >
                       {new Date(ex.endDate) < new Date() ? "Past" : "Upcoming"}
                     </span>
-                    <h3 className="font-bold text-lg text-soil">{ex.title}</h3>
-                    <div className="text-sm text-soil/60 flex gap-4 mt-1">
-                      <span className="flex items-center gap-1">
+                    <h3 className="font-bold text-lg text-soil truncate">{ex.title}</h3>
+                    <div className="text-sm text-soil/60 flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                      <span className="flex items-center gap-1 whitespace-nowrap">
                         <Calendar size={14} />{" "}
                         {new Date(ex.startDate).toLocaleDateString()}
                       </span>
-                      <span className="flex items-center gap-1">
+                      <span className="flex items-center gap-1 whitespace-nowrap">
                         <MapPin size={14} /> {ex.city}
                       </span>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 shrink-0">
                     <button
                       onClick={() => openEdit(ex)}
-                      className="p-2 text-soil/60 hover:text-clay hover:bg-clay/10 rounded"
+                      className="p-2 text-soil/40 hover:text-clay hover:bg-clay/10 rounded-lg transition-colors"
                     >
                       <Edit size={18} />
                     </button>
                     <button
                       onClick={() => handleDelete(ex._id)}
-                      className="p-2 text-soil/60 hover:text-red-500 hover:bg-red-50 rounded"
+                      className="p-2 text-soil/40 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                     >
                       <Trash2 size={18} />
                     </button>
@@ -369,10 +375,7 @@ function ExhibitModal({ exhibit, onClose, onSuccess }: any) {
     return () => setMounted(false);
   }, []);
 
-  // ... (rest of useEffect)
-
   const [formData, setFormData] = useState({
-    // ... (existing state)
     title: exhibit?.title || "",
     description: exhibit?.description || "",
     type: exhibit?.type || "exhibition",
@@ -402,7 +405,6 @@ function ExhibitModal({ exhibit, onClose, onSuccess }: any) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // 1. Immediate Local Preview
     const objectUrl = URL.createObjectURL(file);
     setFormData((prev) => ({ ...prev, image: objectUrl }));
     setImageLoading(true);
@@ -418,13 +420,10 @@ function ExhibitModal({ exhibit, onClose, onSuccess }: any) {
 
       if (data.error) {
         alert(`Upload failed: ${data.details || data.error}`);
-        console.error(data);
-        // Revert to original or empty if failed
         setFormData((prev) => ({ ...prev, image: exhibit?.image || "" }));
         return;
       }
       if (data?.[0]) {
-        // 2. Update with real server URL
         setFormData((prev) => ({ ...prev, image: data[0] }));
       }
     } catch (e) {
@@ -440,12 +439,10 @@ function ExhibitModal({ exhibit, onClose, onSuccess }: any) {
     e.preventDefault();
     setLoading(true);
     try {
-      // ... (submission logic)
       const url = "/api/admin/events";
       const method = isEdit ? "PUT" : "POST";
       const body = isEdit ? { ...formData, _id: exhibit._id } : formData;
 
-      // Ensure description is an empty string if falsy, to satisfy backend/model requirements
       if (!body.description) body.description = "";
 
       const res = await fetch(url, {
@@ -457,7 +454,6 @@ function ExhibitModal({ exhibit, onClose, onSuccess }: any) {
       if (res.ok) onSuccess();
       else {
         const err = await res.json();
-        console.error("Event Save Error:", err);
         alert("Failed to save: " + (err.error || "Unknown"));
       }
     } catch (error) {
@@ -469,114 +465,110 @@ function ExhibitModal({ exhibit, onClose, onSuccess }: any) {
 
   if (!mounted) return null;
 
+  return createPortal(
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1000] flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
+          <h2 className="text-xl font-bold text-soil">
+            {isEdit ? "Edit Exhibition" : "Add Exhibition"}
+          </h2>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full">
+            <X size={20} />
+          </button>
+        </div>
 
-  <form onSubmit={handleSubmit} className="p-6 space-y-4">
-    {/* ... (Basic Info inputs) ... */}
-    <div>
-      <label className="block text-sm font-medium mb-1">Title</label>
-      <input name="title" required value={formData.title} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
-    </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Title</label>
+            <input name="title" required value={formData.title} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
+          </div>
 
-    <div>
-      <label className="block text-sm font-medium mb-1">Description</label>
-      <textarea name="description" rows={3} value={formData.description} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
-    </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Description</label>
+            <textarea name="description" rows={3} value={formData.description} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
+          </div>
 
-    {/* Image Upload Section */}
-    <div>
-      <label className="block text-sm font-medium mb-1">Cover Image</label>
-      <div className="flex gap-4 items-center">
-        <div className="relative w-20 h-20 bg-gray-100 rounded-lg overflow-hidden border border-dashed border-gray-300 flex items-center justify-center shrink-0">
-          {formData.image ? (
-            <>
-              <img src={formData.image} className={`w-full h-full object-cover transition-opacity ${imageLoading ? 'opacity-50' : 'opacity-100'}`} />
-              {imageLoading && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Loader2 className="w-5 h-5 animate-spin text-soil" />
-                </div>
-              )}
-            </>
-          ) : (
-            <ImageIcon className="text-gray-400 w-6 h-6" />
+          <div>
+            <label className="block text-sm font-medium mb-1">Cover Image</label>
+            <div className="flex gap-4 items-center">
+              <div className="relative w-20 h-20 bg-gray-100 rounded-lg overflow-hidden border border-dashed border-gray-300 flex items-center justify-center shrink-0">
+                {formData.image ? (
+                  <>
+                    <img src={formData.image} className={`w-full h-full object-cover transition-opacity ${imageLoading ? 'opacity-50' : 'opacity-100'}`} />
+                    {imageLoading && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Loader2 className="w-5 h-5 animate-spin text-soil" />
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <ImageIcon className="text-gray-400 w-6 h-6" />
+                )}
+              </div>
+              <div className="flex-1">
+                <input
+                  type="file"
+                  onChange={handleImageUpload}
+                  accept="image/*"
+                  className="block w-full text-sm text-slate-500
+                                          file:mr-4 file:py-2 file:px-4
+                                          file:rounded-full file:border-0
+                                          file:text-sm file:font-semibold
+                                          file:bg-clay/10 file:text-clay
+                                          hover:file:bg-clay/20
+                                        "
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Venue Name</label>
+              <input name="venue" required value={formData.venue} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">City</label>
+              <input name="city" required value={formData.city} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Start Date</label>
+              <input type="date" name="startDate" required value={formData.startDate} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">End Date</label>
+              <input type="date" name="endDate" required value={formData.endDate} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Timings</label>
+              <input name="timings" placeholder="e.g. 10 AM - 6 PM" value={formData.timings} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input type="checkbox" id="regRequired" name="registrationRequired" checked={formData.registrationRequired} onChange={handleChange} />
+            <label htmlFor="regRequired">Registration Required?</label>
+          </div>
+          {formData.registrationRequired && (
+            <div>
+              <label className="block text-sm font-medium mb-1">Registration Link</label>
+              <input name="registrationLink" value={formData.registrationLink} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
+            </div>
           )}
-        </div>
-        <div className="flex-1">
-          <input
-            type="file"
-            onChange={handleImageUpload}
-            accept="image/*"
-            className="block w-full text-sm text-slate-500
-                                    file:mr-4 file:py-2 file:px-4
-                                    file:rounded-full file:border-0
-                                    file:text-sm file:font-semibold
-                                    file:bg-clay/10 file:text-clay
-                                    hover:file:bg-clay/20
-                                  "
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            {imageLoading ? "Uploading to server..." : "Recommended: 800x600px"}
-          </p>
-        </div>
-      </div>
-    </div>
 
-    {/* ... (Rest of Form) ... */}
-    {/* Location */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label className="block text-sm font-medium mb-1">Venue Name</label>
-        <input name="venue" required value={formData.venue} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
+          <div className="pt-4 border-t mt-4 flex justify-end gap-3 sticky bottom-0 bg-white">
+            <button type="button" onClick={onClose} className="px-4 py-2 text-soil hover:bg-soil/5 rounded-lg">Cancel</button>
+            <button type="submit" disabled={loading || imageLoading} className="px-6 py-2 bg-clay text-white rounded-lg hover:bg-clay/90 disabled:opacity-50 flex items-center gap-2">
+              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+              {loading ? "Saving..." : "Save Exhibition"}
+            </button>
+          </div>
+        </form>
       </div>
-      <div>
-        <label className="block text-sm font-medium mb-1">City</label>
-        <input name="city" required value={formData.city} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
-      </div>
-    </div>
-    <div>
-      <label className="block text-sm font-medium mb-1">Full Address</label>
-      <input name="address" value={formData.address} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
-    </div>
-
-    {/* Dates */}
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div>
-        <label className="block text-sm font-medium mb-1">Start Date</label>
-        <input type="date" name="startDate" required value={formData.startDate} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-1">End Date</label>
-        <input type="date" name="endDate" required value={formData.endDate} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-1">Timings</label>
-        <input name="timings" placeholder="e.g. 10 AM - 6 PM" value={formData.timings} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
-      </div>
-    </div>
-
-    {/* Registration */}
-    <div className="flex items-center gap-2">
-      <input type="checkbox" id="regRequired" name="registrationRequired" checked={formData.registrationRequired} onChange={handleChange} />
-      <label htmlFor="regRequired">Registration Required?</label>
-    </div>
-    {
-      formData.registrationRequired && (
-        <div>
-          <label className="block text-sm font-medium mb-1">Registration Link</label>
-          <input name="registrationLink" value={formData.registrationLink} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
-        </div>
-      )
-    }
-
-    <div className="pt-4 border-t mt-4 flex justify-end gap-3">
-      <button type="button" onClick={onClose} className="px-4 py-2 text-soil hover:bg-soil/5 rounded-lg">Cancel</button>
-      <button type="submit" disabled={loading || imageLoading} className="px-6 py-2 bg-clay text-white rounded-lg hover:bg-clay/90 disabled:opacity-50 flex items-center gap-2">
-        {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-        {loading ? "Saving..." : "Save Exhibition"}
-      </button>
-    </div>
-  </form >
-    </div >
-  </div >,
+    </div>,
     document.body
-          );
+  );
 }

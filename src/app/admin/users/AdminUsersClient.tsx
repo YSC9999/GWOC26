@@ -11,6 +11,7 @@ import {
   ChevronRight,
   X,
   Save,
+  ArrowLeft,
 } from "lucide-react";
 
 interface UserItem {
@@ -192,8 +193,9 @@ export default function AdminUsers() {
   return (
     <div>
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/admin" className="text-soil/60 hover:text-clay">
-          ← Admin Home
+        <Link href="/admin" className="flex items-center gap-2 text-soil/40 hover:text-soil transition-colors font-medium shrink-0">
+          <ArrowLeft size={20} />
+          <span>Admin</span>
         </Link>
         <h1 className="text-3xl font-serif font-bold text-soil">
           User Management
@@ -208,45 +210,45 @@ export default function AdminUsers() {
             setPage(1);
           }}
           placeholder="Search by name or email"
-          className="input-field px-3 py-2 rounded-md w-full md:w-auto flex-1 text-base md:text-sm"
+          className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full md:w-auto flex-1 text-base md:text-sm text-soil shadow-sm placeholder:text-soil/30"
         />
         <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="input-field px-3 py-2 rounded-md w-full md:w-auto text-base md:text-sm"
+          className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full md:w-auto text-base md:text-sm text-soil shadow-sm"
         >
-          <option value="all">All</option>
+          <option value="all">All Roles</option>
           <option value="customer">Customer</option>
           <option value="admin">Admin</option>
         </select>
-        <button onClick={() => { setPage(1); fetchUsers(); }} className="bg-clay text-white px-4 py-2 rounded-md w-full md:w-auto">Search</button>
+        <button onClick={() => { setPage(1); fetchUsers(); }} className="bg-clay text-white px-6 py-2 rounded-lg w-full md:w-auto hover:bg-clay/90 transition-colors shadow-md font-medium">Search</button>
         <div className="ml-auto w-full md:w-auto">
-          <button onClick={() => setShowAdd(true)} className="bg-green-600 text-white px-4 py-2 rounded w-full md:w-auto">Add User</button>
+          <button onClick={() => setShowAdd(true)} className="bg-green-600 text-white px-6 py-2 rounded-lg w-full md:w-auto hover:bg-green-700 transition-colors shadow-md font-medium">Add User</button>
         </div>
       </div>
 
-      {error && <div className="mb-4 text-red-600">{error}</div>}
+      {error && <div className="mb-4 p-3 bg-red-50 border border-red-100 text-red-600 rounded-lg">{error}</div>}
 
       {loading ? (
-        <div className="p-8 bg-white rounded text-center">
-          <Loader2 className="animate-spin mx-auto" />
+        <div className="p-8 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 text-center">
+          <Loader2 className="animate-spin mx-auto text-clay" />
         </div>
       ) : users.length === 0 ? (
-        <div className="p-8 bg-white rounded text-center">No users found</div>
+        <div className="p-8 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 text-center text-soil/60">No users found</div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm overflow-x-auto">
+        <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-sm overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-sand/40">
+            <thead className="bg-sand/20 backdrop-blur-md border-b border-soil/10 text-soil/50 uppercase tracking-wider text-[10px] font-bold">
               <tr>
-                <th className="p-3 text-sm font-bold text-soil/80 uppercase tracking-wider">Name</th>
-                <th className="p-3 text-sm font-bold text-soil/80 uppercase tracking-wider">Email</th>
-                <th className="p-3 text-sm font-bold text-soil/80 uppercase tracking-wider">Role</th>
-                <th className="p-3 text-sm font-bold text-soil/80 uppercase tracking-wider">Status</th>
-                <th className="p-3 text-sm font-bold text-soil/80 uppercase tracking-wider">Joined</th>
-                <th className="p-3 text-sm font-bold text-soil/80 uppercase tracking-wider text-right">Actions</th>
+                <th className="p-4 text-xs font-bold uppercase tracking-wider">Name</th>
+                <th className="p-4 text-xs font-bold uppercase tracking-wider">Email</th>
+                <th className="p-4 text-xs font-bold uppercase tracking-wider">Role</th>
+                <th className="p-4 text-xs font-bold uppercase tracking-wider">Status</th>
+                <th className="p-4 text-xs font-bold uppercase tracking-wider">Joined</th>
+                <th className="p-4 text-xs font-bold uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-soil/5">
               {users.map((u) => (
                 <tr key={u._id} className="border-t hover:bg-amber-50/10 transition-colors">
                   <td className="p-3 align-top text-sm font-medium text-soil">

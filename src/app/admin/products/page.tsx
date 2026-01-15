@@ -11,6 +11,7 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  ArrowLeft,
 } from "lucide-react";
 import UploadInput from "@/components/UploadInput";
 import { PRODUCT_CATEGORIES } from "@/lib/categories";
@@ -283,11 +284,9 @@ export default function AdminProductsPage() {
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 flex-wrap">
         <div className="flex items-center gap-4">
-          <Link
-            href="/admin"
-            className="text-soil/60 hover:text-clay transition-colors hover:scale-105 transform inline-block"
-          >
-            ← Admin Home
+          <Link href="/admin" className="flex items-center gap-2 text-soil/40 hover:text-soil transition-colors font-medium shrink-0">
+            <ArrowLeft size={20} />
+            <span>Admin</span>
           </Link>
           <motion.h1
             variants={itemVariants}
@@ -303,7 +302,7 @@ export default function AdminProductsPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by name or category..."
-            className="border p-2 w-full md:w-64 rounded-md"
+            className="border border-soil/10 p-2 w-full md:w-64 rounded-xl bg-sand/10 focus:bg-white/10 focus:outline-none focus:ring-4 focus:ring-clay/5 transition-all text-soil placeholder:text-soil/40"
           />
 
           <motion.button
@@ -335,9 +334,9 @@ export default function AdminProductsPage() {
             initial={{ opacity: 0, height: 0, overflow: "hidden" }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="bg-amber-50/40 backdrop-blur-md p-4 md:p-6 rounded-2xl shadow-sm border border-white/50 overflow-hidden"
+            className="bg-white/5 backdrop-blur-xl p-4 md:p-8 rounded-3xl shadow-sm border border-white/10 overflow-hidden"
           >
-            <h2 className="text-xl font-bold text-soil mb-4 flex items-center gap-2">
+            <h2 className="text-2xl font-serif font-bold text-soil mb-6 flex items-center gap-2">
               <span>✨</span> Add New Product
             </h2>
             <form onSubmit={handleAdd} className="flex gap-4 flex-wrap">
@@ -347,7 +346,7 @@ export default function AdminProductsPage() {
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="Name"
-                  className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay text-base md:text-sm"
+                  className="bg-white/10 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil text-base md:text-sm"
                   required
                 />
                 <input
@@ -360,7 +359,7 @@ export default function AdminProductsPage() {
                     })
                   }
                   placeholder="Price"
-                  className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay text-base md:text-sm"
+                  className="bg-white/10 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil text-base md:text-sm"
                   required
                 />
                 <input
@@ -374,7 +373,7 @@ export default function AdminProductsPage() {
                     })
                   }
                   placeholder="Stock"
-                  className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay text-base md:text-sm"
+                  className="bg-white/10 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil text-base md:text-sm"
                   required
                 />
                 <input
@@ -388,7 +387,7 @@ export default function AdminProductsPage() {
                     })
                   }
                   placeholder="Weight (Optional, default 500g)"
-                  className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay text-base md:text-sm"
+                  className="bg-white/10 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil text-base md:text-sm"
                   title="Weight in grams (e.g. 500 for 0.5kg)"
                 />
               </div>
@@ -445,16 +444,16 @@ export default function AdminProductsPage() {
                 <div className="relative flex-grow">
                   <div
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="border p-3 rounded-lg w-full bg-white/60 focus:bg-white transition-colors cursor-pointer flex justify-between items-center"
+                    className="border border-soil/10 p-4 rounded-xl w-full bg-white/10 focus:bg-white/20 transition-all cursor-pointer flex justify-between items-center"
                   >
-                    <span className={category ? "text-soil" : "text-gray-400"}>
+                    <span className={category ? "text-soil font-medium" : "text-soil/40"}>
                       {categories.find(c => c.slug === category)?.name || (category || "Select category")}
                     </span>
-                    <ChevronRight className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-90' : ''}`} />
+                    <ChevronRight className={`w-5 h-5 transition-transform text-soil/30 ${isDropdownOpen ? 'rotate-90' : ''}`} />
                   </div>
 
                   {isDropdownOpen && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white/90 backdrop-blur-md border rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-[#EFE5D8]/95 backdrop-blur-xl border border-soil/10 rounded-2xl shadow-2xl z-50 max-h-60 overflow-y-auto">
                       {categories.map((cat) => (
                         <div
                           key={cat._id}
@@ -503,15 +502,15 @@ export default function AdminProductsPage() {
                 value={descriptionText}
                 onChange={(e) => setDescriptionText(e.target.value)}
                 placeholder="Short description"
-                className="border p-3 rounded-lg w-full focus:ring-2 focus:ring-clay/20 outline-none"
+                className="bg-white/10 border border-soil/10 p-4 rounded-xl w-full focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil"
               />
 
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="bg-black text-white px-8 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all w-full md:w-auto flex items-center gap-2 justify-center"
+                className="bg-soil text-white px-10 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl hover:bg-soil/90 transition-all w-full md:w-auto flex items-center gap-2 justify-center"
               >
-                <Save size={20} /> Save
+                <Plus size={24} /> Save Product
               </motion.button>
             </form>
           </motion.div>
@@ -521,10 +520,10 @@ export default function AdminProductsPage() {
 
 
       {/* PRODUCT TABLE and PAGINATION */}
-      <div className="border rounded-lg overflow-hidden">
+      <div className="border border-soil/10 rounded-3xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full table-fixed min-w-[800px]">
-            <thead className="bg-amber-50/30 backdrop-blur-sm text-soil/80 border-b border-soil/10">
+          <table className="w-full table-fixed min-w-[800px] bg-white/5 backdrop-blur-xl">
+            <thead className="bg-sand/20 backdrop-blur-md text-soil/60 border-b border-soil/10 uppercase tracking-wider text-[10px] font-bold">
               <tr>
                 <th className="w-4/12 p-3 text-left font-semibold">Name</th>
                 <th className="w-2/12 p-3 text-left font-semibold">Category</th>
@@ -534,7 +533,7 @@ export default function AdminProductsPage() {
                 <th className="w-3/12 p-3 text-right font-semibold">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-soil/5">
               <AnimatePresence mode="popLayout">
                 {currentProducts.map((p) => (
                   <motion.tr
@@ -543,7 +542,7 @@ export default function AdminProductsPage() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    whileHover={{ backgroundColor: "rgba(50, 50, 50, 0.02)" }}
+                    whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.4)" }}
                     className="hover:bg-white/40 transition-colors border-b border-soil/5 last:border-0"
                   >
                     <td className="p-3 align-top break-words text-sm font-medium text-soil/90">
@@ -607,7 +606,7 @@ export default function AdminProductsPage() {
         </div>
 
         {filteredProducts.length > 0 && (
-          <div className="bg-amber-50/30 backdrop-blur-sm p-4 border-t border-soil/10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="bg-sand/10 backdrop-blur-md p-4 border-t border-soil/10 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-sm text-soil/60 text-center md:text-left">
               Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
               <span className="font-medium">
@@ -630,9 +629,9 @@ export default function AdminProductsPage() {
                     <button
                       key={page}
                       onClick={() => goToPage(page)}
-                      className={`px-3 py-1 border rounded text-sm flex-shrink-0 ${currentPage === page
-                        ? "bg-black text-white"
-                        : "hover:bg-gray-200"
+                      className={`px-3 py-1 border rounded text-sm flex-shrink-0 transition-all ${currentPage === page
+                        ? "bg-soil text-white shadow-md"
+                        : "bg-white/40 hover:bg-white/60 border-soil/10"
                         }`}
                     >
                       {page}
@@ -655,8 +654,8 @@ export default function AdminProductsPage() {
       {/* Edit Modal */}
       {
         editingId && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="bg-white rounded-2xl shadow-lg w-full max-w-2xl p-6">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-soil/20 backdrop-blur-md p-4">
+            <div className="bg-[#EFE5D8] rounded-2xl shadow-xl w-full max-w-2xl p-6 border border-soil/10">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold">Edit Product</h3>
                 <button

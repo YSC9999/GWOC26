@@ -476,7 +476,7 @@ export default function WorkshopPage() {
       </div>
 
       {/* TABS */}
-      <div className="flex overflow-x-auto gap-2 mb-8 border-b border-gray-200 no-scrollbar pb-1">
+      <div className="flex overflow-x-auto gap-2 mb-8 border-b border-soil/10 no-scrollbar pb-1">
         <button
           onClick={() => setActiveTab("workshops")}
           className={`pb-4 px-3 font-medium transition-colors whitespace-nowrap text-sm ${activeTab === "workshops"
@@ -642,7 +642,7 @@ export default function WorkshopPage() {
                 onChange={(e) => setForm({ ...form, price: e.target.value })}
                 placeholder="Price"
                 required
-                className="border p-2 rounded text-base md:text-sm"
+                className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil shadow-sm placeholder:text-soil/30"
               />
               <input
                 type="number"
@@ -652,7 +652,7 @@ export default function WorkshopPage() {
                 }
                 placeholder="Max Participants"
                 required
-                className="border p-2 rounded text-base md:text-sm"
+                className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil shadow-sm placeholder:text-soil/30"
               />
               <DatePicker
                 value={form.date}
@@ -665,7 +665,7 @@ export default function WorkshopPage() {
                 onChange={(e) => setForm({ ...form, time: e.target.value })}
                 placeholder="10:00 AM - 1:00 PM"
                 required
-                className="border p-2 rounded text-base md:text-sm"
+                className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil shadow-sm placeholder:text-soil/30"
               />
             </div>
 
@@ -699,7 +699,7 @@ export default function WorkshopPage() {
                   />
                 </div>
                 {openDropdown === "add-location" && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded shadow-lg z-50">
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white/10 backdrop-blur-xl border border-soil/10 rounded-2xl shadow-2xl z-50">
                     {WORKSHOP_LOCATIONS.map((loc) => (
                       <div
                         key={loc.id}
@@ -719,13 +719,13 @@ export default function WorkshopPage() {
                 value={form.address}
                 onChange={(e) => setForm({ ...form, address: e.target.value })}
                 placeholder="Address (optional)"
-                className="border p-2 rounded text-base md:text-sm"
+                className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil shadow-sm placeholder:text-soil/30"
               />
               <input
                 value={form.includes}
                 onChange={(e) => setForm({ ...form, includes: e.target.value })}
                 placeholder="Includes (comma separated)"
-                className="border p-2 rounded text-base md:text-sm"
+                className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil shadow-sm placeholder:text-soil/30"
               />
             </div>
 
