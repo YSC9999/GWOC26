@@ -8,12 +8,21 @@ export async function POST(req: Request) {
         await connectDB();
 
         const body = await req.json();
-        const { name, email, phone, subject, message } = body;
+        const { name, email, phone, companyName, companyWebsite, subject, message } = body;
 
         // Validate required fields
-        if (!name || !email || !subject || !message) {
+        if (!name || !email || !phone || !subject || !message) {
             return NextResponse.json(
-                { error: "Name, email, subject and message are required" },
+                { error: "Name, email, phone, subject and message are required" },
+                { status: 400 }
+            );
+        }
+
+        // Company name is required for Corporate Inquiry and Collaboration
+        const requiresCompanyName = subject === "Corporate Inquiry" || subject === "Collaboration";
+        if (requiresCompanyName && !companyName) {
+            return NextResponse.json(
+                { error: "Company name is required for corporate inquiries and collaborations" },
                 { status: 400 }
             );
         }
@@ -29,6 +38,8 @@ export async function POST(req: Request) {
             name,
             email,
             phone,
+            companyName: companyName || "",
+            companyWebsite,
             subject,
             message,
             status: "new"
