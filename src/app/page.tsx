@@ -429,23 +429,39 @@ export default function Home() {
                 </p>
               </div>
               <div className="flex flex-wrap gap-4 pt-4 justify-center">
-                <div className="bg-sand/50 px-6 py-3 rounded-2xl border border-soil/10 text-center">
+                <div className="bg-sand/70 px-6 py-3 rounded-2xl border border-soil/60 text-center">
                   <span className="text-2xl">🎋</span>
-                  <p className="text-sm text-soil/70 mt-1">Wabi-Sabi</p>
+                  <p className="text-sm text-soil/90 mt-1">Wabi-Sabi</p>
                 </div>
-                <div className="bg-sand/50 px-6 py-3 rounded-2xl border border-soil/10 text-center">
+                <div className="bg-sand/70 px-6 py-3 rounded-2xl border border-soil/60 text-center">
                   <span className="text-2xl">🍃</span>
-                  <p className="text-sm text-soil/70 mt-1">Naturalism</p>
+                  <p className="text-sm text-soil/90 mt-1">Naturalism</p>
                 </div>
-                <div className="bg-sand/50 px-6 py-3 rounded-2xl border border-soil/10 text-center">
+                <div className="bg-sand/70 px-6 py-3 rounded-2xl border border-soil/60 text-center">
                   <span className="text-2xl">🧘</span>
-                  <p className="text-sm text-soil/70 mt-1">Mindfulness</p>
+                  <p className="text-sm text-soil/90 mt-1">Mindfulness</p>
                 </div>
               </div>
             </motion.div>
           </div>
         </div>
       </motion.section>
+
+      {/* Quote */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+        className="mt-16 text-center bg-soil/100 rounded-3xl p-8 border border-clay/70"
+      >
+        <Quote className="w-12 h-12 text-clay/50 mx-auto mb-4" />
+        <p className="text-lg sm:text-xl md:text-2xl italic font-serif text-white/90 max-w-3xl mx-auto">
+          "Do not seek to follow in the footsteps of the wise; seek what they
+          sought."
+        </p>
+        <p className="text-clay mt-4 font-medium">— Matsuo Bashō</p>
+      </motion.div>
+      <br />
       {/* Three Pillars of Our Craft */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Pillar 1: Japanese Inspiration */}
@@ -453,7 +469,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="bg-[#F5EDE4] rounded-3xl p-8 hover:shadow-2xl hover:shadow-black/20 transition-all group"
+          className="bg-[#F5EDE4] rounded-3xl p-8 hover:shadow-2xl hover:shadow-black/20 transition-all group border-2 border-clay/70"
         >
           <div className="w-16 h-16 bg-[#2b1b14] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
             <span className="text-3xl">🏯</span>
@@ -486,7 +502,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="bg-[#F5EDE4] rounded-3xl p-8 hover:shadow-2xl hover:shadow-black/20 transition-all group"
+          className="bg-[#F5EDE4] rounded-3xl p-8 hover:shadow-2xl hover:shadow-black/20 transition-all group border-2 border-clay/70"
         >
           <div className="w-16 h-16 bg-[#2b1b14] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
             <span className="text-3xl">🤲</span>
@@ -518,7 +534,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="bg-[#F5EDE4] rounded-3xl p-8 hover:shadow-2xl hover:shadow-black/20 transition-all group"
+          className="bg-[#F5EDE4] rounded-3xl p-8 hover:shadow-2xl hover:shadow-black/20 transition-all group border-2 border-clay/70"
         >
           <div className="w-16 h-16 bg-[#2b1b14] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
             <span className="text-3xl">✨</span>
@@ -543,26 +559,8 @@ export default function Home() {
           </ul>
         </motion.div>
       </div>
-      <motion.section
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        className="py-16 bg-gradient-to-br from-[#2b1b14] to-[#4a3428] text-white relative overflow-hidden"
-      >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="mt-16 text-center bg-white/5 rounded-3xl p-8 border border-white/10"
-        >
-          <Quote className="w-12 h-12 text-clay/50 mx-auto mb-4" />
-          <p className="text-lg sm:text-xl md:text-2xl italic font-serif text-white/90 max-w-3xl mx-auto">
-            "Do not seek to follow in the footsteps of the wise; seek what they
-            sought."
-          </p>
-          <p className="text-clay mt-4 font-medium">— Matsuo Bashō</p>
-        </motion.div>
-      </motion.section>
+      <br />
+      <br />
       {/* Know More About Basho */}
       <motion.section
         initial={{ opacity: 0 }}
