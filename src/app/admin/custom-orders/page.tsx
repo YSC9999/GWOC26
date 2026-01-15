@@ -271,7 +271,7 @@ export default function AdminCustomOrdersPage() {
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 text-base md:text-sm"
                   rows={4}
                   required
                 />

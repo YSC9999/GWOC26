@@ -220,7 +220,7 @@ export default function AdminFramesPage() {
                                                 placeholder="Search product..."
                                                 value={searchQuery}
                                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                                className="w-full p-2 outline-none text-sm"
+                                                className="w-full p-2 outline-none text-base md:text-sm"
                                             />
                                             <button onClick={() => setActiveFrameId(null)} className="p-2 text-gray-400 hover:text-gray-600">
                                                 <X size={16} />

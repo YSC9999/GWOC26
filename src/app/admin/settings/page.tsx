@@ -171,7 +171,7 @@ export default function AdminSettings() {
                     {/* Shipping Mode */}
                     <div className="bg-sand/10 p-6 rounded-xl border border-soil/10">
                         <label className="block font-bold text-soil mb-4">Shipping Calculation Mode</label>
-                        <div className="flex gap-4">
+                        <div className="flex flex-col md:flex-row gap-4">
                             <label className={`flex-1 p-4 rounded-xl border-2 cursor-pointer transition-all ${settings.shippingMode === 'weight' ? 'border-clay bg-white shadow-md' : 'border-dashed border-soil/20 hover:bg-white/50'}`}>
                                 <div className="flex items-center gap-3">
                                     <input
@@ -211,7 +211,7 @@ export default function AdminSettings() {
                                     type="number"
                                     value={settings.pincodeRateDefault}
                                     onChange={(e) => setSettings({ ...settings, pincodeRateDefault: parseFloat(e.target.value) || 0 })}
-                                    className="w-full p-2 rounded-lg border border-soil/20 focus:outline-none focus:border-clay"
+                                    className="w-full p-2 rounded-lg border border-soil/20 focus:outline-none focus:border-clay text-base md:text-sm"
                                 />
                             </div>
                         )}
@@ -229,7 +229,7 @@ export default function AdminSettings() {
                                 type="number"
                                 value={settings.freeShippingThreshold}
                                 onChange={(e) => setSettings({ ...settings, freeShippingThreshold: parseFloat(e.target.value) || 0 })}
-                                className="w-full pl-8 pr-4 py-3 rounded-lg border border-soil/20 focus:outline-none focus:border-clay font-bold text-lg"
+                                className="w-full pl-8 pr-4 py-3 rounded-lg border border-soil/20 focus:outline-none focus:border-clay font-bold text-lg text-base"
                                 placeholder="0"
                             />
                         </div>
@@ -262,7 +262,7 @@ export default function AdminSettings() {
                 </p>
 
                 {/* Existing Rates Table */}
-                <div className="overflow-hidden rounded-xl border border-soil/10 mb-8">
+                <div className="overflow-x-auto rounded-xl border border-soil/10 mb-8">
                     <table className="w-full text-left text-sm">
                         <thead className="bg-sand/30 text-soil font-semibold">
                             <tr>
@@ -312,7 +312,7 @@ export default function AdminSettings() {
                                 required
                                 value={newRate.minWeight}
                                 onChange={e => setNewRate({ ...newRate, minWeight: e.target.value })}
-                                className="w-full p-2 rounded-lg border border-soil/20 focus:outline-none focus:border-clay"
+                                className="w-full p-2 rounded-lg border border-soil/20 focus:outline-none focus:border-clay text-base md:text-sm"
                                 placeholder="0.0"
                             />
                         </div>
@@ -324,7 +324,7 @@ export default function AdminSettings() {
                                 required
                                 value={newRate.maxWeight}
                                 onChange={e => setNewRate({ ...newRate, maxWeight: e.target.value })}
-                                className="w-full p-2 rounded-lg border border-soil/20 focus:outline-none focus:border-clay"
+                                className="w-full p-2 rounded-lg border border-soil/20 focus:outline-none focus:border-clay text-base md:text-sm"
                                 placeholder="2.0"
                             />
                         </div>
@@ -335,7 +335,7 @@ export default function AdminSettings() {
                                 required
                                 value={newRate.rate}
                                 onChange={e => setNewRate({ ...newRate, rate: e.target.value })}
-                                className="w-full p-2 rounded-lg border border-soil/20 focus:outline-none focus:border-clay"
+                                className="w-full p-2 rounded-lg border border-soil/20 focus:outline-none focus:border-clay text-base md:text-sm"
                                 placeholder="100"
                             />
                         </div>

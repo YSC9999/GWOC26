@@ -123,10 +123,12 @@ export default function AdminOrdersPage() {
   const selectedOrder = orders.find(o => o._id === selectedOrderId);
 
   return (
-    <div className="min-h-screen py-12">
-      <div className="flex items-center gap-4 mb-8">
-        <Link href="/admin" className="text-soil/60 hover:text-clay">← Admin Home</Link>
-        <h1 className="text-3xl font-bold text-soil font-serif">Orders</h1>
+    <div className="min-h-screen py-8 md:py-12 px-4 md:px-0">
+      <div className="flex flex-col gap-4 mb-8">
+        <div className="flex items-center gap-4">
+          <Link href="/admin" className="text-soil/40 hover:text-soil transition-colors font-medium shrink-0">← Admin</Link>
+          <h1 className="text-2xl md:text-3xl font-bold text-soil font-serif break-words">Orders</h1>
+        </div>
       </div>
 
       {orders.length === 0 ? (
@@ -152,7 +154,23 @@ export default function AdminOrdersPage() {
                       <div className="p-2 bg-slate-50 text-slate-400 rounded-full group-hover:bg-slate-100 group-hover:text-slate-600 transition-colors">
                         <span className="text-xs">👁️</span>
                       </div>
-                      <div className="font-bold text-soil text-lg group-hover:text-clay transition-colors">{order.orderNumber}</div>
+                      <div className="flex-1 min-w-0"> {/* min-w-0 required for text truncation/wrap in flex child */}
+                        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-2">
+                          <span className="font-bold text-lg text-soil break-all">
+                            {order.orderNumber}
+                          </span>
+                          <span className="text-xs text-soil/50 bg-sand/30 px-2 py-1 rounded-full w-fit">
+                            {new Date(order.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="text-sm text-soil/70 break-words">
+                          {typeof order.userId === 'object' ? order.userId?.name : 'Guest User'}
+                          {order.email && <span className="text-soil/40 ml-2 text-xs break-all hidden sm:inline">({order.email})</span>}
+                        </div>
+                        <div className="text-sm text-soil/70 mt-1 sm:hidden break-all text-xs">
+                          {order.email}
+                        </div>
+                      </div>
                       {isCustomOrder && (
                         <span className="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full font-bold">
                           Custom

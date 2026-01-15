@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import UploadInput from "@/components/UploadInput";
 import {
@@ -98,6 +98,10 @@ export default function WorkshopPage() {
 
   // --- Workshop State ---
   const [workshops, setWorkshops] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -150,6 +154,21 @@ export default function WorkshopPage() {
   // Load data
   useEffect(() => {
     fetchWorkshops();
+    fetchCategories();
+  }, []);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setOpenDropdown(null);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Fetch specialized data on tab change to avoid unnecessary calls
@@ -164,8 +183,64 @@ export default function WorkshopPage() {
   const fetchWorkshops = () => {
     fetch("/api/admin/workshops")
       .then((res) => res.json())
-      .then(setWorkshops)
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setWorkshops(data);
+        } else {
+          setWorkshops([]);
+        }
+      })
       .catch(() => setError("Failed to load workshops"));
+  };
+
+  const fetchCategories = () => {
+    fetch("/api/admin/workshop-categories")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setCategories(data);
+      })
+      .catch((err) => console.error("Failed to load categories", err));
+  };
+
+  const createCategory = async (name: string) => {
+    try {
+      const res = await fetch("/api/admin/workshop-categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setCategories((prev) => [...prev, data]);
+        return data; // Return the new category
+      } else {
+        alert(data.error || "Failed to create category");
+        return null;
+      }
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  };
+
+  const handleDeleteCategory = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this category?")) return;
+
+    try {
+      const res = await fetch("/api/admin/workshop-categories", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) {
+        setCategories((prev) => prev.filter((c) => c._id !== id));
+      } else {
+        alert("Failed to delete category");
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const fetchInquiries = async () => {
@@ -399,31 +474,28 @@ export default function WorkshopPage() {
       <div className="flex gap-4 mb-8 border-b border-gray-200">
         <button
           onClick={() => setActiveTab("workshops")}
-          className={`pb-4 px-4 font-medium transition-colors ${
-            activeTab === "workshops"
-              ? "border-b-2 border-clay text-clay"
-              : "text-soil/60 hover:text-soil"
-          }`}
+          className={`pb-4 px-4 font-medium transition-colors ${activeTab === "workshops"
+            ? "border-b-2 border-clay text-clay"
+            : "text-soil/60 hover:text-soil"
+            }`}
         >
           Manage Workshops
         </button>
         <button
           onClick={() => setActiveTab("inquiries")}
-          className={`pb-4 px-4 font-medium transition-colors ${
-            activeTab === "inquiries"
-              ? "border-b-2 border-clay text-clay"
-              : "text-soil/60 hover:text-soil"
-          }`}
+          className={`pb-4 px-4 font-medium transition-colors ${activeTab === "inquiries"
+            ? "border-b-2 border-clay text-clay"
+            : "text-soil/60 hover:text-soil"
+            }`}
         >
           Custom Inquiries
         </button>
         <button
           onClick={() => setActiveTab("previous")}
-          className={`pb-4 px-4 font-medium transition-colors ${
-            activeTab === "previous"
-              ? "border-b-2 border-clay text-clay"
-              : "text-soil/60 hover:text-soil"
-          }`}
+          className={`pb-4 px-4 font-medium transition-colors ${activeTab === "previous"
+            ? "border-b-2 border-clay text-clay"
+            : "text-soil/60 hover:text-soil"
+            }`}
         >
           Previous Workshops
         </button>
@@ -447,7 +519,7 @@ export default function WorkshopPage() {
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
                 placeholder="Title"
                 required
-                className="border p-2 rounded"
+                className="border p-2 rounded text-base md:text-sm"
               />
               <input
                 value={form.description}
@@ -456,30 +528,106 @@ export default function WorkshopPage() {
                 }
                 placeholder="Description"
                 required
-                className="border p-2 rounded"
+                className="border p-2 rounded text-base md:text-sm"
               />
-              <select
-                value={form.type}
-                onChange={(e) => setForm({ ...form, type: e.target.value })}
-                className="border p-2 rounded"
-              >
-                {WORKSHOP_TYPES.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={form.level}
-                onChange={(e) => setForm({ ...form, level: e.target.value })}
-                className="border p-2 rounded"
-              >
-                {WORKSHOP_LEVELS.map((l) => (
-                  <option key={l.id} value={l.id}>
-                    {l.label}
-                  </option>
-                ))}
-              </select>
+              {/* CUSTOM TYPE DROPDOWN */}
+              <div className="relative" ref={dropdownRef}>
+                <div
+                  className="border p-2 rounded cursor-pointer flex justify-between items-center bg-white"
+                  onClick={() =>
+                    setOpenDropdown(
+                      openDropdown === "add-type" ? null : "add-type"
+                    )
+                  }
+                >
+                  <span className="capitalize text-gray-700">
+                    {categories.find((c) => c.slug === form.type)?.name ||
+                      WORKSHOP_TYPES.find((t) => t.id === form.type)?.label ||
+                      "Select Type"}
+                  </span>
+                  <ChevronRight
+                    size={16}
+                    className={`transition-transform duration-200 ${openDropdown === "add-type" ? "rotate-90" : ""
+                      }`}
+                  />
+                </div>
+                {openDropdown === "add-type" && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded shadow-lg z-50 max-h-60 overflow-y-auto">
+                    {categories.map((cat) => (
+                      <div
+                        key={cat._id}
+                        className="p-2 hover:bg-gray-100 cursor-pointer flex justify-between items-center group"
+                        onClick={() => {
+                          setForm({ ...form, type: cat.slug });
+                          setOpenDropdown(null);
+                        }}
+                      >
+                        <span className="capitalize">{cat.name}</span>
+                        <button
+                          onClick={(e) => handleDeleteCategory(cat._id, e)}
+                          className="text-red-500 hover:text-red-700 p-1 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                    <div
+                      className="p-2 border-t text-blue-600 hover:bg-blue-50 cursor-pointer flex items-center gap-2 font-medium"
+                      onClick={() => {
+                        const newCat = prompt("Enter new category name:");
+                        if (newCat) {
+                          createCategory(newCat).then((cat) => {
+                            if (cat) {
+                              setForm({ ...form, type: cat.slug });
+                              setOpenDropdown(null);
+                            }
+                          });
+                        }
+                      }}
+                    >
+                      <Plus size={14} /> Add New Category
+                    </div>
+                  </div>
+                )}
+              </div>
+              {/* CUSTOM LEVEL DROPDOWN */}
+              <div className="relative">
+                <div
+                  className="border p-2 rounded cursor-pointer flex justify-between items-center bg-white"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenDropdown(
+                      openDropdown === "add-level" ? null : "add-level"
+                    );
+                  }}
+                >
+                  <span className="text-gray-700">
+                    {WORKSHOP_LEVELS.find((l) => l.id === form.level)?.label ||
+                      "Select Level"}
+                  </span>
+                  <ChevronRight
+                    size={16}
+                    className={`transition-transform duration-200 ${openDropdown === "add-level" ? "rotate-90" : ""
+                      }`}
+                  />
+                </div>
+                {openDropdown === "add-level" && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded shadow-lg z-50">
+                    {WORKSHOP_LEVELS.map((level) => (
+                      <div
+                        key={level.id}
+                        className="p-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => {
+                          setForm({ ...form, level: level.id });
+                          setOpenDropdown(null);
+                        }}
+                      >
+                        {level.label}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -489,7 +637,7 @@ export default function WorkshopPage() {
                 onChange={(e) => setForm({ ...form, price: e.target.value })}
                 placeholder="Price"
                 required
-                className="border p-2 rounded"
+                className="border p-2 rounded text-base md:text-sm"
               />
               <input
                 type="number"
@@ -499,21 +647,21 @@ export default function WorkshopPage() {
                 }
                 placeholder="Max Participants"
                 required
-                className="border p-2 rounded"
+                className="border p-2 rounded text-base md:text-sm"
               />
               <input
                 type="date"
                 value={form.date}
                 onChange={(e) => setForm({ ...form, date: e.target.value })}
                 required
-                className="border p-2 rounded"
+                className="border p-2 rounded text-base md:text-sm"
               />
               <input
                 value={form.time}
                 onChange={(e) => setForm({ ...form, time: e.target.value })}
                 placeholder="10:00 AM - 1:00 PM"
                 required
-                className="border p-2 rounded"
+                className="border p-2 rounded text-base md:text-sm"
               />
             </div>
 
@@ -523,30 +671,57 @@ export default function WorkshopPage() {
                 onChange={(e) => setForm({ ...form, duration: e.target.value })}
                 placeholder="3 hours"
                 required
-                className="border p-2 rounded"
+                className="border p-2 rounded text-base md:text-sm w-full"
               />
-              <select
-                value={form.location}
-                onChange={(e) => setForm({ ...form, location: e.target.value })}
-                className="border p-2 rounded"
-              >
-                {WORKSHOP_LOCATIONS.map((l) => (
-                  <option key={l.id} value={l.id}>
-                    {l.label}
-                  </option>
-                ))}
-              </select>
+              {/* CUSTOM LOCATION DROPDOWN */}
+              <div className="relative w-full">
+                <div
+                  className="border p-2 rounded cursor-pointer flex justify-between items-center bg-white text-base md:text-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenDropdown(
+                      openDropdown === "add-location" ? null : "add-location"
+                    );
+                  }}
+                >
+                  <span className="text-gray-700">
+                    {WORKSHOP_LOCATIONS.find((l) => l.id === form.location)
+                      ?.label || "Select Location"}
+                  </span>
+                  <ChevronRight
+                    size={16}
+                    className={`transition-transform duration-200 ${openDropdown === "add-location" ? "rotate-90" : ""
+                      }`}
+                  />
+                </div>
+                {openDropdown === "add-location" && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded shadow-lg z-50">
+                    {WORKSHOP_LOCATIONS.map((loc) => (
+                      <div
+                        key={loc.id}
+                        className="p-2 hover:bg-gray-100 cursor-pointer text-base md:text-sm"
+                        onClick={() => {
+                          setForm({ ...form, location: loc.id });
+                          setOpenDropdown(null);
+                        }}
+                      >
+                        {loc.label}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <input
                 value={form.address}
                 onChange={(e) => setForm({ ...form, address: e.target.value })}
                 placeholder="Address (optional)"
-                className="border p-2 rounded"
+                className="border p-2 rounded text-base md:text-sm"
               />
               <input
                 value={form.includes}
                 onChange={(e) => setForm({ ...form, includes: e.target.value })}
                 placeholder="Includes (comma separated)"
-                className="border p-2 rounded"
+                className="border p-2 rounded text-base md:text-sm"
               />
             </div>
 
@@ -655,7 +830,8 @@ export default function WorkshopPage() {
                         {w.title}
                       </td>
                       <td className="p-3 align-middle text-sm text-soil/70 capitalize">
-                        {WORKSHOP_TYPES.find((t) => t.id === w.type)?.label ||
+                        {categories.find((c) => c.slug === w.type)?.name ||
+                          WORKSHOP_TYPES.find((t) => t.id === w.type)?.label ||
                           w.type}
                       </td>
                       <td className="p-3 align-middle text-sm text-soil/70">
@@ -669,15 +845,14 @@ export default function WorkshopPage() {
                       </td>
                       <td className="p-3 align-middle">
                         <span
-                          className={`text-xs px-2 py-1 rounded-full font-medium ${
-                            w.status === "upcoming"
-                              ? "bg-green-100 text-green-700"
-                              : w.status === "full"
+                          className={`text-xs px-2 py-1 rounded-full font-medium ${w.status === "upcoming"
+                            ? "bg-green-100 text-green-700"
+                            : w.status === "full"
                               ? "bg-orange-100 text-orange-700"
                               : w.status === "completed"
-                              ? "bg-gray-100 text-gray-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
+                                ? "bg-gray-100 text-gray-700"
+                                : "bg-red-100 text-red-700"
+                            }`}
                         >
                           {w.status}
                         </span>
@@ -729,8 +904,8 @@ export default function WorkshopPage() {
 
             {/* Pagination Controls */}
             {filteredWorkshops.length > 0 && (
-              <div className="bg-gray-50 p-3 border-t flex items-center justify-between">
-                <div className="text-sm text-soil/60">
+              <div className="bg-gray-50 p-4 border-t flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="text-sm text-soil/60 text-center md:text-left">
                   Showing <span className="font-medium">{startIndex + 1}</span>{" "}
                   to{" "}
                   <span className="font-medium">
@@ -745,7 +920,7 @@ export default function WorkshopPage() {
                   </span>{" "}
                   results
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap justify-center gap-2">
                   <button
                     onClick={() => goToPage(currentPage - 1)}
                     disabled={currentPage === 1}
@@ -753,21 +928,22 @@ export default function WorkshopPage() {
                   >
                     Previous
                   </button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (page) => (
-                      <button
-                        key={page}
-                        onClick={() => goToPage(page)}
-                        className={`px-3 py-1 border rounded text-sm ${
-                          currentPage === page
+                  <div className="flex gap-1 overflow-x-auto max-w-[200px] md:max-w-none no-scrollbar">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (page) => (
+                        <button
+                          key={page}
+                          onClick={() => goToPage(page)}
+                          className={`px-3 py-1 border rounded text-sm flex-shrink-0 ${currentPage === page
                             ? "bg-black text-white"
                             : "hover:bg-gray-200"
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    )
-                  )}
+                            }`}
+                        >
+                          {page}
+                        </button>
+                      )
+                    )}
+                  </div>
                   <button
                     onClick={() => goToPage(currentPage + 1)}
                     disabled={currentPage === totalPages}
@@ -994,31 +1170,106 @@ export default function WorkshopPage() {
               </div>
               <div>
                 <label className="block text-sm text-soil mb-1">Type</label>
-                <select
-                  value={form.type}
-                  onChange={(e) => setForm({ ...form, type: e.target.value })}
-                  className="border p-2 w-full rounded"
-                >
-                  {WORKSHOP_TYPES.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <div
+                    className="border p-2 w-full rounded cursor-pointer flex justify-between items-center bg-white"
+                    onClick={() =>
+                      setOpenDropdown(
+                        openDropdown === "edit-type" ? null : "edit-type"
+                      )
+                    }
+                  >
+                    <span className="capitalize text-gray-700">
+                      {categories.find((c) => c.slug === form.type)?.name ||
+                        WORKSHOP_TYPES.find((t) => t.id === form.type)?.label ||
+                        form.type}
+                    </span>
+                    <ChevronRight
+                      size={16}
+                      className={`transition-transform duration-200 ${openDropdown === "edit-type" ? "rotate-90" : ""
+                        }`}
+                    />
+                  </div>
+                  {openDropdown === "edit-type" && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded shadow-lg z-50 max-h-60 overflow-y-auto">
+                      {categories.map((cat) => (
+                        <div
+                          key={cat._id}
+                          className="p-2 hover:bg-gray-100 cursor-pointer flex justify-between items-center group"
+                          onClick={() => {
+                            setForm({ ...form, type: cat.slug });
+                            setOpenDropdown(null);
+                          }}
+                        >
+                          <span className="capitalize">{cat.name}</span>
+                          <button
+                            onClick={(e) => handleDeleteCategory(cat._id, e)}
+                            className="text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
+                      <div
+                        className="p-2 border-t text-blue-600 hover:bg-blue-50 cursor-pointer flex items-center gap-2 font-medium"
+                        onClick={() => {
+                          const newCat = prompt("Enter new category name:");
+                          if (newCat) {
+                            createCategory(newCat).then((cat) => {
+                              if (cat) {
+                                setForm({ ...form, type: cat.slug });
+                                setOpenDropdown(null);
+                              }
+                            });
+                          }
+                        }}
+                      >
+                        <Plus size={14} /> Add New Category
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
               <div>
                 <label className="block text-sm text-soil mb-1">Level</label>
-                <select
-                  value={form.level}
-                  onChange={(e) => setForm({ ...form, level: e.target.value })}
-                  className="border p-2 w-full rounded"
-                >
-                  {WORKSHOP_LEVELS.map((l) => (
-                    <option key={l.id} value={l.id}>
-                      {l.label}
-                    </option>
-                  ))}
-                </select>
+                {/* CUSTOM LEVEL DROPDOWN (EDIT) */}
+                <div className="relative">
+                  <div
+                    className="border p-2 w-full rounded cursor-pointer flex justify-between items-center bg-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenDropdown(
+                        openDropdown === "edit-level" ? null : "edit-level"
+                      );
+                    }}
+                  >
+                    <span className="text-gray-700">
+                      {WORKSHOP_LEVELS.find((l) => l.id === form.level)
+                        ?.label || form.level}
+                    </span>
+                    <ChevronRight
+                      size={16}
+                      className={`transition-transform duration-200 ${openDropdown === "edit-level" ? "rotate-90" : ""
+                        }`}
+                    />
+                  </div>
+                  {openDropdown === "edit-level" && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded shadow-lg z-50">
+                      {WORKSHOP_LEVELS.map((level) => (
+                        <div
+                          key={level.id}
+                          className="p-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => {
+                            setForm({ ...form, level: level.id });
+                            setOpenDropdown(null);
+                          }}
+                        >
+                          {level.label}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
               <div>
                 <label className="block text-sm text-soil mb-1">Price</label>
@@ -1071,19 +1322,46 @@ export default function WorkshopPage() {
               </div>
               <div>
                 <label className="block text-sm text-soil mb-1">Location</label>
-                <select
-                  value={form.location}
-                  onChange={(e) =>
-                    setForm({ ...form, location: e.target.value })
-                  }
-                  className="border p-2 w-full rounded"
-                >
-                  {WORKSHOP_LOCATIONS.map((l) => (
-                    <option key={l.id} value={l.id}>
-                      {l.label}
-                    </option>
-                  ))}
-                </select>
+                {/* CUSTOM LOCATION DROPDOWN (EDIT) */}
+                <div className="relative">
+                  <div
+                    className="border p-2 w-full rounded cursor-pointer flex justify-between items-center bg-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenDropdown(
+                        openDropdown === "edit-location"
+                          ? null
+                          : "edit-location"
+                      );
+                    }}
+                  >
+                    <span className="text-gray-700">
+                      {WORKSHOP_LOCATIONS.find((l) => l.id === form.location)
+                        ?.label || form.location}
+                    </span>
+                    <ChevronRight
+                      size={16}
+                      className={`transition-transform duration-200 ${openDropdown === "edit-location" ? "rotate-90" : ""
+                        }`}
+                    />
+                  </div>
+                  {openDropdown === "edit-location" && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded shadow-lg z-50">
+                      {WORKSHOP_LOCATIONS.map((loc) => (
+                        <div
+                          key={loc.id}
+                          className="p-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => {
+                            setForm({ ...form, location: loc.id });
+                            setOpenDropdown(null);
+                          }}
+                        >
+                          {loc.label}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
               <div>
                 <label className="block text-sm text-soil mb-1">Address</label>
@@ -1097,17 +1375,44 @@ export default function WorkshopPage() {
               </div>
               <div>
                 <label className="block text-sm text-soil mb-1">Status</label>
-                <select
-                  value={form.status}
-                  onChange={(e) => setForm({ ...form, status: e.target.value })}
-                  className="border p-2 w-full rounded"
-                >
-                  {WORKSHOP_STATUSES.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.label}
-                    </option>
-                  ))}
-                </select>
+                {/* CUSTOM STATUS DROPDOWN (EDIT) */}
+                <div className="relative">
+                  <div
+                    className="border p-2 w-full rounded cursor-pointer flex justify-between items-center bg-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenDropdown(
+                        openDropdown === "edit-status" ? null : "edit-status"
+                      );
+                    }}
+                  >
+                    <span className="text-gray-700">
+                      {WORKSHOP_STATUSES.find((s) => s.id === form.status)
+                        ?.label || form.status}
+                    </span>
+                    <ChevronRight
+                      size={16}
+                      className={`transition-transform duration-200 ${openDropdown === "edit-status" ? "rotate-90" : ""
+                        }`}
+                    />
+                  </div>
+                  {openDropdown === "edit-status" && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded shadow-lg z-50">
+                      {WORKSHOP_STATUSES.map((status) => (
+                        <div
+                          key={status.id}
+                          className="p-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => {
+                            setForm({ ...form, status: status.id });
+                            setOpenDropdown(null);
+                          }}
+                        >
+                          {status.label}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm text-soil mb-1">

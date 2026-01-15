@@ -180,7 +180,7 @@ export default function AdminCollections() {
                                     type="text"
                                     value={currentCollection.title}
                                     onChange={(e) => setCurrentCollection({ ...currentCollection, title: e.target.value })}
-                                    className="w-full p-3 border border-soil/20 rounded-lg focus:outline-none focus:border-clay"
+                                    className="w-full p-3 border border-soil/20 rounded-lg focus:outline-none focus:border-clay text-base md:text-sm"
                                     placeholder="e.g. Bestsellers"
                                 />
                             </div>
@@ -190,7 +190,7 @@ export default function AdminCollections() {
                                     type="text"
                                     value={currentCollection.slug}
                                     onChange={(e) => setCurrentCollection({ ...currentCollection, slug: e.target.value })}
-                                    className="w-full p-3 border border-soil/20 rounded-lg focus:outline-none focus:border-clay"
+                                    className="w-full p-3 border border-soil/20 rounded-lg focus:outline-none focus:border-clay text-base md:text-sm"
                                     placeholder="bestsellers"
                                 />
                             </div>
@@ -199,7 +199,7 @@ export default function AdminCollections() {
                                 <textarea
                                     value={currentCollection.description}
                                     onChange={(e) => setCurrentCollection({ ...currentCollection, description: e.target.value })}
-                                    className="w-full p-3 border border-soil/20 rounded-lg focus:outline-none focus:border-clay h-24"
+                                    className="w-full p-3 border border-soil/20 rounded-lg focus:outline-none focus:border-clay h-24 text-base md:text-sm"
                                 />
                             </div>
                             <div className="flex items-center gap-3">
@@ -224,7 +224,7 @@ export default function AdminCollections() {
                                         type="text"
                                         value={searchTerm}
                                         onChange={(e) => searchProducts(e.target.value)}
-                                        className="w-full p-3 bg-transparent focus:outline-none"
+                                        className="w-full p-3 bg-transparent focus:outline-none text-base md:text-sm"
                                         placeholder="Search products directly..."
                                     />
                                 </div>

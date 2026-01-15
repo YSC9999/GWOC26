@@ -174,12 +174,12 @@ export default function AdminUsers() {
             setPage(1);
           }}
           placeholder="Search by name or email"
-          className="input-field px-3 py-2 rounded-md w-full md:w-auto flex-1"
+          className="input-field px-3 py-2 rounded-md w-full md:w-auto flex-1 text-base md:text-sm"
         />
         <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="input-field px-3 py-2 rounded-md w-full md:w-auto"
+          className="input-field px-3 py-2 rounded-md w-full md:w-auto text-base md:text-sm"
         >
           <option value="all">All</option>
           <option value="customer">Customer</option>
@@ -288,7 +288,7 @@ export default function AdminUsers() {
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="input-field w-full px-3 py-2 rounded-md"
+                  className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm"
                 />
               </div>
               <div>
@@ -296,7 +296,7 @@ export default function AdminUsers() {
                 <input
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="input-field w-full px-3 py-2 rounded-md"
+                  className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm"
                 />
               </div>
               <div>
@@ -305,7 +305,7 @@ export default function AdminUsers() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   type="password"
-                  className="input-field w-full px-3 py-2 rounded-md"
+                  className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm"
                 />
               </div>
               <div>
@@ -313,7 +313,7 @@ export default function AdminUsers() {
                 <select
                   value={roleSel}
                   onChange={(e) => setRoleSel(e.target.value)}
-                  className="input-field w-full px-3 py-2 rounded-md"
+                  className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm"
                 >
                   <option value="admin">Admin</option>
                   <option value="customer">Customer</option>
@@ -401,7 +401,7 @@ function EditModal({
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="input-field w-full px-3 py-2 rounded-md"
+              className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm"
             />
           </div>
           <div>
@@ -409,7 +409,7 @@ function EditModal({
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="input-field w-full px-3 py-2 rounded-md"
+              className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm"
             />
           </div>
           <div>
@@ -417,7 +417,7 @@ function EditModal({
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="input-field w-full px-3 py-2 rounded-md"
+              className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm"
             >
               <option value="admin">Admin</option>
               <option value="customer">Customer</option>

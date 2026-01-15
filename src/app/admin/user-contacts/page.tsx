@@ -101,8 +101,8 @@ export default function UserContactsAdmin() {
       </div>
 
       <div className="mb-6 flex flex-col md:flex-row md:items-center gap-3">
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name, email, subject" className="input-field px-3 py-2 rounded-md w-full md:w-auto flex-1" />
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="input-field px-3 py-2 rounded-md w-full md:w-auto">
+        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name, email, subject" className="input-field px-3 py-2 rounded-md w-full md:w-auto flex-1 text-base md:text-sm" />
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="input-field px-3 py-2 rounded-md w-full md:w-auto text-base md:text-sm">
           <option value="all">All</option>
           <option value="new">New</option>
           <option value="read">Read</option>

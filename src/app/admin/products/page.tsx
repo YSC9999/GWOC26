@@ -310,7 +310,7 @@ export default function AdminProductsPage() {
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="Name"
-              className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay"
+              className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay text-base md:text-sm"
               required
             />
             <input
@@ -323,7 +323,7 @@ export default function AdminProductsPage() {
                 })
               }
               placeholder="Price"
-              className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay"
+              className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay text-base md:text-sm"
               required
             />
             <input
@@ -337,7 +337,7 @@ export default function AdminProductsPage() {
                 })
               }
               placeholder="Stock"
-              className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay"
+              className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay text-base md:text-sm"
               required
             />
             <input
@@ -351,7 +351,7 @@ export default function AdminProductsPage() {
                 })
               }
               placeholder="Weight (Optional, default 500g)"
-              className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay"
+              className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay text-base md:text-sm"
               title="Weight in grams (e.g. 500 for 0.5kg)"
             />
           </div>
@@ -430,10 +430,10 @@ export default function AdminProductsPage() {
                       <span>{cat.name}</span>
                       <button
                         onClick={(e) => handleDeleteCategory(cat._id, e)}
-                        className="p-1 hover:bg-red-100 rounded text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="p-1 hover:bg-red-100 rounded text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                         title="Delete Category"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   ))}
@@ -528,8 +528,8 @@ export default function AdminProductsPage() {
                     <td className="p-3 align-top text-sm text-soil/70">
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${p.stockQuantity > 0
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
                           }`}
                       >
                         {p.stockQuantity}
@@ -575,10 +575,9 @@ export default function AdminProductsPage() {
           )}
         </div>
 
-        {/* Pagination Controls */}
         {filteredProducts.length > 0 && (
-          <div className="bg-gray-50 p-3 border-t flex items-center justify-between">
-            <div className="text-sm text-soil/60">
+          <div className="bg-gray-50 p-4 border-t flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-sm text-soil/60 text-center md:text-left">
               Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
               <span className="font-medium">
                 {Math.min(startIndex + itemsPerPage, filteredProducts.length)}
@@ -586,34 +585,36 @@ export default function AdminProductsPage() {
               of <span className="font-medium">{filteredProducts.length}</span>{" "}
               results
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap justify-center gap-2">
               <button
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
                 className="px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 inline-flex items-center gap-1"
               >
-                <ChevronLeft size={16} /> Previous
+                <ChevronLeft size={16} /> <span className="hidden sm:inline">Previous</span>
               </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <button
-                    key={page}
-                    onClick={() => goToPage(page)}
-                    className={`px-3 py-1 border rounded text-sm ${currentPage === page
+              <div className="flex gap-1 overflow-x-auto max-w-[200px] md:max-w-none no-scrollbar">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => goToPage(page)}
+                      className={`px-3 py-1 border rounded text-sm flex-shrink-0 ${currentPage === page
                         ? "bg-black text-white"
                         : "hover:bg-gray-200"
-                      }`}
-                  >
-                    {page}
-                  </button>
-                )
-              )}
+                        }`}
+                    >
+                      {page}
+                    </button>
+                  )
+                )}
+              </div>
               <button
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
                 className="px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 inline-flex items-center gap-1"
               >
-                Next <ChevronRight size={16} />
+                <span className="hidden sm:inline">Next</span> <ChevronRight size={16} />
               </button>
             </div>
           </div>
@@ -621,184 +622,186 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Edit Modal */}
-      {editingId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl shadow-lg w-full max-w-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold">Edit Product</h3>
-              <button
-                onClick={() => setEditingId(null)}
-                className="text-soil/60 hover:text-soil inline-flex items-center gap-1"
-              >
-                <X size={18} /> Close
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm text-soil mb-1">Name</label>
-                <input
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="border p-2 w-full"
-                />
-
-                <label className="block text-sm text-soil mt-3 mb-1">
-                  Price
-                </label>
-                <input
-                  type="number"
-                  value={form.price}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      price:
-                        e.target.value === "" ? "" : Number(e.target.value),
-                    })
-                  }
-                  className="border p-2 w-full"
-                />
-
-                <label className="block text-sm text-soil mt-3 mb-1">
-                  Stock
-                </label>
-                <input
-                  type="number"
-                  value={form.stockQuantity}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      stockQuantity:
-                        e.target.value === "" ? "" : Number(e.target.value),
-                    })
-                  }
-                  className="border p-2 w-full"
-                />
-
-                <label className="block text-sm text-soil mt-3 mb-1">
-                  Weight (grams)
-                </label>
-                <input
-                  type="number"
-                  value={form.weightGrams}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      weightGrams:
-                        e.target.value === "" ? "" : Number(e.target.value),
-                    })
-                  }
-                  className="border p-2 w-full"
-                  placeholder="e.g. 500"
-                />
-
-                <label className="block text-sm text-soil mt-3 mb-1">
-                  Category
-                </label>
-                <div className="space-y-2">
-                  <select
-                    value={
-                      PRODUCT_CATEGORIES.some((c) => c.id === category)
-                        ? category
-                        : "other"
-                    }
-                    onChange={(e) => {
-                      if (e.target.value === "other") {
-                        setCategory(""); // Clear to allow typing, or keep existing if it was already custom?
-                        // Better: if "other", user intends to type.
-                      } else {
-                        setCategory(e.target.value);
-                      }
-                    }}
-                    className="border p-2 w-full"
-                  >
-                    <option value="">Select category</option>
-                    {PRODUCT_CATEGORIES.filter((c) => c.id !== "all").map(
-                      (cat) => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.label}
-                        </option>
-                      )
-                    )}
-                    <option value="other">Other (Add New)</option>
-                  </select>
-
-                  {/* Show input if category is NOT in the predefined list (meaning it's custom or "other" selected) */}
-                  {!PRODUCT_CATEGORIES.some((c) => c.id === category) && (
-                    <input
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      placeholder="Enter custom category"
-                      className="border p-2 w-full"
-                    />
-                  )}
-                </div>
-
-                <label className="block text-sm text-soil mt-3 mb-1">
-                  Short description
-                </label>
-                <input
-                  value={descriptionText}
-                  onChange={(e) => setDescriptionText(e.target.value)}
-                  className="border p-2 w-full"
-                />
+      {
+        editingId && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-white rounded-2xl shadow-lg w-full max-w-2xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold">Edit Product</h3>
+                <button
+                  onClick={() => setEditingId(null)}
+                  className="text-soil/60 hover:text-soil inline-flex items-center gap-1"
+                >
+                  <X size={18} /> Close
+                </button>
               </div>
 
-              <div>
-                <label className="block text-sm text-soil mb-1">Images</label>
-                <div className="flex gap-2 flex-wrap mb-3">
-                  {(form.images || []).map((img, idx) => (
-                    <div key={idx} className="relative">
-                      <img
-                        src={img}
-                        className="w-24 h-24 object-cover rounded"
-                      />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setForm((prev) => ({
-                            ...prev,
-                            images: prev.images.filter((_, i) => i !== idx),
-                          }))
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-soil mb-1">Name</label>
+                  <input
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    className="border p-2 w-full"
+                  />
+
+                  <label className="block text-sm text-soil mt-3 mb-1">
+                    Price
+                  </label>
+                  <input
+                    type="number"
+                    value={form.price}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        price:
+                          e.target.value === "" ? "" : Number(e.target.value),
+                      })
+                    }
+                    className="border p-2 w-full"
+                  />
+
+                  <label className="block text-sm text-soil mt-3 mb-1">
+                    Stock
+                  </label>
+                  <input
+                    type="number"
+                    value={form.stockQuantity}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        stockQuantity:
+                          e.target.value === "" ? "" : Number(e.target.value),
+                      })
+                    }
+                    className="border p-2 w-full"
+                  />
+
+                  <label className="block text-sm text-soil mt-3 mb-1">
+                    Weight (grams)
+                  </label>
+                  <input
+                    type="number"
+                    value={form.weightGrams}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        weightGrams:
+                          e.target.value === "" ? "" : Number(e.target.value),
+                      })
+                    }
+                    className="border p-2 w-full"
+                    placeholder="e.g. 500"
+                  />
+
+                  <label className="block text-sm text-soil mt-3 mb-1">
+                    Category
+                  </label>
+                  <div className="space-y-2">
+                    <select
+                      value={
+                        PRODUCT_CATEGORIES.some((c) => c.id === category)
+                          ? category
+                          : "other"
+                      }
+                      onChange={(e) => {
+                        if (e.target.value === "other") {
+                          setCategory(""); // Clear to allow typing, or keep existing if it was already custom?
+                          // Better: if "other", user intends to type.
+                        } else {
+                          setCategory(e.target.value);
                         }
-                        className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 text-xs"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
+                      }}
+                      className="border p-2 w-full"
+                    >
+                      <option value="">Select category</option>
+                      {PRODUCT_CATEGORIES.filter((c) => c.id !== "all").map(
+                        (cat) => (
+                          <option key={cat.id} value={cat.id}>
+                            {cat.label}
+                          </option>
+                        )
+                      )}
+                      <option value="other">Other (Add New)</option>
+                    </select>
+
+                    {/* Show input if category is NOT in the predefined list (meaning it's custom or "other" selected) */}
+                    {!PRODUCT_CATEGORIES.some((c) => c.id === category) && (
+                      <input
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        placeholder="Enter custom category"
+                        className="border p-2 w-full"
+                      />
+                    )}
+                  </div>
+
+                  <label className="block text-sm text-soil mt-3 mb-1">
+                    Short description
+                  </label>
+                  <input
+                    value={descriptionText}
+                    onChange={(e) => setDescriptionText(e.target.value)}
+                    className="border p-2 w-full"
+                  />
                 </div>
 
-                <UploadInput
-                  uploadPreset={"products_unsigned"}
-                  folder={"products/"}
-                  onUploaded={(urls) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      images: [...(prev.images || []), ...urls],
-                    }))
-                  }
-                />
+                <div>
+                  <label className="block text-sm text-soil mb-1">Images</label>
+                  <div className="flex gap-2 flex-wrap mb-3">
+                    {(form.images || []).map((img, idx) => (
+                      <div key={idx} className="relative">
+                        <img
+                          src={img}
+                          className="w-24 h-24 object-cover rounded"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setForm((prev) => ({
+                              ...prev,
+                              images: prev.images.filter((_, i) => i !== idx),
+                            }))
+                          }
+                          className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 text-xs"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
 
-                <div className="mt-6 flex gap-3 justify-end">
-                  <button
-                    onClick={() => setEditingId(null)}
-                    className="px-4 py-2 border rounded hover:bg-gray-50 inline-flex items-center gap-2"
-                  >
-                    <X size={16} /> Cancel
-                  </button>
-                  <button
-                    onClick={() => editingId && handleUpdate(editingId)}
-                    className="px-4 py-2 bg-clay text-white rounded hover:bg-clay/90 inline-flex items-center gap-2"
-                  >
-                    <Save size={16} /> Save
-                  </button>
+                  <UploadInput
+                    uploadPreset={"products_unsigned"}
+                    folder={"products/"}
+                    onUploaded={(urls) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        images: [...(prev.images || []), ...urls],
+                      }))
+                    }
+                  />
+
+                  <div className="mt-6 flex gap-3 justify-end">
+                    <button
+                      onClick={() => setEditingId(null)}
+                      className="px-4 py-2 border rounded hover:bg-gray-50 inline-flex items-center gap-2"
+                    >
+                      <X size={16} /> Cancel
+                    </button>
+                    <button
+                      onClick={() => editingId && handleUpdate(editingId)}
+                      className="px-4 py-2 bg-clay text-white rounded hover:bg-clay/90 inline-flex items-center gap-2"
+                    >
+                      <Save size={16} /> Save
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </motion.div>
+        )
+      }
+    </motion.div >
   );
 }

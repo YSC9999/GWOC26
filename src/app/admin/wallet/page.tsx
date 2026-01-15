@@ -105,7 +105,7 @@ export default function AdminWalletPage() {
                                     <input
                                         type="text"
                                         placeholder="Type Name or Email..."
-                                        className="w-full p-3 border border-soil/20 rounded-xl focus:outline-none focus:border-soil pl-10"
+                                        className="w-full p-3 border border-soil/20 rounded-xl focus:outline-none focus:border-soil pl-10 text-base md:text-sm"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
@@ -174,7 +174,7 @@ export default function AdminWalletPage() {
                                     <Users className="text-soil/40" />
                                     <input
                                         type="number"
-                                        className="w-full p-3 border border-soil/20 rounded-xl focus:outline-none focus:border-clay"
+                                        className="w-full p-3 border border-soil/20 rounded-xl focus:outline-none focus:border-clay text-base md:text-sm"
                                         value={randomCount}
                                         onChange={(e) => setRandomCount(e.target.value)}
                                     />
@@ -201,7 +201,7 @@ export default function AdminWalletPage() {
                             <input
                                 type="text"
                                 placeholder="e.g. Gift for being a loyal customer!"
-                                className="w-full p-3 border border-soil/20 rounded-xl focus:outline-none focus:border-soil"
+                                className="w-full p-3 border border-soil/20 rounded-xl focus:outline-none focus:border-soil text-base md:text-sm"
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                             />

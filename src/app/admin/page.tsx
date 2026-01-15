@@ -130,19 +130,19 @@ export default function AdminDashboard() {
         variants={containerVariants}
         className="max-w-7xl mx-auto"
       >
-        <motion.div variants={itemVariants} className="mb-12 text-center">
+        <motion.div variants={itemVariants} className="mb-8 md:mb-12 text-center px-2">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-            className="inline-block text-6xl mb-4"
+            className="inline-block text-4xl md:text-6xl mb-4"
           >
             ⚡
           </motion.div>
-          <h1 className="text-5xl font-serif font-bold bg-gradient-to-r from-soil via-clay to-soil bg-clip-text text-transparent mb-3">
+          <h1 className="text-3xl md:text-5xl font-serif font-bold bg-gradient-to-r from-soil via-clay to-soil bg-clip-text text-transparent mb-3 break-words leading-tight">
             Admin Dashboard
           </h1>
-          <p className="text-soil/60 text-lg">
+          <p className="text-soil/60 text-sm md:text-lg px-4">
             Manage your pottery business with ease
           </p>
         </motion.div>
@@ -160,7 +160,7 @@ export default function AdminDashboard() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
-                  className="group h-full p-8 bg-gradient-to-br from-white to-sand/30 rounded-3xl shadow-lg hover:shadow-2xl hover:shadow-clay/30 border-2 border-white/50 transition-all duration-300 relative overflow-hidden backdrop-blur-sm"
+                  className="group h-full p-5 md:p-8 bg-gradient-to-br from-white to-sand/30 rounded-3xl shadow-lg hover:shadow-2xl hover:shadow-clay/30 border-2 border-white/50 transition-all duration-300 relative overflow-hidden backdrop-blur-sm"
                 >
                   {/* Animated Background Gradient */}
                   <div className="absolute inset-0 bg-gradient-to-br from-clay/0 via-clay/0 to-clay/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

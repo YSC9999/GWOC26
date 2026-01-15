@@ -78,28 +78,36 @@ export default function AnalyticsPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-clay/10 p-6 font-sans text-soil" onClick={() => setTargetMenuOpen(false)}>
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 max-w-7xl mx-auto">
+            {/* Header */}
+            <div className="flex flex-col gap-6 mb-8 max-w-7xl mx-auto">
                 <div className="flex items-center gap-4">
-                    <Link href="/admin" className="text-soil/40 hover:text-soil transition-colors font-medium">← Admin</Link>
-                    <h1 className="text-3xl font-serif font-bold text-soil">Analytics Dashboard</h1>
+                    <Link href="/admin" className="text-soil/40 hover:text-soil transition-colors font-medium shrink-0">← Admin</Link>
+                    <h1 className="text-2xl md:text-3xl font-serif font-bold text-soil break-words leading-tight">Analytics Dashboard</h1>
                 </div>
 
-                <div className="flex w-full md:w-auto items-center justify-between md:justify-end gap-3 bg-white/50 backdrop-blur border border-white/60 p-2 rounded-xl shadow-sm">
-                    <input
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        className="text-xs bg-white border border-soil/10 rounded-lg p-2 focus:ring-0 w-full md:w-auto text-soil/80 focus:border-clay"
-                    />
-                    <span className="text-soil/30">-</span>
-                    <input
-                        type="date"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        className="text-xs bg-white border border-soil/10 rounded-lg p-2 focus:ring-0 w-full md:w-auto text-soil/80 focus:border-clay"
-                    />
-                    <button onClick={fetchAnalytics} className="bg-soil text-white p-2 rounded-lg hover:bg-clay transition-colors shadow-lg shadow-soil/10">
-                        <Filter size={16} />
+                <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 bg-white/50 backdrop-blur border border-white/60 p-4 rounded-xl shadow-sm w-full">
+                    <div className="grid grid-cols-2 gap-3 items-center">
+                        <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-soil/40 text-xs font-bold uppercase pointer-events-none md:hidden">From</span>
+                            <input
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                className="bg-white border border-soil/10 rounded-lg py-2.5 pl-12 pr-3 md:px-3 focus:ring-0 w-full text-soil/80 focus:border-clay text-sm"
+                            />
+                        </div>
+                        <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-soil/40 text-xs font-bold uppercase pointer-events-none md:hidden">To</span>
+                            <input
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                className="bg-white border border-soil/10 rounded-lg py-2.5 pl-8 pr-3 md:px-3 focus:ring-0 w-full text-soil/80 focus:border-clay text-sm"
+                            />
+                        </div>
+                    </div>
+                    <button onClick={fetchAnalytics} className="bg-soil text-white px-6 py-2.5 rounded-lg hover:bg-clay transition-colors shadow-lg shadow-soil/10 w-full h-full flex justify-center items-center gap-2 font-bold uppercase tracking-wider text-xs md:text-sm">
+                        <Filter size={16} /> Filter
                     </button>
                 </div>
             </div>

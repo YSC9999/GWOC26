@@ -426,12 +426,12 @@ function ExhibitModal({ exhibit, onClose, onSuccess }: any) {
                     {/* ... (Basic Info inputs) ... */}
                     <div>
                         <label className="block text-sm font-medium mb-1">Title</label>
-                        <input name="title" required value={formData.title} onChange={handleChange} className="w-full p-2 border rounded-lg" />
+                        <input name="title" required value={formData.title} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium mb-1">Description</label>
-                        <textarea name="description" rows={3} value={formData.description} onChange={handleChange} className="w-full p-2 border rounded-lg" />
+                        <textarea name="description" rows={3} value={formData.description} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
                     </div>
 
                     {/* Image Upload Section */}
@@ -474,34 +474,34 @@ function ExhibitModal({ exhibit, onClose, onSuccess }: any) {
 
                     {/* ... (Rest of Form) ... */}
                     {/* Location */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium mb-1">Venue Name</label>
-                            <input name="venue" required value={formData.venue} onChange={handleChange} className="w-full p-2 border rounded-lg" />
+                            <input name="venue" required value={formData.venue} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium mb-1">City</label>
-                            <input name="city" required value={formData.city} onChange={handleChange} className="w-full p-2 border rounded-lg" />
+                            <input name="city" required value={formData.city} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
                         </div>
                     </div>
                     <div>
                         <label className="block text-sm font-medium mb-1">Full Address</label>
-                        <input name="address" value={formData.address} onChange={handleChange} className="w-full p-2 border rounded-lg" />
+                        <input name="address" value={formData.address} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
                     </div>
 
                     {/* Dates */}
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label className="block text-sm font-medium mb-1">Start Date</label>
-                            <input type="date" name="startDate" required value={formData.startDate} onChange={handleChange} className="w-full p-2 border rounded-lg" />
+                            <input type="date" name="startDate" required value={formData.startDate} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium mb-1">End Date</label>
-                            <input type="date" name="endDate" required value={formData.endDate} onChange={handleChange} className="w-full p-2 border rounded-lg" />
+                            <input type="date" name="endDate" required value={formData.endDate} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium mb-1">Timings</label>
-                            <input name="timings" placeholder="e.g. 10 AM - 6 PM" value={formData.timings} onChange={handleChange} className="w-full p-2 border rounded-lg" />
+                            <input name="timings" placeholder="e.g. 10 AM - 6 PM" value={formData.timings} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
                         </div>
                     </div>
 
@@ -513,7 +513,7 @@ function ExhibitModal({ exhibit, onClose, onSuccess }: any) {
                     {formData.registrationRequired && (
                         <div>
                             <label className="block text-sm font-medium mb-1">Registration Link</label>
-                            <input name="registrationLink" value={formData.registrationLink} onChange={handleChange} className="w-full p-2 border rounded-lg" />
+                            <input name="registrationLink" value={formData.registrationLink} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
                         </div>
                     )}
 

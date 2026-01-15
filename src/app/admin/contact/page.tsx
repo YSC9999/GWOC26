@@ -146,23 +146,23 @@ export default function AdminContact() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Studio name</label>
-                <input value={studio.name || ''} onChange={(e) => handleChange('name', e.target.value)} className="input-field w-full px-3 py-2 rounded-md" />
+                <input value={studio.name || ''} onChange={(e) => handleChange('name', e.target.value)} className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">Tagline</label>
-                <input value={studio.tagline || ''} onChange={(e) => handleChange('tagline', e.target.value)} className="input-field w-full px-3 py-2 rounded-md" />
+                <input value={studio.tagline || ''} onChange={(e) => handleChange('tagline', e.target.value)} className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">About text</label>
-                <textarea value={studio.aboutText || ''} onChange={(e) => handleChange('aboutText', e.target.value)} rows={4} className="input-field w-full px-3 py-2 rounded-md" />
+                <textarea value={studio.aboutText || ''} onChange={(e) => handleChange('aboutText', e.target.value)} rows={4} className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm" />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <input value={studio.phone || ''} onChange={(e) => handleChange('phone', e.target.value)} placeholder="Phone" className="input-field px-3 py-2 rounded-md" />
-                <input value={studio.email || ''} onChange={(e) => handleChange('email', e.target.value)} placeholder="Email" className="input-field px-3 py-2 rounded-md" />
-                <input value={studio.whatsapp || ''} onChange={(e) => handleChange('whatsapp', e.target.value)} placeholder="Whatsapp" className="input-field px-3 py-2 rounded-md" />
+                <input value={studio.phone || ''} onChange={(e) => handleChange('phone', e.target.value)} placeholder="Phone" className="input-field px-3 py-2 rounded-md text-base md:text-sm" />
+                <input value={studio.email || ''} onChange={(e) => handleChange('email', e.target.value)} placeholder="Email" className="input-field px-3 py-2 rounded-md text-base md:text-sm" />
+                <input value={studio.whatsapp || ''} onChange={(e) => handleChange('whatsapp', e.target.value)} placeholder="Whatsapp" className="input-field px-3 py-2 rounded-md text-base md:text-sm" />
               </div>
               <div className="mt-2 flex items-center gap-3">
                 <button onClick={() => saveSection(['phone', 'email', 'whatsapp'], 'contact')} disabled={!!savingSections['contact']} className="text-sm bg-white border px-3 py-1 rounded-md">
@@ -174,11 +174,11 @@ export default function AdminContact() {
 
               <div>
                 <label className="block text-sm font-medium mb-1">Address</label>
-                <input value={studio.address || ''} onChange={(e) => handleChange('address', e.target.value)} className="input-field w-full px-3 py-2 rounded-md" />
+                <input value={studio.address || ''} onChange={(e) => handleChange('address', e.target.value)} className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm" />
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
-                  <input value={studio.city || ''} onChange={(e) => handleChange('city', e.target.value)} placeholder="City" className="input-field px-3 py-2 rounded-md" />
-                  <input value={studio.state || ''} onChange={(e) => handleChange('state', e.target.value)} placeholder="State" className="input-field px-3 py-2 rounded-md" />
-                  <input value={studio.pincode || ''} onChange={(e) => handleChange('pincode', e.target.value)} placeholder="Pincode" className="input-field px-3 py-2 rounded-md" />
+                  <input value={studio.city || ''} onChange={(e) => handleChange('city', e.target.value)} placeholder="City" className="input-field px-3 py-2 rounded-md text-base md:text-sm" />
+                  <input value={studio.state || ''} onChange={(e) => handleChange('state', e.target.value)} placeholder="State" className="input-field px-3 py-2 rounded-md text-base md:text-sm" />
+                  <input value={studio.pincode || ''} onChange={(e) => handleChange('pincode', e.target.value)} placeholder="Pincode" className="input-field px-3 py-2 rounded-md text-base md:text-sm" />
                 </div>
               </div>
 
@@ -188,7 +188,7 @@ export default function AdminContact() {
                   value={studio.mapLink || ''}
                   onChange={(e) => handleChange('mapLink', e.target.value)}
                   placeholder="https://maps.google.com/..."
-                  className="input-field w-full px-3 py-2 rounded-md mb-3"
+                  className="input-field w-full px-3 py-2 rounded-md mb-3 text-base md:text-sm"
                 />
 
                 <label className="block text-sm font-medium mb-1">
@@ -199,7 +199,7 @@ export default function AdminContact() {
                   value={studio.mapUrl || ''}
                   onChange={(e) => handleChange('mapUrl', e.target.value)}
                   placeholder="https://www.google.com/maps/embed?pb=..."
-                  className="input-field w-full px-3 py-2 rounded-md"
+                  className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm"
                 />
               </div>
 
@@ -215,7 +215,7 @@ export default function AdminContact() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
-                    <input key={day} value={(studio.visitingHours as any)?.[day] || ''} onChange={(e) => handleHoursChange(day, e.target.value)} placeholder={day} className="input-field px-3 py-2 rounded-md" />
+                    <input key={day} value={(studio.visitingHours as any)?.[day] || ''} onChange={(e) => handleHoursChange(day, e.target.value)} placeholder={day} className="input-field px-3 py-2 rounded-md text-base md:text-sm" />
                   ))}
                 </div>
                 {errorSections['hours'] && <div className="text-red-600 mt-2">{errorSections['hours']}</div>}
@@ -223,12 +223,12 @@ export default function AdminContact() {
 
               <div>
                 <label className="block text-sm font-medium mb-1">Visit Policy</label>
-                <textarea value={studio.visitPolicy || ''} onChange={(e) => handleChange('visitPolicy', e.target.value)} rows={3} className="input-field w-full px-3 py-2 rounded-md" />
+                <textarea value={studio.visitPolicy || ''} onChange={(e) => handleChange('visitPolicy', e.target.value)} rows={3} className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">Collection Policy</label>
-                <textarea value={studio.collectionPolicy || ''} onChange={(e) => handleChange('collectionPolicy', e.target.value)} rows={3} className="input-field w-full px-3 py-2 rounded-md" />
+                <textarea value={studio.collectionPolicy || ''} onChange={(e) => handleChange('collectionPolicy', e.target.value)} rows={3} className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm" />
               </div>
 
               <div className="mt-2 flex items-center gap-3">

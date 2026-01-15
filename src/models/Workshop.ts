@@ -7,7 +7,6 @@ const WorkshopSchema = new mongoose.Schema({
 
     type: {
         type: String,
-        enum: ['group', 'one-on-one', 'couples', 'corporate'],
         required: true
     },
 

@@ -120,7 +120,7 @@ export default function AdminCouponsPage() {
                                 type="text"
                                 value={formData.code}
                                 onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                                className="w-full px-4 py-2 border rounded-lg uppercase"
+                                className="w-full px-4 py-2 border rounded-lg uppercase text-base md:text-sm"
                                 placeholder="E.g. WELCOME10"
                                 required
                             />
@@ -131,7 +131,7 @@ export default function AdminCouponsPage() {
                                 type="number"
                                 value={formData.discountPercentage}
                                 onChange={(e) => setFormData({ ...formData, discountPercentage: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg"
+                                className="w-full px-4 py-2 border rounded-lg text-base md:text-sm"
                                 placeholder="10"
                                 min="1"
                                 max="100"
@@ -145,7 +145,7 @@ export default function AdminCouponsPage() {
                                     type="datetime-local"
                                     value={formData.validFrom}
                                     onChange={(e) => setFormData({ ...formData, validFrom: e.target.value })}
-                                    className="w-full px-4 py-2 border rounded-lg"
+                                    className="w-full px-4 py-2 border rounded-lg text-base md:text-sm"
                                     required
                                 />
                             </div>
@@ -155,30 +155,30 @@ export default function AdminCouponsPage() {
                                     type="datetime-local"
                                     value={formData.validTo}
                                     onChange={(e) => setFormData({ ...formData, validTo: e.target.value })}
-                                    className="w-full px-4 py-2 border rounded-lg"
+                                    className="w-full px-4 py-2 border rounded-lg text-base md:text-sm"
                                     required
                                 />
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-soil mb-1">Max Discount Amount</label>
+                                <label className="block text-sm font-medium text-soil mb-1">Max Discount</label>
                                 <input
                                     type="number"
                                     value={formData.maxDiscountAmount}
                                     onChange={(e) => setFormData({ ...formData, maxDiscountAmount: e.target.value })}
-                                    className="w-full px-4 py-2 border rounded-lg"
+                                    className="w-full px-4 py-2 border rounded-lg text-base md:text-sm"
                                     placeholder="e.g. 500"
                                     min="0"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-soil mb-1">Usage Limit (Per User)</label>
+                                <label className="block text-sm font-medium text-soil mb-1">Usage Limit</label>
                                 <input
                                     type="number"
                                     value={formData.usageLimit}
                                     onChange={(e) => setFormData({ ...formData, usageLimit: e.target.value })}
-                                    className="w-full px-4 py-2 border rounded-lg"
+                                    className="w-full px-4 py-2 border rounded-lg text-base md:text-sm"
                                     placeholder="1"
                                     min="1"
                                     required
