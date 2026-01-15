@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { ArrowRight, ShoppingBag, Star, Quote, Sparkles } from "lucide-react";
+import { ArrowRight, ShoppingBag, Star, Quote } from "lucide-react";
 import ProductModal from "@/components/ProductModal";
 import Preloader from "@/components/Preloader";
 import FeaturedCollections from "@/components/FeaturedCollections";
@@ -184,7 +184,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
-                className="text-3xl md:text-6xl lg:text-7xl font-bold text-soil mb-4 md:mb-6 leading-tight"
+                className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-soil mb-4 md:mb-6 leading-tight"
                 style={{ fontFamily: "var(--font-kaushan-script)" }}
               >
                 A Quiet Splash
@@ -343,255 +343,372 @@ export default function Home() {
       {/* Featured Collections Grid */}
       <FeaturedCollections collections={collections} />
 
-      {/* Why Basho Section */}
+      {/* Matsuo Bashō - The Poet Who Inspires Us */}
       <motion.section
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="py-12 bg-gradient-to-br from-sand/50 to-transparent rounded-3xl mx-4 md:mx-12"
+        className="py-16 md:py-24 px-4 md:px-12"
       >
-        <div className="max-w-6xl mx-auto p-6 md:p-8 bg-white/95 rounded-2xl border-2 border-[#2b1b14]">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-8"
-          >
-            <span className="inline-block text-clay font-medium mb-2 tracking-wider uppercase text-sm">
-              The Basho Philosophy
-            </span>
-            <h2 className="text-2xl md:text-4xl font-bold text-soil font-serif">
-              Why Choose Handcrafted?
-            </h2>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 md:px-6">
-            {[
-              {
-                icon: "🎋",
-                title: "Japanese Inspiration",
-                description:
-                  "Each piece embodies the philosophy of Matsuo Bashō – finding profound beauty in simplicity and the natural world.",
-              },
-              {
-                icon: "🤲",
-                title: "Handmade with Care",
-                description:
-                  "Every item is wheel-thrown or hand-built in our studio, ensuring each piece carries the warmth of human touch.",
-              },
-              {
-                icon: "♻️",
-                title: "Sustainable Craft",
-                description:
-                  "We use locally-sourced clay and eco-friendly glazes, creating pieces that are kind to both you and the earth.",
-              },
-            ].map((item, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 30, scale: 0.9 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                whileHover={{ y: -5, scale: 1.02 }}
-                transition={{ delay: idx * 0.1, duration: 0.4 }}
-                className="bg-sand/10 rounded-2xl p-6 text-center hover:shadow-xl hover:bg-sand/20 transition-all border-2 border-[#2b1b14]/20"
-              >
-                <motion.div
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: 1 }}
-                  transition={{
-                    delay: idx * 0.1 + 0.2,
-                    type: "spring",
-                    stiffness: 200,
-                  }}
-                  className="text-4xl mb-3"
-                >
-                  {item.icon}
-                </motion.div>
-                <h3 className="text-lg font-bold text-soil mb-2">
-                  {item.title}
-                </h3>
-                <p className="text-sm text-[#2b1b14]/80">{item.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Experiences CTA */}
-      <motion.section
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        className="py-20 px-4 md:px-12"
-      >
-        <div className="bg-gradient-to-br from-sand to-sand/50 rounded-3xl overflow-hidden max-w-7xl mx-auto border border-soil/10 relative">
-          <div className="absolute inset-0 bg-[url('/pottery-pattern.png')] opacity-10 bg-repeat bg-[length:400px_auto]" />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10">
-            <div className="p-12 lg:p-16">
-              <span className="inline-block text-clay bg-clay/10 px-4 py-2 rounded-full text-sm font-medium mb-6">
-                Create Memories
-              </span>
-              <h2 className="text-3xl md:text-5xl font-bold text-soil mb-6 font-serif">
-                Experience the Joy of Making
-              </h2>
-              <p className="text-sm md:text-lg text-soil/70 mb-6 md:mb-8 leading-relaxed">
-                From romantic couple dates to team-building workshops, discover
-                the meditative art of pottery in our cozy studio.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Link href="/workshops">
-                  <button className="bg-clay text-white px-6 py-3 md:px-8 md:py-4 rounded-full font-semibold hover:bg-clay/90 transition-colors hover:scale-105 text-sm md:text-base">
-                    Browse Workshops
-                  </button>
-                </Link>
-              </div>
-            </div>
-            <div className="hidden lg:flex items-center justify-center bg-sand/50 p-12">
-              <div className="w-80 h-80">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+            {/* Bashō Image */}
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              className="relative"
+            >
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-[#2b1b14]/10">
                 <Image
-                  src="/Home-Page-icon1.jpeg"
-                  alt="Experience icon"
+                  src="/Basho-poet.jpeg"
+                  alt="Matsuo Bashō - The Haiku Master"
                   width={600}
-                  height={600}
-                  className="w-full h-full object-contain"
+                  height={700}
+                  className="w-full h-auto object-cover"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#2b1b14]/60 via-transparent to-transparent" />
+                <div className="absolute top-4 sm:top-6 md:top-7 left-4 sm:left-6 md:left-8 right-4 sm:right-8 md:right-20 group/haiku cursor-pointer">
+                  {/* Japanese version - visible by default */}
+                  <p className="text-soil/130 text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold font-serif group-hover/haiku:opacity-0 transition-opacity duration-300">
+                    古池や
+                    <br />
+                    蛙飛びこむ
+                    <br />
+                    水の音
+                  </p>
+                  {/* English version - visible on hover */}
+                  <p className="text-soil/130 text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold italic font-serif absolute top-0 left-0 opacity-0 group-hover/haiku:opacity-100 transition-opacity duration-300">
+                    "The old pond—
+                    <br />
+                    A frog jumps in,
+                    <br />
+                    Sound of water."
+                  </p>
+                  <p className="text-soil/110 text-sm mt-2">
+                    — 松尾芭蕉
+                    <br />
+                    (Matsuo Bashō)
+                  </p>
+                </div>
               </div>
-            </div>
+            </motion.div>
+
+            {/* Bashō Content */}
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="space-y-6 text-center lg:text-center"
+            >
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-soil font-serif leading-tight">
+                Matsuo Bashō
+                <br />
+                <span className="text-clay">俳聖 The Haiku Saint</span>
+              </h2>
+              <div className="space-y-4 text-soil/80 leading-relaxed">
+                <p>
+                  <strong className="text-soil">
+                    Matsuo Bashō (1644–1694)
+                  </strong>{" "}
+                  was Japan's most celebrated haiku poet, whose work transformed
+                  simple observations of nature into profound meditations on
+                  existence.
+                </p>
+                <p>
+                  His philosophy of{" "}
+                  <em className="text-clay font-medium">wabi-sabi</em> — finding
+                  beauty in imperfection and transience — deeply influences
+                  every piece we create. Like his poems, our pottery celebrates
+                  the authentic, the handmade, and the beautifully imperfect.
+                </p>
+                <p>
+                  Bashō believed that true art emerges from deep connection with
+                  nature and mindful presence. Each bowl we shape, each cup we
+                  glaze, honors this tradition of thoughtful creation.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-4 pt-4 justify-center">
+                <div className="bg-sand/50 px-6 py-3 rounded-2xl border border-soil/10 text-center">
+                  <span className="text-2xl">🎋</span>
+                  <p className="text-sm text-soil/70 mt-1">Wabi-Sabi</p>
+                </div>
+                <div className="bg-sand/50 px-6 py-3 rounded-2xl border border-soil/10 text-center">
+                  <span className="text-2xl">🍃</span>
+                  <p className="text-sm text-soil/70 mt-1">Naturalism</p>
+                </div>
+                <div className="bg-sand/50 px-6 py-3 rounded-2xl border border-soil/10 text-center">
+                  <span className="text-2xl">🧘</span>
+                  <p className="text-sm text-soil/70 mt-1">Mindfulness</p>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </motion.section>
-
-      {/* Testimonials */}
-      {testimonials.length > 0 && (
-        <motion.section
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
-          className="py-20 px-4 md:px-12"
+      {/* Three Pillars of Our Craft */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Pillar 1: Japanese Inspiration */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="bg-[#F5EDE4] rounded-3xl p-8 hover:shadow-2xl hover:shadow-black/20 transition-all group"
         >
-          <div className="text-center mb-16">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-block text-clay font-medium mb-4 tracking-wider uppercase"
-            >
-              What People Say
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-3xl md:text-5xl font-bold text-soil font-serif"
-            >
-              Stories from Our Community
-            </motion.h2>
+          <div className="w-16 h-16 bg-[#2b1b14] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <span className="text-3xl">🏯</span>
           </div>
+          <h3 className="text-lg sm:text-xl font-bold mb-4 font-serif text-[#2b1b14]">
+            Japanese Inspiration
+          </h3>
+          <p className="text-[#2b1b14]/80 leading-relaxed mb-4">
+            Our designs draw from centuries of Japanese ceramic traditions —
+            from the rustic beauty of
+            <em className="text-[#8B4513] font-semibold"> Bizen-yaki</em> to the
+            refined elegance of{" "}
+            <em className="text-[#8B4513] font-semibold">Arita porcelain</em>.
+          </p>
+          <ul className="space-y-2 text-sm text-[#2b1b14]/70">
+            <li className="flex items-center gap-2">
+              <span className="text-[#8B4513]">◈</span> Minimalist aesthetics
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-[#8B4513]">◈</span> Natural earth tones
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-[#8B4513]">◈</span> Functional beauty
+            </li>
+          </ul>
+        </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {testimonials.map((testimonial, idx) => (
-              <motion.div
-                key={testimonial._id}
-                initial={{ opacity: 0, y: 40, scale: 0.95 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                whileHover={{
-                  y: -8,
-                  boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
-                  transition: { duration: 0.3 },
-                }}
-                transition={{
-                  delay: idx * 0.15,
-                  duration: 0.6,
-                  type: "spring",
-                }}
-                className="relative p-8 rounded-3xl border border-soil/10 bg-white/80 backdrop-blur-sm"
-              >
-                <motion.div
-                  initial={{ rotate: 0 }}
-                  whileHover={{ rotate: 12, scale: 1.1 }}
-                  transition={{ duration: 0.3 }}
-                  className="absolute top-6 right-6"
-                >
-                  <Quote size={36} className="text-clay/30" />
-                </motion.div>
-
-                <motion.div
-                  className="flex items-center gap-1 mb-5"
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  transition={{ delay: idx * 0.15 + 0.3 }}
-                >
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, scale: 0 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: idx * 0.15 + 0.4 + i * 0.05 }}
-                    >
-                      <Star
-                        size={18}
-                        className="fill-yellow-400 text-yellow-400"
-                      />
-                    </motion.div>
-                  ))}
-                </motion.div>
-
-                <p className="text-soil/80 mb-6 italic leading-relaxed text-base md:text-lg">
-                  "{testimonial.content}"
-                </p>
-
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.15 + 0.5 }}
-                  className="border-t border-soil/10 pt-4"
-                >
-                  <div className="font-bold text-soil text-lg">
-                    {testimonial.name}
-                  </div>
-                  <div className="text-sm text-soil/60">
-                    {testimonial.location}
-                  </div>
-                  {testimonial.productRef && (
-                    <div className="text-xs text-clay mt-2 font-medium">
-                      ✦ {testimonial.productRef}
-                    </div>
-                  )}
-                </motion.div>
-              </motion.div>
-            ))}
+        {/* Pillar 2: Handcrafted Honor */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="bg-[#F5EDE4] rounded-3xl p-8 hover:shadow-2xl hover:shadow-black/20 transition-all group"
+        >
+          <div className="w-16 h-16 bg-[#2b1b14] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <span className="text-3xl">🤲</span>
           </div>
-        </motion.section>
-      )}
+          <h3 className="text-lg sm:text-xl font-bold mb-4 font-serif text-[#2b1b14]">
+            Handcrafted with Honor
+          </h3>
+          <p className="text-[#2b1b14]/80 leading-relaxed mb-4">
+            Each piece passes through caring hands — wedging, centering,
+            throwing, trimming, glazing, and firing. No two pieces are ever
+            identical.
+          </p>
+          <ul className="space-y-2 text-sm text-[#2b1b14]/70">
+            <li className="flex items-center gap-2">
+              <span className="text-[#8B4513]">◈</span> Wheel-thrown &
+              hand-built
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-[#8B4513]">◈</span> High-fire stoneware
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-[#8B4513]">◈</span> Food-safe glazes
+            </li>
+          </ul>
+        </motion.div>
 
+        {/* Pillar 3: Brand Essence */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="bg-[#F5EDE4] rounded-3xl p-8 hover:shadow-2xl hover:shadow-black/20 transition-all group"
+        >
+          <div className="w-16 h-16 bg-[#2b1b14] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <span className="text-3xl">✨</span>
+          </div>
+          <h3 className="text-lg sm:text-xl font-bold mb-4 font-serif text-[#2b1b14]">
+            The Basho Essence
+          </h3>
+          <p className="text-[#2b1b14]/80 leading-relaxed mb-4">
+            More than pottery — we create vessels for life's quiet moments. A
+            morning tea ritual, a shared meal, a pause to appreciate beauty.
+          </p>
+          <ul className="space-y-2 text-sm text-[#2b1b14]/70">
+            <li className="flex items-center gap-2">
+              <span className="text-[#8B4513]">◈</span> Mindful living
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-[#8B4513]">◈</span> Sustainable practice
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-[#8B4513]">◈</span> Artisan integrity
+            </li>
+          </ul>
+        </motion.div>
+      </div>
+      <motion.section
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        className="py-16 bg-gradient-to-br from-[#2b1b14] to-[#4a3428] text-white relative overflow-hidden"
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="mt-16 text-center bg-white/5 rounded-3xl p-8 border border-white/10"
+        >
+          <Quote className="w-12 h-12 text-clay/50 mx-auto mb-4" />
+          <p className="text-lg sm:text-xl md:text-2xl italic font-serif text-white/90 max-w-3xl mx-auto">
+            "Do not seek to follow in the footsteps of the wise; seek what they
+            sought."
+          </p>
+          <p className="text-clay mt-4 font-medium">— Matsuo Bashō</p>
+        </motion.div>
+      </motion.section>
       {/* Know More About Basho */}
       <motion.section
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="py-20 px-4 md:px-12"
+        className="py-16 md:py-24 px-4 md:px-12 relative overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(135deg, #1a0f0a 0%, #2b1b14 50%, #3d2a1f 100%)",
+        }}
       >
-        <div className="bg-gradient-to-br from-sand to-sand/60 rounded-3xl p-12 text-center max-w-4xl mx-auto border border-soil/10">
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            whileInView={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Sparkles className="mx-auto text-clay mb-4" size={40} />
-          </motion.div>
-          <h2 className="text-2xl md:text-4xl font-bold text-soil mb-4 font-serif">
-            Know More About Basho
-          </h2>
-          <p className="text-soil/70 mb-6 md:mb-8 max-w-lg mx-auto text-sm md:text-lg">
-            Discover our philosophy, meet the artist, and learn about the
-            journey behind every handcrafted piece of pottery.
-          </p>
-          <Link href="/about">
-            <button className="bg-soil text-white px-6 py-3 md:px-8 md:py-4 rounded-full font-semibold hover:bg-clay transition-colors inline-flex items-center gap-2 hover:scale-105 transform text-sm md:text-base">
-              Explore Our Story
-              <ArrowRight size={20} />
-            </button>
-          </Link>
+        {/* Decorative torn paper edge effect at top */}
+        <div
+          className="absolute top-0 left-0 right-0 h-8 bg-[#F5EDE4]"
+          style={{
+            clipPath:
+              "polygon(0 0, 100% 0, 100% 40%, 97% 80%, 94% 50%, 90% 90%, 85% 40%, 80% 70%, 75% 30%, 70% 80%, 65% 50%, 60% 90%, 55% 40%, 50% 70%, 45% 30%, 40% 80%, 35% 50%, 30% 90%, 25% 40%, 20% 70%, 15% 30%, 10% 80%, 5% 50%, 0 100%)",
+          }}
+        />
+
+        {/* Scattered decorative elements */}
+        <div className="absolute top-20 left-[10%] w-3 h-3 bg-[#8B4513]/40 rounded-full" />
+        <div className="absolute top-32 right-[15%] w-2 h-2 bg-[#C97C5D]/30 rounded-full" />
+        <div className="absolute bottom-24 left-[20%] w-4 h-4 bg-[#8B4513]/20 rounded-full" />
+        <div className="absolute top-1/2 right-[8%] w-2 h-2 bg-[#F5EDE4]/20 rounded-full" />
+
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+            {/* Left side - Handwritten style content */}
+            <motion.div
+              initial={{ opacity: 0, rotate: -2 }}
+              whileInView={{ opacity: 1, rotate: 0 }}
+              transition={{ duration: 0.6 }}
+              className="flex-1 relative"
+            >
+              {/* Paper-like card with slight rotation */}
+              <div
+                className="bg-[#F5EDE4] p-8 md:p-12 relative shadow-2xl"
+                style={{ transform: "rotate(-1deg)" }}
+              >
+                {/* Tape effect at top */}
+                <div
+                  className="absolute -top-3 left-1/2 -translate-x-1/2 w-20 h-8 bg-[#e8dfd3]/80 shadow-sm"
+                  style={{ transform: "rotate(2deg)" }}
+                />
+
+                {/* Japanese brush stroke accent */}
+                <div className="absolute top-4 right-4 text-6xl text-[#2b1b14]/10 font-serif">
+                  道
+                </div>
+
+                <p className="text-[#8B4513] text-sm tracking-[0.3em] uppercase mb-4">
+                  The path of clay
+                </p>
+
+                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif text-[#1a0f0a] mb-6 leading-tight">
+                  Every pot has
+                  <br />
+                  <span className="relative inline-block">
+                    a story
+                    <svg
+                      className="absolute -bottom-2 left-0 w-full"
+                      height="8"
+                      viewBox="0 0 100 8"
+                      preserveAspectRatio="none"
+                    >
+                      <path
+                        d="M0,5 Q25,0 50,5 T100,5"
+                        stroke="#8B4513"
+                        strokeWidth="2"
+                        fill="none"
+                      />
+                    </svg>
+                  </span>
+                </h2>
+
+                <p className="text-[#2b1b14]/70 text-lg leading-relaxed mb-8">
+                  Behind the wheel, beneath the glaze, there's a person who
+                  chose to slow down. We'd love to share that journey with you.
+                </p>
+
+                {/* Handwritten arrow pointing to button */}
+                <div className="flex items-center gap-4">
+                  <Link href="/about">
+                    <button className="group bg-[#1a0f0a] text-[#F5EDE4] px-8 py-4 font-medium hover:bg-[#8B4513] transition-all inline-flex items-center gap-3 text-lg">
+                      Read our story
+                      <span className="group-hover:translate-x-2 transition-transform">
+                        →
+                      </span>
+                    </button>
+                  </Link>
+                </div>
+
+                {/* Coffee stain effect */}
+                <div
+                  className="absolute -bottom-4 -right-4 w-16 h-16 rounded-full border-4 border-[#8B4513]/20"
+                  style={{ borderStyle: "double" }}
+                />
+              </div>
+            </motion.div>
+
+            {/* Right side - Polaroid style image stack */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="relative w-72 h-80 hidden md:block"
+            >
+              {/* Back polaroid */}
+              <div
+                className="absolute top-4 left-4 w-56 h-64 bg-[#F5EDE4] p-3 shadow-xl"
+                style={{ transform: "rotate(8deg)" }}
+              >
+                <div className="w-full h-44 bg-[#2b1b14]/20" />
+                <p className="text-center text-[#2b1b14]/60 text-sm mt-3 font-serif italic">
+                  The first bowl, 2019
+                </p>
+              </div>
+
+              {/* Front polaroid */}
+              <div
+                className="absolute top-0 left-0 w-56 h-64 bg-[#F5EDE4] p-3 shadow-2xl"
+                style={{ transform: "rotate(-4deg)" }}
+              >
+                <div className="w-full h-44 bg-gradient-to-br from-[#8B4513]/30 to-[#2b1b14]/40 flex items-center justify-center">
+                  <span className="text-6xl">🏺</span>
+                </div>
+                <p className="text-center text-[#2b1b14]/80 text-sm mt-3 font-serif">
+                  Our studio today
+                </p>
+              </div>
+
+              {/* Decorative pin */}
+              <div className="absolute -top-2 left-24 w-4 h-4 bg-[#8B4513] rounded-full shadow-lg z-10" />
+            </motion.div>
+          </div>
         </div>
+
+        {/* Decorative torn paper edge effect at bottom */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-8 bg-white"
+          style={{
+            clipPath:
+              "polygon(0 100%, 100% 100%, 100% 60%, 97% 20%, 94% 50%, 90% 10%, 85% 60%, 80% 30%, 75% 70%, 70% 20%, 65% 50%, 60% 10%, 55% 60%, 50% 30%, 45% 70%, 40% 20%, 35% 50%, 30% 10%, 25% 60%, 20% 30%, 15% 70%, 10% 20%, 5% 50%, 0 0)",
+          }}
+        />
       </motion.section>
 
       {/* Product Modal */}

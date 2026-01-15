@@ -289,7 +289,7 @@ export default function AdminProductsPage() {
         </Link>
         <motion.h1
           variants={itemVariants}
-          className="text-3xl font-serif font-bold text-soil"
+          className="text-2xl sm:text-3xl font-serif font-bold text-soil"
         >
           Products
         </motion.h1>
