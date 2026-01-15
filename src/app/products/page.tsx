@@ -61,7 +61,9 @@ const budgetRanges = [
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<any[]>([{ id: "all", label: "All Products" }]); // Dynamic categories
+  const [categories, setCategories] = useState<any[]>([
+    { id: "all", label: "All Products" },
+  ]); // Dynamic categories
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -118,7 +120,6 @@ export default function Products() {
       }
     };
     fetchStudioInfo();
-
 
     // Fetch Categories
     fetch("/api/admin/categories")
@@ -242,8 +243,6 @@ export default function Products() {
       setVerifyingOtp(false);
     }
   };
-
-
 
   const handleCustomSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -607,15 +606,17 @@ export default function Products() {
                           !isOutOfStock &&
                           setSelectedProductId(product.slug || product._id)
                         }
-                        className={`relative h-48 bg-gradient-to-br from-sand to-sand/50 overflow-hidden ${isOutOfStock ? "cursor-not-allowed" : "cursor-pointer"
-                          }`}
+                        className={`relative h-48 bg-gradient-to-br from-sand to-sand/50 overflow-hidden ${
+                          isOutOfStock ? "cursor-not-allowed" : "cursor-pointer"
+                        }`}
                       >
                         {getProductImage(product) ? (
                           <img
                             src={getProductImage(product)!}
                             alt={product.name}
-                            className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${isOutOfStock ? "grayscale opacity-75" : ""
-                              }`}
+                            className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${
+                              isOutOfStock ? "grayscale opacity-75" : ""
+                            }`}
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-7xl group-hover:scale-110 transition-transform duration-500">
@@ -660,7 +661,7 @@ export default function Products() {
                               <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                                 {Math.round(
                                   (1 - product.price / product.originalPrice) *
-                                  100
+                                    100
                                 )}
                                 % OFF
                               </span>
@@ -769,10 +770,11 @@ export default function Products() {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === 1
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-                  }`}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  currentPage === 1
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+                }`}
               >
                 Previous
               </button>
@@ -789,10 +791,11 @@ export default function Products() {
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
-                      className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === page
-                        ? "bg-clay text-white shadow-lg"
-                        : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-                        }`}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                        currentPage === page
+                          ? "bg-clay text-white shadow-lg"
+                          : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+                      }`}
                     >
                       {page}
                     </button>
@@ -813,10 +816,11 @@ export default function Products() {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === totalPages
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-                  }`}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  currentPage === totalPages
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+                }`}
               >
                 Next
               </button>
@@ -830,13 +834,10 @@ export default function Products() {
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="mt-20 px-4 py-16 bg-gradient-to-b from-sand/30 via-sand/50 to-sand/30 relative overflow-hidden"
+        className="mt-20 px-4 py-16 bg-transparent relative overflow-hidden"
         id="custom-order"
       >
         {/* Decorative Elements */}
-        <div className="absolute bottom-10 right-10 text-6xl opacity-10 -rotate-12">
-          🎨
-        </div>
         <div className="absolute top-1/2 left-5 text-4xl opacity-5">✨</div>
         <div className="absolute top-1/4 right-20 text-5xl opacity-5">🍵</div>
 
@@ -934,11 +935,12 @@ export default function Products() {
                 )}
 
                 <form onSubmit={handleCustomSubmit} className="space-y-8">
-
                   {/* Personal Details */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-soil mb-2">Your Name *</label>
+                      <label className="block text-sm font-medium text-soil mb-2">
+                        Your Name *
+                      </label>
                       <input
                         type="text"
                         name="name"
@@ -950,7 +952,9 @@ export default function Products() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-soil mb-2">Email *</label>
+                      <label className="block text-sm font-medium text-soil mb-2">
+                        Email *
+                      </label>
                       <input
                         type="email"
                         name="email"
@@ -966,7 +970,9 @@ export default function Products() {
                   {/* Phone & OTP */}
                   {/* Phone & OTP */}
                   <div>
-                    <label className="block text-sm font-medium text-soil mb-2">Phone Number *</label>
+                    <label className="block text-sm font-medium text-soil mb-2">
+                      Phone Number *
+                    </label>
                     <div className="space-y-3">
                       <div className="flex flex-col sm:flex-row gap-2">
                         <input
@@ -984,10 +990,18 @@ export default function Products() {
                           <button
                             type="button"
                             onClick={handleSendOtp}
-                            disabled={sendingOtp || !customFormData.phone || customFormData.phone.length !== 10}
+                            disabled={
+                              sendingOtp ||
+                              !customFormData.phone ||
+                              customFormData.phone.length !== 10
+                            }
                             className="px-4 py-3 bg-clay text-white rounded-xl font-medium hover:bg-clay/90 transition-colors disabled:opacity-50 whitespace-nowrap"
                           >
-                            {sendingOtp ? <Loader2 className="w-5 h-5 animate-spin" /> : "Send OTP"}
+                            {sendingOtp ? (
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                              "Send OTP"
+                            )}
                           </button>
                         )}
                         {phoneVerified && (
@@ -1002,7 +1016,11 @@ export default function Products() {
                           <input
                             type="text"
                             value={otp}
-                            onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                            onChange={(e) =>
+                              setOtp(
+                                e.target.value.replace(/\D/g, "").slice(0, 6)
+                              )
+                            }
                             placeholder="Enter 6-digit OTP"
                             maxLength={6}
                             className="flex-1 px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none transition-colors"
@@ -1013,7 +1031,11 @@ export default function Products() {
                             disabled={verifyingOtp || otp.length !== 6}
                             className="px-4 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors disabled:opacity-50 whitespace-nowrap"
                           >
-                            {verifyingOtp ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify"}
+                            {verifyingOtp ? (
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                              "Verify"
+                            )}
                           </button>
                         </div>
                       )}
@@ -1023,7 +1045,9 @@ export default function Products() {
                   {/* Product Type & Quantity */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-soil mb-2">Product Type *</label>
+                      <label className="block text-sm font-medium text-soil mb-2">
+                        Product Type *
+                      </label>
                       <select
                         name="productType"
                         value={customFormData.productType}
@@ -1042,24 +1066,38 @@ export default function Products() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-soil mb-2">Quantity</label>
+                      <label className="block text-sm font-medium text-soil mb-2">
+                        Quantity
+                      </label>
                       <div className="flex items-center gap-3">
                         <input
                           type="number"
                           min="1"
                           name="quantity"
                           value={customFormData.quantity}
-                          onChange={(e) => setCustomFormData(prev => ({ ...prev, quantity: Math.max(1, parseInt(e.target.value) || 1) }))}
+                          onChange={(e) =>
+                            setCustomFormData((prev) => ({
+                              ...prev,
+                              quantity: Math.max(
+                                1,
+                                parseInt(e.target.value) || 1
+                              ),
+                            }))
+                          }
                           className="w-full px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none transition-colors text-center"
                         />
-                        <span className="text-sm text-soil/50 whitespace-nowrap">piece{customFormData.quantity > 1 ? 's' : ''}</span>
+                        <span className="text-sm text-soil/50 whitespace-nowrap">
+                          piece{customFormData.quantity > 1 ? "s" : ""}
+                        </span>
                       </div>
                     </div>
                   </div>
 
                   {/* Material */}
                   <div>
-                    <label className="block text-sm font-medium text-soil mb-2">Material *</label>
+                    <label className="block text-sm font-medium text-soil mb-2">
+                      Material *
+                    </label>
                     <select
                       name="material"
                       value={customFormData.material}
@@ -1079,23 +1117,39 @@ export default function Products() {
 
                   {/* Glaze / Finish Preference */}
                   <div>
-                    <label className="block text-sm font-medium text-soil mb-3">Glaze / Finish Preference</label>
+                    <label className="block text-sm font-medium text-soil mb-3">
+                      Glaze / Finish Preference
+                    </label>
                     <div className="flex flex-wrap gap-3">
-                      {['Matt Finish', 'Glossy Finish', 'Crackle Glaze', 'Celadon', 'Tenmoku', 'Shino', 'Ash Glaze', 'Cobalt Blue', 'Copper Red'].map(glaze => (
+                      {[
+                        "Matt Finish",
+                        "Glossy Finish",
+                        "Crackle Glaze",
+                        "Celadon",
+                        "Tenmoku",
+                        "Shino",
+                        "Ash Glaze",
+                        "Cobalt Blue",
+                        "Copper Red",
+                      ].map((glaze) => (
                         <button
                           key={glaze}
                           type="button"
                           onClick={() => {
                             const current = customFormData.glazePreference;
                             const newGlazes = current.includes(glaze)
-                              ? current.filter(g => g !== glaze)
+                              ? current.filter((g) => g !== glaze)
                               : [...current, glaze];
-                            setCustomFormData(prev => ({ ...prev, glazePreference: newGlazes }));
+                            setCustomFormData((prev) => ({
+                              ...prev,
+                              glazePreference: newGlazes,
+                            }));
                           }}
-                          className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${customFormData.glazePreference.includes(glaze)
-                            ? 'bg-clay text-white border-clay'
-                            : 'bg-white text-soil/70 border-soil/20 hover:border-clay/50'
-                            }`}
+                          className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
+                            customFormData.glazePreference.includes(glaze)
+                              ? "bg-clay text-white border-clay"
+                              : "bg-white text-soil/70 border-soil/20 hover:border-clay/50"
+                          }`}
                         >
                           {glaze}
                         </button>
@@ -1105,39 +1159,71 @@ export default function Products() {
 
                   {/* Dimensions */}
                   <div>
-                    <label className="block text-sm font-medium text-soil mb-2">Dimensions (in cm)</label>
+                    <label className="block text-sm font-medium text-soil mb-2">
+                      Dimensions (in cm)
+                    </label>
                     <div className="grid grid-cols-3 gap-4">
                       <div>
-                        <span className="text-xs text-soil/50 mb-1 block">Height</span>
+                        <span className="text-xs text-soil/50 mb-1 block">
+                          Height
+                        </span>
                         <input
                           type="number"
                           placeholder="15"
                           min="0"
                           className="w-full px-3 py-2 border border-soil/20 rounded-lg focus:border-clay outline-none"
                           value={customFormData.dimensions.height}
-                          onChange={(e) => setCustomFormData(prev => ({ ...prev, dimensions: { ...prev.dimensions, height: e.target.value } }))}
+                          onChange={(e) =>
+                            setCustomFormData((prev) => ({
+                              ...prev,
+                              dimensions: {
+                                ...prev.dimensions,
+                                height: e.target.value,
+                              },
+                            }))
+                          }
                         />
                       </div>
                       <div>
-                        <span className="text-xs text-soil/50 mb-1 block">Width</span>
+                        <span className="text-xs text-soil/50 mb-1 block">
+                          Width
+                        </span>
                         <input
                           type="number"
                           placeholder="20"
                           min="0"
                           className="w-full px-3 py-2 border border-soil/20 rounded-lg focus:border-clay outline-none"
                           value={customFormData.dimensions.width}
-                          onChange={(e) => setCustomFormData(prev => ({ ...prev, dimensions: { ...prev.dimensions, width: e.target.value } }))}
+                          onChange={(e) =>
+                            setCustomFormData((prev) => ({
+                              ...prev,
+                              dimensions: {
+                                ...prev.dimensions,
+                                width: e.target.value,
+                              },
+                            }))
+                          }
                         />
                       </div>
                       <div>
-                        <span className="text-xs text-soil/50 mb-1 block">Depth</span>
+                        <span className="text-xs text-soil/50 mb-1 block">
+                          Depth
+                        </span>
                         <input
                           type="number"
                           placeholder="10"
                           min="0"
                           className="w-full px-3 py-2 border border-soil/20 rounded-lg focus:border-clay outline-none"
                           value={customFormData.dimensions.depth}
-                          onChange={(e) => setCustomFormData(prev => ({ ...prev, dimensions: { ...prev.dimensions, depth: e.target.value } }))}
+                          onChange={(e) =>
+                            setCustomFormData((prev) => ({
+                              ...prev,
+                              dimensions: {
+                                ...prev.dimensions,
+                                depth: e.target.value,
+                              },
+                            }))
+                          }
                         />
                       </div>
                     </div>
@@ -1145,32 +1231,49 @@ export default function Products() {
 
                   {/* Color Preferences */}
                   <div>
-                    <label className="block text-sm font-medium text-soil mb-2">Color Preferences</label>
+                    <label className="block text-sm font-medium text-soil mb-2">
+                      Color Preferences
+                    </label>
                     <textarea
                       rows={2}
                       className="w-full px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none"
                       placeholder="Describe your preferred colors, patterns, or decorative elements..."
                       value={customFormData.colorPreferences}
-                      onChange={(e) => setCustomFormData(prev => ({ ...prev, colorPreferences: e.target.value }))}
+                      onChange={(e) =>
+                        setCustomFormData((prev) => ({
+                          ...prev,
+                          colorPreferences: e.target.value,
+                        }))
+                      }
                     />
                   </div>
 
                   {/* Reference Images */}
                   <div>
-                    <label className="block text-sm font-medium text-soil mb-2">Reference Images (Max 5)</label>
+                    <label className="block text-sm font-medium text-soil mb-2">
+                      Reference Images (Max 5)
+                    </label>
                     <div className="space-y-4">
                       <div className="bg-sand/10 hover:bg-sand/20 transition-colors rounded-xl overflow-hidden">
                         <UploadInput
                           uploadPreset="products_unsigned" // Using known working preset
                           folder="custom_orders"
                           onUploaded={(urls) => {
-                            setReferenceImages((prev) => [...prev, ...urls].slice(0, 5));
+                            setReferenceImages((prev) =>
+                              [...prev, ...urls].slice(0, 5)
+                            );
                           }}
                         >
                           <div className="border-2 border-dashed border-clay/30 rounded-xl p-8 text-center cursor-pointer group hover:border-clay/50 transition-colors w-full h-full flex flex-col items-center justify-center">
-                            <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">📸</div>
-                            <p className="text-soil/70 text-sm mb-1 font-medium">Click to upload images or drag and drop</p>
-                            <p className="text-soil/40 text-xs text-center">PNG, JPG, GIF up to 5MB</p>
+                            <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">
+                              📸
+                            </div>
+                            <p className="text-soil/70 text-sm mb-1 font-medium">
+                              Click to upload images or drag and drop
+                            </p>
+                            <p className="text-soil/40 text-xs text-center">
+                              PNG, JPG, GIF up to 5MB
+                            </p>
                           </div>
                         </UploadInput>
                       </div>
@@ -1194,7 +1297,11 @@ export default function Products() {
                                 />
                                 <button
                                   type="button"
-                                  onClick={() => setReferenceImages(prev => prev.filter((_, i) => i !== idx))}
+                                  onClick={() =>
+                                    setReferenceImages((prev) =>
+                                      prev.filter((_, i) => i !== idx)
+                                    )
+                                  }
                                   className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs shadow-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center transform hover:scale-110"
                                 >
                                   ×
@@ -1209,39 +1316,62 @@ export default function Products() {
 
                   {/* Special Requirements */}
                   <div>
-                    <label className="block text-sm font-medium text-soil mb-2">Special Requirements</label>
+                    <label className="block text-sm font-medium text-soil mb-2">
+                      Special Requirements
+                    </label>
                     <textarea
                       rows={3}
                       className="w-full px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none"
                       placeholder="Any special features, inscriptions, or functional requirements..."
                       value={customFormData.specialRequirements}
-                      onChange={(e) => setCustomFormData(prev => ({ ...prev, specialRequirements: e.target.value }))}
+                      onChange={(e) =>
+                        setCustomFormData((prev) => ({
+                          ...prev,
+                          specialRequirements: e.target.value,
+                        }))
+                      }
                     />
                   </div>
 
                   {/* Timeline & Budget */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-soil mb-2">Desired Timeline</label>
+                      <label className="block text-sm font-medium text-soil mb-2">
+                        Desired Timeline
+                      </label>
                       <input
                         type="text"
                         placeholder="e.g., 6 weeks, by Christmas, etc."
                         className="w-full px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none"
                         value={customFormData.timeline}
-                        onChange={(e) => setCustomFormData(prev => ({ ...prev, timeline: e.target.value }))}
+                        onChange={(e) =>
+                          setCustomFormData((prev) => ({
+                            ...prev,
+                            timeline: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-soil mb-2">Budget Range *</label>
+                      <label className="block text-sm font-medium text-soil mb-2">
+                        Budget Range *
+                      </label>
                       <select
                         value={customFormData.budget}
-                        onChange={(e) => setCustomFormData((prev) => ({ ...prev, budget: e.target.value }))}
+                        onChange={(e) =>
+                          setCustomFormData((prev) => ({
+                            ...prev,
+                            budget: e.target.value,
+                          }))
+                        }
                         required
                         className="w-full px-4 py-3 border border-soil/20 rounded-xl focus:border-clay focus:outline-none bg-white"
                       >
                         <option value="">Select budget range</option>
                         {budgetRanges.map((range) => (
-                          <option key={range.id} value={range.id}>{range.label}</option>
+                          <option key={range.id} value={range.id}>
+                            {range.label}
+                          </option>
                         ))}
                       </select>
                     </div>
@@ -1249,18 +1379,30 @@ export default function Products() {
 
                   <button
                     type="submit"
-                    disabled={customLoading || !customFormData.productType || !customFormData.budget || !phoneVerified}
+                    disabled={
+                      customLoading ||
+                      !customFormData.productType ||
+                      !customFormData.budget ||
+                      !phoneVerified
+                    }
                     className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-clay to-clay/90 text-white py-4 rounded-full font-semibold text-lg hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
                     {customLoading ? (
-                      <><Loader2 className="w-5 h-5 animate-spin" /> Submitting...</>
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />{" "}
+                        Submitting...
+                      </>
                     ) : (
-                      <><Send className="w-5 h-5" /> Submit Request</>
+                      <>
+                        <Send className="w-5 h-5" /> Submit Request
+                      </>
                     )}
                   </button>
 
                   {!phoneVerified && (
-                    <p className="text-sm text-red-500 text-center">Please verify your phone number before submitting</p>
+                    <p className="text-sm text-red-500 text-center">
+                      Please verify your phone number before submitting
+                    </p>
                   )}
                 </form>
               </div>

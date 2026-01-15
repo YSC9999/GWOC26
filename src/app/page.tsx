@@ -566,7 +566,7 @@ export default function Home() {
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="mt-12 py-12 md:py-16 px-4 md:px-8 relative overflow-hidden rounded-3xl mx-4 md:mx-8 border-2 border-[#C97C5D]"
+        className="mt-20 mb-16 py-12 md:py-16 px-4 md:px-8 relative overflow-hidden rounded-3xl mx-4 md:mx-8 border-2 border-[#C97C5D]"
         style={{
           background:
             "linear-gradient(135deg, #1a0f0a 0%, #2b1b14 50%, #3d2a1f 100%)",
