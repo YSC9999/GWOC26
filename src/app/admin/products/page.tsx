@@ -14,6 +14,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import UploadInput from "@/components/UploadInput";
+import AdminPageContainer from "@/components/admin/AdminPageContainer";
 import { PRODUCT_CATEGORIES } from "@/lib/categories";
 
 const containerVariants: Variants = {
@@ -168,7 +169,7 @@ export default function AdminProductsPage() {
       setSuccess("Product added");
 
       // Check if this was a new category and refresh list if needed
-      if (!categories.find(c => c.slug === category)) {
+      if (!categories.find((c) => c.slug === category)) {
         // It's a hack, effectively we'd want to properly create the category first
         // But since products just store the string, we should essentially "create" it in the category DB too
         // to make it available for future.
@@ -185,10 +186,12 @@ export default function AdminProductsPage() {
       await fetch("/api/admin/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name })
+        body: JSON.stringify({ name }),
       });
       fetchCategories();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   // Delete category handler
@@ -200,11 +203,15 @@ export default function AdminProductsPage() {
       const res = await fetch("/api/admin/categories", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
+        body: JSON.stringify({ id }),
       });
       if (res.ok) {
-        setCategories(categories.filter(c => c._id !== id));
-        if (products.some(p => p.category === categories.find(c => c._id === id)?.slug)) {
+        setCategories(categories.filter((c) => c._id !== id));
+        if (
+          products.some(
+            (p) => p.category === categories.find((c) => c._id === id)?.slug
+          )
+        ) {
           // Optional warning: products with this category still exist
         }
       }
@@ -256,404 +263,414 @@ export default function AdminProductsPage() {
   }
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-      className="space-y-8"
-    >
-      {/* ... existing alerts and header ... */}
-      {error && (
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="text-red-600 bg-red-50 p-3 rounded-lg border border-red-100"
-        >
-          {error}
-        </motion.div>
-      )}
-      {success && (
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="text-green-600 bg-green-50 p-3 rounded-lg border border-green-100"
-        >
-          {success}
-        </motion.div>
-      )}
-
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 flex-wrap">
-        <div className="flex items-center gap-4">
-          <Link href="/admin" className="flex items-center gap-2 text-soil/40 hover:text-soil transition-colors font-medium shrink-0">
-            <ArrowLeft size={20} />
-            <span>Admin</span>
-          </Link>
-          <motion.h1
-            variants={itemVariants}
-            className="text-2xl sm:text-3xl font-serif font-bold text-soil"
-          >
-            Products
-          </motion.h1>
-        </div>
-
-        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-          {/* SEARCH BAR */}
-          <input
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by name or category..."
-            className="border border-soil/10 p-2 w-full md:w-64 rounded-xl bg-sand/10 focus:bg-white/10 focus:outline-none focus:ring-4 focus:ring-clay/5 transition-all text-soil placeholder:text-soil/40"
-          />
-
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => setShowAddForm(!showAddForm)}
-            className={`px-4 py-2 rounded-lg font-medium shadow-md transition-all flex items-center justify-center gap-2 ${showAddForm
-              ? "bg-gray-200 text-soil hover:bg-gray-300"
-              : "bg-black text-white hover:bg-gray-800"
-              }`}
-          >
-            {showAddForm ? (
-              <>
-                <X size={18} /> Cancel
-              </>
-            ) : (
-              <>
-                <Plus size={18} /> Add Product
-              </>
-            )}
-          </motion.button>
-        </div>
-      </div>
-
-      {/* ADD PRODUCT FORM */}
-      <AnimatePresence>
-        {showAddForm && (
+    <AdminPageContainer title="Products">
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+        className="space-y-8"
+      >
+        {/* ... existing alerts and header ... */}
+        {error && (
           <motion.div
-            initial={{ opacity: 0, height: 0, overflow: "hidden" }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="bg-white/5 backdrop-blur-xl p-4 md:p-8 rounded-3xl shadow-sm border border-white/10 overflow-hidden"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-red-600 bg-red-50 p-3 rounded-lg border border-red-100"
           >
-            <h2 className="text-2xl font-serif font-bold text-soil mb-6 flex items-center gap-2">
-              <span>✨</span> Add New Product
-            </h2>
-            <form onSubmit={handleAdd} className="flex gap-4 flex-wrap">
-              {/* ... existing form inputs ... */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-                <input
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Name"
-                  className="bg-white/10 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil text-base md:text-sm"
-                  required
-                />
-                <input
-                  type="number"
-                  value={form.price}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      price: e.target.value === "" ? "" : Number(e.target.value),
-                    })
-                  }
-                  placeholder="Price"
-                  className="bg-white/10 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil text-base md:text-sm"
-                  required
-                />
-                <input
-                  type="number"
-                  value={form.stockQuantity}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      stockQuantity:
-                        e.target.value === "" ? "" : Number(e.target.value),
-                    })
-                  }
-                  placeholder="Stock"
-                  className="bg-white/10 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil text-base md:text-sm"
-                  required
-                />
-                <input
-                  type="number"
-                  value={form.weightGrams}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      weightGrams:
-                        e.target.value === "" ? "" : Number(e.target.value),
-                    })
-                  }
-                  placeholder="Weight (Optional, default 500g)"
-                  className="bg-white/10 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil text-base md:text-sm"
-                  title="Weight in grams (e.g. 500 for 0.5kg)"
-                />
-              </div>
+            {error}
+          </motion.div>
+        )}
+        {success && (
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-green-600 bg-green-50 p-3 rounded-lg border border-green-100"
+          >
+            {success}
+          </motion.div>
+        )}
 
-              <div className="w-full">
-                <UploadInput
-                  uploadPreset={"products_unsigned"}
-                  folder={"products/"}
-                  onUploaded={(urls) => {
-                    setForm((prev) => ({
-                      ...prev,
-                      images: [...(prev.images || []), ...urls],
-                    }));
-                  }}
-                />
-              </div>
+        <div className="flex flex-col md:flex-row md:items-center justify-end gap-4 mb-6 flex-wrap">
+          <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+            {/* SEARCH BAR */}
+            <input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by name or category..."
+              className="border border-soil/10 p-2 w-full md:w-64 rounded-xl bg-sand/10 focus:bg-white/10 focus:outline-none focus:ring-4 focus:ring-clay/5 transition-all text-soil placeholder:text-soil/40"
+            />
 
-              {/* Thumbnails */}
-              {form.images?.length > 0 && (
-                <div className="flex gap-2 mt-2 flex-wrap w-full">
-                  <AnimatePresence>
-                    {(form.images || []).map((img, idx) => (
-                      <motion.div
-                        key={img}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.5 }}
-                        className="relative group"
-                      >
-                        <img
-                          src={img}
-                          className="w-20 h-20 object-cover rounded-lg shadow-sm"
-                        />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setForm((prev) => ({
-                              ...prev,
-                              images: prev.images.filter((_, i) => i !== idx),
-                            }))
-                          }
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs shadow-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center transform hover:scale-110"
-                        >
-                          ×
-                        </button>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </div>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowAddForm(!showAddForm)}
+              className={`px-4 py-2 rounded-lg font-medium shadow-md transition-all flex items-center justify-center gap-2 ${
+                showAddForm
+                  ? "bg-gray-200 text-soil hover:bg-gray-300"
+                  : "bg-black text-white hover:bg-gray-800"
+              }`}
+            >
+              {showAddForm ? (
+                <>
+                  <X size={18} /> Cancel
+                </>
+              ) : (
+                <>
+                  <Plus size={18} /> Add Product
+                </>
               )}
+            </motion.button>
+          </div>
+        </div>
 
-              <div className="flex gap-4 w-full relative">
-                {/* Custom Dropdown */}
-                <div className="relative flex-grow">
-                  <div
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="border border-soil/10 p-4 rounded-xl w-full bg-white/10 focus:bg-white/20 transition-all cursor-pointer flex justify-between items-center"
-                  >
-                    <span className={category ? "text-soil font-medium" : "text-soil/40"}>
-                      {categories.find(c => c.slug === category)?.name || (category || "Select category")}
-                    </span>
-                    <ChevronRight className={`w-5 h-5 transition-transform text-soil/30 ${isDropdownOpen ? 'rotate-90' : ''}`} />
+        {/* ADD PRODUCT FORM */}
+        <AnimatePresence>
+          {showAddForm && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, overflow: "hidden" }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="bg-white/5 backdrop-blur-xl p-4 md:p-8 rounded-3xl shadow-sm border border-white/10 overflow-hidden"
+            >
+              <h2 className="text-2xl font-serif font-bold text-soil mb-6 flex items-center gap-2">
+                <span>✨</span> Add New Product
+              </h2>
+              <form onSubmit={handleAdd} className="flex gap-4 flex-wrap">
+                {/* ... existing form inputs ... */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+                  <input
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    placeholder="Name"
+                    className="bg-white/10 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil text-base md:text-sm"
+                    required
+                  />
+                  <input
+                    type="number"
+                    value={form.price}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        price:
+                          e.target.value === "" ? "" : Number(e.target.value),
+                      })
+                    }
+                    placeholder="Price"
+                    className="bg-white/10 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil text-base md:text-sm"
+                    required
+                  />
+                  <input
+                    type="number"
+                    value={form.stockQuantity}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        stockQuantity:
+                          e.target.value === "" ? "" : Number(e.target.value),
+                      })
+                    }
+                    placeholder="Stock"
+                    className="bg-white/10 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil text-base md:text-sm"
+                    required
+                  />
+                  <input
+                    type="number"
+                    value={form.weightGrams}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        weightGrams:
+                          e.target.value === "" ? "" : Number(e.target.value),
+                      })
+                    }
+                    placeholder="Weight (Optional, default 500g)"
+                    className="bg-white/10 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil text-base md:text-sm"
+                    title="Weight in grams (e.g. 500 for 0.5kg)"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <UploadInput
+                    uploadPreset={"products_unsigned"}
+                    folder={"products/"}
+                    onUploaded={(urls) => {
+                      setForm((prev) => ({
+                        ...prev,
+                        images: [...(prev.images || []), ...urls],
+                      }));
+                    }}
+                  />
+                </div>
+
+                {/* Thumbnails */}
+                {form.images?.length > 0 && (
+                  <div className="flex gap-2 mt-2 flex-wrap w-full">
+                    <AnimatePresence>
+                      {(form.images || []).map((img, idx) => (
+                        <motion.div
+                          key={img}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.5 }}
+                          className="relative group"
+                        >
+                          <img
+                            src={img}
+                            className="w-20 h-20 object-cover rounded-lg shadow-sm"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setForm((prev) => ({
+                                ...prev,
+                                images: prev.images.filter((_, i) => i !== idx),
+                              }))
+                            }
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs shadow-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center transform hover:scale-110"
+                          >
+                            ×
+                          </button>
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
                   </div>
+                )}
 
-                  {isDropdownOpen && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-[#EFE5D8]/95 backdrop-blur-xl border border-soil/10 rounded-2xl shadow-2xl z-50 max-h-60 overflow-y-auto">
-                      {categories.map((cat) => (
+                <div className="flex gap-4 w-full relative">
+                  {/* Custom Dropdown */}
+                  <div className="relative flex-grow">
+                    <div
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      className="border border-soil/10 p-4 rounded-xl w-full bg-white/10 focus:bg-white/20 transition-all cursor-pointer flex justify-between items-center"
+                    >
+                      <span
+                        className={
+                          category ? "text-soil font-medium" : "text-soil/40"
+                        }
+                      >
+                        {categories.find((c) => c.slug === category)?.name ||
+                          category ||
+                          "Select category"}
+                      </span>
+                      <ChevronRight
+                        className={`w-5 h-5 transition-transform text-soil/30 ${
+                          isDropdownOpen ? "rotate-90" : ""
+                        }`}
+                      />
+                    </div>
+
+                    {isDropdownOpen && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#EFE5D8]/95 backdrop-blur-xl border border-soil/10 rounded-2xl shadow-2xl z-50 max-h-60 overflow-y-auto">
+                        {categories.map((cat) => (
+                          <div
+                            key={cat._id}
+                            className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer group"
+                            onClick={() => {
+                              setCategory(cat.slug);
+                              setIsDropdownOpen(false);
+                            }}
+                          >
+                            <span>{cat.name}</span>
+                            <button
+                              onClick={(e) => handleDeleteCategory(cat._id, e)}
+                              className="p-1 hover:bg-red-100 rounded text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                              title="Delete Category"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        ))}
                         <div
-                          key={cat._id}
-                          className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer group"
+                          className="p-3 hover:bg-gray-50 cursor-pointer text-clay font-medium border-t"
                           onClick={() => {
-                            setCategory(cat.slug);
+                            setCategory("other");
                             setIsDropdownOpen(false);
                           }}
                         >
-                          <span>{cat.name}</span>
-                          <button
-                            onClick={(e) => handleDeleteCategory(cat._id, e)}
-                            className="p-1 hover:bg-red-100 rounded text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                            title="Delete Category"
-                          >
-                            <Trash2 size={16} />
-                          </button>
+                          + Add New Category
                         </div>
-                      ))}
-                      <div
-                        className="p-3 hover:bg-gray-50 cursor-pointer text-clay font-medium border-t"
-                        onClick={() => {
-                          setCategory("other");
-                          setIsDropdownOpen(false);
-                        }}
-                      >
-                        + Add New Category
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
+
+                  {category === "other" ||
+                  (!categories.find((c) => c.slug === category) &&
+                    category !== "") ? (
+                    <motion.input
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      value={category === "other" ? "" : category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      placeholder="Enter new category"
+                      className="border p-3 rounded-lg flex-grow focus:ring-2 focus:ring-clay/20 outline-none"
+                    />
+                  ) : null}
                 </div>
 
-                {category === "other" || (!categories.find(c => c.slug === category) && category !== "") ? (
-                  <motion.input
-                    initial={{ opacity: 0, width: 0 }}
-                    animate={{ opacity: 1, width: "auto" }}
-                    value={category === "other" ? "" : category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    placeholder="Enter new category"
-                    className="border p-3 rounded-lg flex-grow focus:ring-2 focus:ring-clay/20 outline-none"
-                  />
-                ) : null}
-              </div>
+                <input
+                  value={descriptionText}
+                  onChange={(e) => setDescriptionText(e.target.value)}
+                  placeholder="Short description"
+                  className="bg-white/10 border border-soil/10 p-4 rounded-xl w-full focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil"
+                />
 
-              <input
-                value={descriptionText}
-                onChange={(e) => setDescriptionText(e.target.value)}
-                placeholder="Short description"
-                className="bg-white/10 border border-soil/10 p-4 rounded-xl w-full focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil"
-              />
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="bg-soil text-white px-10 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl hover:bg-soil/90 transition-all w-full md:w-auto flex items-center gap-2 justify-center"
+                >
+                  <Plus size={24} /> Save Product
+                </motion.button>
+              </form>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="bg-soil text-white px-10 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl hover:bg-soil/90 transition-all w-full md:w-auto flex items-center gap-2 justify-center"
-              >
-                <Plus size={24} /> Save Product
-              </motion.button>
-            </form>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-
-
-      {/* PRODUCT TABLE and PAGINATION */}
-      <div className="border border-soil/10 rounded-3xl overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full table-fixed min-w-[800px] bg-white/5 backdrop-blur-xl">
-            <thead className="bg-sand/20 backdrop-blur-md text-soil/60 border-b border-soil/10 uppercase tracking-wider text-[10px] font-bold">
-              <tr>
-                <th className="w-4/12 p-3 text-left font-semibold">Name</th>
-                <th className="w-2/12 p-3 text-left font-semibold">Category</th>
-                <th className="w-1/12 p-3 text-left font-semibold">Price</th>
-                <th className="w-1/12 p-3 text-left font-semibold">Stock</th>
-                <th className="w-1/12 p-3 text-left font-semibold">Img</th>
-                <th className="w-3/12 p-3 text-right font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-soil/5">
-              <AnimatePresence mode="popLayout">
-                {currentProducts.map((p) => (
-                  <motion.tr
-                    key={p._id}
-                    layout
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.4)" }}
-                    className="hover:bg-white/40 transition-colors border-b border-soil/5 last:border-0"
-                  >
-                    <td className="p-3 align-top break-words text-sm font-medium text-soil/90">
-                      {p.name}
-                    </td>
-                    <td className="p-3 align-top text-sm text-soil/70 break-words">
-                      {PRODUCT_CATEGORIES.find((c) => c.id === p.category)
-                        ?.label || p.category}
-                    </td>
-                    <td className="p-3 align-top text-sm text-soil/70">
-                      ₹{p.price}
-                    </td>
-                    <td className="p-3 align-top text-sm text-soil/70">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${p.stockQuantity > 0
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
+        {/* PRODUCT TABLE and PAGINATION */}
+        <div className="border border-soil/10 rounded-3xl overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full table-fixed min-w-[800px] bg-white/5 backdrop-blur-xl">
+              <thead className="bg-sand/20 backdrop-blur-md text-soil/60 border-b border-soil/10 uppercase tracking-wider text-[10px] font-bold">
+                <tr>
+                  <th className="w-4/12 p-3 text-left font-semibold">Name</th>
+                  <th className="w-2/12 p-3 text-left font-semibold">
+                    Category
+                  </th>
+                  <th className="w-1/12 p-3 text-left font-semibold">Price</th>
+                  <th className="w-1/12 p-3 text-left font-semibold">Stock</th>
+                  <th className="w-1/12 p-3 text-left font-semibold">Img</th>
+                  <th className="w-3/12 p-3 text-right font-semibold">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-soil/5">
+                <AnimatePresence mode="popLayout">
+                  {currentProducts.map((p) => (
+                    <motion.tr
+                      key={p._id}
+                      layout
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      whileHover={{
+                        backgroundColor: "rgba(255, 255, 255, 0.4)",
+                      }}
+                      className="hover:bg-white/40 transition-colors border-b border-soil/5 last:border-0"
+                    >
+                      <td className="p-3 align-top break-words text-sm font-medium text-soil/90">
+                        {p.name}
+                      </td>
+                      <td className="p-3 align-top text-sm text-soil/70 break-words">
+                        {PRODUCT_CATEGORIES.find((c) => c.id === p.category)
+                          ?.label || p.category}
+                      </td>
+                      <td className="p-3 align-top text-sm text-soil/70">
+                        ₹{p.price}
+                      </td>
+                      <td className="p-3 align-top text-sm text-soil/70">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            p.stockQuantity > 0
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
                           }`}
-                      >
-                        {p.stockQuantity}
-                      </span>
-                    </td>
-                    <td className="p-3 align-top text-sm text-soil/70">
-                      {p.images?.length || 0}
-                    </td>
-                    <td className="p-3 align-top text-right space-x-2">
+                        >
+                          {p.stockQuantity}
+                        </span>
+                      </td>
+                      <td className="p-3 align-top text-sm text-soil/70">
+                        {p.images?.length || 0}
+                      </td>
+                      <td className="p-3 align-top text-right space-x-2">
+                        <button
+                          onClick={() => {
+                            setEditingId(p._id);
+                            setForm({
+                              name: p.name,
+                              price: p.price,
+                              stockQuantity: p.stockQuantity,
+                              weightGrams: p.weightGrams || 500,
+                              images: p.images || [],
+                            });
+                            setCategory(p.category || "");
+                            setDescriptionText(p.description || "");
+                          }}
+                          className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors hover:underline inline-flex items-center gap-1"
+                        >
+                          <Edit size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(p._id)}
+                          className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors hover:underline inline-flex items-center gap-1"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
+              </tbody>
+            </table>
+            {filteredProducts.length === 0 && (
+              <div className="text-center py-8 text-soil/50">
+                No products found matching your search.
+              </div>
+            )}
+          </div>
+
+          {filteredProducts.length > 0 && (
+            <div className="bg-sand/10 backdrop-blur-md p-4 border-t border-soil/10 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="text-sm text-soil/60 text-center md:text-left">
+                Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
+                <span className="font-medium">
+                  {Math.min(startIndex + itemsPerPage, filteredProducts.length)}
+                </span>{" "}
+                of{" "}
+                <span className="font-medium">{filteredProducts.length}</span>{" "}
+                results
+              </div>
+              <div className="flex flex-wrap justify-center gap-2">
+                <button
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 inline-flex items-center gap-1"
+                >
+                  <ChevronLeft size={16} />{" "}
+                  <span className="hidden sm:inline">Previous</span>
+                </button>
+                <div className="flex gap-1 overflow-x-auto max-w-[200px] md:max-w-none no-scrollbar">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
                       <button
-                        onClick={() => {
-                          setEditingId(p._id);
-                          setForm({
-                            name: p.name,
-                            price: p.price,
-                            stockQuantity: p.stockQuantity,
-                            weightGrams: p.weightGrams || 500,
-                            images: p.images || [],
-                          });
-                          setCategory(p.category || "");
-                          setDescriptionText(p.description || "");
-                        }}
-                        className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors hover:underline inline-flex items-center gap-1"
+                        key={page}
+                        onClick={() => goToPage(page)}
+                        className={`px-3 py-1 border rounded text-sm flex-shrink-0 transition-all ${
+                          currentPage === page
+                            ? "bg-soil text-white shadow-md"
+                            : "bg-white/40 hover:bg-white/60 border-soil/10"
+                        }`}
                       >
-                        <Edit size={18} />
+                        {page}
                       </button>
-                      <button
-                        onClick={() => handleDelete(p._id)}
-                        className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors hover:underline inline-flex items-center gap-1"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </td>
-                  </motion.tr>
-                ))}
-              </AnimatePresence>
-            </tbody>
-          </table>
-          {filteredProducts.length === 0 && (
-            <div className="text-center py-8 text-soil/50">
-              No products found matching your search.
+                    )
+                  )}
+                </div>
+                <button
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 inline-flex items-center gap-1"
+                >
+                  <span className="hidden sm:inline">Next</span>{" "}
+                  <ChevronRight size={16} />
+                </button>
+              </div>
             </div>
           )}
         </div>
 
-        {filteredProducts.length > 0 && (
-          <div className="bg-sand/10 backdrop-blur-md p-4 border-t border-soil/10 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-soil/60 text-center md:text-left">
-              Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
-              <span className="font-medium">
-                {Math.min(startIndex + itemsPerPage, filteredProducts.length)}
-              </span>{" "}
-              of <span className="font-medium">{filteredProducts.length}</span>{" "}
-              results
-            </div>
-            <div className="flex flex-wrap justify-center gap-2">
-              <button
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 inline-flex items-center gap-1"
-              >
-                <ChevronLeft size={16} /> <span className="hidden sm:inline">Previous</span>
-              </button>
-              <div className="flex gap-1 overflow-x-auto max-w-[200px] md:max-w-none no-scrollbar">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => (
-                    <button
-                      key={page}
-                      onClick={() => goToPage(page)}
-                      className={`px-3 py-1 border rounded text-sm flex-shrink-0 transition-all ${currentPage === page
-                        ? "bg-soil text-white shadow-md"
-                        : "bg-white/40 hover:bg-white/60 border-soil/10"
-                        }`}
-                    >
-                      {page}
-                    </button>
-                  )
-                )}
-              </div>
-              <button
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 inline-flex items-center gap-1"
-              >
-                <span className="hidden sm:inline">Next</span> <ChevronRight size={16} />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Edit Modal */}
-      {
-        editingId && (
+        {/* Edit Modal */}
+        {editingId && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-soil/20 backdrop-blur-md p-4">
             <div className="bg-[#EFE5D8] rounded-2xl shadow-xl w-full max-w-2xl p-6 border border-soil/10">
               <div className="flex items-center justify-between mb-4">
@@ -830,8 +847,8 @@ export default function AdminProductsPage() {
               </div>
             </div>
           </div>
-        )
-      }
-    </motion.div >
+        )}
+      </motion.div>
+    </AdminPageContainer>
   );
 }

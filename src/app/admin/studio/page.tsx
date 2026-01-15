@@ -15,83 +15,77 @@ import {
   Edit,
   ArrowLeft,
 } from "lucide-react";
+import AdminPageContainer from "@/components/admin/AdminPageContainer";
 
 export default function AdminStudio() {
   const [activeTab, setActiveTab] = useState<"images" | "exhibits">("images");
 
   return (
-    <div className="min-h-screen">
-      <div className="mb-8">
-        <div className="flex items-center gap-4 mb-4">
-          <Link href="/admin" className="flex items-center gap-2 text-soil/40 hover:text-soil transition-colors font-medium shrink-0">
-            <ArrowLeft size={20} />
-            <span>Admin</span>
-          </Link>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-soil">
-            Studio Management
-          </h1>
-        </div>
+    <AdminPageContainer title="Studio Management">
+      <div className="space-y-6">
         <p className="text-soil/60">
           Manage your studio slider images and exhibitions.
         </p>
-      </div>
 
-      <div className="flex gap-4 mb-8 border-b border-soil/10 pb-1">
-        <button
-          onClick={() => setActiveTab("images")}
-          className={`px-6 py-3 font-medium transition-all relative ${activeTab === "images"
-            ? "text-clay"
-            : "text-soil/60 hover:text-soil"
+        <div className="flex gap-4 border-b border-soil/10 pb-1">
+          <button
+            onClick={() => setActiveTab("images")}
+            className={`px-6 py-3 font-medium transition-all relative ${
+              activeTab === "images"
+                ? "text-clay"
+                : "text-soil/60 hover:text-soil"
             }`}
-        >
-          Studio Images
+          >
+            Studio Images
+            {activeTab === "images" && (
+              <motion.div
+                layoutId="activeTab"
+                className="absolute bottom-0 left-0 right-0 h-1 bg-clay rounded-t-full"
+              />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("exhibits")}
+            className={`px-6 py-3 font-medium transition-all relative ${
+              activeTab === "exhibits"
+                ? "text-clay"
+                : "text-soil/60 hover:text-soil"
+            }`}
+          >
+            Exhibitions
+            {activeTab === "exhibits" && (
+              <motion.div
+                layoutId="activeTab"
+                className="absolute bottom-0 left-0 right-0 h-1 bg-clay rounded-t-full"
+              />
+            )}
+          </button>
+        </div>
+
+        <AnimatePresence mode="wait">
           {activeTab === "images" && (
             <motion.div
-              layoutId="activeTab"
-              className="absolute bottom-0 left-0 right-0 h-1 bg-clay rounded-t-full"
-            />
+              key="images"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <StudioImagesManager />
+            </motion.div>
           )}
-        </button>
-        <button
-          onClick={() => setActiveTab("exhibits")}
-          className={`px-6 py-3 font-medium transition-all relative ${activeTab === "exhibits"
-            ? "text-clay"
-            : "text-soil/60 hover:text-soil"
-            }`}
-        >
-          Exhibitions
           {activeTab === "exhibits" && (
             <motion.div
-              layoutId="activeTab"
-              className="absolute bottom-0 left-0 right-0 h-1 bg-clay rounded-t-full"
-            />
+              key="exhibits"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <ExhibitsManager />
+            </motion.div>
           )}
-        </button>
+        </AnimatePresence>
       </div>
-
-      <AnimatePresence mode="wait">
-        {activeTab === "images" && (
-          <motion.div
-            key="images"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-          >
-            <StudioImagesManager />
-          </motion.div>
-        )}
-        {activeTab === "exhibits" && (
-          <motion.div
-            key="exhibits"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-          >
-            <ExhibitsManager />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+    </AdminPageContainer>
   );
 }
 
@@ -182,8 +176,9 @@ function StudioImagesManager() {
           />
           <label
             htmlFor="studio-upload"
-            className={`flex items-center gap-2 bg-clay text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-clay/90 transition-colors ${uploading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+            className={`flex items-center gap-2 bg-clay text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-clay/90 transition-colors ${
+              uploading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
             {uploading ? (
               <Loader2 className="animate-spin w-4 h-4" />
@@ -304,14 +299,17 @@ function ExhibitsManager() {
                 <div className="flex justify-between items-start gap-4">
                   <div className="min-w-0">
                     <span
-                      className={`inline-block px-2 py-0.5 rounded text-xs font-bold uppercase mb-1 ${new Date(ex.endDate) < new Date()
-                        ? "bg-gray-100 text-gray-500"
-                        : "bg-green-100 text-green-700"
-                        }`}
+                      className={`inline-block px-2 py-0.5 rounded text-xs font-bold uppercase mb-1 ${
+                        new Date(ex.endDate) < new Date()
+                          ? "bg-gray-100 text-gray-500"
+                          : "bg-green-100 text-green-700"
+                      }`}
                     >
                       {new Date(ex.endDate) < new Date() ? "Past" : "Upcoming"}
                     </span>
-                    <h3 className="font-bold text-lg text-soil truncate">{ex.title}</h3>
+                    <h3 className="font-bold text-lg text-soil truncate">
+                      {ex.title}
+                    </h3>
                     <div className="text-sm text-soil/60 flex flex-wrap gap-x-4 gap-y-1 mt-1">
                       <span className="flex items-center gap-1 whitespace-nowrap">
                         <Calendar size={14} />{" "}
@@ -472,7 +470,10 @@ function ExhibitModal({ exhibit, onClose, onSuccess }: any) {
           <h2 className="text-xl font-bold text-soil">
             {isEdit ? "Edit Exhibition" : "Add Exhibition"}
           </h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full">
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-full"
+          >
             <X size={20} />
           </button>
         </div>
@@ -480,21 +481,42 @@ function ExhibitModal({ exhibit, onClose, onSuccess }: any) {
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">Title</label>
-            <input name="title" required value={formData.title} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
+            <input
+              name="title"
+              required
+              value={formData.title}
+              onChange={handleChange}
+              className="w-full p-2 border rounded-lg text-base md:text-sm"
+            />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Description</label>
-            <textarea name="description" rows={3} value={formData.description} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
+            <label className="block text-sm font-medium mb-1">
+              Description
+            </label>
+            <textarea
+              name="description"
+              rows={3}
+              value={formData.description}
+              onChange={handleChange}
+              className="w-full p-2 border rounded-lg text-base md:text-sm"
+            />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Cover Image</label>
+            <label className="block text-sm font-medium mb-1">
+              Cover Image
+            </label>
             <div className="flex gap-4 items-center">
               <div className="relative w-20 h-20 bg-gray-100 rounded-lg overflow-hidden border border-dashed border-gray-300 flex items-center justify-center shrink-0">
                 {formData.image ? (
                   <>
-                    <img src={formData.image} className={`w-full h-full object-cover transition-opacity ${imageLoading ? 'opacity-50' : 'opacity-100'}`} />
+                    <img
+                      src={formData.image}
+                      className={`w-full h-full object-cover transition-opacity ${
+                        imageLoading ? "opacity-50" : "opacity-100"
+                      }`}
+                    />
                     {imageLoading && (
                       <div className="absolute inset-0 flex items-center justify-center">
                         <Loader2 className="w-5 h-5 animate-spin text-soil" />
@@ -524,44 +546,103 @@ function ExhibitModal({ exhibit, onClose, onSuccess }: any) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Venue Name</label>
-              <input name="venue" required value={formData.venue} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
+              <label className="block text-sm font-medium mb-1">
+                Venue Name
+              </label>
+              <input
+                name="venue"
+                required
+                value={formData.venue}
+                onChange={handleChange}
+                className="w-full p-2 border rounded-lg text-base md:text-sm"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">City</label>
-              <input name="city" required value={formData.city} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
+              <input
+                name="city"
+                required
+                value={formData.city}
+                onChange={handleChange}
+                className="w-full p-2 border rounded-lg text-base md:text-sm"
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Start Date</label>
-              <input type="date" name="startDate" required value={formData.startDate} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
+              <label className="block text-sm font-medium mb-1">
+                Start Date
+              </label>
+              <input
+                type="date"
+                name="startDate"
+                required
+                value={formData.startDate}
+                onChange={handleChange}
+                className="w-full p-2 border rounded-lg text-base md:text-sm"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">End Date</label>
-              <input type="date" name="endDate" required value={formData.endDate} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
+              <input
+                type="date"
+                name="endDate"
+                required
+                value={formData.endDate}
+                onChange={handleChange}
+                className="w-full p-2 border rounded-lg text-base md:text-sm"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Timings</label>
-              <input name="timings" placeholder="e.g. 10 AM - 6 PM" value={formData.timings} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
+              <input
+                name="timings"
+                placeholder="e.g. 10 AM - 6 PM"
+                value={formData.timings}
+                onChange={handleChange}
+                className="w-full p-2 border rounded-lg text-base md:text-sm"
+              />
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <input type="checkbox" id="regRequired" name="registrationRequired" checked={formData.registrationRequired} onChange={handleChange} />
+            <input
+              type="checkbox"
+              id="regRequired"
+              name="registrationRequired"
+              checked={formData.registrationRequired}
+              onChange={handleChange}
+            />
             <label htmlFor="regRequired">Registration Required?</label>
           </div>
           {formData.registrationRequired && (
             <div>
-              <label className="block text-sm font-medium mb-1">Registration Link</label>
-              <input name="registrationLink" value={formData.registrationLink} onChange={handleChange} className="w-full p-2 border rounded-lg text-base md:text-sm" />
+              <label className="block text-sm font-medium mb-1">
+                Registration Link
+              </label>
+              <input
+                name="registrationLink"
+                value={formData.registrationLink}
+                onChange={handleChange}
+                className="w-full p-2 border rounded-lg text-base md:text-sm"
+              />
             </div>
           )}
 
           <div className="pt-4 border-t mt-4 flex justify-end gap-3 sticky bottom-0 bg-white">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-soil hover:bg-soil/5 rounded-lg">Cancel</button>
-            <button type="submit" disabled={loading || imageLoading} className="px-6 py-2 bg-clay text-white rounded-lg hover:bg-clay/90 disabled:opacity-50 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-soil hover:bg-soil/5 rounded-lg"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading || imageLoading}
+              className="px-6 py-2 bg-clay text-white rounded-lg hover:bg-clay/90 disabled:opacity-50 flex items-center gap-2"
+            >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
               {loading ? "Saving..." : "Save Exhibition"}
             </button>

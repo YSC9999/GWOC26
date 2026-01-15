@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Loader2, Check, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import AdminPageContainer from "@/components/admin/AdminPageContainer";
 
 interface VisitingHours {
   monday?: string;
@@ -158,280 +159,317 @@ export default function AdminContact() {
   };
 
   return (
-    <div>
-      <div className="flex items-center gap-4 mb-6">
-        <Link href="/admin" className="flex items-center gap-2 text-soil/40 hover:text-soil transition-colors font-medium shrink-0">
-          <ArrowLeft size={20} />
-          <span>Admin</span>
-        </Link>
-        <h1 className="text-2xl sm:text-3xl font-serif font-bold text-soil">
-          Company Details
-        </h1>
-      </div>
+    <AdminPageContainer title="Company Details">
+      <div className="space-y-6">
+        {error && !loading && (
+          <div className="bg-red-50 text-red-700 p-4 rounded mb-6">
+            <strong>Error:</strong> {error}
+            {error === "Unauthorized" && (
+              <span>
+                {" "}
+                — you need to{" "}
+                <a href="/auth/login" className="underline text-clay">
+                  log in as an admin
+                </a>
+                .
+              </span>
+            )}
+          </div>
+        )}
 
-      {error && !loading && (
-        <div className="bg-red-50 text-red-700 p-4 rounded mb-6">
-          <strong>Error:</strong> {error}
-          {error === "Unauthorized" && (
-            <span>
-              {" "}
-              — you need to{" "}
-              <a href="/auth/login" className="underline text-clay">
-                log in as an admin
-              </a>
-              .
-            </span>
-          )}
-        </div>
-      )}
+        {loading ? (
+          <div className="p-8 bg-sand/20 backdrop-blur-md border border-soil/10 rounded-xl text-center">
+            <Loader2 className="animate-spin mx-auto text-clay" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-sm">
+              <h2 className="text-xl font-semibold mb-4 text-soil">
+                Company info
+              </h2>
 
-      {loading ? (
-        <div className="p-8 bg-sand/20 backdrop-blur-md border border-soil/10 rounded-xl text-center">
-          <Loader2 className="animate-spin mx-auto text-clay" />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-sm">
-            <h2 className="text-xl font-semibold mb-4 text-soil">Company info</h2>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1 text-soil/60">Studio name</label>
-                <input
-                  value={studio.name || ''}
-                  onChange={(e) => handleChange('name', e.target.value)}
-                  className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full text-base md:text-sm text-soil placeholder:text-soil/30"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1 text-soil/60">Tagline</label>
-                <input
-                  value={studio.tagline || ''}
-                  onChange={(e) => handleChange('tagline', e.target.value)}
-                  className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full text-base md:text-sm text-soil placeholder:text-soil/30"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1 text-soil/60">About text</label>
-                <textarea
-                  value={studio.aboutText || ''}
-                  onChange={(e) => handleChange('aboutText', e.target.value)}
-                  rows={4}
-                  className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full text-base md:text-sm text-soil placeholder:text-soil/30"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <input
-                  value={studio.phone || ''}
-                  onChange={(e) => handleChange('phone', e.target.value)}
-                  placeholder="Phone"
-                  className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil placeholder:text-soil/30"
-                />
-                <input
-                  value={studio.email || ''}
-                  onChange={(e) => handleChange('email', e.target.value)}
-                  placeholder="Email"
-                  className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil placeholder:text-soil/30"
-                />
-                <input
-                  value={studio.whatsapp || ''}
-                  onChange={(e) => handleChange('whatsapp', e.target.value)}
-                  placeholder="Whatsapp"
-                  className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil placeholder:text-soil/30"
-                />
-              </div>
-              <div className="mt-2 flex items-center gap-3">
-                <button
-                  onClick={() =>
-                    saveSection(["phone", "email", "whatsapp"], "contact")
-                  }
-                  disabled={!!savingSections["contact"]}
-                  className="text-sm bg-white/40 border border-soil/10 px-3 py-1 rounded-md hover:bg-white/60 transition-colors text-soil"
-                >
-                  {savingSections["contact"] ? "Saving..." : "Save Contact"}
-                </button>
-                {savedSections["contact"] && (
-                  <div className="text-green-600 flex items-center gap-2 text-sm">
-                    <Check size={16} /> Saved
-                  </div>
-                )}
-                {errorSections["contact"] && (
-                  <div className="text-red-600 text-sm">
-                    {errorSections["contact"]}
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1 text-soil/60">Address</label>
-                <input
-                  value={studio.address || ''}
-                  onChange={(e) => handleChange('address', e.target.value)}
-                  className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full text-base md:text-sm text-soil placeholder:text-soil/30"
-                />
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-soil/60">
+                    Studio name
+                  </label>
                   <input
-                    value={studio.city || ''}
-                    onChange={(e) => handleChange('city', e.target.value)}
-                    placeholder="City"
+                    value={studio.name || ""}
+                    onChange={(e) => handleChange("name", e.target.value)}
+                    className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full text-base md:text-sm text-soil placeholder:text-soil/30"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-soil/60">
+                    Tagline
+                  </label>
+                  <input
+                    value={studio.tagline || ""}
+                    onChange={(e) => handleChange("tagline", e.target.value)}
+                    className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full text-base md:text-sm text-soil placeholder:text-soil/30"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-soil/60">
+                    About text
+                  </label>
+                  <textarea
+                    value={studio.aboutText || ""}
+                    onChange={(e) => handleChange("aboutText", e.target.value)}
+                    rows={4}
+                    className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full text-base md:text-sm text-soil placeholder:text-soil/30"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <input
+                    value={studio.phone || ""}
+                    onChange={(e) => handleChange("phone", e.target.value)}
+                    placeholder="Phone"
                     className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil placeholder:text-soil/30"
                   />
                   <input
-                    value={studio.state || ''}
-                    onChange={(e) => handleChange('state', e.target.value)}
-                    placeholder="State"
+                    value={studio.email || ""}
+                    onChange={(e) => handleChange("email", e.target.value)}
+                    placeholder="Email"
                     className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil placeholder:text-soil/30"
                   />
                   <input
-                    value={studio.pincode || ''}
-                    onChange={(e) => handleChange('pincode', e.target.value)}
-                    placeholder="Pincode"
+                    value={studio.whatsapp || ""}
+                    onChange={(e) => handleChange("whatsapp", e.target.value)}
+                    placeholder="Whatsapp"
                     className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil placeholder:text-soil/30"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Google Maps Link (for buttons)
-                </label>
-                <input
-                  value={studio.mapLink || ""}
-                  onChange={(e) => handleChange("mapLink", e.target.value)}
-                  placeholder="https://maps.google.com/..."
-                  className="input-field w-full px-3 py-2 rounded-md mb-3 text-base md:text-sm"
-                />
-
-                <label className="block text-sm font-medium mb-1">
-                  Map Embed URL (for iframe display)
-                  <span className="text-soil/50 font-normal text-xs ml-2">
-                    (Share {">"} Embed a map {">"} Copy HTML {">"} Only the src
-                    part)
-                  </span>
-                </label>
-                <input
-                  value={studio.mapUrl || ""}
-                  onChange={(e) => handleChange("mapUrl", e.target.value)}
-                  placeholder="https://www.google.com/maps/embed?pb=..."
-                  className="admin-input w-full px-3 py-2 rounded-md text-base md:text-sm"
-                />
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <h3 className="font-medium mb-2">Visiting Hours</h3>
-                  <div>
-                    <button
-                      onClick={() => saveSection(["visitingHours"], "hours")}
-                      disabled={!!savingSections["hours"]}
-                      className="text-sm bg-white border px-3 py-1 rounded-md"
-                    >
-                      {savingSections["hours"] ? "Saving..." : "Save Hours"}
-                    </button>
-                    {savedSections["hours"] && (
-                      <div className="inline-block ml-3 text-green-600 text-sm">
-                        <Check /> Saved
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
-                    <input key={day} value={(studio.visitingHours as any)?.[day] || ''} onChange={(e) => handleHoursChange(day, e.target.value)} placeholder={day} className="input-field px-3 py-2 rounded-md text-base md:text-sm" />
-                  ))}
-                </div>
-                {errorSections["hours"] && (
-                  <div className="text-red-600 mt-2">
-                    {errorSections["hours"]}
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Visit Policy</label>
-                <textarea value={studio.visitPolicy || ''} onChange={(e) => handleChange('visitPolicy', e.target.value)} rows={3} className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full text-base md:text-sm text-soil placeholder:text-soil/30" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Collection Policy</label>
-                <textarea value={studio.collectionPolicy || ''} onChange={(e) => handleChange('collectionPolicy', e.target.value)} rows={3} className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full text-base md:text-sm text-soil placeholder:text-soil/30" />
-              </div>
-
-              <div className="mt-2 flex items-center gap-3">
-                <button
-                  onClick={() =>
-                    saveSection(["visitPolicy", "collectionPolicy"], "policies")
-                  }
-                  disabled={!!savingSections["policies"]}
-                  className="text-sm bg-sand/20 border border-soil/10 px-4 py-2 rounded-xl hover:bg-sand/30 transition-all text-soil font-medium"
-                >
-                  {savingSections["policies"] ? "Saving..." : "Save Policies"}
-                </button>
-                {savedSections["policies"] && (
-                  <div className="text-green-600 flex items-center gap-2 text-sm">
-                    <Check /> Saved
-                  </div>
-                )}
-                {errorSections["policies"] && (
-                  <div className="text-red-600 text-sm">
-                    {errorSections["policies"]}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-3 mt-4">
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="bg-clay text-white px-6 py-2 rounded-full font-semibold disabled:opacity-60"
-                >
-                  {saving ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    "Save Changes"
+                <div className="mt-2 flex items-center gap-3">
+                  <button
+                    onClick={() =>
+                      saveSection(["phone", "email", "whatsapp"], "contact")
+                    }
+                    disabled={!!savingSections["contact"]}
+                    className="text-sm bg-white/40 border border-soil/10 px-3 py-1 rounded-md hover:bg-white/60 transition-colors text-soil"
+                  >
+                    {savingSections["contact"] ? "Saving..." : "Save Contact"}
+                  </button>
+                  {savedSections["contact"] && (
+                    <div className="text-green-600 flex items-center gap-2 text-sm">
+                      <Check size={16} /> Saved
+                    </div>
                   )}
-                </button>
-                {saved && (
-                  <div className="text-green-600 flex items-center gap-2">
-                    <Check /> Saved
+                  {errorSections["contact"] && (
+                    <div className="text-red-600 text-sm">
+                      {errorSections["contact"]}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-soil/60">
+                    Address
+                  </label>
+                  <input
+                    value={studio.address || ""}
+                    onChange={(e) => handleChange("address", e.target.value)}
+                    className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full text-base md:text-sm text-soil placeholder:text-soil/30"
+                  />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+                    <input
+                      value={studio.city || ""}
+                      onChange={(e) => handleChange("city", e.target.value)}
+                      placeholder="City"
+                      className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil placeholder:text-soil/30"
+                    />
+                    <input
+                      value={studio.state || ""}
+                      onChange={(e) => handleChange("state", e.target.value)}
+                      placeholder="State"
+                      className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil placeholder:text-soil/30"
+                    />
+                    <input
+                      value={studio.pincode || ""}
+                      onChange={(e) => handleChange("pincode", e.target.value)}
+                      placeholder="Pincode"
+                      className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all text-base md:text-sm text-soil placeholder:text-soil/30"
+                    />
                   </div>
-                )}
-                {error && <div className="text-red-600">{error}</div>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Google Maps Link (for buttons)
+                  </label>
+                  <input
+                    value={studio.mapLink || ""}
+                    onChange={(e) => handleChange("mapLink", e.target.value)}
+                    placeholder="https://maps.google.com/..."
+                    className="input-field w-full px-3 py-2 rounded-md mb-3 text-base md:text-sm"
+                  />
+
+                  <label className="block text-sm font-medium mb-1">
+                    Map Embed URL (for iframe display)
+                    <span className="text-soil/50 font-normal text-xs ml-2">
+                      (Share {">"} Embed a map {">"} Copy HTML {">"} Only the
+                      src part)
+                    </span>
+                  </label>
+                  <input
+                    value={studio.mapUrl || ""}
+                    onChange={(e) => handleChange("mapUrl", e.target.value)}
+                    placeholder="https://www.google.com/maps/embed?pb=..."
+                    className="admin-input w-full px-3 py-2 rounded-md text-base md:text-sm"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-medium mb-2">Visiting Hours</h3>
+                    <div>
+                      <button
+                        onClick={() => saveSection(["visitingHours"], "hours")}
+                        disabled={!!savingSections["hours"]}
+                        className="text-sm bg-white border px-3 py-1 rounded-md"
+                      >
+                        {savingSections["hours"] ? "Saving..." : "Save Hours"}
+                      </button>
+                      {savedSections["hours"] && (
+                        <div className="inline-block ml-3 text-green-600 text-sm">
+                          <Check /> Saved
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {[
+                      "monday",
+                      "tuesday",
+                      "wednesday",
+                      "thursday",
+                      "friday",
+                      "saturday",
+                      "sunday",
+                    ].map((day) => (
+                      <input
+                        key={day}
+                        value={(studio.visitingHours as any)?.[day] || ""}
+                        onChange={(e) => handleHoursChange(day, e.target.value)}
+                        placeholder={day}
+                        className="input-field px-3 py-2 rounded-md text-base md:text-sm"
+                      />
+                    ))}
+                  </div>
+                  {errorSections["hours"] && (
+                    <div className="text-red-600 mt-2">
+                      {errorSections["hours"]}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Visit Policy
+                  </label>
+                  <textarea
+                    value={studio.visitPolicy || ""}
+                    onChange={(e) =>
+                      handleChange("visitPolicy", e.target.value)
+                    }
+                    rows={3}
+                    className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full text-base md:text-sm text-soil placeholder:text-soil/30"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Collection Policy
+                  </label>
+                  <textarea
+                    value={studio.collectionPolicy || ""}
+                    onChange={(e) =>
+                      handleChange("collectionPolicy", e.target.value)
+                    }
+                    rows={3}
+                    className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full text-base md:text-sm text-soil placeholder:text-soil/30"
+                  />
+                </div>
+
+                <div className="mt-2 flex items-center gap-3">
+                  <button
+                    onClick={() =>
+                      saveSection(
+                        ["visitPolicy", "collectionPolicy"],
+                        "policies"
+                      )
+                    }
+                    disabled={!!savingSections["policies"]}
+                    className="text-sm bg-sand/20 border border-soil/10 px-4 py-2 rounded-xl hover:bg-sand/30 transition-all text-soil font-medium"
+                  >
+                    {savingSections["policies"] ? "Saving..." : "Save Policies"}
+                  </button>
+                  {savedSections["policies"] && (
+                    <div className="text-green-600 flex items-center gap-2 text-sm">
+                      <Check /> Saved
+                    </div>
+                  )}
+                  {errorSections["policies"] && (
+                    <div className="text-red-600 text-sm">
+                      {errorSections["policies"]}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-3 mt-4">
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="bg-clay text-white px-6 py-2 rounded-full font-semibold disabled:opacity-60"
+                  >
+                    {saving ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      "Save Changes"
+                    )}
+                  </button>
+                  {saved && (
+                    <div className="text-green-600 flex items-center gap-2">
+                      <Check /> Saved
+                    </div>
+                  )}
+                  {error && <div className="text-red-600">{error}</div>}
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-sm self-start">
-            <h2 className="text-xl font-semibold mb-4">
-              Preview / Quick actions
-            </h2>
+            <div className="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-sm self-start">
+              <h2 className="text-xl font-semibold mb-4">
+                Preview / Quick actions
+              </h2>
 
-            <div className="space-y-3 text-sm text-soil/70 mb-6">
-              <div>
-                <strong>Address:</strong> {studio.address}
+              <div className="space-y-3 text-sm text-soil/70 mb-6">
+                <div>
+                  <strong>Address:</strong> {studio.address}
+                </div>
+                <div>
+                  <strong>Phone:</strong> {studio.phone}
+                </div>
+                <div>
+                  <strong>Email:</strong> {studio.email}
+                </div>
               </div>
-              <div>
-                <strong>Phone:</strong> {studio.phone}
-              </div>
-              <div>
-                <strong>Email:</strong> {studio.email}
-              </div>
+
+              <a
+                target="_blank"
+                rel="noreferrer"
+                className="inline-block bg-clay text-white px-4 py-2 rounded-full"
+                href={studio.mapLink || studio.mapUrl || "#"}
+              >
+                Open map
+              </a>
             </div>
-
-            <a
-              target="_blank"
-              rel="noreferrer"
-              className="inline-block bg-clay text-white px-4 py-2 rounded-full"
-              href={studio.mapLink || studio.mapUrl || "#"}
-            >
-              Open map
-            </a>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </AdminPageContainer>
   );
 }

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Plus, Trash2, Save, AlertCircle, Loader2, ArrowLeft } from "lucide-react";
 import { fadeInUp } from "@/lib/animations";
+import AdminPageContainer from "@/components/admin/AdminPageContainer";
 
 interface ShippingRate {
   _id: string;
@@ -151,19 +152,10 @@ export default function AdminSettings() {
     );
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="flex items-center gap-4 mb-8">
-        <Link href="/admin" className="flex items-center gap-2 text-soil/40 hover:text-soil transition-colors font-medium shrink-0">
-          <ArrowLeft size={20} />
-          <span>Admin</span>
-        </Link>
-        <h1 className="text-2xl sm:text-3xl font-bold text-soil font-serif">
-          Store Settings
-        </h1>
-      </div>
-
+    <AdminPageContainer title="Store Settings">
+    <div className="space-y-8">
       {/* General Configuration Section */}
-      <section className="bg-white rounded-2xl p-8 shadow-sm border border-soil/10 mb-8">
+      <section className="bg-white rounded-2xl p-8 shadow-sm border border-soil/10"
         <div className="flex justify-between items-start mb-6">
           <div>
             <h2 className="text-xl font-bold text-soil mb-2 flex items-center gap-2">
@@ -439,5 +431,6 @@ export default function AdminSettings() {
         </div>
       </section>
     </div>
+    </AdminPageContainer>
   );
 }

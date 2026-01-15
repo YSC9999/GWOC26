@@ -12,6 +12,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
+import AdminPageContainer from "@/components/admin/AdminPageContainer";
 
 interface Product {
   _id: string;
@@ -146,139 +147,153 @@ export default function AdminFramesPage() {
   ];
 
   return (
-    <div className="min-h-screen pb-20">
-      <div className="flex items-center gap-4 mb-8">
-        <Link href="/admin" className="flex items-center gap-2 text-soil/40 hover:text-soil transition-colors font-medium shrink-0">
-          <ArrowLeft size={20} />
-          <span>Admin</span>
-        </Link>
-        <motion.h1
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-soil flex items-center gap-3"
-        >
-          Manage Homepage Frames
-        </motion.h1>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {frames.map((frame, index) => (
-          <motion.div
-            key={frame.frameId}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: index * 0.05 }}
-            className={`relative rounded-3xl p-6 border-2 transition-all duration-300 ${frame.product ? "border-clay bg-white shadow-lg" : "border-soil/10 bg-sand/20 border-dashed"
+    <AdminPageContainer title="Manage Homepage Frames">
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {frames.map((frame, index) => (
+            <motion.div
+              key={frame.frameId}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 0.05 }}
+              className={`relative rounded-3xl p-6 border-2 transition-all duration-300 ${
+                frame.product
+                  ? "border-clay bg-white shadow-lg"
+                  : "border-soil/10 bg-sand/20 border-dashed"
               }`}
-          >
-            <div className="flex justify-between items-start mb-4">
-              <span className="bg-soil text-white w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold shadow-md">
-                {frame.frameId + 1}
-              </span>
-              {frame.product && (
-                <button
-                  onClick={() => handleClearFrame(frame.frameId)}
-                  className="text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors"
-                >
-                  <X size={18} />
-                </button>
-              )}
-            </div>
-
-            <div className="aspect-square rounded-2xl overflow-hidden bg-gray-50 mb-4 relative group">
-              {frame.product ? (
-                <>
-                  <img
-                    src={frame.product.images[0]}
-                    alt={frame.product.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-medium text-center p-2">
-                    {frame.product.name}
-                  </div>
-                </>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-soil/20">
-                  <ImageIcon size={48} />
-                </div>
-              )}
-            </div>
-
-            {/* Search / Add Button */}
-            <div className="relative">
-              {!frame.product && activeFrameId !== frame.frameId && (
-                <button
-                  onClick={() => {
-                    setActiveFrameId(frame.frameId);
-                    setSearchQuery("");
-                    setTimeout(() => document.getElementById(`search-${frame.frameId}`)?.focus(), 100);
-                  }}
-                  className="w-full py-3 border-2 border-clay text-clay rounded-xl font-semibold hover:bg-clay hover:text-white transition-all flex items-center justify-center gap-2"
-                >
-                  <Plus size={18} /> Add Product
-                </button>
-              )}
-
-              {/* Search Dropdown */}
-              <AnimatePresence>
-                {activeFrameId === frame.frameId && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute inset-x-0 bottom-0 z-20 bg-white rounded-xl shadow-2xl border border-clay/20 overflow-hidden"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <span className="bg-soil text-white w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold shadow-md">
+                  {frame.frameId + 1}
+                </span>
+                {frame.product && (
+                  <button
+                    onClick={() => handleClearFrame(frame.frameId)}
+                    className="text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors"
                   >
-                    <div className="flex items-center border-b p-2">
-                      <Search size={18} className="text-gray-400 ml-2" />
-                      <input
-                        id={`search-${frame.frameId}`}
-                        type="text"
-                        placeholder="Search product..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full p-2 outline-none text-base md:text-sm"
-                      />
-                      <button onClick={() => setActiveFrameId(null)} className="p-2 text-gray-400 hover:text-gray-600">
-                        <X size={16} />
-                      </button>
-                    </div>
-
-                    <div className="max-h-48 overflow-y-auto">
-                      {searching ? (
-                        <div className="p-4 text-center text-gray-500"><Loader2 className="animate-spin mx-auto" /></div>
-                      ) : searchResults.length > 0 ? (
-                        searchResults.map(p => (
-                          <button
-                            key={p._id}
-                            onClick={() => handleAssignProduct(frame.frameId, p)}
-                            className="w-full text-left p-3 hover:bg-sand/30 flex items-center gap-3 border-b border-gray-50 last:border-0"
-                          >
-                            <img src={p.images[0]} className="w-10 h-10 rounded object-cover" />
-                            <div className="flex-1 min-w-0">
-                              <div className="text-sm font-medium truncate">{p.name}</div>
-                              <div className="text-xs text-gray-500 capitalize">{p.category}</div>
-                            </div>
-                          </button>
-                        ))
-                      ) : searchQuery.length > 1 ? (
-                        <div className="p-3 text-center text-xs text-gray-500">No products found</div>
-                      ) : (
-                        <div className="p-3 text-center text-xs text-gray-400">Type to search...</div>
-                      )}
-                    </div>
-                  </motion.div>
+                    <X size={18} />
+                  </button>
                 )}
-              </AnimatePresence>
-            </div>
+              </div>
 
-            {/* Label hint */}
-            <div className="text-xs text-center mt-3 text-soil/40 font-mono">
-              {frameLayouts[index].label}
-            </div>
-          </motion.div>
-        ))}
+              <div className="aspect-square rounded-2xl overflow-hidden bg-gray-50 mb-4 relative group">
+                {frame.product ? (
+                  <>
+                    <img
+                      src={frame.product.images[0]}
+                      alt={frame.product.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-medium text-center p-2">
+                      {frame.product.name}
+                    </div>
+                  </>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-soil/20">
+                    <ImageIcon size={48} />
+                  </div>
+                )}
+              </div>
+
+              {/* Search / Add Button */}
+              <div className="relative">
+                {!frame.product && activeFrameId !== frame.frameId && (
+                  <button
+                    onClick={() => {
+                      setActiveFrameId(frame.frameId);
+                      setSearchQuery("");
+                      setTimeout(
+                        () =>
+                          document
+                            .getElementById(`search-${frame.frameId}`)
+                            ?.focus(),
+                        100
+                      );
+                    }}
+                    className="w-full py-3 border-2 border-clay text-clay rounded-xl font-semibold hover:bg-clay hover:text-white transition-all flex items-center justify-center gap-2"
+                  >
+                    <Plus size={18} /> Add Product
+                  </button>
+                )}
+
+                {/* Search Dropdown */}
+                <AnimatePresence>
+                  {activeFrameId === frame.frameId && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute inset-x-0 bottom-0 z-20 bg-white rounded-xl shadow-2xl border border-clay/20 overflow-hidden"
+                    >
+                      <div className="flex items-center border-b p-2">
+                        <Search size={18} className="text-gray-400 ml-2" />
+                        <input
+                          id={`search-${frame.frameId}`}
+                          type="text"
+                          placeholder="Search product..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="w-full p-2 outline-none text-base md:text-sm"
+                        />
+                        <button
+                          onClick={() => setActiveFrameId(null)}
+                          className="p-2 text-gray-400 hover:text-gray-600"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+
+                      <div className="max-h-48 overflow-y-auto">
+                        {searching ? (
+                          <div className="p-4 text-center text-gray-500">
+                            <Loader2 className="animate-spin mx-auto" />
+                          </div>
+                        ) : searchResults.length > 0 ? (
+                          searchResults.map((p) => (
+                            <button
+                              key={p._id}
+                              onClick={() =>
+                                handleAssignProduct(frame.frameId, p)
+                              }
+                              className="w-full text-left p-3 hover:bg-sand/30 flex items-center gap-3 border-b border-gray-50 last:border-0"
+                            >
+                              <img
+                                src={p.images[0]}
+                                className="w-10 h-10 rounded object-cover"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-medium truncate">
+                                  {p.name}
+                                </div>
+                                <div className="text-xs text-gray-500 capitalize">
+                                  {p.category}
+                                </div>
+                              </div>
+                            </button>
+                          ))
+                        ) : searchQuery.length > 1 ? (
+                          <div className="p-3 text-center text-xs text-gray-500">
+                            No products found
+                          </div>
+                        ) : (
+                          <div className="p-3 text-center text-xs text-gray-400">
+                            Type to search...
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Label hint */}
+              <div className="text-xs text-center mt-3 text-soil/40 font-mono">
+                {frameLayouts[index].label}
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
-    </div>
+    </AdminPageContainer>
   );
 }
-

@@ -1,9 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 
 import OrderModal from "@/components/admin/OrderModal";
+import AdminPageContainer from "@/components/admin/AdminPageContainer";
 
 interface OrderItem {
   name: string;
@@ -48,9 +49,44 @@ export default function AdminOrdersPage() {
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
+  /* PAGINATION */
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Filter orders based on search
+  const filteredOrders = searchTerm
+    ? orders.filter(
+        (o) =>
+          o.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (typeof o.userId === "object" &&
+            o.userId &&
+            "name" in o.userId &&
+            o.userId.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (o.email && o.email.toLowerCase().includes(searchTerm.toLowerCase()))
+      )
+    : orders;
+
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentOrders = filteredOrders.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  // Reset page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   const fetchOrders = async (background = false) => {
     if (!background) setLoading(true);
@@ -135,16 +171,9 @@ export default function AdminOrdersPage() {
   const selectedOrder = orders.find((o) => o._id === selectedOrderId);
 
   return (
-    <div className="min-h-screen py-8 md:py-12 px-4 md:px-0">
-      <div className="flex flex-col gap-4 mb-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <Link href="/admin" className="flex items-center gap-2 text-soil/40 hover:text-soil transition-colors font-medium shrink-0">
-              <ArrowLeft size={20} />
-              <span>Admin</span>
-            </Link>
-            <h1 className="text-2xl md:text-3xl font-bold text-soil font-serif break-words">Orders</h1>
-          </div>
+    <AdminPageContainer title="Orders">
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-end gap-4 mb-8">
           <input
             type="text"
             placeholder="Search by Order ID, Name or Email..."
@@ -153,176 +182,223 @@ export default function AdminOrdersPage() {
             className="border-soil/10 focus:bg-white/10 focus:ring-4 focus:ring-clay/5 rounded-xl px-4 py-3 bg-sand/10 backdrop-blur-sm w-full md:w-80 text-soil placeholder:text-soil/30 transition-all outline-none"
           />
         </div>
-      </div>
 
-      {(searchTerm ? orders.filter(o =>
-        o.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (typeof o.userId === 'object' && o.userId && 'name' in o.userId && o.userId.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (o.email && o.email.toLowerCase().includes(searchTerm.toLowerCase()))
-      ) : orders).length === 0 ? (
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-12 text-center">
-          <h2 className="text-xl font-bold text-soil mb-2">No orders yet</h2>
-          <p className="text-soil/60">No orders found.</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {(searchTerm ? orders.filter(o =>
-            o.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (typeof o.userId === 'object' && o.userId && 'name' in o.userId && o.userId.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (o.email && o.email.toLowerCase().includes(searchTerm.toLowerCase()))
-          ) : orders).map((order) => {
-            const checked = stageChecked(order.status);
-            const isCustomOrder = order.items.some((item) =>
-              item.productId?.tags?.includes("custom")
-            );
+        {filteredOrders.length === 0 ? (
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-12 text-center">
+            <h2 className="text-xl font-bold text-soil mb-2">No orders yet</h2>
+            <p className="text-soil/60">No orders found.</p>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-4">
+              {currentOrders.map((order) => {
+                const checked = stageChecked(order.status);
+                const isCustomOrder = order.items.some((item) =>
+                  item.productId?.tags?.includes("custom")
+                );
 
-            return (
-              <div
-                key={order._id}
-                className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-6 shadow-sm hover:shadow-md transition-all group"
-              >
-                <div
-                  className="flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer"
-                  onClick={() => setSelectedOrderId(order._id)}
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <div className="p-2 bg-slate-50 text-slate-400 rounded-full group-hover:bg-slate-100 group-hover:text-slate-600 transition-colors">
-                        <span className="text-xs">👁️</span>
-                      </div>
-                      <div className="flex-1 min-w-0"> {/* min-w-0 required for text truncation/wrap in flex child */}
-                        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-2">
-                          <span className="font-bold text-lg text-soil break-all">
-                            {order.orderNumber}
-                          </span>
-                          <span className="text-xs text-soil/50 bg-sand/30 px-2 py-1 rounded-full w-fit">
-                            {new Date(order.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <div className="text-sm text-soil/70 break-words">
-                          {typeof order.userId === 'object' ? order.userId?.name : 'Guest User'}
-                          {order.email && <span className="text-soil/40 ml-2 text-xs break-all hidden sm:inline">({order.email})</span>}
-                        </div>
-                        <div className="text-sm text-soil/70 mt-1 sm:hidden break-all text-xs">
-                          {order.email}
-                        </div>
-                      </div>
-                      {isCustomOrder && (
-                        <span className="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full font-bold">
-                          Custom
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-sm text-soil/60 ml-10">
-                      {order.userId && typeof order.userId !== "string"
-                        ? order.userId.name
-                        : "Guest"}
-                      <span className="mx-2">•</span>
-                      {order.items.length} Items
-                    </div>
-                    <div className="text-xs text-soil/40 mt-1 ml-10">
-                      Placed on {new Date(order.createdAt).toLocaleString()}
-                    </div>
-                  </div>
-
+                return (
                   <div
-                    className="flex flex-wrap items-center justify-between gap-4 w-full md:w-auto mt-4 md:mt-0"
-                    onClick={(e) => e.stopPropagation()}
+                    key={order._id}
+                    className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-6 shadow-sm hover:shadow-md transition-all group"
                   >
-                    {order.status !== "cancelled" ? (
-                      <div className="flex flex-wrap items-center gap-3 bg-slate-50/50 px-3 py-1.5 rounded-lg border border-slate-100">
-                        <label className="flex items-center gap-2 text-xs cursor-pointer select-none">
-                          <input
-                            type="checkbox"
-                            checked={checked.confirmed}
-                            onChange={(e) =>
-                              handleCheckboxChange(
-                                order,
-                                "confirmed",
-                                e.target.checked
-                              )
-                            }
-                            className="rounded text-clay focus:ring-clay"
-                          />
-                          <span>Confirmed</span>
-                        </label>
-                        <label className="flex items-center gap-2 text-xs cursor-pointer select-none">
-                          <input
-                            type="checkbox"
-                            checked={checked.shipped}
-                            onChange={(e) =>
-                              handleCheckboxChange(
-                                order,
-                                "shipped",
-                                e.target.checked
-                              )
-                            }
-                            className="rounded text-clay focus:ring-clay"
-                          />
-                          <span>Shipped</span>
-                        </label>
-                        <label className="flex items-center gap-2 text-xs cursor-pointer select-none">
-                          <input
-                            type="checkbox"
-                            checked={checked.delivered}
-                            onChange={(e) =>
-                              handleCheckboxChange(
-                                order,
-                                "delivered",
-                                e.target.checked
-                              )
-                            }
-                            className="rounded text-clay focus:ring-clay"
-                          />
-                          <span>Delivered</span>
-                        </label>
+                    <div
+                      className="flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer"
+                      onClick={() => setSelectedOrderId(order._id)}
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <div className="p-2 bg-slate-50 text-slate-400 rounded-full group-hover:bg-slate-100 group-hover:text-slate-600 transition-colors">
+                            <span className="text-xs">👁️</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            {" "}
+                            {/* min-w-0 required for text truncation/wrap in flex child */}
+                            <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-2">
+                              <span className="font-bold text-lg text-soil break-all">
+                                {order.orderNumber}
+                              </span>
+                              <span className="text-xs text-soil/50 bg-sand/30 px-2 py-1 rounded-full w-fit">
+                                {new Date(order.createdAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                            <div className="text-sm text-soil/70 break-words">
+                              {typeof order.userId === "object"
+                                ? order.userId?.name
+                                : "Guest User"}
+                              {order.email && (
+                                <span className="text-soil/40 ml-2 text-xs break-all hidden sm:inline">
+                                  ({order.email})
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-sm text-soil/70 mt-1 sm:hidden break-all text-xs">
+                              {order.email}
+                            </div>
+                          </div>
+                          {isCustomOrder && (
+                            <span className="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full font-bold">
+                              Custom
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-soil/60 ml-10">
+                          {order.userId && typeof order.userId !== "string"
+                            ? order.userId.name
+                            : "Guest"}
+                          <span className="mx-2">•</span>
+                          {order.items.length} Items
+                        </div>
+                        <div className="text-xs text-soil/40 mt-1 ml-10">
+                          Placed on {new Date(order.createdAt).toLocaleString()}
+                        </div>
                       </div>
-                    ) : (
-                      <div className="bg-red-50 text-red-600 px-3 py-1.5 rounded-lg border border-red-100 text-xs font-bold uppercase">
-                        Cancelled
-                      </div>
-                    )}
 
-                    <div className="text-right min-w-[100px]">
-                      <div className="font-bold text-soil text-lg">
-                        ₹{order.total.toLocaleString()}
-                      </div>
                       <div
-                        className={`text-xs font-bold uppercase tracking-wider ${order.paymentStatus === "paid"
-                          ? "text-green-600"
-                          : "text-amber-500"
-                          }`}
+                        className="flex flex-wrap items-center justify-between gap-4 w-full md:w-auto mt-4 md:mt-0"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        {order.paymentStatus}
+                        {order.status !== "cancelled" ? (
+                          <div className="flex flex-wrap items-center gap-3 bg-slate-50/50 px-3 py-1.5 rounded-lg border border-slate-100">
+                            <label className="flex items-center gap-2 text-xs cursor-pointer select-none">
+                              <input
+                                type="checkbox"
+                                checked={checked.confirmed}
+                                onChange={(e) =>
+                                  handleCheckboxChange(
+                                    order,
+                                    "confirmed",
+                                    e.target.checked
+                                  )
+                                }
+                                className="rounded text-clay focus:ring-clay"
+                              />
+                              <span>Confirmed</span>
+                            </label>
+                            <label className="flex items-center gap-2 text-xs cursor-pointer select-none">
+                              <input
+                                type="checkbox"
+                                checked={checked.shipped}
+                                onChange={(e) =>
+                                  handleCheckboxChange(
+                                    order,
+                                    "shipped",
+                                    e.target.checked
+                                  )
+                                }
+                                className="rounded text-clay focus:ring-clay"
+                              />
+                              <span>Shipped</span>
+                            </label>
+                            <label className="flex items-center gap-2 text-xs cursor-pointer select-none">
+                              <input
+                                type="checkbox"
+                                checked={checked.delivered}
+                                onChange={(e) =>
+                                  handleCheckboxChange(
+                                    order,
+                                    "delivered",
+                                    e.target.checked
+                                  )
+                                }
+                                className="rounded text-clay focus:ring-clay"
+                              />
+                              <span>Delivered</span>
+                            </label>
+                          </div>
+                        ) : (
+                          <div className="bg-red-50 text-red-600 px-3 py-1.5 rounded-lg border border-red-100 text-xs font-bold uppercase">
+                            Cancelled
+                          </div>
+                        )}
+
+                        <div className="text-right min-w-[100px]">
+                          <div className="font-bold text-soil text-lg">
+                            ₹{order.total.toLocaleString()}
+                          </div>
+                          <div
+                            className={`text-xs font-bold uppercase tracking-wider ${
+                              order.paymentStatus === "paid"
+                                ? "text-green-600"
+                                : "text-amber-500"
+                            }`}
+                          >
+                            {order.paymentStatus}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
+                );
+              })}
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="mt-6 flex items-center justify-between">
+                <span className="text-sm text-soil/60">
+                  Showing {startIndex + 1} to{" "}
+                  {Math.min(startIndex + itemsPerPage, filteredOrders.length)}{" "}
+                  of {filteredOrders.length} orders
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="p-2 rounded-lg bg-sand/30 hover:bg-sand/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <button
+                        key={page}
+                        onClick={() => goToPage(page)}
+                        className={`px-3 py-1 rounded-lg font-medium transition-colors ${
+                          page === currentPage
+                            ? "bg-clay text-white"
+                            : "bg-sand/30 hover:bg-sand/50 text-soil"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    )
+                  )}
+                  <button
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="p-2 rounded-lg bg-sand/30 hover:bg-sand/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
                 </div>
               </div>
-            );
-          })}
-        </div>
-      )}
+            )}
+          </>
+        )}
 
-      {/* Modal */}
-      {selectedOrder && (
-        <OrderModal
-          order={selectedOrder}
-          onClose={() => {
-            setSelectedOrderId(null);
-            fetchOrders(true);
-          }}
-          onUpdate={(updatedOrder?: any) => {
-            if (updatedOrder) {
-              setOrders((prev) =>
-                prev.map((o) => (o._id === updatedOrder._id ? updatedOrder : o))
-              );
-            }
-            // Still fetch in background to be safe
-            fetchOrders(true);
-          }}
-        />
-      )}
-    </div>
+        {/* Modal */}
+        {selectedOrder && (
+          <OrderModal
+            order={selectedOrder}
+            onClose={() => {
+              setSelectedOrderId(null);
+              fetchOrders(true);
+            }}
+            onUpdate={(updatedOrder?: any) => {
+              if (updatedOrder) {
+                setOrders((prev) =>
+                  prev.map((o) =>
+                    o._id === updatedOrder._id ? updatedOrder : o
+                  )
+                );
+              }
+              // Still fetch in background to be safe
+              fetchOrders(true);
+            }}
+          />
+        )}
+      </div>
+    </AdminPageContainer>
   );
 }
