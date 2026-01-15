@@ -18,7 +18,7 @@ export default function ProductCard({
   product,
   userTier,
 }: ProductCardProps) {
-  const allowed = isTierOrHigher(userTier, product.tierRequired);
+  const allowed = isTierOrHigher(userTier, product.tierRequired || UserTier.TIER_0);
   const { user } = useAuth();
   const [isLiked, setIsLiked] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);

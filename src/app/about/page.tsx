@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { fadeInUp, staggerContainer, hoverScale } from "@/lib/animations";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Utensils, Flame, Droplets, Heart } from "lucide-react";
 
 export default function About() {
   const stats = [
@@ -62,7 +62,7 @@ export default function About() {
                   in the world of Dentistry, I found myself searching for
                   something more meaningful — a craft that would connect me to
                   the earth and allow me to create with intention. That's when I
-                  discovered pottery, and everything changed. <br/>
+                  discovered pottery, and everything changed. <br />
                   What started as a weekend hobby quickly became an
                   all-consuming passion. I trained under master potters, studied
                   Japanese ceramic traditions, and fell deeply in love with the
@@ -178,6 +178,103 @@ export default function About() {
           />
         </motion.div>
       </div>
+
+      {/* Process & Care Section */}
+      <section className="py-24 bg-sand/20 my-16 -mx-4 md:-mx-12 px-4 md:px-12 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
+
+            {/* Left Column: Process (Vertical Timeline) */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+            >
+              <motion.div variants={fadeInUp} className="mb-12">
+                <span className="text-clay font-bold tracking-widest uppercase text-xs mb-2 block">The Journey</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-bold text-soil">
+                  Our Process
+                </h2>
+              </motion.div>
+
+              <div className="space-y-0 relative border-l-2 border-clay/20 ml-3 md:ml-4 pl-8 md:pl-12 py-2">
+                {[
+                  { id: "01", title: "Clay Preparation", desc: "Local stoneware clay is wedged and kneaded by hand to remove air bubbles." },
+                  { id: "02", title: "Wheel Throwing", desc: "Each piece is thrown on the potter's wheel, guided by rhythm and intuition." },
+                  { id: "03", title: "Leather Hard Trimming", desc: "Excess clay is removed, revealing the piece's true form." },
+                  { id: "04", title: "Bisque Firing", desc: "First firing at 900°C transforms clay into porous bisqueware." },
+                  { id: "05", title: "Glazing", desc: "Hand-dipped in our signature, food-safe glaze formulas." },
+                  { id: "06", title: "Final Firing", desc: "High-fire at 1200°C brings out the glaze's true colors and strength." }
+                ].map((step, idx) => (
+                  <motion.div key={step.id} variants={fadeInUp} className="relative pb-12 last:pb-0 group">
+                    {/* Timeline Dot */}
+                    <div className="absolute -left-[41px] md:-left-[58px] top-1 w-6 h-6 rounded-full bg-sand border-4 border-white shadow-sm group-hover:bg-clay group-hover:scale-125 transition-all duration-300 z-10" />
+
+                    <div className="relative -top-1">
+                      <span className="text-[10px] font-bold text-soil/30 mb-1 block tracking-wider uppercase">Step {step.id}</span>
+                      <h3 className="text-xl font-bold text-soil mb-2 group-hover:text-clay transition-colors duration-300">{step.title}</h3>
+                      <p className="text-soil/70 leading-relaxed text-sm">{step.desc}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Right Column: Material & Care (Minimalist Cards) */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+              className="lg:sticky lg:top-24"
+            >
+              <motion.div variants={fadeInUp} className="mb-12">
+                <span className="text-clay font-bold tracking-widest uppercase text-xs mb-2 block">Longevity</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-bold text-soil">
+                  Material & Care
+                </h2>
+              </motion.div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                {[
+                  { icon: <Utensils size={20} />, title: "Food Safe", desc: "Lead-free & certified safe" },
+                  { icon: <Flame size={20} />, title: "Thermal Safe", desc: "Freezer to oven ready" },
+                  { icon: <Droplets size={20} />, title: "Dishwasher Safe", desc: "Durable for daily wash" },
+                  { icon: <Heart size={20} />, title: "Heirloom Quality", desc: "Built to last generations" }
+                ].map((item, idx) => (
+                  <motion.div
+                    key={idx}
+                    variants={fadeInUp}
+                    whileHover={{ y: -5 }}
+                    className="bg-white rounded-2xl p-6 shadow-sm border border-sand/30 hover:shadow-md hover:border-clay/30 transition-all duration-300"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-sand/20 text-clay flex items-center justify-center mb-4">
+                      {item.icon}
+                    </div>
+                    <h3 className="text-lg font-bold text-soil mb-1">{item.title}</h3>
+                    <p className="text-soil/60 text-xs font-medium">{item.desc}</p>
+                  </motion.div>
+                ))}
+              </div>
+
+              <motion.div variants={fadeInUp} className="bg-white rounded-3xl p-8 border border-sand/30 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-8 opacity-5">
+                  <Utensils size={120} className="text-soil" />
+                </div>
+                <h4 className="text-soil font-bold mb-4 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-clay" />
+                  Care Instructions
+                </h4>
+                <p className="text-soil/70 text-sm leading-relaxed italic z-10 relative font-serif">
+                  "While durable, hand washing with mild soap preserves the glaze's luster. Avoid sudden temperature changes. Each piece develops a unique patina with use—a beautiful record of shared meals and memories."
+                </p>
+              </motion.div>
+            </motion.div>
+
+          </div>
+        </div>
+      </section>
 
       {/* Stats */}
       <section className="py-20 bg-soil text-white border-4 border-sand/50 m-8 rounded-2xl">
