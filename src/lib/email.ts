@@ -300,3 +300,46 @@ export async function sendOrderStatusEmail(email: string, orderNumber: string, s
     return false;
   }
 }
+export async function sendAccountDeletionOTPEmail(email: string, otp: string): Promise<boolean> {
+  try {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.log('📧 EMAIL SERVICE NOT CONFIGURED - ACCOUNT DELETION');
+      console.log(`Deletion OTP for ${email}: ${otp}`);
+      return true;
+    }
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Security Alert: Account Deletion OTP - Basho',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #EF4444 0%, #B91C1C 100%); padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="color: white; margin: 0; text-align: center;">Basho Security</h2>
+          </div>
+          <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px;">
+            <p style="color: #333; font-size: 16px; margin-bottom: 20px;">Hello,</p>
+            <p style="color: #666; font-size: 14px; margin-bottom: 30px;">You have requested to permanently delete your Basho account. This action cannot be undone. To proceed, please use the security verification code below:</p>
+            
+            <div style="background: white; border: 2px solid #EF4444; border-radius: 8px; padding: 20px; text-align: center; margin: 30px 0;">
+              <p style="margin: 0; font-size: 12px; color: #999;">Deletion Verification Code</p>
+              <p style="margin: 10px 0; font-size: 32px; font-weight: bold; color: #EF4444; letter-spacing: 5px;">${otp}</p>
+            </div>
+            
+            <p style="color: #999; font-size: 12px; margin-bottom: 20px;">This OTP will expire in 10 minutes.</p>
+            <p style="color: #666; font-size: 14px; margin-bottom: 20px;"><strong>If you did not request this, please change your password immediately and secure your account.</strong></p>
+            
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">© 2024 Basho. All rights reserved.</p>
+          </div>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error('Error sending deletion OTP email:', error);
+    return false;
+  }
+}

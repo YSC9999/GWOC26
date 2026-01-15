@@ -16,7 +16,9 @@ export async function GET(req: Request) {
 
         // Build query - ensure we filter using fields that exist in the Product schema
         // Use stockQuantity or inStock; previous code used `stock` which doesn't exist, returning no products.
-        const query: any = {};
+        const query: any = {
+            tags: { $ne: 'custom' }
+        };
 
         if (category && category !== "all") {
             query.category = category;

@@ -33,6 +33,7 @@ export async function GET(req: Request) {
 
 import Coupon from "@/models/Coupon";
 import User from "@/models/User";
+import UsedCouponTracker from "@/models/UsedCouponTracker";
 
 export async function POST(req: Request) {
     try {
@@ -216,6 +217,12 @@ export async function POST(req: Request) {
                             return NextResponse.json({ error: `You have already redeemed this coupon code ${limit} time(s)` }, { status: 400 });
                         }
                     }
+                }
+
+                // 3. Check Persistent Tracker (Across account deletions)
+                const persistentUse = await UsedCouponTracker.findOne({ email: email || authUser?.email, couponCode: coupon.code });
+                if (persistentUse) {
+                    return NextResponse.json({ error: `This email has already used this coupon code.` }, { status: 400 });
                 }
 
                 // Calculate Discount

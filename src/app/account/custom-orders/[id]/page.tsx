@@ -120,32 +120,31 @@ export default function CustomOrderDetail({
   if (!order) return <div className="text-center py-20">Order not found</div>;
 
   return (
-    <div className="min-h-screen py-12 px-4 md:px-8 max-w-5xl mx-auto">
-      <div className="flex items-center gap-4 mb-8">
+    <div className="space-y-8 animate-in fade-in duration-700">
+      <div className="flex items-center gap-4">
         <Link
           href="/account/custom-orders"
-          className="text-soil/60 hover:text-clay flex items-center gap-2"
+          className="text-soil/40 hover:text-clay flex items-center gap-2 font-bold text-sm transition-colors"
         >
-          <ArrowLeft size={18} /> Back to Requests
+          <ArrowLeft size={16} /> Back to Requests
         </Link>
       </div>
 
-      <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-        <div className="flex flex-col md:flex-row justify-between md:items-start gap-6 border-b border-gray-100 pb-8 mb-8">
+      <div className="bg-white rounded-3xl p-8 shadow-sm border border-sand/30">
+        <div className="flex flex-col md:flex-row justify-between md:items-start gap-6 border-b border-sand/20 pb-8 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-soil font-serif mb-2">
               Request Details
             </h1>
-            <p className="text-soil/60">
+            <p className="text-soil/40 font-bold text-xs uppercase tracking-widest">
               Placed on {new Date(order.createdAt).toLocaleDateString()}
             </p>
-            <div className="mt-4 px-3 py-1 bg-gray-100 rounded-lg inline-block text-sm font-medium uppercase text-gray-600">
-              Status:{" "}
+            <div className="mt-4 px-3 py-1 bg-sand/30 rounded-full inline-block text-[10px] font-bold uppercase tracking-widest text-soil/60">
               {order.status === "accepted"
                 ? "In Cart"
                 : order.status === "completed"
-                ? "Order Placed"
-                : order.status}
+                  ? "Order Placed"
+                  : order.status}
             </div>
           </div>
 
@@ -154,7 +153,7 @@ export default function CustomOrderDetail({
               <button
                 onClick={handleAcceptQuote}
                 disabled={processing}
-                className="w-full bg-clay text-white py-3 rounded-xl font-bold hover:bg-clay/90 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-clay/20"
+                className="w-full bg-brick text-white py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-brick/20 transition-all flex items-center justify-center gap-2 border-none cursor-pointer"
               >
                 {processing ? (
                   <Loader2 className="animate-spin" />
@@ -166,7 +165,7 @@ export default function CustomOrderDetail({
               <button
                 onClick={handleCancelOrder}
                 disabled={processing}
-                className="w-full border-2 border-red-100 text-red-400 py-3 rounded-xl font-bold hover:bg-red-50 hover:text-red-500 transition-colors"
+                className="w-full bg-transparent text-red-400 py-3 rounded-xl font-bold hover:text-red-500 transition-colors border-none cursor-pointer"
               >
                 Cancel Request
               </button>
@@ -176,14 +175,14 @@ export default function CustomOrderDetail({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div>
-            <h3 className="text-lg font-bold text-soil mb-4">Your Request</h3>
-            <p className="text-soil/80 whitespace-pre-wrap bg-gray-50 p-6 rounded-2xl">
+            <h3 className="text-xl font-bold text-soil mb-4 font-serif">Your Request</h3>
+            <p className="text-soil/70 whitespace-pre-wrap bg-sand/10 p-6 rounded-3xl leading-relaxed">
               {order.description}
             </p>
           </div>
 
           <div>
-            <h3 className="text-lg font-bold text-soil mb-4">
+            <h3 className="text-xl font-bold text-soil mb-4 font-serif">
               Quote Breakdown
             </h3>
             {order.items && order.items.length > 0 ? (
@@ -191,19 +190,17 @@ export default function CustomOrderDetail({
                 {order.items.map((item, idx) => (
                   <div
                     key={idx}
-                    className={`p-4 rounded-xl border ${
-                      item.status === "rejected"
+                    className={`p-5 rounded-3xl border ${item.status === "rejected"
                         ? "bg-red-50 border-red-100"
-                        : "bg-white border-clay/10"
-                    } flex justify-between items-center`}
+                        : "bg-white border-sand/30"
+                      } flex justify-between items-center shadow-sm`}
                   >
                     <div>
                       <div
-                        className={`font-bold ${
-                          item.status === "rejected"
-                            ? "text-red-800"
-                            : "text-soil"
-                        }`}
+                        className={`font-bold ${item.status === "rejected"
+                          ? "text-red-800"
+                          : "text-soil"
+                          }`}
                       >
                         {item.name}
                       </div>

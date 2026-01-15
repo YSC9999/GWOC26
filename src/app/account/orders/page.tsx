@@ -23,6 +23,15 @@ export default function MyOrders() {
     fetchOrders();
   }, []);
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('id');
+    if (orderId && orders.length > 0) {
+      const order = orders.find(o => o._id === orderId);
+      if (order) setSelectedOrder(order);
+    }
+  }, [orders]);
+
   const fetchOrders = async () => {
     try {
       const res = await fetch("/api/orders");
@@ -59,36 +68,35 @@ export default function MyOrders() {
   if (loading) return <div className="text-center py-20">Loading orders...</div>;
 
   return (
-    <div className="min-h-screen py-12 px-4 md:px-8 max-w-5xl mx-auto">
-      <div className="flex items-center gap-4 mb-8">
-        <Link href="/account" className="text-soil/60 hover:text-clay">← Back</Link>
+    <div className="space-y-8 animate-in fade-in duration-700">
+      <div className="flex items-center gap-4">
         <h1 className="text-3xl font-bold text-soil font-serif">My Orders</h1>
       </div>
 
       {orders.length === 0 ? (
-        <div className="bg-sand/30 rounded-3xl p-12 text-center">
+        <div className="bg-white rounded-3xl p-12 text-center border border-sand/30 shadow-sm">
           <Package className="w-16 h-16 text-soil/20 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-soil mb-2">No orders yet</h2>
-          <p className="text-soil/60 mb-6">Looks like you haven't bought anything yet.</p>
-          <Link href="/products" className="btn-primary">
+          <p className="text-soil/60 mb-6 font-medium">Looks like you haven't bought anything yet.</p>
+          <Link href="/products" className="inline-block bg-brick text-white px-8 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-brick/20 transition-all">
             Start Shopping
           </Link>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {orders.map((order) => (
-            <div key={order._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+            <div key={order._id} className="bg-white rounded-3xl shadow-sm border border-sand/30 overflow-hidden hover:shadow-md transition-shadow">
               <div
                 className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer"
                 onClick={() => setSelectedOrder(order)}
               >
                 <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-full ${getStatusColor(order.status)}`}>
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${getStatusColor(order.status)} bg-opacity-10`}>
                     {getStatusIcon(order.status)}
                   </div>
                   <div>
                     <div className="font-bold text-soil text-lg">{order.orderNumber}</div>
-                    <div className="text-sm text-soil/60">
+                    <div className="text-xs font-medium text-soil/40 uppercase tracking-widest">
                       Placed on {new Date(order.createdAt).toLocaleDateString()}
                     </div>
                   </div>
@@ -96,8 +104,8 @@ export default function MyOrders() {
 
                 <div className="flex items-center gap-6">
                   <div className="text-right">
-                    <div className="font-bold text-soil">₹{order.total.toLocaleString()}</div>
-                    <div className={`text-xs font-medium uppercase tracking-wider px-2 py-0.5 rounded inline-block mt-1 ${order.status === 'cancelled' || order.paymentStatus === 'refunded' ? 'text-red-600 bg-red-50' : getStatusColor(order.status)}`}>
+                    <div className="font-bold text-soil text-lg">₹{order.total.toLocaleString()}</div>
+                    <div className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full inline-block mt-2 ${order.status === 'cancelled' || order.paymentStatus === 'refunded' ? 'text-red-500 bg-red-50' : getStatusColor(order.status)}`}>
                       {order.status === 'cancelled' || order.paymentStatus === 'refunded' ? 'CANCELLED' : order.status}
                     </div>
                   </div>

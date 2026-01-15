@@ -30,6 +30,7 @@ export async function GET(req: Request) {
       lastName: user.lastName,
       email: user.email,
       role: user.role,
+      picture: user.picture,
       tier: user.tier,
       addresses: user.addresses
     });

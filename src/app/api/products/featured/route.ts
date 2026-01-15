@@ -9,7 +9,8 @@ export async function GET() {
 
         const productsRaw = await Product.find({
             featured: true,
-            inStock: true
+            inStock: true,
+            tags: { $ne: 'custom' }
         })
             .sort({ createdAt: -1 })
             .limit(6)

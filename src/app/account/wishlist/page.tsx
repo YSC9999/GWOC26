@@ -63,23 +63,23 @@ export default function WishlistPage() {
     );
 
     return (
-        <div className="min-h-screen pt-32 pb-12 px-4 md:px-8 max-w-7xl mx-auto">
-            <div className="flex items-center gap-3 mb-8">
+        <div className="space-y-8 animate-in fade-in duration-700">
+            <div className="flex items-center gap-3">
                 <h1 className="text-3xl font-bold text-soil font-serif">My Wishlist</h1>
-                <span className="bg-sand text-soil px-3 py-1 rounded-full text-sm font-medium">
+                <span className="bg-sand text-soil px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-sand/30 shadow-sm">
                     {wishlist.length} Items
                 </span>
             </div>
 
             {wishlist.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {wishlist.map((product) => (
                         <Link
                             href={`/products/${product._id}`}
                             key={product._id}
-                            className="group bg-white rounded-2xl p-4 border border-stone-100 hover:shadow-md transition-all"
+                            className="group bg-white rounded-3xl p-4 border border-sand/30 hover:shadow-lg hover:shadow-sand/20 transition-all"
                         >
-                            <div className="relative aspect-square rounded-xl overflow-hidden mb-4 bg-sand/20">
+                            <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 bg-sand/20">
                                 <img
                                     src={product.images?.[0] || product.image}
                                     alt={product.name}
@@ -95,26 +95,25 @@ export default function WishlistPage() {
                                 </button>
                             </div>
 
-                            <div className="space-y-2">
-                                <h3 className="font-bold text-soil line-clamp-1">{product.name}</h3>
-                                <p className="text-sm text-stone-500 line-clamp-1">{product.description}</p>
+                            <div className="space-y-2 px-1">
+                                <h3 className="font-bold text-soil font-serif line-clamp-1">{product.name}</h3>
+                                <p className="text-xs text-soil/50 line-clamp-1">{product.description}</p>
 
                                 <div className="flex justify-between items-center pt-2">
-                                    <span className="text-lg font-bold text-clay">₹{product.price}</span>
-                                    {/* Optional: Add to cart button here if desired */}
+                                    <span className="text-lg font-bold text-clay font-serif">₹{product.price}</span>
                                 </div>
                             </div>
                         </Link>
                     ))}
                 </div>
             ) : (
-                <div className="text-center py-20 bg-white rounded-3xl border border-stone-100">
-                    <ShoppingBag size={48} className="mx-auto text-soil/20 mb-4" />
+                <div className="text-center py-20 bg-white rounded-3xl border border-sand/30 shadow-sm">
+                    <ShoppingBag size={48} className="mx-auto text-soil/10 mb-4" />
                     <h2 className="text-xl font-bold text-soil mb-2">Your wishlist is empty</h2>
-                    <p className="text-stone-500 mb-6">Save items you love to revisit them later.</p>
+                    <p className="text-soil/60 mb-8 font-medium">Save items you love to revisit them later.</p>
                     <Link
                         href="/products"
-                        className="inline-block bg-soil text-white px-8 py-3 rounded-full font-medium hover:bg-soil/90 transition-colors"
+                        className="inline-block bg-brick text-white px-8 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-brick/20 transition-all"
                     >
                         Explore Collection
                     </Link>

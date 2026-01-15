@@ -59,36 +59,36 @@ export default function MyCustomOrders() {
     if (loading) return <div className="text-center py-20 flex justify-center"><Loader2 className="animate-spin" /></div>;
 
     return (
-        <div className="min-h-screen py-12 px-4 md:px-8 max-w-5xl mx-auto">
-            <div className="flex items-center gap-4 mb-8">
-                <Link href="/account" className="text-soil/60 hover:text-clay">← Back</Link>
+        <div className="space-y-8 animate-in fade-in duration-700">
+            <div className="flex items-center gap-4">
                 <h1 className="text-3xl font-bold text-soil font-serif">My Custom Requests</h1>
             </div>
 
             {orders.length === 0 ? (
-                <div className="bg-sand/30 rounded-3xl p-12 text-center">
+                <div className="bg-white rounded-3xl p-12 text-center border border-sand/30 shadow-sm">
                     <Clock className="w-16 h-16 text-soil/20 mx-auto mb-4" />
                     <h2 className="text-xl font-bold text-soil mb-2">No custom requests</h2>
-                    <p className="text-soil/60 mb-6">You haven't requested any custom pieces yet.</p>
-                    <Link href="/products#custom-order" className="btn-primary">
+                    <p className="text-soil/60 mb-6 font-medium">You haven't requested any custom pieces yet.</p>
+                    <Link href="/products#custom-order" className="inline-block bg-brick text-white px-8 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-brick/20 transition-all">
                         Make a Request
                     </Link>
                 </div>
             ) : (
-                <div className="space-y-4">
+                <div className="space-y-8">
                     {orders.map((order) => (
-                        <Link key={order._id} href={`/account/custom-orders/${order._id}`}>
+                        <Link key={order._id} href={`/account/custom-orders/${order._id}`} className="block">
                             <motion.div
                                 whileHover={{ scale: 1.01 }}
-                                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:border-clay/30 transition-colors"
+                                className="bg-white rounded-3xl shadow-sm border border-sand/30 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:border-clay/30 transition-all"
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className={`p-3 rounded-full ${getStatusColor(order.status)}`}>
+                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${getStatusColor(order.status)} bg-opacity-10`}>
                                         {getStatusIcon(order.status)}
                                     </div>
                                     <div>
-                                        <div className="font-bold text-soil text-lg truncate max-w-xs">{order.description}</div>
-                                        <div className="text-sm text-soil/60">
+                                        <div className="font-bold text-soil text-lg truncate max-w-xs">{order.description || "Custom Request"}</div>
+                                        <div className="text-xs text-soil/50 font-mono mb-0.5">#{order._id}</div>
+                                        <div className="text-[10px] font-bold text-soil/40 uppercase tracking-widest">
                                             Requested on {new Date(order.createdAt).toLocaleDateString()}
                                         </div>
                                     </div>
@@ -97,15 +97,15 @@ export default function MyCustomOrders() {
                                 <div className="flex items-center gap-6">
                                     <div className="text-right">
                                         {order.totalPrice ? (
-                                            <div className="font-bold text-soil">Quote: ₹{order.totalPrice.toLocaleString()}</div>
+                                            <div className="font-bold text-soil text-lg">Quote: ₹{order.totalPrice.toLocaleString()}</div>
                                         ) : (
-                                            <div className="text-sm text-soil/50">Quote Pending</div>
+                                            <div className="text-sm font-bold text-clay">Quote Pending</div>
                                         )}
-                                        <div className={`text-xs font-medium uppercase tracking-wider px-2 py-0.5 rounded inline-block mt-1 ${getStatusColor(order.status)}`}>
+                                        <div className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full inline-block mt-2 ${getStatusColor(order.status)}`}>
                                             {order.status === 'accepted' ? 'Quote Accepted (In Cart)' : (order.status === 'completed' ? 'Order Placed' : order.status.replace('_', ' '))}
                                         </div>
                                     </div>
-                                    <ArrowRight className="text-soil/30" />
+                                    <ArrowRight className="text-soil/20" size={18} />
                                 </div>
                             </motion.div>
                         </Link>

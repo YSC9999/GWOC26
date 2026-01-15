@@ -15,6 +15,7 @@ export async function GET(req: Request) {
         // Case-insensitive regex search
         const products = await Product.find({
             name: { $regex: query, $options: "i" },
+            tags: { $ne: 'custom' }
         })
             .select("name images price category") // Select minimal fields
             .limit(10);

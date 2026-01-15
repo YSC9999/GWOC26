@@ -276,9 +276,13 @@ export default function Navbar() {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setProfileOpen(!profileOpen)}
-                      className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#C97C5D] text-white hover:shadow-lg transition-all border-2 border-[#EFE5D8]"
+                      className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#C97C5D] text-white hover:shadow-lg transition-all border-2 border-[#EFE5D8] overflow-hidden"
                     >
-                      <User size={16} className="md:w-[18px] md:h-[18px]" />
+                      {user.picture ? (
+                        <img src={user.picture} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                        <User size={16} className="md:w-[18px] md:h-[18px]" />
+                      )}
                     </motion.button>
 
                     <AnimatePresence>
@@ -293,8 +297,12 @@ export default function Navbar() {
                           {/* Profile Header */}
                           <div className="px-5 py-4 border-b-2 border-[#5A3E36]/20">
                             <div className="flex items-center gap-4">
-                              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#C97C5D] to-[#a85a47] flex items-center justify-center text-white text-xl font-bold shadow-lg">
-                                {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#C97C5D] to-[#a85a47] flex items-center justify-center text-white text-xl font-bold shadow-lg overflow-hidden">
+                                {user.picture ? (
+                                  <img src={user.picture} alt="Profile" className="w-full h-full object-cover" />
+                                ) : (
+                                  user?.name?.charAt(0)?.toUpperCase() || "U"
+                                )}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="text-base font-bold text-[#5A3E36] truncate">

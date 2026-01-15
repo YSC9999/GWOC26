@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
-import { X, MapPin, CreditCard, Package, User, Mail, Phone, Calendar } from "lucide-react";
+import { X, MapPin, CreditCard, Package, User, Mail, Phone, Calendar, Star } from "lucide-react";
+import Link from "next/link";
 
 interface OrderModalProps {
     order: any;
@@ -165,6 +166,15 @@ export default function OrderModal({ order, onClose }: OrderModalProps) {
                     <button onClick={onClose} className="px-6 py-2 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors">
                         Close
                     </button>
+                    {order.status === 'delivered' && order.items?.length > 0 && (
+                        <Link
+                            href={`/products/${order.items[0].productId?.slug || order.items[0].productId}`}
+                            onClick={onClose}
+                            className="px-6 py-2 bg-clay text-white font-bold rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
+                        >
+                            <Star size={16} /> Write Review
+                        </Link>
+                    )}
                     <button
                         onClick={() => window.open(`/invoice/${order._id}`, '_blank')}
                         className="px-6 py-2 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-900 transition-colors"

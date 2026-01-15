@@ -37,6 +37,8 @@ export interface IUser extends Document {
   phoneOtpExpiry?: Date;
   resetPasswordOTP?: string;
   resetPasswordExpiry?: Date;
+  deleteAccountOTP?: string;
+  deleteAccountOTPExpiry?: Date;
 
   cart: { productId: mongoose.Types.ObjectId; qty: number }[];
   isBlocked: boolean;
@@ -94,6 +96,8 @@ const UserSchema = new Schema<IUser>({
   phoneOtpExpiry: Date,
   resetPasswordOTP: String,
   resetPasswordExpiry: Date,
+  deleteAccountOTP: String,
+  deleteAccountOTPExpiry: Date,
   cart: [{
     productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
     qty: { type: Number, default: 1 }

@@ -18,6 +18,7 @@ import {
     Plus,
 } from "lucide-react";
 import { useCart } from "@/lib/cart";
+import { useAuth } from "@/lib/auth";
 
 interface Product {
     _id: string;
@@ -314,10 +315,10 @@ export default function ProductDetail() {
                                 onClick={handleAddToCart}
                                 disabled={!product.inStock || addedToCart}
                                 className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-full font-semibold text-lg transition-all ${addedToCart
-                                        ? "bg-green-500 text-white"
-                                        : product.inStock
-                                            ? "bg-clay text-white hover:bg-clay/90 hover:scale-[1.02]"
-                                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    ? "bg-green-500 text-white"
+                                    : product.inStock
+                                        ? "bg-clay text-white hover:bg-clay/90 hover:scale-[1.02]"
+                                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
                                     }`}
                             >
                                 {addedToCart ? (
@@ -334,8 +335,8 @@ export default function ProductDetail() {
                             <button
                                 onClick={() => setWishlist(!wishlist)}
                                 className={`p-4 rounded-full border-2 transition-all ${wishlist
-                                        ? "bg-red-50 border-red-300 text-red-500"
-                                        : "border-soil/20 text-soil hover:border-clay hover:text-clay"
+                                    ? "bg-red-50 border-red-300 text-red-500"
+                                    : "border-soil/20 text-soil hover:border-clay hover:text-clay"
                                     }`}
                             >
                                 <Heart size={22} fill={wishlist ? "currentColor" : "none"} />
@@ -493,6 +494,209 @@ export default function ProductDetail() {
                     ))}
                 </motion.div>
             )}
+
+            {/* Reviews Section */}
+            <section className="mt-20 border-t border-soil/10 pt-16">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+                    <div>
+                        <h2 className="text-3xl font-bold text-soil font-serif">Customer Reviews</h2>
+                        <div className="flex items-center gap-2 mt-2">
+                            <div className="flex items-center gap-0.5">
+                                {[...Array(5)].map((_, i) => (
+                                    <Star key={i} size={16} className={i < Math.floor(product.rating) ? "fill-orange-400 text-orange-400" : "text-sand"} />
+                                ))}
+                            </div>
+                            <span className="font-bold text-soil">{product.rating} / 5.0</span>
+                            <span className="text-soil/40 font-medium">({product.reviewCount} reviews)</span>
+                        </div>
+                    </div>
+                    <Link
+                        href={`/account/orders`}
+                        className="bg-soil text-white px-8 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-soil/20 transition-all text-sm"
+                    >
+                        Write a Review
+                    </Link>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                    {/* Reviews List */}
+                    <div className="lg:col-span-2 space-y-8">
+                        <ReviewForm productId={product._id} onSuccess={() => window.location.reload()} />
+                        <ReviewsList productId={product._id} />
+                    </div>
+
+                    {/* Stats Summary */}
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-3xl p-8 border border-sand/30 shadow-sm">
+                            <h3 className="font-bold text-soil mb-6">Review Breakdown</h3>
+                            {[5, 4, 3, 2, 1].map((rating) => (
+                                <div key={rating} className="flex items-center gap-4 mb-3">
+                                    <span className="text-sm font-bold text-soil w-4">{rating}</span>
+                                    <div className="flex-1 h-2 bg-sand/30 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-orange-400 rounded-full"
+                                            style={{ width: `${product.reviewCount > 0 ? (rating === 5 ? 80 : rating === 4 ? 15 : 5) : 0}%` }}
+                                        />
+                                    </div>
+                                    <span className="text-xs font-bold text-soil/40 w-8">
+                                        {product.reviewCount > 0 ? (rating === 5 ? '80%' : rating === 4 ? '15%' : '5%') : '0%'}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    );
+}
+
+function ReviewForm({ productId, onSuccess }: { productId: string, onSuccess: () => void }) {
+    const { user } = useAuth();
+    const [rating, setRating] = useState(5);
+    const [comment, setComment] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState("");
+
+    if (!user) return (
+        <div className="bg-sand/20 rounded-3xl p-8 text-center border border-dashed border-sand">
+            <p className="text-soil/60 font-medium mb-4">You must be logged in to leave a review.</p>
+            <Link href="/login" className="text-clay font-bold hover:underline">Login Now</Link>
+        </div>
+    );
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        setError("");
+
+        try {
+            const res = await fetch("/api/reviews", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId, rating, comment, images: [] })
+            });
+
+            if (res.ok) {
+                setComment("");
+                onSuccess();
+            } else {
+                const data = await res.json();
+                setError(data.error || "Failed to submit review");
+            }
+        } catch (err) {
+            setError("Something went wrong. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-8 border border-sand/30 shadow-sm space-y-6">
+            <h3 className="text-xl font-bold text-soil font-serif">Write a Review</h3>
+
+            <div>
+                <label className="block text-sm font-bold text-soil/40 uppercase tracking-widest mb-3">Rating</label>
+                <div className="flex items-center gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                            key={star}
+                            type="button"
+                            onClick={() => setRating(star)}
+                            className="transition-transform hover:scale-110"
+                        >
+                            <Star
+                                size={28}
+                                className={star <= rating ? "fill-orange-400 text-orange-400" : "text-sand"}
+                            />
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div>
+                <label className="block text-sm font-bold text-soil/40 uppercase tracking-widest mb-3">Your Thoughts</label>
+                <textarea
+                    required
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Tell us about your experience with this treasure..."
+                    className="w-full bg-sand/10 rounded-2xl p-4 min-h-[120px] focus:outline-none focus:ring-2 focus:ring-clay/20 border border-transparent focus:border-clay/30 transition-all text-soil"
+                />
+            </div>
+
+            {error && <p className="text-red-500 text-sm font-bold">{error}</p>}
+
+            <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-brick text-white py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-brick/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+                {isSubmitting ? <Loader2 className="animate-spin" /> : "Submit Review"}
+            </button>
+        </form>
+    );
+}
+
+function ReviewsList({ productId }: { productId: string }) {
+    const [reviews, setReviews] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchReviews();
+    }, [productId]);
+
+    const fetchReviews = async () => {
+        try {
+            const res = await fetch(`/api/reviews?productId=${productId}`);
+            if (res.ok) {
+                const data = await res.json();
+                setReviews(data.reviews || []);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) return <div className="flex justify-center py-10"><Loader2 className="animate-spin text-clay" /></div>;
+    if (reviews.length === 0) return <div className="text-soil/40 italic py-10 border-t border-dashed border-sand/30">No reviews yet for this treasure.</div>;
+
+    return (
+        <div className="space-y-10">
+            {reviews.map((review) => (
+                <div key={review._id} className="border-b border-sand/30 pb-10 last:border-none">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-sand flex items-center justify-center font-serif text-soil font-bold">
+                                {review.userName?.charAt(0) || "C"}
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-soil">{review.userName || "Customer"}</h4>
+                                <div className="flex items-center gap-1 mt-0.5">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star key={i} size={12} className={i < review.rating ? "fill-orange-400 text-orange-400" : "text-sand"} />
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        <span className="text-[10px] font-bold text-soil/30 uppercase tracking-widest">
+                            {new Date(review.createdAt).toLocaleDateString()}
+                        </span>
+                    </div>
+                    <p className="text-soil/70 leading-relaxed italic">"{review.comment}"</p>
+                    {review.images && review.images.length > 0 && (
+                        <div className="flex gap-2 mt-4">
+                            {review.images.map((img: string, idx: number) => (
+                                <div key={idx} className="w-16 h-16 rounded-xl overflow-hidden bg-sand/10 border border-sand/30">
+                                    <img src={img} className="w-full h-full object-cover" />
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            ))}
         </div>
     );
 }
