@@ -174,7 +174,7 @@ export default function Home() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="relative w-full px-4 md:px-12 py-12 md:py-16"
+        className="relative w-full px-4 md:px-12 py-6 md:py-10"
       >
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
@@ -195,7 +195,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.8 }}
-                className="text-sm md:text-lg lg:text-xl text-soil/100 mb-4 md:mb-8"
+                className="text-sm md:text-lg lg:text-xl text-[#652810] mb-4 md:mb-8"
                 style={{ fontFamily: "var(--font-berkshire-swash)" }}
               >
                 Artistry for the home and the self. Discover a curated
@@ -406,9 +406,9 @@ export default function Home() {
                 <br />
                 <span className="text-clay">俳聖 The Haiku Saint</span>
               </h2>
-              <div className="space-y-4 text-soil/80 leading-relaxed">
+              <div className="space-y-4 text-[#652810] leading-relaxed">
                 <p>
-                  <strong className="text-soil">
+                  <strong className="text-[#652810]">
                     Matsuo Bashō (1644–1694)
                   </strong>{" "}
                   was Japan's most celebrated haiku poet, whose work transformed
@@ -456,14 +456,15 @@ export default function Home() {
       >
         <Quote className="w-12 h-12 text-clay/50 mx-auto mb-4" />
         <p className="text-lg sm:text-xl md:text-2xl italic font-serif text-white/90 max-w-3xl mx-auto">
-          "Do not seek to follow in the footsteps of the wise; seek what they
-          sought."
+          "Do not seek to follow in the footsteps of the wise
+          <br />
+          seek what they sought."
         </p>
         <p className="text-clay mt-4 font-medium">— Matsuo Bashō</p>
       </motion.div>
-      <br />
+
       {/* Three Pillars of Our Craft */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
         {/* Pillar 1: Japanese Inspiration */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -559,14 +560,13 @@ export default function Home() {
           </ul>
         </motion.div>
       </div>
-      <br />
-      <br />
+
       {/* Know More About Basho */}
       <motion.section
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="py-16 md:py-24 px-4 md:px-12 relative overflow-hidden"
+        className="mt-12 py-12 md:py-16 px-4 md:px-8 relative overflow-hidden rounded-3xl mx-4 md:mx-8 border-2 border-[#C97C5D]"
         style={{
           background:
             "linear-gradient(135deg, #1a0f0a 0%, #2b1b14 50%, #3d2a1f 100%)",
@@ -574,10 +574,28 @@ export default function Home() {
       >
         {/* Decorative torn paper edge effect at top */}
         <div
-          className="absolute top-0 left-0 right-0 h-8 bg-[#F5EDE4]"
+          className="absolute top-0 left-0 right-0 h-6 bg-[#F5EDE4] rounded-t-3xl"
           style={{
             clipPath:
               "polygon(0 0, 100% 0, 100% 40%, 97% 80%, 94% 50%, 90% 90%, 85% 40%, 80% 70%, 75% 30%, 70% 80%, 65% 50%, 60% 90%, 55% 40%, 50% 70%, 45% 30%, 40% 80%, 35% 50%, 30% 90%, 25% 40%, 20% 70%, 15% 30%, 10% 80%, 5% 50%, 0 100%)",
+          }}
+        />
+
+        {/* Decorative torn paper edge effect on left */}
+        <div
+          className="absolute top-0 bottom-0 left-0 w-6 bg-[#F5EDE4]"
+          style={{
+            clipPath:
+              "polygon(0 0, 100% 0, 40% 3%, 80% 6%, 50% 10%, 90% 15%, 40% 20%, 70% 25%, 30% 30%, 80% 35%, 50% 40%, 90% 45%, 40% 50%, 70% 55%, 30% 60%, 80% 65%, 50% 70%, 90% 75%, 40% 80%, 70% 85%, 30% 90%, 80% 94%, 50% 97%, 0 100%)",
+          }}
+        />
+
+        {/* Decorative torn paper edge effect on right */}
+        <div
+          className="absolute top-0 bottom-0 right-0 w-6 bg-[#F5EDE4]"
+          style={{
+            clipPath:
+              "polygon(100% 0, 0% 0, 60% 3%, 20% 6%, 50% 10%, 10% 15%, 60% 20%, 30% 25%, 70% 30%, 20% 35%, 50% 40%, 10% 45%, 60% 50%, 30% 55%, 70% 60%, 20% 65%, 50% 70%, 10% 75%, 60% 80%, 30% 85%, 70% 90%, 20% 94%, 50% 97%, 100% 100%)",
           }}
         />
 
@@ -701,7 +719,7 @@ export default function Home() {
 
         {/* Decorative torn paper edge effect at bottom */}
         <div
-          className="absolute bottom-0 left-0 right-0 h-8 bg-white"
+          className="absolute bottom-0 left-0 right-0 h-6 bg-[#F5EDE4] rounded-b-3xl"
           style={{
             clipPath:
               "polygon(0 100%, 100% 100%, 100% 60%, 97% 20%, 94% 50%, 90% 10%, 85% 60%, 80% 30%, 75% 70%, 70% 20%, 65% 50%, 60% 10%, 55% 60%, 50% 30%, 45% 70%, 40% 20%, 35% 50%, 30% 10%, 25% 60%, 20% 30%, 15% 70%, 10% 20%, 5% 50%, 0 0)",
