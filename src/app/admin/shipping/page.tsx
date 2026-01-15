@@ -239,7 +239,7 @@ export default function AdminShipping() {
     );
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
+    <div className="max-w-5xl mx-auto p-4 md:p-6">
       <div className="flex items-center gap-4 mb-6">
         <Link
           href="/admin"
@@ -253,8 +253,8 @@ export default function AdminShipping() {
       </h1>
 
       {/* General Configuration Section */}
-      <section className="bg-white rounded-2xl p-8 shadow-sm border border-soil/10 mb-8">
-        <div className="flex justify-between items-start mb-6">
+      <section className="bg-amber-50/40 backdrop-blur-md rounded-2xl p-4 md:p-8 shadow-sm border border-white/50 mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
             <h2 className="text-xl font-bold text-soil mb-2 flex items-center gap-2">
               ⚙️ General Configuration
@@ -266,7 +266,7 @@ export default function AdminShipping() {
           <button
             onClick={handleSaveSettings}
             disabled={savingSettings}
-            className="bg-clay text-white px-6 py-2 rounded-lg font-bold hover:bg-clay/90 transition-colors flex items-center gap-2 disabled:opacity-50"
+            className="w-full md:w-auto bg-clay text-white px-6 py-2 rounded-lg font-bold hover:bg-clay/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {savingSettings ? (
               <Loader2 className="animate-spin" size={18} />
@@ -277,9 +277,9 @@ export default function AdminShipping() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
           {/* Free Shipping Threshold */}
-          <div className="bg-sand/10 p-6 rounded-xl border border-soil/10">
+          <div className="bg-sand/10 p-4 md:p-6 rounded-xl border border-soil/10">
             <label className="block font-bold text-soil mb-2">
               Free Shipping Threshold
             </label>
@@ -306,54 +306,54 @@ export default function AdminShipping() {
           </div>
 
           {/* Shipping Mode */}
-          <div className="bg-sand/10 p-6 rounded-xl border border-soil/10">
+          <div className="bg-sand/10 p-4 md:p-6 rounded-xl border border-soil/10">
             <label className="block font-bold text-soil mb-4">
               Calculation Mode
             </label>
-            <div className="flex gap-4">
+            <div className="flex flex-col md:flex-row gap-4 w-full">
               <label
-                className={`flex-1 p-4 rounded-xl border-2 cursor-pointer transition-all ${settings.shippingMode === "weight"
-                  ? "border-clay bg-white shadow-md"
+                className={`flex-1 p-3 rounded-xl border-2 cursor-pointer transition-all ${settings.shippingMode === "weight"
+                  ? "border-clay bg-white/60 shadow-md"
                   : "border-dashed border-soil/20 hover:bg-white/50"
                   }`}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-start gap-2">
                   <input
                     type="radio"
                     name="mode"
-                    className="w-5 h-5 accent-clay"
+                    className="w-5 h-5 accent-clay shrink-0 mt-0.5"
                     checked={settings.shippingMode === "weight"}
                     onChange={() =>
                       setSettings({ ...settings, shippingMode: "weight" })
                     }
                   />
-                  <div>
-                    <div className="font-bold text-soil">Weight Based</div>
-                    <div className="text-xs text-soil/60 mt-1">
+                  <div className="min-w-0 w-full break-words">
+                    <div className="font-bold text-soil text-sm sm:text-base leading-tight">Weight Based</div>
+                    <div className="text-xs text-soil/60 mt-1 leading-tight">
                       Based on total weight.
                     </div>
                   </div>
                 </div>
               </label>
               <label
-                className={`flex-1 p-4 rounded-xl border-2 cursor-pointer transition-all ${settings.shippingMode === "pincode"
-                  ? "border-clay bg-white shadow-md"
+                className={`flex-1 min-w-0 p-3 rounded-xl border-2 cursor-pointer transition-all ${settings.shippingMode === "pincode"
+                  ? "border-clay bg-white/60 shadow-md"
                   : "border-dashed border-soil/20 hover:bg-white/50"
                   }`}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-start gap-2">
                   <input
                     type="radio"
                     name="mode"
-                    className="w-5 h-5 accent-clay"
+                    className="w-5 h-5 accent-clay shrink-0 mt-0.5"
                     checked={settings.shippingMode === "pincode"}
                     onChange={() =>
                       setSettings({ ...settings, shippingMode: "pincode" })
                     }
                   />
-                  <div>
-                    <div className="font-bold text-soil">Pincode Based</div>
-                    <div className="text-xs text-soil/60 mt-1">
+                  <div className="min-w-0 w-full break-words">
+                    <div className="font-bold text-soil text-sm sm:text-base leading-tight">Pincode Based</div>
+                    <div className="text-xs text-soil/60 mt-1 leading-tight">
                       Based on destination.
                     </div>
                   </div>
@@ -376,7 +376,7 @@ export default function AdminShipping() {
 
       {/* WEIGHT BASED UI */}
       {settings.shippingMode === "weight" && (
-        <section className="bg-white rounded-2xl p-8 shadow-sm border border-soil/10">
+        <section className="bg-amber-50/40 backdrop-blur-md rounded-2xl p-4 md:p-8 shadow-sm border border-white/50">
           <h2 className="text-xl font-bold text-soil mb-2 flex items-center gap-2">
             📦 Weight Based Rates
           </h2>
@@ -384,7 +384,7 @@ export default function AdminShipping() {
             Define costs based on total cart weight.
           </p>
 
-          <div className="overflow-hidden rounded-xl border border-soil/10 mb-8">
+          <div className="overflow-x-auto rounded-xl border border-soil/10 mb-8">
             <table className="w-full text-left text-sm">
               <thead className="bg-sand/30 text-soil font-semibold">
                 <tr>
@@ -418,7 +418,7 @@ export default function AdminShipping() {
             <h3 className="font-bold text-soil mb-4 text-sm uppercase">
               Add Weight Rule
             </h3>
-            <form onSubmit={handleAddRate} className="flex gap-4 items-end">
+            <form onSubmit={handleAddRate} className="grid grid-cols-1 md:flex md:flex-row gap-4 items-stretch md:items-end">
               <input
                 type="number"
                 step="0.1"
@@ -427,7 +427,7 @@ export default function AdminShipping() {
                 onChange={(e) =>
                   setNewRate({ ...newRate, minWeight: e.target.value })
                 }
-                className="flex-1 p-2 rounded-lg border border-soil/20"
+                className="w-full p-2 rounded-lg border border-soil/20"
                 placeholder="Min (kg)"
               />
               <input
@@ -438,7 +438,7 @@ export default function AdminShipping() {
                 onChange={(e) =>
                   setNewRate({ ...newRate, maxWeight: e.target.value })
                 }
-                className="flex-1 p-2 rounded-lg border border-soil/20"
+                className="w-full p-2 rounded-lg border border-soil/20"
                 placeholder="Max (kg)"
               />
               <input
@@ -448,19 +448,20 @@ export default function AdminShipping() {
                 onChange={(e) =>
                   setNewRate({ ...newRate, rate: e.target.value })
                 }
-                className="flex-1 p-2 rounded-lg border border-soil/20"
+                className="w-full p-2 rounded-lg border border-soil/20"
                 placeholder="Cost (₹)"
               />
               <button
                 type="submit"
                 disabled={submitting}
-                className="bg-soil text-white px-5 py-2.5 rounded-lg hover:bg-clay"
+                className="bg-soil text-white px-5 py-2.5 rounded-lg hover:bg-clay w-full md:w-auto flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   <Loader2 className="animate-spin" size={18} />
                 ) : (
                   <Plus size={18} />
                 )}
+                <span className="md:hidden">Add Rule</span>
               </button>
             </form>
           </div>
@@ -469,7 +470,7 @@ export default function AdminShipping() {
 
       {/* PINCODE BASED UI */}
       {settings.shippingMode === "pincode" && (
-        <section className="bg-white rounded-2xl p-8 shadow-sm border border-soil/10">
+        <section className="bg-amber-50/40 backdrop-blur-md rounded-2xl p-4 md:p-8 shadow-sm border border-white/50">
           <h2 className="text-xl font-bold text-soil mb-2 flex items-center gap-2">
             📍 Pincode Based Settings
           </h2>
@@ -505,9 +506,9 @@ export default function AdminShipping() {
                 onClick={() =>
                   setSettings({ ...settings, pincodeType: opt.id })
                 }
-                className={`text-left p-4 rounded-xl border-2 transition-all flex items-start gap-3 ${settings.pincodeType === opt.id
-                  ? "border-clay bg-sand/10 shadow-sm"
-                  : "border-dashed border-soil/10 hover:bg-sand/5"
+                className={`text-left p-4 rounded-xl border-2 transition-all flex items-start gap-3 w-full ${settings.pincodeType === opt.id
+                  ? "border-clay bg-white/60 shadow-sm"
+                  : "border-dashed border-soil/10 hover:bg-white/30"
                   }`}
               >
                 <div
@@ -581,6 +582,19 @@ export default function AdminShipping() {
 
             {settings.pincodeType === "shiprocket_reference" && (
               <div>
+                <div className="bg-amber-100/50 p-4 rounded-lg border border-amber-200 mb-4">
+                  <h4 className="font-bold text-amber-800 text-sm mb-1 flex items-center gap-2">
+                    <AlertCircle size={14} /> How this works
+                  </h4>
+                  <p className="text-xs text-amber-800/80 leading-relaxed">
+                    Instead of setting a fixed price, this mode calculates a <strong>Price Multiplier</strong> based on your "Reference Pincode" and "Desired Price".
+                    <br /><br />
+                    <strong>Formula:</strong> Multiplier = (Your Price / Cost to Reference Pincode).
+                    <br /><br />
+                    This multiplier is then applied to the <strong>actual shipping cost</strong> for every customer order. This allows you to maintain a consistent profit margin regardless of the customer's location.
+                  </p>
+                </div>
+
                 <label className="block text-sm font-bold text-soil/70 mb-1">
                   Reference Pincode
                 </label>
@@ -618,7 +632,7 @@ export default function AdminShipping() {
 
           {settings.pincodeType === "specific" && (
             <div className="mt-8">
-              <div className="overflow-hidden rounded-xl border border-soil/10 mb-8 max-h-96 overflow-y-auto">
+              <div className="overflow-x-auto rounded-xl border border-soil/10 mb-8 max-h-96 overflow-y-auto">
                 <table className="w-full text-left text-sm relative">
                   <thead className="bg-sand/30 text-soil font-semibold sticky top-0 z-10">
                     <tr>
@@ -670,7 +684,7 @@ export default function AdminShipping() {
                   Add Specific Pincode Rate
                 </h3>
 
-                <div className="flex gap-4 mb-4">
+                <div className="grid grid-cols-1 md:flex md:flex-row gap-4 mb-4">
                   <button
                     onClick={() => setIsBulkPincode(false)}
                     className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${!isBulkPincode
@@ -712,7 +726,7 @@ export default function AdminShipping() {
                       </p>
                     </div>
                   ) : (
-                    <div className="flex gap-4 animate-in fade-in slide-in-from-top-2">
+                    <div className="w-full animate-in fade-in slide-in-from-top-2">
                       <input
                         type="text"
                         value={newPincodeRate.pincode}
@@ -728,8 +742,8 @@ export default function AdminShipping() {
                     </div>
                   )}
 
-                  <div className="flex gap-4 items-end">
-                    <div className="flex-1">
+                  <div className="grid grid-cols-1 md:flex md:flex-row gap-4 items-stretch md:items-end">
+                    <div className="w-full md:flex-1">
                       <label className="block text-xs font-bold text-soil/70 mb-1">
                         City/Area (Optional description)
                       </label>
@@ -746,7 +760,7 @@ export default function AdminShipping() {
                         placeholder="City/Area (Optional)"
                       />
                     </div>
-                    <div className="w-32">
+                    <div className="w-full md:w-32">
                       <label className="block text-xs font-bold text-soil/70 mb-1">
                         Rate (₹)
                       </label>
@@ -779,300 +793,19 @@ export default function AdminShipping() {
                       )}
                       {isBulkPincode ? "Bulk Add" : "Add"}
                     </button>
-                    <p className="text-xs text-soil/60 mb-4">
-                      If cart total exceeds this, shipping is FREE.
-                    </p>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-soil/50 font-bold">₹</span>
-                      <input
-                        type="number"
-                        value={settings.freeShippingThreshold}
-                        onChange={(e) => setSettings({ ...settings, freeShippingThreshold: parseFloat(e.target.value) || 0 })}
-                        className="w-full pl-8 pr-4 py-3 rounded-lg border border-soil/20 focus:outline-none focus:border-clay font-bold text-lg text-base"
-                        placeholder="0"
-                      />
-                    </div>
                   </div>
-
-                  {/* Shipping Mode */}
-                  <div className="bg-sand/10 p-6 rounded-xl border border-soil/10">
-                    <label className="block font-bold text-soil mb-4">Calculation Mode</label>
-                    <div className="flex flex-col md:flex-row gap-4">
-                      <label className={`flex-1 p-4 rounded-xl border-2 cursor-pointer transition-all ${settings.shippingMode === 'weight' ? 'border-clay bg-white shadow-md' : 'border-dashed border-soil/20 hover:bg-white/50'}`}>
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="radio"
-                            name="mode"
-                            className="w-5 h-5 accent-clay"
-                            checked={settings.shippingMode === 'weight'}
-                            onChange={() => setSettings({ ...settings, shippingMode: 'weight' })}
-                          />
-                          <div>
-                            <div className="font-bold text-soil">Weight Based</div>
-                            <div className="text-xs text-soil/60 mt-1">Based on total weight.</div>
-                          </div>
-                        </div>
-                      </label>
-                      <label className={`flex-1 p-4 rounded-xl border-2 cursor-pointer transition-all ${settings.shippingMode === 'pincode' ? 'border-clay bg-white shadow-md' : 'border-dashed border-soil/20 hover:bg-white/50'}`}>
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="radio"
-                            name="mode"
-                            className="w-5 h-5 accent-clay"
-                            checked={settings.shippingMode === 'pincode'}
-                            onChange={() => setSettings({ ...settings, shippingMode: 'pincode' })}
-                          />
-                          <div>
-                            <div className="font-bold text-soil">Pincode Based</div>
-                            <div className="text-xs text-soil/60 mt-1">Based on destination.</div>
-                          </div>
-                        </div>
-                      </label>
-                    </div>
-                  </div>
+                </form>
               </div>
+            </div>
+          )}
+        </section>
+      )}
 
-              {
-                successMessage && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-6 bg-green-100 text-green-800 p-4 rounded-xl text-center font-bold border border-green-200"
-                  >
-                    {successMessage}
-                  </motion.div>
-                )
-              }
-            </section >
-
-    {/* WEIGHT BASED UI */}
-          {
-            settings.shippingMode === 'weight' && (
-              <section className="bg-white rounded-2xl p-8 shadow-sm border border-soil/10">
-                <h2 className="text-xl font-bold text-soil mb-2 flex items-center gap-2">
-                  📦 Weight Based Rates
-                </h2>
-                <p className="text-sm text-soil/60 mb-6">
-                  Define costs based on total cart weight.
-                </p>
-
-                <div className="overflow-hidden rounded-xl border border-soil/10 mb-8">
-                  <table className="w-full text-left text-sm">
-                    <thead className="bg-sand/30 text-soil font-semibold">
-                      <tr>
-                        <th className="p-4">Min Weight (kg)</th>
-                        <th className="p-4">Max Weight (kg)</th>
-                        <th className="p-4">Cost (₹)</th>
-                        <th className="p-4 text-right">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-soil/5">
-                      {rates.map((rate) => (
-                        <tr key={rate._id} className="hover:bg-sand/10">
-                          <td className="p-4">{rate.minWeight}</td>
-                          <td className="p-4">{rate.maxWeight}</td>
-                          <td className="p-4 font-bold text-clay">₹{rate.rate}</td>
-                          <td className="p-4 text-right">
-                            <button onClick={() => handleDeleteRate(rate._id)} className="text-red-500 hover:bg-red-50 p-2 rounded-full">
-                              <Trash2 size={16} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="bg-sand/10 rounded-xl p-6 border-2 border-dashed border-soil/10">
-                  <h3 className="font-bold text-soil mb-4 text-sm uppercase">Add Weight Rule</h3>
-                  <form onSubmit={handleAddRate} className="flex flex-col md:flex-row gap-4 items-end">
-                    <input type="number" step="0.1" required value={newRate.minWeight} onChange={e => setNewRate({ ...newRate, minWeight: e.target.value })} className="w-full md:flex-1 p-2 rounded-lg border border-soil/20 text-base md:text-sm" placeholder="Min (kg)" />
-                    <input type="number" step="0.1" required value={newRate.maxWeight} onChange={e => setNewRate({ ...newRate, maxWeight: e.target.value })} className="w-full md:flex-1 p-2 rounded-lg border border-soil/20 text-base md:text-sm" placeholder="Max (kg)" />
-                    <input type="number" required value={newRate.rate} onChange={e => setNewRate({ ...newRate, rate: e.target.value })} className="w-full md:flex-1 p-2 rounded-lg border border-soil/20 text-base md:text-sm" placeholder="Cost (₹)" />
-                    <button type="submit" disabled={submitting} className="w-full md:w-auto bg-soil text-white px-5 py-2.5 rounded-lg hover:bg-clay flex justify-center items-center">
-                      {submitting ? <Loader2 className="animate-spin" size={18} /> : <Plus size={18} />}
-                    </button>
-                  </form>
-                </div>
-              </section>
-            )
-          }
-
-          {/* PINCODE BASED UI */}
-          {
-            settings.shippingMode === 'pincode' && (
-              <section className="bg-white rounded-2xl p-8 shadow-sm border border-soil/10">
-                <h2 className="text-xl font-bold text-soil mb-2 flex items-center gap-2">
-                  📍 Pincode Based Settings
-                </h2>
-
-                {/* Strategy Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  {[
-                    { id: 'standard', label: 'Standard Rate Only', desc: 'Flat rate for all pincodes' },
-                    { id: 'specific', label: 'Specific + Fallback', desc: 'Custom rates for specific pincodes' },
-                    { id: 'shiprocket_realtime', label: 'Shiprocket (Real-time)', desc: 'Actual courier rates via API', icon: <Truck size={16} /> },
-                    { id: 'shiprocket_reference', label: 'Shiprocket (Reference)', desc: 'Use rate to specific city for all', icon: <Truck size={16} /> },
-                  ].map((opt) => (
-                    <button
-                      key={opt.id}
-                      onClick={() => setSettings({ ...settings, pincodeType: opt.id })}
-                      className={`text-left p-4 rounded-xl border-2 transition-all flex items-start gap-3 ${settings.pincodeType === opt.id ? 'border-clay bg-sand/10 shadow-sm' : 'border-dashed border-soil/10 hover:bg-sand/5'} w-full`}
-                    >
-                      <div className={`p-2 rounded-lg ${settings.pincodeType === opt.id ? 'bg-clay text-white' : 'bg-soil/10 text-soil'}`}>
-                        {opt.icon || <Settings size={16} />}
-                      </div>
-                      <div>
-                        <div className="font-bold text-soil text-sm">{opt.label}</div>
-                        <div className="text-xs text-soil/60">{opt.desc}</div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Dynamic Context Settings */}
-                <div className="bg-sand/5 rounded-xl p-6 border border-soil/10">
-                  {settings.pincodeType === 'standard' && (
-                    <div>
-                      <label className="block text-sm font-bold text-soil/70 mb-1">Standard Flat Rate (All Pincodes)</label>
-                      <input type="number" value={settings.pincodeRateDefault} onChange={e => setSettings({ ...settings, pincodeRateDefault: parseFloat(e.target.value) })} className="w-full md:w-auto p-2 border rounded-md text-base md:text-sm" />
-                    </div>
-                  )}
-
-                  {settings.pincodeType === 'specific' && (
-                    <div>
-                      <label className="block text-sm font-bold text-soil/70 mb-1">Fallback Standard Rate</label>
-                      <input type="number" value={settings.pincodeRateDefault} onChange={e => setSettings({ ...settings, pincodeRateDefault: parseFloat(e.target.value) })} className="w-full md:w-auto p-2 border rounded-md mb-2 text-base md:text-sm" />
-                      <p className="text-xs text-soil/50">Used when a specific pincode is not found in the table below.</p>
-                    </div>
-                  )}
-
-                  {settings.pincodeType === 'shiprocket_realtime' && (
-                    <div className="flex items-center gap-3 text-soil/80">
-                      <Truck className="text-clay" />
-                      <p className="text-sm">Costs will be calculated automatically based on the customer's actual pincode using Shiprocket.</p>
-                    </div>
-                  )}
-
-                  {settings.pincodeType === 'shiprocket_reference' && (
-                    <div>
-                      <label className="block text-sm font-bold text-soil/70 mb-1">Reference Pincode</label>
-                      <input
-                        type="text"
-                        value={settings.shiprocketReferencePincode}
-                        onChange={(e) => setSettings({ ...settings, shiprocketReferencePincode: e.target.value })}
-                        className="w-full max-w-xs p-2 rounded-lg border border-soil/20 focus:outline-none focus:border-clay mb-4 text-base md:text-sm"
-                        placeholder="e.g. 110001"
-                      />
-
-                      <label className="block text-sm font-bold text-soil/70 mb-1">Your Desired Price</label>
-                      <input
-                        type="number"
-                        value={settings.shiprocketReferencePrice || ''}
-                        onChange={(e) => setSettings({ ...settings, shiprocketReferencePrice: parseFloat(e.target.value) })}
-                        className="w-full max-w-xs p-2 rounded-lg border border-soil/20 focus:outline-none focus:border-clay text-base md:text-sm"
-                        placeholder="e.g. 50"
-                      />
-                    </div>
-                  )}
-                </div>
-
-
-                {settings.pincodeType === 'specific' && (
-                  <div className="mt-8">
-                    <div className="overflow-hidden rounded-xl border border-soil/10 mb-8 max-h-96 overflow-y-auto">
-                      <table className="w-full text-left text-sm relative">
-                        <thead className="bg-sand/30 text-soil font-semibold sticky top-0 z-10">
-                          <tr>
-                            <th className="p-4">Pincode</th>
-                            <th className="p-4">Description</th>
-                            <th className="p-4">Cost (₹)</th>
-                            <th className="p-4 text-right">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-soil/5">
-                          {pincodeRates.length > 0 ? (
-                            pincodeRates.map((rate) => (
-                              <tr key={rate._id} className="hover:bg-sand/10">
-                                <td className="p-4 font-mono font-medium">{rate.pincode}</td>
-                                <td className="p-4 text-soil/70">{rate.description || '-'}</td>
-                                <td className="p-4 font-bold text-clay">₹{rate.rate}</td>
-                                <td className="p-4 text-right">
-                                  <button onClick={() => handleDeletePincodeRate(rate._id)} className="text-red-500 hover:bg-red-50 p-2 rounded-full">
-                                    <Trash2 size={16} />
-                                  </button>
-                                </td>
-                              </tr>
-                            ))
-                          ) : (
-                            <tr><td colSpan={4} className="p-8 text-center text-soil/40 italic">No specific rates added. Fallback rate applies to all.</td></tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    <div className="bg-sand/10 rounded-xl p-6 border-2 border-dashed border-soil/10">
-                      <h3 className="font-bold text-soil mb-4 text-sm uppercase flex items-center gap-2">
-                        Add Specific Pincode Rate
-                      </h3>
-
-                      <div className="flex gap-4 mb-4">
-                        <button
-                          onClick={() => setIsBulkPincode(false)}
-                          className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${!isBulkPincode ? 'bg-soil text-white shadow-md' : 'bg-white text-soil border border-soil/20'}`}
-                        >
-                          Single Pincode
-                        </button>
-                        <button
-                          onClick={() => setIsBulkPincode(true)}
-                          className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${isBulkPincode ? 'bg-soil text-white shadow-md' : 'bg-white text-soil border border-soil/20'}`}
-                        >
-                          Bulk Upload (Multiple)
-                        </button>
-                      </div>
-
-                      <form onSubmit={handleAddPincodeRate} className="flex flex-col gap-4">
-                        {isBulkPincode ? (
-                          <div className="animate-in fade-in slide-in-from-top-2">
-                            <label className="block text-xs font-bold text-soil/70 mb-1">Pincodes (Comma, Space or Newline separated)</label>
-                            <textarea
-                              value={bulkPincodesBuffer}
-                              onChange={(e) => setBulkPincodesBuffer(e.target.value)}
-                              className="w-full p-3 rounded-lg border border-soil/20 focus:outline-none focus:border-clay min-h-[100px] font-mono text-sm"
-                              placeholder={`110001, 110002\n110003\n...`}
-                            />
-                            <p className="text-xs text-soil/50 mt-1">Paste a list of pincodes here. They will all receive the same rate specified below.</p>
-                          </div>
-                        ) : (
-                          <div className="flex gap-4 animate-in fade-in slide-in-from-top-2">
-                            <input type="text" value={newPincodeRate.pincode} onChange={e => setNewPincodeRate({ ...newPincodeRate, pincode: e.target.value })} className="flex-1 p-2 rounded-lg border border-soil/20 text-base md:text-sm" placeholder="Pincode (e.g. 110001)" />
-                          </div>
-                        )}
-
-
-                        <div className="flex flex-col md:flex-row gap-4 items-end">
-                          <div className="flex-1">
-                            <label className="block text-xs font-bold text-soil/70 mb-1">City/Area (Optional description)</label>
-                            <input type="text" value={newPincodeRate.description} onChange={e => setNewPincodeRate({ ...newPincodeRate, description: e.target.value })} className="w-full p-2 rounded-lg border border-soil/20 text-base md:text-sm" placeholder="City/Area (Optional)" />
-                          </div>
-                          <div className="w-full md:w-32">
-                            <label className="block text-xs font-bold text-soil/70 mb-1">Rate (₹)</label>
-                            <input type="number" required value={newPincodeRate.rate} onChange={e => setNewPincodeRate({ ...newPincodeRate, rate: e.target.value })} className="w-full p-2 rounded-lg border border-soil/20 text-base md:text-sm" placeholder="Cost" />
-                          </div>
-                          <button type="submit" disabled={submitting} className="w-full md:w-auto bg-soil text-white px-5 py-2.5 rounded-lg hover:bg-clay flex justify-center items-center gap-2">
-                            {submitting ? <Loader2 className="animate-spin" size={18} /> : (isBulkPincode ? <Upload size={18} /> : <Plus size={18} />)}
-                            {isBulkPincode ? "Bulk Add" : "Add"}
-                          </button>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                )}
-              </section>
-            )
-          }
-
-          {error && (<div className="fixed bottom-4 right-4 bg-red-100 text-red-600 px-4 py-2 rounded-lg shadow-lg border border-red-200 flex items-center gap-2"> <AlertCircle size={16} /> {error} </div>)}
+      {error && (
+        <div className="fixed bottom-4 right-4 bg-red-100 text-red-600 px-4 py-2 rounded-lg shadow-lg border border-red-200 flex items-center gap-2">
+          <AlertCircle size={16} /> {error}
         </div>
-      );
+      )}
+    </div>
+  );
 }

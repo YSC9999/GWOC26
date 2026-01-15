@@ -65,6 +65,7 @@ export default function AdminProductsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const filteredProducts = products.filter((p) => {
     const term = searchTerm.toLowerCase();
@@ -280,220 +281,250 @@ export default function AdminProductsPage() {
         </motion.div>
       )}
 
-      <div className="flex items-center gap-4 mb-6">
-        <Link
-          href="/admin"
-          className="text-soil/60 hover:text-clay transition-colors hover:scale-105 transform inline-block"
-        >
-          ← Admin Home
-        </Link>
-        <motion.h1
-          variants={itemVariants}
-          className="text-2xl sm:text-3xl font-serif font-bold text-soil"
-        >
-          Products
-        </motion.h1>
-      </div>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 flex-wrap">
+        <div className="flex items-center gap-4">
+          <Link
+            href="/admin"
+            className="text-soil/60 hover:text-clay transition-colors hover:scale-105 transform inline-block"
+          >
+            ← Admin Home
+          </Link>
+          <motion.h1
+            variants={itemVariants}
+            className="text-2xl sm:text-3xl font-serif font-bold text-soil"
+          >
+            Products
+          </motion.h1>
+        </div>
 
-      {/* ADD PRODUCT FORM */}
-      <motion.div
-        variants={itemVariants}
-        className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-soil/10"
-      >
-        <h2 className="text-xl font-bold text-soil mb-4 flex items-center gap-2">
-          <span>✨</span> Add New Product
-        </h2>
-        <form onSubmit={handleAdd} className="flex gap-4 flex-wrap">
-          {/* ... existing form inputs ... */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-            <input
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="Name"
-              className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay text-base md:text-sm"
-              required
-            />
-            <input
-              type="number"
-              value={form.price}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  price: e.target.value === "" ? "" : Number(e.target.value),
-                })
-              }
-              placeholder="Price"
-              className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay text-base md:text-sm"
-              required
-            />
-            <input
-              type="number"
-              value={form.stockQuantity}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  stockQuantity:
-                    e.target.value === "" ? "" : Number(e.target.value),
-                })
-              }
-              placeholder="Stock"
-              className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay text-base md:text-sm"
-              required
-            />
-            <input
-              type="number"
-              value={form.weightGrams}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  weightGrams:
-                    e.target.value === "" ? "" : Number(e.target.value),
-                })
-              }
-              placeholder="Weight (Optional, default 500g)"
-              className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay text-base md:text-sm"
-              title="Weight in grams (e.g. 500 for 0.5kg)"
-            />
-          </div>
-
-          <div className="w-full">
-            <UploadInput
-              uploadPreset={"products_unsigned"}
-              folder={"products/"}
-              onUploaded={(urls) => {
-                setForm((prev) => ({
-                  ...prev,
-                  images: [...(prev.images || []), ...urls],
-                }));
-              }}
-            />
-          </div>
-
-          {/* Thumbnails */}
-          {form.images?.length > 0 && (
-            <div className="flex gap-2 mt-2 flex-wrap w-full">
-              <AnimatePresence>
-                {(form.images || []).map((img, idx) => (
-                  <motion.div
-                    key={img}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.5 }}
-                    className="relative group"
-                  >
-                    <img
-                      src={img}
-                      className="w-20 h-20 object-cover rounded-lg shadow-sm"
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setForm((prev) => ({
-                          ...prev,
-                          images: prev.images.filter((_, i) => i !== idx),
-                        }))
-                      }
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs shadow-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center transform hover:scale-110"
-                    >
-                      ×
-                    </button>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          )}
-
-          <div className="flex gap-4 w-full relative">
-            {/* Custom Dropdown */}
-            <div className="relative flex-grow">
-              <div
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="border p-3 rounded-lg w-full bg-white cursor-pointer flex justify-between items-center"
-              >
-                <span className={category ? "text-soil" : "text-gray-400"}>
-                  {categories.find(c => c.slug === category)?.name || (category || "Select category")}
-                </span>
-                <ChevronRight className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-90' : ''}`} />
-              </div>
-
-              {isDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
-                  {categories.map((cat) => (
-                    <div
-                      key={cat._id}
-                      className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer group"
-                      onClick={() => {
-                        setCategory(cat.slug);
-                        setIsDropdownOpen(false);
-                      }}
-                    >
-                      <span>{cat.name}</span>
-                      <button
-                        onClick={(e) => handleDeleteCategory(cat._id, e)}
-                        className="p-1 hover:bg-red-100 rounded text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Delete Category"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  ))}
-                  <div
-                    className="p-3 hover:bg-gray-50 cursor-pointer text-clay font-medium border-t"
-                    onClick={() => {
-                      setCategory("other");
-                      setIsDropdownOpen(false);
-                    }}
-                  >
-                    + Add New Category
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {category === "other" || (!categories.find(c => c.slug === category) && category !== "") ? (
-              <motion.input
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
-                value={category === "other" ? "" : category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="Enter new category"
-                className="border p-3 rounded-lg flex-grow focus:ring-2 focus:ring-clay/20 outline-none"
-              />
-            ) : null}
-          </div>
-
+        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+          {/* SEARCH BAR */}
           <input
-            value={descriptionText}
-            onChange={(e) => setDescriptionText(e.target.value)}
-            placeholder="Short description"
-            className="border p-3 rounded-lg w-full focus:ring-2 focus:ring-clay/20 outline-none"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by name or category..."
+            className="border p-2 w-full md:w-64 rounded-md"
           />
 
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="bg-black text-white px-8 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all w-full md:w-auto flex items-center gap-2 justify-center"
+            onClick={() => setShowAddForm(!showAddForm)}
+            className={`px-4 py-2 rounded-lg font-medium shadow-md transition-all flex items-center justify-center gap-2 ${showAddForm
+              ? "bg-gray-200 text-soil hover:bg-gray-300"
+              : "bg-black text-white hover:bg-gray-800"
+              }`}
           >
-            <Plus size={20} /> Add Product
+            {showAddForm ? (
+              <>
+                <X size={18} /> Cancel
+              </>
+            ) : (
+              <>
+                <Plus size={18} /> Add Product
+              </>
+            )}
           </motion.button>
-        </form>
-      </motion.div>
-
-      {/* SEARCH BAR */}
-      <div className="mb-4">
-        <input
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search by name or category..."
-          className="border p-2 w-full max-w-md rounded-md"
-        />
+        </div>
       </div>
+
+      {/* ADD PRODUCT FORM */}
+      <AnimatePresence>
+        {showAddForm && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, overflow: "hidden" }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="bg-amber-50/40 backdrop-blur-md p-4 md:p-6 rounded-2xl shadow-sm border border-white/50 overflow-hidden"
+          >
+            <h2 className="text-xl font-bold text-soil mb-4 flex items-center gap-2">
+              <span>✨</span> Add New Product
+            </h2>
+            <form onSubmit={handleAdd} className="flex gap-4 flex-wrap">
+              {/* ... existing form inputs ... */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+                <input
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="Name"
+                  className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay text-base md:text-sm"
+                  required
+                />
+                <input
+                  type="number"
+                  value={form.price}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      price: e.target.value === "" ? "" : Number(e.target.value),
+                    })
+                  }
+                  placeholder="Price"
+                  className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay text-base md:text-sm"
+                  required
+                />
+                <input
+                  type="number"
+                  value={form.stockQuantity}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      stockQuantity:
+                        e.target.value === "" ? "" : Number(e.target.value),
+                    })
+                  }
+                  placeholder="Stock"
+                  className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay text-base md:text-sm"
+                  required
+                />
+                <input
+                  type="number"
+                  value={form.weightGrams}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      weightGrams:
+                        e.target.value === "" ? "" : Number(e.target.value),
+                    })
+                  }
+                  placeholder="Weight (Optional, default 500g)"
+                  className="border p-3 rounded-lg focus:ring-2 focus:ring-clay/20 outline-none transition-all hover:border-clay text-base md:text-sm"
+                  title="Weight in grams (e.g. 500 for 0.5kg)"
+                />
+              </div>
+
+              <div className="w-full">
+                <UploadInput
+                  uploadPreset={"products_unsigned"}
+                  folder={"products/"}
+                  onUploaded={(urls) => {
+                    setForm((prev) => ({
+                      ...prev,
+                      images: [...(prev.images || []), ...urls],
+                    }));
+                  }}
+                />
+              </div>
+
+              {/* Thumbnails */}
+              {form.images?.length > 0 && (
+                <div className="flex gap-2 mt-2 flex-wrap w-full">
+                  <AnimatePresence>
+                    {(form.images || []).map((img, idx) => (
+                      <motion.div
+                        key={img}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.5 }}
+                        className="relative group"
+                      >
+                        <img
+                          src={img}
+                          className="w-20 h-20 object-cover rounded-lg shadow-sm"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setForm((prev) => ({
+                              ...prev,
+                              images: prev.images.filter((_, i) => i !== idx),
+                            }))
+                          }
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs shadow-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center transform hover:scale-110"
+                        >
+                          ×
+                        </button>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              )}
+
+              <div className="flex gap-4 w-full relative">
+                {/* Custom Dropdown */}
+                <div className="relative flex-grow">
+                  <div
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="border p-3 rounded-lg w-full bg-white/60 focus:bg-white transition-colors cursor-pointer flex justify-between items-center"
+                  >
+                    <span className={category ? "text-soil" : "text-gray-400"}>
+                      {categories.find(c => c.slug === category)?.name || (category || "Select category")}
+                    </span>
+                    <ChevronRight className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-90' : ''}`} />
+                  </div>
+
+                  {isDropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white/90 backdrop-blur-md border rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                      {categories.map((cat) => (
+                        <div
+                          key={cat._id}
+                          className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer group"
+                          onClick={() => {
+                            setCategory(cat.slug);
+                            setIsDropdownOpen(false);
+                          }}
+                        >
+                          <span>{cat.name}</span>
+                          <button
+                            onClick={(e) => handleDeleteCategory(cat._id, e)}
+                            className="p-1 hover:bg-red-100 rounded text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                            title="Delete Category"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      ))}
+                      <div
+                        className="p-3 hover:bg-gray-50 cursor-pointer text-clay font-medium border-t"
+                        onClick={() => {
+                          setCategory("other");
+                          setIsDropdownOpen(false);
+                        }}
+                      >
+                        + Add New Category
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {category === "other" || (!categories.find(c => c.slug === category) && category !== "") ? (
+                  <motion.input
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 1, width: "auto" }}
+                    value={category === "other" ? "" : category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    placeholder="Enter new category"
+                    className="border p-3 rounded-lg flex-grow focus:ring-2 focus:ring-clay/20 outline-none"
+                  />
+                ) : null}
+              </div>
+
+              <input
+                value={descriptionText}
+                onChange={(e) => setDescriptionText(e.target.value)}
+                placeholder="Short description"
+                className="border p-3 rounded-lg w-full focus:ring-2 focus:ring-clay/20 outline-none"
+              />
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="bg-black text-white px-8 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all w-full md:w-auto flex items-center gap-2 justify-center"
+              >
+                <Save size={20} /> Save
+              </motion.button>
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+
 
       {/* PRODUCT TABLE and PAGINATION */}
       <div className="border rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full table-fixed min-w-[800px]">
-            <thead className="bg-gray-50 text-soil/80 border-b">
+            <thead className="bg-amber-50/30 backdrop-blur-sm text-soil/80 border-b border-soil/10">
               <tr>
                 <th className="w-4/12 p-3 text-left font-semibold">Name</th>
                 <th className="w-2/12 p-3 text-left font-semibold">Category</th>
@@ -513,7 +544,7 @@ export default function AdminProductsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     whileHover={{ backgroundColor: "rgba(50, 50, 50, 0.02)" }}
-                    className="hover:bg-gray-50/50 transition-colors"
+                    className="hover:bg-white/40 transition-colors border-b border-soil/5 last:border-0"
                   >
                     <td className="p-3 align-top break-words text-sm font-medium text-soil/90">
                       {p.name}
@@ -554,13 +585,13 @@ export default function AdminProductsPage() {
                         }}
                         className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors hover:underline inline-flex items-center gap-1"
                       >
-                        <Edit size={14} /> Edit
+                        <Edit size={18} />
                       </button>
                       <button
                         onClick={() => handleDelete(p._id)}
                         className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors hover:underline inline-flex items-center gap-1"
                       >
-                        <Trash2 size={14} /> Delete
+                        <Trash2 size={18} />
                       </button>
                     </td>
                   </motion.tr>
@@ -576,7 +607,7 @@ export default function AdminProductsPage() {
         </div>
 
         {filteredProducts.length > 0 && (
-          <div className="bg-gray-50 p-4 border-t flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="bg-amber-50/30 backdrop-blur-sm p-4 border-t border-soil/10 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-sm text-soil/60 text-center md:text-left">
               Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
               <span className="font-medium">

@@ -230,3 +230,73 @@ export async function sendCancellationEmail(email: string, orderNumber: string):
     return false;
   }
 }
+
+export async function sendOrderStatusEmail(email: string, orderNumber: string, status: string, trackingNumber?: string): Promise<boolean> {
+  try {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.log(`📧 EMAIL SERVICE NOT CONFIGURED - ORDER STATUS: ${status}`);
+      console.log(`Status update for ${email} - Order ${orderNumber} -> ${status}`);
+      return true;
+    }
+
+    const titles: any = {
+      confirmed: 'Order Confirmed',
+      shipped: 'Order Shipped',
+      delivered: 'Order Delivered',
+    };
+
+    const colors: any = {
+      confirmed: ['#3B82F6', '#2563EB'], // Blue
+      shipped: ['#F59E0B', '#D97706'],   // Amber
+      delivered: ['#10B981', '#059669'],  // Emerald
+    };
+
+    const messages: any = {
+      confirmed: 'Your order has been confirmed and is being processed.',
+      shipped: 'Your order has been packed and shipped.',
+      delivered: 'Your order has been delivered successfully. Thank you for shopping with Basho!',
+    };
+
+    const title = titles[status] || 'Order Update';
+    const color = colors[status] || ['#8B7355', '#A0826D'];
+    const message = messages[status] || `Your order status has been updated to ${status}.`;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: `${title} - ${orderNumber} - Basho`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, ${color[0]} 0%, ${color[1]} 100%); padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="color: white; margin: 0; text-align: center;">${title}</h2>
+          </div>
+          <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px;">
+            <p style="color: #333; font-size: 16px; margin-bottom: 20px;">Hello,</p>
+            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">${message}</p>
+            
+            <div style="background: white; border: 2px solid ${color[0]}; border-radius: 8px; padding: 20px; text-align: center; margin: 30px 0;">
+              <p style="margin: 0; font-size: 12px; color: #999;">Order Number</p>
+              <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: bold; color: ${color[0]};">${orderNumber}</p>
+              ${trackingNumber ? `<div style="margin-top: 15px; border-top: 1px dashed #eee; padding-top: 10px;">
+                <p style="font-size: 12px; color: #999; margin: 0;">Tracking Number</p>
+                <p style="font-size: 16px; font-weight: bold; color: #333; margin: 5px 0 0 0;">${trackingNumber}</p>
+              </div>` : ''}
+            </div>
+            
+            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">You can track your order status in your account.</p>
+            
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">© 2024 Basho. All rights reserved.</p>
+          </div>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`Email sent to ${email} for order ${orderNumber} status ${status}`);
+    return true;
+  } catch (error) {
+    console.error('Error sending order status email:', error);
+    return false;
+  }
+}

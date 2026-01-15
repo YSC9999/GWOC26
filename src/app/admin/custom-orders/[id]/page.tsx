@@ -151,26 +151,26 @@ export default function AdminCustomOrderDetailPage({
   if (!order) return <div className="p-12 text-center">Order not found</div>;
 
   return (
-    <div className="min-h-screen py-12 px-4 md:px-8 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
+    <div className="min-h-screen py-6 px-3 sm:py-12 sm:px-8 max-w-7xl mx-auto">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+        <div className="flex items-center gap-3">
           <Link
             href="/admin/custom-orders"
             className="text-soil/60 hover:text-clay"
           >
             ← Back
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-bold text-soil font-serif">
+          <h1 className="text-xl sm:text-3xl font-bold text-soil font-serif">
             Manage Request
           </h1>
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-2 sm:gap-4 w-full sm:w-auto">
           <button
             onClick={() => saveOrder()}
             disabled={saving}
-            className="flex items-center gap-2 px-6 py-2 border-2 border-clay text-clay rounded-full hover:bg-clay hover:text-white transition-colors"
+            className="flex-1 sm:flex-none flex justify-center items-center gap-2 px-4 py-2 border-2 border-clay text-clay rounded-full hover:bg-clay hover:text-white transition-colors text-sm font-bold"
           >
-            <Save size={18} /> Save Draft
+            <Save size={16} /> Save Draft
           </button>
           <button
             onClick={() => saveOrder("quoted")}
@@ -178,9 +178,9 @@ export default function AdminCustomOrderDetailPage({
               saving ||
               items.filter((i) => i.status === "approved").length === 0
             }
-            className="flex items-center gap-2 px-6 py-2 bg-clay text-white rounded-full hover:bg-clay/90 transition-colors disabled:opacity-50"
+            className="flex-1 sm:flex-none flex justify-center items-center gap-2 px-4 py-2 bg-clay text-white rounded-full hover:bg-clay/90 transition-colors disabled:opacity-50 text-sm font-bold"
           >
-            <Send size={18} /> Send Quote
+            <Send size={16} /> Send Quote
           </button>
         </div>
       </div>
@@ -188,22 +188,22 @@ export default function AdminCustomOrderDetailPage({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Customer Info */}
         <div className="space-y-8">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
             <h2 className="text-xl font-bold text-soil mb-4">
               Customer Details
             </h2>
             <div className="space-y-3">
               <div>
                 <label className="text-xs text-soil/50 uppercase">Name</label>
-                <div className="font-medium text-soil">{order.name}</div>
+                <div className="font-medium text-soil break-words">{order.name}</div>
               </div>
               <div>
                 <label className="text-xs text-soil/50 uppercase">Email</label>
-                <div className="font-medium text-soil">{order.email}</div>
+                <div className="font-medium text-soil break-all">{order.email}</div>
               </div>
               <div>
                 <label className="text-xs text-soil/50 uppercase">Phone</label>
-                <div className="font-medium text-soil">{order.phone}</div>
+                <div className="font-medium text-soil break-all">{order.phone}</div>
               </div>
               <div>
                 <label className="text-xs text-soil/50 uppercase">Budget</label>
@@ -212,7 +212,7 @@ export default function AdminCustomOrderDetailPage({
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
             <h2 className="text-xl font-bold text-soil mb-4">
               Request Details
             </h2>
@@ -270,7 +270,7 @@ export default function AdminCustomOrderDetailPage({
                   <label className="text-xs text-soil/50 uppercase block">
                     Colors
                   </label>
-                  <p className="text-sm text-soil/80">
+                  <p className="text-sm text-soil/80 break-words">
                     {order.colorPreferences}
                   </p>
                 </div>
@@ -280,7 +280,7 @@ export default function AdminCustomOrderDetailPage({
                   <label className="text-xs text-soil/50 uppercase block">
                     Special Req.
                   </label>
-                  <p className="text-sm text-soil/80">
+                  <p className="text-sm text-soil/80 break-words">
                     {order.specialRequirements}
                   </p>
                 </div>
@@ -324,10 +324,10 @@ export default function AdminCustomOrderDetailPage({
         </div>
 
         <div className="lg:col-span-2 space-y-8">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-soil">Order Items</h2>
-              <div className="text-xl font-bold text-clay">
+              <div className="text-lg sm:text-xl font-bold text-clay">
                 Total: ₹{calculateTotal().toLocaleString()}
               </div>
             </div>
@@ -337,11 +337,10 @@ export default function AdminCustomOrderDetailPage({
               {items.map((item, idx) => (
                 <div
                   key={idx}
-                  className={`p-4 rounded-xl border ${
-                    item.status === "rejected"
+                  className={`p-3 sm:p-4 rounded-xl border ${item.status === "rejected"
                       ? "bg-red-50 border-red-100"
                       : "bg-gray-50 border-gray-100"
-                  } flex gap-4 items-start`}
+                    } flex flex-col sm:flex-row gap-4 items-start`}
                 >
                   <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>

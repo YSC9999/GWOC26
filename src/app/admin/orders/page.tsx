@@ -45,6 +45,7 @@ export default function AdminOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchOrders();
@@ -135,20 +136,37 @@ export default function AdminOrdersPage() {
   return (
     <div className="min-h-screen py-8 md:py-12 px-4 md:px-0">
       <div className="flex flex-col gap-4 mb-8">
-        <div className="flex items-center gap-4">
-          <Link href="/admin" className="text-soil/40 hover:text-soil transition-colors font-medium shrink-0">← Admin</Link>
-          <h1 className="text-2xl md:text-3xl font-bold text-soil font-serif break-words">Orders</h1>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <Link href="/admin" className="text-soil/40 hover:text-soil transition-colors font-medium shrink-0">← Admin</Link>
+            <h1 className="text-2xl md:text-3xl font-bold text-soil font-serif break-words">Orders</h1>
+          </div>
+          <input
+            type="text"
+            placeholder="Search by Order ID, Name or Email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border-soil/20 focus:border-soil focus:ring-0 rounded-lg px-4 py-2 bg-white/60 backdrop-blur-sm w-full md:w-80 text-soil placeholder:text-soil/40 transition-colors"
+          />
         </div>
       </div>
 
-      {orders.length === 0 ? (
-        <div className="bg-sand/30 rounded-3xl p-12 text-center">
+      {(searchTerm ? orders.filter(o =>
+        o.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (typeof o.userId === 'object' && o.userId && 'name' in o.userId && o.userId.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (o.email && o.email.toLowerCase().includes(searchTerm.toLowerCase()))
+      ) : orders).length === 0 ? (
+        <div className="bg-amber-50/40 backdrop-blur-md border border-white/50 rounded-3xl p-12 text-center">
           <h2 className="text-xl font-bold text-soil mb-2">No orders yet</h2>
           <p className="text-soil/60">No orders found.</p>
         </div>
       ) : (
         <div className="space-y-4">
-          {orders.map((order) => {
+          {(searchTerm ? orders.filter(o =>
+            o.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (typeof o.userId === 'object' && o.userId && 'name' in o.userId && o.userId.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (o.email && o.email.toLowerCase().includes(searchTerm.toLowerCase()))
+          ) : orders).map((order) => {
             const checked = stageChecked(order.status);
             const isCustomOrder = order.items.some((item) =>
               item.productId?.tags?.includes("custom")
@@ -157,7 +175,7 @@ export default function AdminOrdersPage() {
             return (
               <div
                 key={order._id}
-                className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-shadow group"
+                className="bg-amber-50/40 backdrop-blur-md rounded-2xl border border-white/50 p-6 shadow-sm hover:shadow-md transition-shadow group"
               >
                 <div
                   className="flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer"
@@ -204,11 +222,11 @@ export default function AdminOrdersPage() {
                   </div>
 
                   <div
-                    className="flex items-center gap-6"
+                    className="flex flex-wrap items-center justify-between gap-4 w-full md:w-auto mt-4 md:mt-0"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {order.status !== "cancelled" ? (
-                      <div className="flex flex-wrap items-center gap-3 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                      <div className="flex flex-wrap items-center gap-3 bg-slate-50/50 px-3 py-1.5 rounded-lg border border-slate-100">
                         <label className="flex items-center gap-2 text-xs cursor-pointer select-none">
                           <input
                             type="checkbox"
@@ -267,8 +285,8 @@ export default function AdminOrdersPage() {
                       </div>
                       <div
                         className={`text-xs font-bold uppercase tracking-wider ${order.paymentStatus === "paid"
-                            ? "text-green-600"
-                            : "text-amber-500"
+                          ? "text-green-600"
+                          : "text-amber-500"
                           }`}
                       >
                         {order.paymentStatus}

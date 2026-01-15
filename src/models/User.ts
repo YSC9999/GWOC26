@@ -39,6 +39,8 @@ export interface IUser extends Document {
   resetPasswordExpiry?: Date;
 
   cart: { productId: mongoose.Types.ObjectId; qty: number }[];
+  isBlocked: boolean;
+  blockedUntil?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -96,6 +98,8 @@ const UserSchema = new Schema<IUser>({
     productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
     qty: { type: Number, default: 1 }
   }],
+  isBlocked: { type: Boolean, default: false },
+  blockedUntil: Date,
 
 }, { timestamps: true });
 

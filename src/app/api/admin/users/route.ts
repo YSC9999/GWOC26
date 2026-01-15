@@ -92,12 +92,19 @@ export async function PUT(req: Request) {
     await connectDB();
 
     const body = await req.json();
-    const { id, name, email, password, role } = body;
+    const { id, name, email, password, role, isBlocked, blockedUntil } = body;
 
     if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
     const user = await User.findById(id as any);
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+    // Prevent blocking/changing main admin
+    const mainEmail = process.env.MAIN_ADMIN_EMAIL;
+    if (mainEmail && user.email === mainEmail) {
+      if (email && email !== mainEmail) return NextResponse.json({ error: "Cannot change main admin email" }, { status: 400 });
+      if (isBlocked) return NextResponse.json({ error: "Cannot block main admin" }, { status: 400 });
+    }
 
     if (email && email !== user.email) {
       const exists = await User.findOne({ email }).lean();
@@ -109,9 +116,19 @@ export async function PUT(req: Request) {
     if (role) user.role = role;
     if (password) user.password = await bcrypt.hash(password, 10);
 
+    if (typeof isBlocked === 'boolean') user.isBlocked = isBlocked;
+    if (blockedUntil !== undefined) user.blockedUntil = blockedUntil ? new Date(blockedUntil) : undefined;
+
     await user.save();
 
-    const out = { _id: user._id, name: user.name, email: user.email, role: user.role };
+    const out = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isBlocked: user.isBlocked,
+      blockedUntil: user.blockedUntil
+    };
     return NextResponse.json({ success: true, user: out });
   } catch (error: any) {
     console.error("Admin users PUT error:", error);

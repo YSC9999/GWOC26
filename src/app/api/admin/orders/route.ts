@@ -5,7 +5,7 @@ import User from "@/models/User";
 import Product from "@/models/Product";
 import { requireAdmin } from "@/lib/admin-guard";
 import { initiateRefund } from "@/lib/razorpay";
-import { sendRefundEmail, sendWalletCreditEmail, sendCancellationEmail } from "@/lib/email";
+import { sendRefundEmail, sendWalletCreditEmail, sendCancellationEmail, sendOrderStatusEmail } from "@/lib/email";
 
 export async function GET(req: Request) {
   try {
@@ -41,8 +41,20 @@ export async function PATCH(req: Request) {
       { new: true }
     ).populate('userId', 'name email');
 
+    if (status && ['confirmed', 'shipped', 'delivered'].includes(status)) {
+      // @ts-ignore
+      const email = order.userId?.email || order.email;
+      if (email) {
+        // Send email in background
+        (async () => {
+          await sendOrderStatusEmail(email, order.orderNumber, status, trackingNumber);
+        })();
+      }
+    }
+
     return NextResponse.json({ order });
-  } catch (error) {
+  } catch (error: any) {
+    console.error("Order Update Error:", error);
     return NextResponse.json({ error: "Failed to update order" }, { status: 500 });
   }
 }

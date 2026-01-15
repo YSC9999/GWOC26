@@ -71,22 +71,22 @@ export default function OrderModal({ order, onClose, onUpdate }: OrderModalProps
     if (!mounted) return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-            <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 z-[100000] flex items-end sm:items-center justify-center sm:p-4 bg-slate-900/50 backdrop-blur-sm">
+            <div className="bg-white w-full sm:max-w-4xl max-h-[90vh] sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in slide-in-from-bottom-5 sm:slide-in-from-bottom-0 duration-200">
 
                 {/* Header */}
-                <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div className="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                     <div>
-                        <div className="flex items-center gap-3 mb-1">
-                            <h2 className="text-xl font-bold text-slate-800">{order.orderNumber}</h2>
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-1">
+                            <h2 className="text-lg sm:text-xl font-bold text-slate-800 break-all">{order.orderNumber}</h2>
+                            <span className={`w-fit px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wide
                 ${order.status === 'delivered' ? 'bg-green-100 text-green-700' :
                                     order.status === 'cancelled' ? 'bg-red-100 text-red-700' :
                                         'bg-amber-100 text-amber-800'}`}>
                                 {order.status}
                             </span>
                         </div>
-                        <p className="text-sm text-slate-500 flex items-center gap-2">
+                        <p className="text-xs sm:text-sm text-slate-500 flex items-center gap-2">
                             <Calendar size={14} />
                             Placed on {new Date(order.createdAt).toLocaleString()}
                         </p>
@@ -95,31 +95,38 @@ export default function OrderModal({ order, onClose, onUpdate }: OrderModalProps
                         onClick={onClose}
                         className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-500"
                     >
-                        <X size={24} />
+                        <X size={20} />
                     </button>
                 </div>
 
                 {/* Content - Scrollable */}
-                <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
 
                         {/* Left Column: Items (2 cols wide) */}
-                        <div className="lg:col-span-2 space-y-6">
-                            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                                <h3 className="font-bold text-slate-700 mb-4 flex items-center gap-2">
-                                    <Package size={18} /> Order Items ({order.items.length})
+                        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+                            <div className="bg-slate-50 p-4 sm:p-6 rounded-2xl border border-slate-100">
+                                <h3 className="font-bold text-slate-700 mb-4 flex items-center gap-2 text-sm sm:text-base">
+                                    <Package size={16} /> Order Items ({order.items.length})
                                 </h3>
                                 <div className="space-y-4">
                                     {order.items.map((item: any, i: number) => (
-                                        <div key={i} className={`flex gap-4 p-4 rounded-xl border border-slate-100 shadow-sm ${item.status === 'cancelled' ? 'bg-red-50/50 opacity-70' : 'bg-white'}`}>
-                                            <div className="h-20 w-20 bg-slate-100 rounded-lg flex-shrink-0 overflow-hidden">
-                                                {item.image ? (
-                                                    <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
-                                                ) : (
-                                                    <div className="h-full w-full flex items-center justify-center text-slate-300">No img</div>
-                                                )}
+                                        <div key={i} className={`flex flex-col sm:flex-row gap-4 p-3 sm:p-4 rounded-xl border border-slate-100 shadow-sm ${item.status === 'cancelled' ? 'bg-red-50/50 opacity-70' : 'bg-white'}`}>
+                                            <div className="flex gap-4">
+                                                <div className="h-16 w-16 sm:h-20 sm:w-20 bg-slate-100 rounded-lg flex-shrink-0 overflow-hidden">
+                                                    {item.image ? (
+                                                        <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                                                    ) : (
+                                                        <div className="h-full w-full flex items-center justify-center text-slate-300 text-xs">No img</div>
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 sm:hidden">
+                                                    <p className="font-bold text-slate-800 text-sm line-clamp-2">{item.name}</p>
+                                                    <p className="text-xs text-slate-500 mt-1">Qty: {item.quantity}</p>
+                                                </div>
                                             </div>
-                                            <div className="flex-1">
+
+                                            <div className="flex-1 hidden sm:block">
                                                 <div className="flex justify-between items-start">
                                                     <div>
                                                         <p className="font-bold text-slate-800 line-clamp-2">{item.name}</p>
@@ -149,10 +156,30 @@ export default function OrderModal({ order, onClose, onUpdate }: OrderModalProps
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            {/* Mobile Item Details */}
+                                            <div className="sm:hidden border-t border-slate-100 pt-3 mt-1 flex justify-between items-center">
+                                                <p className="font-bold text-slate-800 text-sm">
+                                                    ₹{(item.price * item.quantity).toLocaleString()}
+                                                </p>
+                                                {order.status !== 'cancelled' && item.status !== 'cancelled' && order.status !== 'delivered' && (
+                                                    <button
+                                                        onClick={() => {
+                                                            // Handle populated productId which might be an object
+                                                            const idToCancel = item._id || (typeof item.productId === 'object' ? item.productId._id : item.productId);
+                                                            handleCancelItem(idToCancel);
+                                                        }}
+                                                        className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-1 rounded-lg text-[10px] font-bold transition-colors"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
+
 
                             {/* Order Summary */}
                             <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">

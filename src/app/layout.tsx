@@ -43,6 +43,7 @@ import ChatBot from "../components/ChatBot";
 
 import { connectDB } from "@/lib/mongodb";
 import StudioInfo from "@/models/StudioInfo";
+import ScreenSizeGuard from "../components/ScreenSizeGuard";
 
 export default async function RootLayout({
   children,
@@ -70,6 +71,7 @@ export default async function RootLayout({
           strategy="afterInteractive"
         />
         <CartSync />
+        <ScreenSizeGuard />
         <ConditionalBackground />
         <ConditionalLayout />
 

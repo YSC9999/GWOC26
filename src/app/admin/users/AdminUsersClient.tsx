@@ -18,6 +18,8 @@ interface UserItem {
   name: string;
   email: string;
   role: string;
+  isBlocked?: boolean;
+  blockedUntil?: string;
   createdAt: string;
 }
 
@@ -33,6 +35,7 @@ export default function AdminUsers() {
 
   const [showAdd, setShowAdd] = useState(false);
   const [showEdit, setShowEdit] = useState<UserItem | null>(null);
+  const [showBlock, setShowBlock] = useState<UserItem | null>(null);
 
   // add form
   const [name, setName] = useState("");
@@ -52,7 +55,7 @@ export default function AdminUsers() {
       params.append("page", String(page));
       params.append("limit", String(limit));
       if (search) params.append("search", search);
-      if (role) params.append("role", role);
+      if (role && role !== "all") params.append("role", role); // Only append if not 'all'
 
       const res = await fetch(`/api/admin/users?${params.toString()}`, {
         credentials: "same-origin",
@@ -155,6 +158,37 @@ export default function AdminUsers() {
     }
   };
 
+  const toggleBlock = async (u: UserItem, duration?: string) => {
+    setError("");
+    try {
+      let blockedUntil: string | null | undefined = undefined; // Default to undefined to clear if unblocking
+      if (!u.isBlocked) { // If user is currently NOT blocked, we are blocking them
+        if (duration === '24h') blockedUntil = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+        else if (duration === '7d') blockedUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+        else if (duration === '30d') blockedUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        else if (duration === 'forever') blockedUntil = null; // null means permanent block
+      } else { // If user is currently blocked, we are unblocking them
+        blockedUntil = undefined; // Clear blockedUntil
+      }
+
+      const res = await fetch("/api/admin/users", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          id: u._id,
+          isBlocked: !u.isBlocked,
+          blockedUntil: blockedUntil
+        }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || "Failed");
+      setShowBlock(null);
+      fetchUsers();
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center gap-4 mb-6">
@@ -204,40 +238,64 @@ export default function AdminUsers() {
           <table className="w-full text-left">
             <thead className="bg-sand/40">
               <tr>
-                <th className="p-3">Name</th>
-                <th className="p-3">Email</th>
-                <th className="p-3">Role</th>
-                <th className="p-3">Joined</th>
-                <th className="p-3">Actions</th>
+                <th className="p-3 text-sm font-bold text-soil/80 uppercase tracking-wider">Name</th>
+                <th className="p-3 text-sm font-bold text-soil/80 uppercase tracking-wider">Email</th>
+                <th className="p-3 text-sm font-bold text-soil/80 uppercase tracking-wider">Role</th>
+                <th className="p-3 text-sm font-bold text-soil/80 uppercase tracking-wider">Status</th>
+                <th className="p-3 text-sm font-bold text-soil/80 uppercase tracking-wider">Joined</th>
+                <th className="p-3 text-sm font-bold text-soil/80 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {users.map((u) => (
-                <tr key={u._id} className="border-t">
-                  <td className="p-3 align-top text-sm text-soil/60">
+                <tr key={u._id} className="border-t hover:bg-amber-50/10 transition-colors">
+                  <td className="p-3 align-top text-sm font-medium text-soil">
                     {u.name}
                   </td>
                   <td className="p-3 align-top text-sm text-soil/60 break-all">
                     {u.email}
                   </td>
-                  <td className="p-3 align-top text-sm text-soil/60">
-                    {u.role}
+                  <td className="p-3 align-top text-sm">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                      {u.role}
+                    </span>
                   </td>
-                  <td className="align-top p-3 text-sm text-soil/60">
-                    {new Date(u.createdAt).toLocaleString()}
+                  <td className="p-3 align-top text-sm">
+                    {u.isBlocked ? (
+                      <div className="flex flex-col">
+                        <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase w-fit">Blocked</span>
+                        {u.blockedUntil && (
+                          <span className="text-[9px] text-red-400 mt-1">Until: {new Date(u.blockedUntil).toLocaleDateString()}</span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase">Active</span>
+                    )}
                   </td>
-                  <td className="align-top p-3 text-right">
+                  <td className="align-top p-3 text-sm text-soil/40">
+                    {new Date(u.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="align-top p-3 text-right flex items-center justify-end gap-1">
                     <button
                       onClick={() => startEdit(u)}
-                      className="text-clay px-2 py-1 rounded"
+                      className="p-2 text-clay hover:bg-sand/20 rounded-lg transition-colors"
+                      title="Edit User"
                     >
-                      <Edit2 />
+                      <Edit2 size={18} />
+                    </button>
+                    <button
+                      onClick={() => u.isBlocked ? toggleBlock(u) : setShowBlock(u)}
+                      className={`p-2 rounded-lg transition-colors ${u.isBlocked ? 'text-green-600 hover:bg-green-50' : 'text-orange-600 hover:bg-orange-50'}`}
+                      title={u.isBlocked ? "Unblock User" : "Block User"}
+                    >
+                      <X size={18} />
                     </button>
                     <button
                       onClick={() => deleteUser(u._id)}
-                      className="text-red-600 px-2 py-1 rounded ml-2"
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete User"
                     >
-                      <Trash2 />
+                      <Trash2 size={18} />
                     </button>
                   </td>
                 </tr>
@@ -348,6 +406,40 @@ export default function AdminUsers() {
           onClose={() => setShowEdit(null)}
           onSave={submitEdit}
         />
+      )}
+
+      {/* Block Duration Modal */}
+      {showBlock && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <h3 className="text-xl font-serif font-bold text-soil mb-2">Block {showBlock.name}</h3>
+            <p className="text-sm text-soil/60 mb-6">Select how long this user should be blocked from the platform.</p>
+
+            <div className="space-y-2 mb-6">
+              {[
+                { label: '24 Hours', value: '24h' },
+                { label: '7 Days', value: '7d' },
+                { label: '30 Days', value: '30d' },
+                { label: 'Forever', value: 'forever' },
+              ].map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => toggleBlock(showBlock, opt.value)}
+                  className="w-full text-left px-4 py-3 rounded-xl border border-soil/10 hover:border-clay hover:bg-clay/5 text-sm font-medium transition-all"
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setShowBlock(null)}
+              className="w-full py-2 text-soil/40 hover:text-soil text-sm font-bold uppercase tracking-wider"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

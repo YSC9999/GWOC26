@@ -12,7 +12,9 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  ArrowLeft,
 } from "lucide-react";
+import DatePicker from "@/components/admin/DatePicker";
 
 const WORKSHOP_TYPES = [
   { id: "group", label: "Group" },
@@ -453,7 +455,7 @@ export default function WorkshopPage() {
   };
 
   return (
-    <div className="space-y-8 min-h-screen py-8 px-4 md:py-12 md:px-8">
+    <div className="space-y-6 min-h-screen py-6 px-3 md:py-12 md:px-8 max-w-[100vw] overflow-hidden">
       {error && (
         <div className="bg-red-50 text-red-600 p-3 rounded-lg">{error}</div>
       )}
@@ -464,8 +466,9 @@ export default function WorkshopPage() {
       )}
 
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/admin" className="text-soil/60 hover:text-clay">
-          ← Admin Home
+        <Link href="/admin" className="flex items-center gap-2 text-soil/40 hover:text-soil transition-colors font-medium shrink-0">
+          <ArrowLeft size={20} />
+          <span>Admin</span>
         </Link>
         <h1 className="text-2xl sm:text-3xl font-serif font-bold text-soil">
           Workshops
@@ -473,10 +476,10 @@ export default function WorkshopPage() {
       </div>
 
       {/* TABS */}
-      <div className="flex gap-4 mb-8 border-b border-gray-200">
+      <div className="flex overflow-x-auto gap-2 mb-8 border-b border-gray-200 no-scrollbar pb-1">
         <button
           onClick={() => setActiveTab("workshops")}
-          className={`pb-4 px-4 font-medium transition-colors ${activeTab === "workshops"
+          className={`pb-4 px-3 font-medium transition-colors whitespace-nowrap text-sm ${activeTab === "workshops"
             ? "border-b-2 border-clay text-clay"
             : "text-soil/60 hover:text-soil"
             }`}
@@ -485,7 +488,7 @@ export default function WorkshopPage() {
         </button>
         <button
           onClick={() => setActiveTab("inquiries")}
-          className={`pb-4 px-4 font-medium transition-colors ${activeTab === "inquiries"
+          className={`pb-4 px-3 font-medium transition-colors whitespace-nowrap text-sm ${activeTab === "inquiries"
             ? "border-b-2 border-clay text-clay"
             : "text-soil/60 hover:text-soil"
             }`}
@@ -494,7 +497,7 @@ export default function WorkshopPage() {
         </button>
         <button
           onClick={() => setActiveTab("previous")}
-          className={`pb-4 px-4 font-medium transition-colors ${activeTab === "previous"
+          className={`pb-4 px-3 font-medium transition-colors whitespace-nowrap text-sm ${activeTab === "previous"
             ? "border-b-2 border-clay text-clay"
             : "text-soil/60 hover:text-soil"
             }`}
@@ -509,7 +512,7 @@ export default function WorkshopPage() {
           {/* ADD WORKSHOP FORM */}
           <form
             onSubmit={handleAdd}
-            className="bg-white p-6 rounded-xl shadow-sm border space-y-4"
+            className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border space-y-4"
           >
             <h2 className="text-lg font-semibold text-soil mb-4">
               Add New Workshop
@@ -651,12 +654,11 @@ export default function WorkshopPage() {
                 required
                 className="border p-2 rounded text-base md:text-sm"
               />
-              <input
-                type="date"
+              <DatePicker
                 value={form.date}
-                onChange={(e) => setForm({ ...form, date: e.target.value })}
-                required
-                className="border p-2 rounded text-base md:text-sm"
+                onChange={(date) => setForm({ ...form, date })}
+                placeholder="Select Date"
+                className="border-none"
               />
               <input
                 value={form.time}
@@ -727,47 +729,51 @@ export default function WorkshopPage() {
               />
             </div>
 
-            <div className="flex flex-wrap items-end gap-4">
-              <div className="flex-1 min-w-[200px]">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-4">
+              <div className="flex-1 min-w-0">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Workshop Image
                 </label>
-                <UploadInput
-                  uploadPreset="products_unsigned"
-                  folder="workshops"
-                  onUploaded={(urls) =>
-                    setForm({ ...form, image: urls[0] || "" })
-                  }
-                />
-              </div>
-              {form.image && (
-                <div className="relative">
-                  <img
-                    src={form.image}
-                    alt="Preview"
-                    className="h-16 w-16 object-cover rounded border"
+                <div className="min-w-0">
+                  <UploadInput
+                    uploadPreset="products_unsigned"
+                    folder="workshops"
+                    onUploaded={(urls) =>
+                      setForm({ ...form, image: urls[0] || "" })
+                    }
                   />
-                  <button
-                    type="button"
-                    onClick={() => setForm({ ...form, image: "" })}
-                    className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 text-xs"
-                  >
-                    ×
-                  </button>
                 </div>
-              )}
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800 disabled:opacity-50 inline-flex items-center gap-2"
-              >
-                {loading ? (
-                  <Loader2 className="animate-spin" size={18} />
-                ) : (
-                  <Plus size={18} />
+              </div>
+              <div className="flex items-center gap-3">
+                {form.image && (
+                  <div className="relative shrink-0">
+                    <img
+                      src={form.image}
+                      alt="Preview"
+                      className="h-14 w-14 object-cover rounded border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, image: "" })}
+                      className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
+                    >
+                      ×
+                    </button>
+                  </div>
                 )}
-                {loading ? "Creating..." : "Add Workshop"}
-              </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800 disabled:opacity-50 inline-flex items-center justify-center gap-2 flex-1 sm:flex-none"
+                >
+                  {loading ? (
+                    <Loader2 className="animate-spin" size={18} />
+                  ) : (
+                    <Plus size={18} />
+                  )}
+                  {loading ? "Creating..." : "Add Workshop"}
+                </button>
+              </div>
             </div>
           </form>
 

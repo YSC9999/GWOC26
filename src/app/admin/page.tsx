@@ -147,7 +147,7 @@ export default function AdminDashboard() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 min-[360px]:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
           {adminLinks.map((link, idx) => (
             <motion.div
               key={link.href}
@@ -160,7 +160,7 @@ export default function AdminDashboard() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
-                  className="group h-full p-5 md:p-8 bg-gradient-to-br from-white to-sand/30 rounded-3xl shadow-lg hover:shadow-2xl hover:shadow-clay/30 border-2 border-white/50 transition-all duration-300 relative overflow-hidden backdrop-blur-sm"
+                  className="group h-full p-3 md:p-8 bg-gradient-to-br from-white to-sand/30 rounded-3xl shadow-lg hover:shadow-2xl hover:shadow-clay/30 border-2 border-white/50 transition-all duration-300 relative overflow-hidden backdrop-blur-sm"
                 >
                   {/* Animated Background Gradient */}
                   <div className="absolute inset-0 bg-gradient-to-br from-clay/0 via-clay/0 to-clay/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -174,7 +174,7 @@ export default function AdminDashboard() {
                       {link.icon}
                     </motion.div>
 
-                    <h3 className="text-xl sm:text-2xl font-bold text-soil mb-2 group-hover:text-clay transition-colors duration-300">
+                    <h3 className="text-lg sm:text-2xl font-bold text-soil mb-2 group-hover:text-clay transition-colors duration-300">
                       {link.label}
                     </h3>
 

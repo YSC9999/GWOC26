@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Plus, Edit2, Trash2, Search, X, Check, ArrowUp, ArrowDown, Save } from "lucide-react";
+import Link from "next/link";
+import { Plus, Edit2, Trash2, Search, X, Check, ArrowUp, ArrowDown, Save, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Product {
@@ -150,7 +151,13 @@ export default function AdminCollections() {
     return (
         <div className="p-4 md:p-8 max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
-                <h1 className="text-3xl font-bold text-soil font-serif">Featured Collections</h1>
+                <div className="flex items-center gap-4">
+                    <Link href="/admin" className="flex items-center gap-2 text-soil/40 hover:text-soil transition-colors font-medium shrink-0">
+                        <ArrowLeft size={20} />
+                        <span>Admin</span>
+                    </Link>
+                    <h1 className="text-3xl font-bold text-soil font-serif">Featured Collections</h1>
+                </div>
                 {!isEditing && (
                     <button
                         onClick={() => { resetForm(); setIsEditing(true); }}
@@ -165,14 +172,15 @@ export default function AdminCollections() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white p-8 rounded-2xl shadow-lg border border-soil/10"
+                    className="bg-white p-4 sm:p-8 rounded-2xl shadow-lg border border-soil/10"
                 >
                     <div className="flex justify-between items-center mb-6 pb-4 border-b border-soil/10">
                         <h2 className="text-xl font-bold text-soil">{currentCollection._id ? "Edit Collection" : "New Collection"}</h2>
-                        <button onClick={() => setIsEditing(false)} className="text-soil/50 hover:text-red-500"><X size={24} /></button>
+                        <button onClick={() => setIsEditing(false)} className="text-soil/50 hover:text-red-500 p-2"><X size={24} /></button>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* ... existing fields ... */}
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-soil mb-1">Title</label>
@@ -242,9 +250,9 @@ export default function AdminCollections() {
                                                     {product.image ? (
                                                         <img src={product.image} className="w-8 h-8 rounded object-cover" />
                                                     ) : <div className="w-8 h-8 bg-gray-200 rounded" />}
-                                                    <span className="font-medium text-soil">{product.name}</span>
+                                                    <span className="font-medium text-soil line-clamp-1">{product.name}</span>
                                                 </div>
-                                                <span className="text-clay text-sm">₹{product.price}</span>
+                                                <span className="text-clay text-sm shrink-0">₹{product.price}</span>
                                             </button>
                                         ))}
                                     </div>
@@ -253,7 +261,7 @@ export default function AdminCollections() {
 
                             <div className="mt-4">
                                 <label className="block text-sm font-medium text-soil mb-2">Selected Products ({currentCollection.products.length})</label>
-                                <div className="bg-sand/10 rounded-xl p-2 max-h-[300px] overflow-y-auto space-y-2">
+                                <div className="bg-sand/10 rounded-xl p-2 max-h-[300px] overflow-y-auto space-y-2 no-scrollbar">
                                     {currentCollection.products.length === 0 && (
                                         <div className="text-center py-8 text-soil/40 italic">No products added yet</div>
                                     )}
@@ -266,14 +274,14 @@ export default function AdminCollections() {
                                                 exit={{ opacity: 0, height: 0 }}
                                                 className="flex items-center justify-between bg-white p-3 rounded-lg border border-soil/5"
                                             >
-                                                <div className="flex items-center gap-3">
-                                                    <span className="text-xs text-soil/30 font-mono w-4">{index + 1}</span>
-                                                    {product.image && <img src={product.image} className="w-8 h-8 rounded object-cover" />}
-                                                    <span className="text-sm font-medium text-soil">{product.name}</span>
+                                                <div className="flex items-center gap-3 min-w-0">
+                                                    <span className="text-xs text-soil/30 font-mono w-4 shrink-0">{index + 1}</span>
+                                                    {product.image && <img src={product.image} className="w-8 h-8 rounded object-cover shrink-0" />}
+                                                    <span className="text-sm font-medium text-soil truncate">{product.name}</span>
                                                 </div>
                                                 <button
                                                     onClick={() => removeProductFromCollection(product._id)}
-                                                    className="text-red-400 hover:text-red-600 p-1"
+                                                    className="text-red-400 hover:text-red-600 p-1 shrink-0"
                                                 >
                                                     <MinusIcon />
                                                 </button>
@@ -285,17 +293,17 @@ export default function AdminCollections() {
                         </div>
                     </div>
 
-                    <div className="mt-8 pt-6 border-t border-soil/10 flex justify-end gap-4">
+                    <div className="mt-8 pt-6 border-t border-soil/10 flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
                         <button
                             onClick={() => setIsEditing(false)}
-                            className="px-6 py-2 text-soil/60 hover:text-soil font-medium"
+                            className="w-full sm:w-auto px-6 py-2.5 text-soil/60 hover:text-soil font-medium hover:bg-sand/10 rounded-xl transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleSave}
                             disabled={loading}
-                            className="px-8 py-2 bg-clay text-white rounded-lg hover:bg-clay/90 font-medium flex items-center gap-2"
+                            className="w-full sm:w-auto px-8 py-2.5 bg-clay text-white rounded-xl hover:bg-clay/90 font-medium flex items-center justify-center gap-2 shadow-sm transition-all"
                         >
                             {loading ? "Saving..." : <><Save size={18} /> Save Collection</>}
                         </button>

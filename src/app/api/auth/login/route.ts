@@ -16,7 +16,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 400 });
     }
 
-    // 2. Validate password
+    // 2. Check if blocked
+    if (user.isBlocked) {
+      const now = new Date();
+      if (!user.blockedUntil || new Date(user.blockedUntil) > now) {
+        let message = "Your account has been blocked by an administrator.";
+        if (user.blockedUntil) {
+          message += ` Try again after ${new Date(user.blockedUntil).toLocaleString()}.`;
+        }
+        return NextResponse.json({ error: message }, { status: 403 });
+      } else {
+        // Block has expired, auto-unblock
+        user.isBlocked = false;
+        user.blockedUntil = undefined;
+        await user.save();
+      }
+    }
+
+    // 3. Validate password
     if (!user.password) {
       return NextResponse.json({ error: "Please log in with Google" }, { status: 400 });
     }

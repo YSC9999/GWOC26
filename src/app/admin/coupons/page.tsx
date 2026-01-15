@@ -1,7 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Trash2, Plus, Calendar, Tag } from "lucide-react";
+import { Trash2, Plus, Calendar, Tag, ArrowLeft } from "lucide-react";
+import DatePicker from "@/components/admin/DatePicker";
 
 interface Coupon {
   _id: string;
@@ -21,8 +22,10 @@ export default function AdminCouponsPage() {
   const [formData, setFormData] = useState({
     code: "",
     discountPercentage: "",
-    validFrom: "",
-    validTo: "",
+    validFromDate: "",
+    validFromTime: "",
+    validToDate: "",
+    validToTime: "",
     maxDiscountAmount: "",
     usageLimit: "1",
   });
@@ -48,11 +51,16 @@ export default function AdminCouponsPage() {
     e.preventDefault();
     setCreating(true);
     try {
+      const validFrom = `${formData.validFromDate}T${formData.validFromTime}`;
+      const validTo = `${formData.validToDate}T${formData.validToTime}`;
+
       const res = await fetch("/api/admin/coupons", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
+          validFrom,
+          validTo,
           discountPercentage: Number(formData.discountPercentage),
         }),
       });
@@ -62,8 +70,10 @@ export default function AdminCouponsPage() {
         setFormData({
           code: "",
           discountPercentage: "",
-          validFrom: "",
-          validTo: "",
+          validFromDate: "",
+          validFromTime: "",
+          validToDate: "",
+          validToTime: "",
           maxDiscountAmount: "",
           usageLimit: "1",
         });
@@ -112,8 +122,9 @@ export default function AdminCouponsPage() {
   return (
     <div className="min-h-screen py-12">
       <div className="flex items-center gap-4 mb-8">
-        <Link href="/admin" className="text-soil/60 hover:text-clay">
-          ← Admin Home
+        <Link href="/admin" className="flex items-center gap-2 text-soil/40 hover:text-soil transition-colors font-medium shrink-0">
+          <ArrowLeft size={20} />
+          <span>Admin</span>
         </Link>
         <h1 className="text-2xl sm:text-3xl font-bold text-soil font-serif">
           Coupons
@@ -155,23 +166,38 @@ export default function AdminCouponsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-soil mb-1">Valid From</label>
-                <input
-                  type="datetime-local"
-                  value={formData.validFrom}
-                  onChange={(e) => setFormData({ ...formData, validFrom: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg text-base md:text-sm"
-                  required
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <DatePicker
+                    value={formData.validFromDate}
+                    onChange={(date) => setFormData({ ...formData, validFromDate: date })}
+                    placeholder="Start date"
+                  />
+                  <input
+                    type="time"
+                    value={formData.validFromTime}
+                    onChange={(e) => setFormData({ ...formData, validFromTime: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg text-base md:text-sm h-[42px]"
+                    required
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-soil mb-1">Valid To</label>
-                <input
-                  type="datetime-local"
-                  value={formData.validTo}
-                  onChange={(e) => setFormData({ ...formData, validTo: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg text-base md:text-sm"
-                  required
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <DatePicker
+                    value={formData.validToDate}
+                    onChange={(date) => setFormData({ ...formData, validToDate: date })}
+                    placeholder="End date"
+                    minDate={formData.validFromDate}
+                  />
+                  <input
+                    type="time"
+                    value={formData.validToTime}
+                    onChange={(e) => setFormData({ ...formData, validToTime: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg text-base md:text-sm h-[42px]"
+                    required
+                  />
+                </div>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
