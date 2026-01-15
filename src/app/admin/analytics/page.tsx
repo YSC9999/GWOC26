@@ -94,17 +94,17 @@ export default function AnalyticsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-clay/10 p-6 font-sans text-soil" onClick={() => setTargetMenuOpen(false)}>
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-clay/10 p-2 md:p-6 font-sans text-soil" onClick={() => setTargetMenuOpen(false)}>
       {/* Header */}
       {/* Header */}
       <div className="flex flex-col gap-6 mb-8 max-w-7xl mx-auto">
         <div className="flex items-center gap-4">
           <Link href="/admin" className="text-soil/40 hover:text-soil transition-colors font-medium shrink-0">← Admin</Link>
-          <h1 className="text-2xl md:text-3xl font-serif font-bold text-soil break-words leading-tight">Analytics Dashboard</h1>
+          <h1 className="text-xl md:text-3xl font-serif font-bold text-soil break-words leading-tight">Analytics Dashboard</h1>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 bg-white/50 backdrop-blur border border-white/60 p-4 rounded-xl shadow-sm w-full">
-          <div className="grid grid-cols-2 gap-3 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 md:gap-4 bg-white/50 backdrop-blur border border-white/60 p-3 md:p-4 rounded-xl shadow-sm w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 items-center">
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-soil/40 text-xs font-bold uppercase pointer-events-none md:hidden">From</span>
               <input
@@ -130,13 +130,13 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-6 max-w-7xl mx-auto">
+      <div className="grid grid-cols-12 gap-4 md:gap-6 max-w-7xl mx-auto">
 
         {/* LEFT COLUMN (4 cols) */}
         <div className="col-span-12 lg:col-span-4 space-y-6">
 
           {/* Today's Increase (Gauge) */}
-          <div className="bg-white/60 backdrop-blur p-6 rounded-3xl shadow-sm border border-white/60 relative">
+          <div className="bg-white/60 backdrop-blur p-4 rounded-3xl shadow-sm border border-white/60 relative">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div className="p-2 bg-soil text-white rounded-full shadow-lg shadow-soil/20">
@@ -223,11 +223,11 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Cancelled / Refunds Stats */}
-          <div className="bg-white/60 backdrop-blur p-6 rounded-3xl shadow-sm border border-white/60 space-y-4">
+          <div className="bg-white/60 backdrop-blur p-4 rounded-3xl shadow-sm border border-white/60 space-y-4">
             <h3 className="font-bold text-soil flex items-center gap-2 font-serif text-lg">
               <div className="w-2 h-2 rounded-full bg-red-400"></div> Returns & Cancellations
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2 md:gap-4">
               <div className="p-4 bg-red-50/50 border border-red-100 rounded-2xl">
                 <p className="text-xs text-red-400 font-bold uppercase mb-1">Cancelled Orders</p>
                 <p className="text-2xl font-bold text-red-800">{data.summary.cancelledOrders || 0}</p>
@@ -242,7 +242,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Billing & Transactions (Recent Orders) */}
-          <div className="bg-white/60 backdrop-blur p-6 rounded-3xl shadow-sm border border-white/60 h-[400px] overflow-hidden flex flex-col">
+          <div className="bg-white/60 backdrop-blur p-4 rounded-3xl shadow-sm border border-white/60 h-[400px] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <div className="p-2 bg-clay/10 text-clay rounded-lg">
@@ -284,7 +284,7 @@ export default function AnalyticsPage() {
         <div className="col-span-12 lg:col-span-8 space-y-6">
 
           {/* Main Chart (Target Sales Breakdown) */}
-          <div className="bg-white/60 backdrop-blur p-8 rounded-3xl shadow-sm border border-white/60">
+          <div className="bg-white/60 backdrop-blur p-4 md:p-8 rounded-3xl shadow-sm border border-white/60">
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
               <div>
                 <h3 className="text-4xl font-serif font-bold flex items-center gap-2 text-soil">
@@ -375,7 +375,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Top Products (Replacing Countries) */}
-          <div className="bg-white/60 backdrop-blur p-8 rounded-3xl shadow-sm border border-white/60">
+          <div className="bg-white/60 backdrop-blur p-4 md:p-8 rounded-3xl shadow-sm border border-white/60">
             <h3 className="font-bold font-serif text-xl mb-6 text-soil">Top Performing Products</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-6">
