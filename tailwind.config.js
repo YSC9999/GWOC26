@@ -3,6 +3,7 @@ export default {
   theme: {
     extend: {
       colors: {
+        brick: "#652810",
         clay: "#C97C5D",
         soil: "#5A3E36",
         sand: "#EFE5D8",

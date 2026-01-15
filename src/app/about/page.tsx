@@ -54,7 +54,6 @@ export default function About() {
                 >
                   Hi, I'm Shivangi — the hands and heart behind Basho.
                 </p>
-
                 <p
                   className="mt-6 text-base md:text-lg text-[#2b1b14] leading-relaxed"
                   style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
@@ -63,28 +62,16 @@ export default function About() {
                   in the world of Dentistry, I found myself searching for
                   something more meaningful — a craft that would connect me to
                   the earth and allow me to create with intention. That's when I
-                  discovered pottery, and everything changed.
-                </p>
-
-                <p
-                  className="mt-4 text-base md:text-lg text-[#2b1b14] leading-relaxed"
-                  style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
-                >
+                  discovered pottery, and everything changed. <br/>
                   What started as a weekend hobby quickly became an
                   all-consuming passion. I trained under master potters, studied
                   Japanese ceramic traditions, and fell deeply in love with the
-                  philosophy of{" "}
-                  <em className="text-clay font-medium">wabi-sabi</em> — finding
+                  philosophy of
+                  wabi-sabi — finding
                   beauty in imperfection and embracing the natural, the
                   authentic, and the handmade.
                 </p>
 
-                <p
-                  className="mt-4 text-base md:text-lg text-[#2b1b14] leading-relaxed italic"
-                  style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
-                >
-                  {/* Basho, a Japanese word that means "A Place." But for me, it's my happy place, where every moment with clay is cherished. Each piece at Basho is crafted with love and individuality, making it truly one of a kind. Basho was also the name of a legendary Japanese poet known for haiku — short, flowing verses that capture life. Like poetry, pottery at Basho flows with rhythm and soul. So come, discover Basho and create your own poetry. */}
-                </p>
                 <div className="mt-8 bg-white/90 backdrop-blur-sm border border-sand/40 rounded-xl px-5 py-3 flex flex-col items-center text-center">
                   <p className="text-soil font-medium mb-2 text-sm">
                     Learn more or visit the studio

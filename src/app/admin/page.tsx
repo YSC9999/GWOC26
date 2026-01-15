@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
 import {
   Package,
   ShoppingBag,
@@ -18,12 +19,15 @@ import {
 } from "lucide-react";
 
 export default function AdminDashboard() {
+  useEffect(() => {
+    document.title = "Basho";
+  }, []);
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
+        staggerChildren: 0.05,
       },
     },
   };
@@ -123,92 +127,107 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-clay/10 -m-4 p-4 md:-m-8 md:p-8">
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-        className="max-w-7xl mx-auto"
+    <div className="min-h-screen bg-white/0">
+      <div
+        className="bg-white relative overflow-hidden m-4 md:m-8 border-8 border-[#652810] p-6 md:p-10 min-h-[calc(100vh-2rem)] md:min-h-[calc(100vh-4rem)]"
+        style={{ borderRadius: "50px 48px 52px 49px / 48px 52px 49px 50px" }}
       >
-        <motion.div variants={itemVariants} className="mb-8 md:mb-12 text-center px-2">
+        {" "}
+        {/* Random decorative elements */}
+        <div className="absolute top-10 left-12 w-16 h-16 border-2 border-gray-300/30 rounded-full opacity-40 pointer-events-none" />
+        <div className="absolute top-1/4 right-20 w-24 h-1 bg-gray-400/20 rotate-45 pointer-events-none" />
+        <div className="absolute bottom-1/3 left-1/4 w-20 h-20 border border-gray-300/20 rounded opacity-35 pointer-events-none" />
+        <div className="absolute top-1/2 right-1/3 w-12 h-12 border-2 border-gray-300/25 rounded-lg opacity-30 pointer-events-none" />
+        <div className="absolute bottom-20 right-10 w-32 h-2 bg-gray-400/15 rounded-full pointer-events-none" />
+        <div className="absolute top-1/3 left-1/3 w-3 h-3 bg-gray-500/20 rounded-full pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-28 h-1 bg-gray-300/20 rotate-12 pointer-events-none" />
+        <div className="absolute top-2/3 left-10 w-14 h-14 border-2 border-gray-300/20 rounded-full opacity-25 pointer-events-none" />
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
+          className="max-w-7xl mx-auto relative z-10"
+        >
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-            className="inline-block text-4xl md:text-6xl mb-4"
+            variants={itemVariants}
+            className="mb-8 md:mb-12 text-center px-2"
           >
-            ⚡
-          </motion.div>
-          <h1 className="text-3xl md:text-5xl font-serif font-bold bg-gradient-to-r from-soil via-clay to-soil bg-clip-text text-transparent mb-3 break-words leading-tight">
-            Admin Dashboard
-          </h1>
-          <p className="text-soil/60 text-sm md:text-lg px-4">
-            Manage your pottery business with ease
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 min-[360px]:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
-          {adminLinks.map((link, idx) => (
             <motion.div
-              key={link.href}
-              variants={itemVariants}
-              whileHover={{ scale: 1.03, rotate: 0.5 }}
-              transition={{ type: "spring", stiffness: 300 }}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+              className="inline-block text-4xl md:text-6xl mb-4"
             >
-              <Link href={link.href}>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  className="group h-full p-3 md:p-8 bg-gradient-to-br from-white to-sand/30 rounded-3xl shadow-lg hover:shadow-2xl hover:shadow-clay/30 border-2 border-white/50 transition-all duration-300 relative overflow-hidden backdrop-blur-sm"
-                >
-                  {/* Animated Background Gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-clay/0 via-clay/0 to-clay/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-clay/10 rounded-full blur-3xl group-hover:bg-clay/20 transition-all duration-500" />
-
-                  <div className="relative z-10">
-                    <motion.div
-                      whileHover={{ scale: 1.15, rotate: 5 }}
-                      className="mb-5 text-clay group-hover:text-clay/90 transition-all duration-300 bg-clay/10 group-hover:bg-clay/20 w-16 h-16 rounded-2xl flex items-center justify-center"
-                    >
-                      {link.icon}
-                    </motion.div>
-
-                    <h3 className="text-lg sm:text-2xl font-bold text-soil mb-2 group-hover:text-clay transition-colors duration-300">
-                      {link.label}
-                    </h3>
-
-                    <p className="text-soil/60 font-medium group-hover:text-soil/90 transition-colors text-sm">
-                      {link.desc}
-                    </p>
-
-                    {/* Arrow indicator */}
-                    <motion.div
-                      className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                      initial={{ x: -10 }}
-                      whileHover={{ x: 0 }}
-                    >
-                      <svg
-                        className="w-6 h-6 text-clay"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17 8l4 4m0 0l-4 4m4-4H3"
-                        />
-                      </svg>
-                    </motion.div>
-                  </div>
-                </motion.div>
-              </Link>
+              🏯
             </motion.div>
-          ))}
-        </div>
-      </motion.div>
+            <h1 className="text-3xl md:text-5xl font-serif font-bold bg-gradient-to-r from-soil via-clay to-soil bg-clip-text text-transparent mb-3 break-words leading-tight">
+              Admin Dashboard
+            </h1>
+          </motion.div>
+
+          <div className="grid grid-cols-1 min-[360px]:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+            {adminLinks.map((link, idx) => (
+              <motion.div
+                key={link.href}
+                variants={itemVariants}
+                whileHover={{ scale: 1.03, rotate: 0.5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Link href={link.href}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.02 }}
+                    className="group h-full p-2 md:p-6 bg-gradient-to-br from-white to-sand/30 rounded-3xl shadow-xl hover:shadow-2xl hover:shadow-black/40 border-2 border-white/50 transition-shadow duration-300 relative overflow-hidden"
+                  >
+                    {/* Animated Background Gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-clay/0 via-clay/0 to-clay/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                    <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-clay/5 group-hover:bg-clay/10 transition-colors duration-500 pointer-events-none rounded-full" />
+
+                    <div className="relative z-10">
+                      <motion.div
+                        whileHover={{ scale: 1.08 }}
+                        className="mb-5 text-clay group-hover:text-clay/90 transition-colors duration-300 bg-clay/10 group-hover:bg-clay/15 w-16 h-16 rounded-2xl flex items-center justify-center"
+                      >
+                        {link.icon}
+                      </motion.div>
+
+                      <h3 className="text-lg sm:text-2xl font-bold text-soil mb-2 group-hover:text-clay transition-colors duration-300">
+                        {link.label}
+                      </h3>
+
+                      <p className="text-soil/60 font-medium group-hover:text-soil/90 transition-colors text-sm">
+                        {link.desc}
+                      </p>
+
+                      {/* Arrow indicator */}
+                      <motion.div
+                        className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        initial={{ x: -10 }}
+                        whileHover={{ x: 0 }}
+                      >
+                        <svg
+                          className="w-6 h-6 text-clay"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17 8l4 4m0 0l-4 4m4-4H3"
+                          />
+                        </svg>
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }
