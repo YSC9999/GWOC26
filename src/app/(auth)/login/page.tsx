@@ -97,150 +97,146 @@ export default function Login() {
   };
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center px-1.5 sm:px-4 py-8 bg-sand-50">
-      <div className="w-full max-w-md mx-auto">
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={fadeInUp}
+      className="w-full max-w-md mx-auto bg-[#FFFBF2] p-3.5 sm:p-6 md:p-8 rounded-2xl shadow-2xl border border-sand-dark/10"
+    >
+      <h1 className="text-3xl font-bold text-center text-soil mb-2 font-serif">
+        {step === 'login' ? 'Sign In' : 'Verify OTP'}
+      </h1>
+      <p className="text-center text-gray-500 mb-6">
+        {step === 'login' ? 'Welcome back to Fashion-Hub' : `Enter OTP sent to ${email}`}
+      </p>
+
+      {error && (
         <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={fadeInUp}
-          className="bg-white p-3.5 sm:p-6 md:p-8 rounded-2xl shadow-lg border border-sand/30"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4"
         >
-          <h1 className="text-3xl font-bold text-center text-soil mb-2 font-serif">
-            {step === 'login' ? 'Sign In' : 'Verify OTP'}
-          </h1>
-          <p className="text-center text-gray-500 mb-6">
-            {step === 'login' ? 'Welcome back to Fashion-Hub' : `Enter OTP sent to ${email}`}
-          </p>
-
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4"
-            >
-              ⚠️ {error}
-            </motion.div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {step === 'login' ? (
-              <>
-                {/* Email */}
-                <div>
-                  <label className="block text-gray-700 font-semibold mb-2">
-                    Email Address
-                  </label>
-                  <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-200 transition-shadow">
-                    <span className="text-gray-400 flex-shrink-0">✉️</span>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email"
-                      required
-                      className="bg-transparent ml-2 flex-1 w-full min-w-0 outline-none text-gray-700 placeholder-gray-400"
-                    />
-                  </div>
-                </div>
-
-                {/* Password */}
-                <div>
-                  <label className="block text-gray-700 font-semibold mb-2">
-                    Password
-                  </label>
-                  <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-200 transition-shadow">
-                    <span className="text-gray-400 flex-shrink-0">🔒</span>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter your password"
-                      required
-                      className="bg-transparent ml-2 flex-1 w-full min-w-0 outline-none text-gray-700 placeholder-gray-400"
-                    />
-                  </div>
-                </div>
-              </>
-            ) : (
-              /* OTP Input */
-              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-                <label className="block text-gray-700 font-semibold mb-2">
-                  One-Time Password
-                </label>
-                <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
-                  <span className="text-gray-400 flex-shrink-0">🔑</span>
-                  <input
-                    type="text"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    placeholder="Enter 6-digit OTP"
-                    required
-                    className="bg-transparent ml-2 flex-1 outline-none text-gray-700 placeholder-gray-400 tracking-widest font-mono"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setStep('login')}
-                  className="text-xs text-blue-500 mt-2 hover:underline"
-                >
-                  Back to Login
-                </button>
-              </motion.div>
-            )}
-
-            {/* Forgot Password Link - Only show in login step */}
-            {step === 'login' && (
-              <div className="flex justify-end">
-                <Link
-                  href="/forgot-password"
-                  className="text-sm text-teal-600 hover:underline font-medium"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-            )}
-
-            {/* Sign In Button */}
-            <motion.button
-              type="submit"
-              disabled={loading}
-              whileTap={clickTap}
-              whileHover={{ scale: 1.02 }}
-              className="w-full mt-6 bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50"
-            >
-              {loading ? "Verifying..." : (step === 'login' ? "Sign In" : "Verify OTP")}
-            </motion.button>
-
-            {/* OAuth Signin - Only in login step */}
-            {step === 'login' && (
-              <div className="mt-6">
-                <div className="relative mb-4">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300"></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">or continue with</span>
-                  </div>
-                </div>
-                <OAuthSignin />
-              </div>
-            )}
-
-            {/* Signup Link - Only in login step */}
-            {step === 'login' && (
-              <p className="text-center mt-6 text-gray-600">
-                Don't have an account?{" "}
-                <Link
-                  href="/signup"
-                  className="text-teal-600 font-semibold hover:underline"
-                >
-                  Create one
-                </Link>
-              </p>
-            )}
-          </form>
+          ⚠️ {error}
         </motion.div>
-      </div>
-    </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {step === 'login' ? (
+          <>
+            {/* Email */}
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Email Address
+              </label>
+              <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-200 transition-shadow">
+                <span className="text-gray-400 flex-shrink-0">✉️</span>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                  className="bg-transparent ml-2 flex-1 w-full min-w-0 outline-none text-gray-700 placeholder-gray-400"
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Password
+              </label>
+              <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-200 transition-shadow">
+                <span className="text-gray-400 flex-shrink-0">🔒</span>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+                  className="bg-transparent ml-2 flex-1 w-full min-w-0 outline-none text-gray-700 placeholder-gray-400"
+                />
+              </div>
+            </div>
+          </>
+        ) : (
+          /* OTP Input */
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+            <label className="block text-gray-700 font-semibold mb-2">
+              One-Time Password
+            </label>
+            <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
+              <span className="text-gray-400 flex-shrink-0">🔑</span>
+              <input
+                type="text"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                placeholder="Enter 6-digit OTP"
+                required
+                className="bg-transparent ml-2 flex-1 outline-none text-gray-700 placeholder-gray-400 tracking-widest font-mono"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setStep('login')}
+              className="text-xs text-blue-500 mt-2 hover:underline"
+            >
+              Back to Login
+            </button>
+          </motion.div>
+        )}
+
+        {/* Forgot Password Link - Only show in login step */}
+        {step === 'login' && (
+          <div className="flex justify-end">
+            <Link
+              href="/forgot-password"
+              className="text-sm text-teal-600 hover:underline font-medium"
+            >
+              Forgot password?
+            </Link>
+          </div>
+        )}
+
+        {/* Sign In Button */}
+        <motion.button
+          type="submit"
+          disabled={loading}
+          whileTap={clickTap}
+          whileHover={{ scale: 1.02 }}
+          className="w-full mt-6 bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50"
+        >
+          {loading ? "Verifying..." : (step === 'login' ? "Sign In" : "Verify OTP")}
+        </motion.button>
+
+        {/* OAuth Signin - Only in login step */}
+        {step === 'login' && (
+          <div className="mt-6">
+            <div className="relative mb-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">or continue with</span>
+              </div>
+            </div>
+            <OAuthSignin />
+          </div>
+        )}
+
+        {/* Signup Link - Only in login step */}
+        {step === 'login' && (
+          <p className="text-center mt-6 text-gray-600">
+            Don't have an account?{" "}
+            <Link
+              href="/signup"
+              className="text-teal-600 font-semibold hover:underline"
+            >
+              Create one
+            </Link>
+          </p>
+        )}
+      </form>
+    </motion.div>
   );
 }

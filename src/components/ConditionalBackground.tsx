@@ -3,10 +3,10 @@ import { usePathname } from "next/navigation";
 
 export default function ConditionalBackground() {
   const pathname = usePathname();
-  
+
   // Hide background on auth and verify-email pages
-  const isAuthPage = pathname?.includes("/login") || pathname?.includes("/signup") || pathname?.includes("/verify-email");
-  
+  const isAuthPage = pathname?.includes("/login") || pathname?.includes("/signup") || pathname?.includes("/verify-email") || pathname?.includes("/forgot-password");
+
   if (isAuthPage) {
     return null;
   }

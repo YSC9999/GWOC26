@@ -15,7 +15,7 @@ export default function PageWrapper({ children }: { children: ReactNode }) {
 
     return (
         <div className={`relative z-10 flex-1 ${isAuthPage ? "" : "pt-20"}`}>
-            <main className={`px-4 md:px-12 ${isAuthPage ? "p-0" : ""}`}>
+            <main className={`${isAuthPage ? "p-0" : "px-4 md:px-12"}`}>
                 {children}
             </main>
         </div>
