@@ -18,6 +18,7 @@ import {
   BarChart2,
   Wallet,
   Settings,
+  Calendar,
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -131,6 +132,12 @@ export default function AdminDashboard() {
       label: "Studio Content",
       desc: "Manage sliders & exhibits",
       icon: <Brush size={32} />,
+    },
+    {
+      href: "/admin/studio-visits",
+      label: "Studio Visits",
+      desc: "Manage tour requests",
+      icon: <Calendar size={32} />,
     },
     {
       href: "/admin/settings",

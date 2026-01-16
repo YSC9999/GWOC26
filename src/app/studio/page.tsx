@@ -9,9 +9,11 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
+  Clock,
 } from "lucide-react";
 import EventCalendar from "@/components/EventCalendar";
 import EventModal from "@/components/EventModal";
+import BookVisitModal from "@/components/BookVisitModal";
 
 interface Event {
   _id: string;
@@ -52,6 +54,7 @@ export default function Studio() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEventDetails, setSelectedEventDetails] =
     useState<Event | null>(null);
+  const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -280,11 +283,10 @@ export default function Studio() {
                     <button
                       key={idx}
                       onClick={() => setCurrentSlide(idx)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        currentSlide === idx
-                          ? "bg-white w-6"
-                          : "bg-white/50 hover:bg-white/80"
-                      }`}
+                      className={`w-2 h-2 rounded-full transition-all ${currentSlide === idx
+                        ? "bg-white w-6"
+                        : "bg-white/50 hover:bg-white/80"
+                        }`}
                     />
                   ))}
                 </div>
@@ -297,7 +299,7 @@ export default function Studio() {
       {/* Exhibitions Section */}
       <section
         id="exhibitions"
-        className="bg-sand/20 py-20 px-4 md:px-12 rounded-t-[3rem]"
+        className="py-20 px-4 md:px-12"
       >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
@@ -326,21 +328,19 @@ export default function Studio() {
               <div className="inline-flex bg-white p-1 rounded-full shadow-sm">
                 <button
                   onClick={() => setEventFilter("upcoming")}
-                  className={`px-8 py-3 rounded-full font-medium transition-all ${
-                    eventFilter === "upcoming"
-                      ? "bg-clay text-white shadow-md"
-                      : "text-soil/60 hover:text-soil"
-                  }`}
+                  className={`px-8 py-3 rounded-full font-medium transition-all ${eventFilter === "upcoming"
+                    ? "bg-clay text-white shadow-md"
+                    : "text-soil/60 hover:text-soil"
+                    }`}
                 >
                   Upcoming
                 </button>
                 <button
                   onClick={() => setEventFilter("past")}
-                  className={`px-8 py-3 rounded-full font-medium transition-all ${
-                    eventFilter === "past"
-                      ? "bg-clay text-white shadow-md"
-                      : "text-soil/60 hover:text-soil"
-                  }`}
+                  className={`px-8 py-3 rounded-full font-medium transition-all ${eventFilter === "past"
+                    ? "bg-clay text-white shadow-md"
+                    : "text-soil/60 hover:text-soil"
+                    }`}
                 >
                   Past
                 </button>
@@ -396,9 +396,8 @@ export default function Studio() {
                     key={event._id}
                     variants={fadeInUp}
                     onClick={() => setSelectedEventDetails(event)}
-                    className={`bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all cursor-pointer group hover:-translate-y-1 ${
-                      eventFilter === "past" ? "opacity-90" : ""
-                    }`}
+                    className={`bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all cursor-pointer group hover:-translate-y-1 ${eventFilter === "past" ? "opacity-90" : ""
+                      }`}
                   >
                     <div className="h-56 overflow-hidden relative">
                       {event.image ? (
@@ -480,12 +479,10 @@ export default function Studio() {
       </section>
 
       {/* Studio Info Section (Hours & Policies) */}
-      <section className="bg-white py-20 px-4 md:px-12">
+      <section className="py-20 px-4 md:px-12">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-soil font-serif mb-4">
-              Our Studio
-            </h2>
+
             <p className="text-soil/70 max-w-2xl mx-auto">
               {studioInfo?.aboutText || "A space for creation and community."}
             </p>
@@ -493,7 +490,7 @@ export default function Studio() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
             {/* Hours */}
-            <div className="bg-sand/40 rounded-3xl p-8 border border-stone-200 shadow-sm">
+            <div className="bg-white rounded-[3rem] p-10 border border-stone-100 shadow-xl">
               {/* Icon placeholder if needed */}
               <div className="w-12 h-12 rounded-full border border-[#5A3E36] flex items-center justify-center text-[#5A3E36] mb-6">
                 <svg
@@ -536,7 +533,7 @@ export default function Studio() {
             </div>
 
             {/* Policies */}
-            <div className="bg-sand/40 rounded-3xl p-8 border border-stone-200 shadow-sm">
+            <div className="bg-white rounded-[3rem] p-10 border border-stone-100 shadow-xl">
               <div className="w-12 h-12 rounded-full border border-[#5A3E36] flex items-center justify-center text-[#5A3E36] mb-6">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -582,72 +579,81 @@ export default function Studio() {
             </div>
           </div>
 
-          {/* Map Section */}
-          <div className="bg-white rounded-3xl overflow-hidden shadow-lg border border-stone-100 grid grid-cols-1 lg:grid-cols-2">
-            {/* Left: Map */}
-            <div className="h-[400px] lg:h-auto bg-slate-100 relative min-h-[400px]">
-              {studioInfo?.mapUrl ? (
-                <iframe
-                  src={studioInfo.mapUrl}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  className="absolute inset-0"
-                ></iframe>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-slate-400">
-                  Loading Map...
+          <section className="py-20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-[600px]">
+                {/* Left: Map */}
+                <div className="relative bg-[#e5e0d8] min-h-[400px] lg:min-h-auto group rounded-[3rem] overflow-hidden shadow-2xl shadow-stone-200/50">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d119066.4126434444!2d72.73989508821933!3d21.159340294970425!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be04e59411d1563%3A0xfe4558290938b042!2sSurat%2C%20Gujarat!5e0!3m2!1sen!2sin!4v1705486745587!5m2!1sen!2sin"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="absolute inset-0 grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700"
+                  ></iframe>
+
+                  {/* Overlay gradient for better transition */}
+                  <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(0,0,0,0.1)]" />
                 </div>
-              )}
-            </div>
 
-            {/* Right: Details */}
-            <div className="p-8 lg:p-16 flex flex-col justify-center bg-white">
-              <h3 className="text-3xl font-bold text-[#5A3E36] font-serif mb-4">
-                Basho Pottery Studio
-              </h3>
-              <p className="text-stone-500 text-lg mb-8 leading-relaxed">
-                {studioInfo?.address ? (
-                  <>
-                    {studioInfo.address}
-                    <br />
-                    {studioInfo.city}, {studioInfo.state}
-                  </>
-                ) : (
-                  "Surat, Gujarat"
-                )}
-              </p>
+                {/* Right: Details (Updated UI) */}
+                <div className="p-8 lg:p-12 flex flex-col justify-center bg-[#fdfbf7] rounded-[3rem] shadow-2xl shadow-stone-200/50">
+                  <h3 className="text-4xl font-bold text-[#5A3E36] font-serif mb-6 leading-tight">
+                    Basho Pottery Studio
+                  </h3>
 
-              <div className="space-y-3 mb-10 text-stone-600">
-                <p>
-                  <span className="font-bold text-[#5A3E36]">Mon-Fri:</span> 10
-                  AM – 7 PM
-                </p>
-                <p>
-                  <span className="font-bold text-[#5A3E36]">Sat:</span> 10 AM –
-                  5 PM
-                </p>
-                <p>
-                  <span className="font-bold text-[#5A3E36]">Sun:</span> By
-                  appointment
-                </p>
+                  <div className="space-y-6 mb-10">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-[#5A3E36]/10 flex items-center justify-center text-[#5A3E36] shrink-0 mt-1">
+                        <MapPin size={20} />
+                      </div>
+                      <div>
+                        <p className="text-stone-800 font-medium text-lg leading-snug">
+                          {studioInfo?.address || "311, Silent Zone, Gavier, Dumas Road"}
+                        </p>
+                        <p className="text-stone-500">
+                          {studioInfo?.city || "Surat"}, {studioInfo?.state || "Gujarat"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-[#5A3E36]/10 flex items-center justify-center text-[#5A3E36] shrink-0 mt-1">
+                        <Clock size={20} />
+                      </div>
+                      <div className="space-y-1 text-stone-600">
+                        <p><span className="font-bold text-[#5A3E36]">Mon-Fri:</span> 10 AM – 7 PM</p>
+                        <p><span className="font-bold text-[#5A3E36]">Sat:</span> 10 AM – 5 PM</p>
+                        <p><span className="font-bold text-[#5A3E36]">Sun:</span> By appointment</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setIsVisitModalOpen(true)}
+                    className="w-full bg-[#5A3E36] text-white py-4 rounded-2xl font-bold text-lg hover:bg-[#4a332c] transition-all transform active:scale-[0.98] shadow-lg shadow-[#5A3E36]/20 flex items-center justify-center gap-2 group"
+                  >
+                    Book a Studio Visit
+                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
               </div>
-
-              <button className="w-full bg-[#5A3E36] text-white py-4 rounded-xl font-bold text-lg hover:bg-[#4a332c] transition-transform active:scale-95 shadow-md">
-                Book a Studio Visit
-              </button>
             </div>
-          </div>
+          </section>
         </div>
       </section>
 
-      {/* Event Details Modal */}
+      {/* Modals */}
       <EventModal
         event={selectedEventDetails}
         onClose={() => setSelectedEventDetails(null)}
+      />
+      <BookVisitModal
+        isOpen={isVisitModalOpen}
+        onClose={() => setIsVisitModalOpen(false)}
       />
     </div>
   );

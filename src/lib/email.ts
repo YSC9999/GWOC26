@@ -12,6 +12,29 @@ export function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+export async function sendEmail({ to, subject, html }: { to: string; subject: string; html: string }): Promise<boolean> {
+  try {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.log('📧 EMAIL SERVICE NOT CONFIGURED - GENERIC EMAIL');
+      console.log(`To: ${to}, Subject: ${subject}`);
+      return true;
+    }
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to,
+      subject,
+      html,
+    };
+
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return false;
+  }
+}
+
 export async function sendOTPEmail(email: string, otp: string): Promise<boolean> {
   try {
     // If email credentials are not configured, log OTP to console for testing
