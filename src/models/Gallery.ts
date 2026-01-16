@@ -3,6 +3,12 @@ import mongoose from 'mongoose';
 const GallerySchema = new mongoose.Schema({
     title: { type: String, required: true },
     image: { type: String, required: true },
+    type: {
+        type: String,
+        enum: ['image', 'video'],
+        default: 'image'
+    },
+    videoUrl: String,
     album: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Album',

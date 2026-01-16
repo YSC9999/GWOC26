@@ -19,6 +19,7 @@ import {
   Wallet,
   Settings,
   Calendar,
+  Image as ImageIcon,
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -144,6 +145,12 @@ export default function AdminDashboard() {
       label: "Settings",
       desc: "Configure store settings",
       icon: <Settings size={32} />,
+    },
+    {
+      href: "/admin/gallery",
+      label: "Gallery",
+      desc: "Manage gallery albums & media",
+      icon: <ImageIcon size={32} />, // Using aliased Image icon
     },
   ];
 
