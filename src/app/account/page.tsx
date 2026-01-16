@@ -22,7 +22,7 @@ interface Order {
   _id: string;
   orderNumber: string;
   status: string;
-  totalAmount: number;
+  finalAmount: number;
   items: any[];
   createdAt: string;
 }
@@ -41,6 +41,7 @@ export default function AccountDashboard() {
   const [formName, setFormName] = useState("");
   const [formEmail, setFormEmail] = useState("");
   const [formPhone, setFormPhone] = useState("");
+  const [emailUpdates, setEmailUpdates] = useState(true);
 
   useEffect(() => {
     fetchData();
@@ -61,6 +62,8 @@ export default function AccountDashboard() {
         setFormName(data.user.name);
         setFormEmail(data.user.email);
         setFormPhone(data.user.phone || "");
+        // Default to true if undefined (for existing users who haven't set it yet, though backend defaults schema to true, existing docs might lack it)
+        setEmailUpdates(data.user.acceptsMarketingEmails !== false);
       }
 
       const fetchedOrders = ordersRes.ok ? (await ordersRes.json()).orders || [] : [];
@@ -87,7 +90,11 @@ export default function AccountDashboard() {
       const res = await fetch("/api/user/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: formName, phone: formPhone }),
+        body: JSON.stringify({
+          name: formName,
+          phone: formPhone,
+          acceptsMarketingEmails: emailUpdates
+        }),
       });
       if (res.ok) {
         // Refresh local state if needed
@@ -275,7 +282,7 @@ export default function AccountDashboard() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-soil">₹{activity.totalAmount}</p>
+                        <p className="font-bold text-soil">₹{activity.finalAmount}</p>
                         <p className={`text-[10px] font-bold uppercase tracking-widest ${activity.status === 'delivered' ? 'text-green-500' : 'text-orange-500'}`}>{activity.status}</p>
                       </div>
                     </div>
@@ -378,6 +385,23 @@ export default function AccountDashboard() {
                 className="w-full px-4 py-3 rounded-xl border border-sand/50 bg-sand/5 focus:outline-none focus:ring-2 focus:ring-clay/20 focus:border-clay transition-all text-soil"
               />
             </div>
+
+            <div className="flex items-center gap-3 bg-sand/10 p-4 rounded-xl border border-sand/20">
+              <input
+                type="checkbox"
+                id="emailUpdates"
+                checked={emailUpdates}
+                onChange={(e) => setEmailUpdates(e.target.checked)}
+                className="w-5 h-5 accent-clay rounded cursor-pointer"
+              />
+              <label htmlFor="emailUpdates" className="cursor-pointer">
+                <span className="block font-bold text-soil text-sm">Receive Email Updates</span>
+                <span className="block text-xs text-soil/60 mt-0.5">
+                  Get notified about new products, workshops, and exclusive offers.
+                </span>
+              </label>
+            </div>
+
             <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-4">
               <button
                 type="submit"

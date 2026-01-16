@@ -10,6 +10,10 @@ const StoreSettingsSchema = new mongoose.Schema({
         type: Number,
         default: 0, // 0 = Disabled
     },
+    gstRate: {
+        type: Number,
+        default: 0, // Percentage (e.g., 18 for 18%)
+    },
     pincodeType: {
         type: String,
         enum: ["standard", "specific", "shiprocket_realtime", "shiprocket_reference"],
@@ -30,4 +34,7 @@ const StoreSettingsSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Ensure we only have one settings document usually, but logic will handle fetching the first/latest.
+if (mongoose.models.StoreSettings) {
+    delete mongoose.models.StoreSettings;
+}
 export default mongoose.models.StoreSettings || mongoose.model("StoreSettings", StoreSettingsSchema);

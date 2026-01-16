@@ -366,3 +366,86 @@ export async function sendAccountDeletionOTPEmail(email: string, otp: string): P
     return false;
   }
 }
+
+export async function sendNewContentNotification(
+  type: 'product' | 'workshop',
+  name: string,
+  description: string,
+  imageUrl: string,
+  link: string
+): Promise<void> {
+  try {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.log(`📧 EMAIL SERVICE NOT CONFIGURED - NEW ${type.toUpperCase()}`);
+      console.log(`Title: ${name}`);
+      return;
+    }
+
+    // Dynamic import to avoid circular dependency issues during initialization
+    const { connectDB } = await import("@/lib/mongodb");
+    const User = (await import("@/models/User")).default;
+
+    await connectDB();
+    // Fetch users who have NOT explicitly opted out (defaults to true)
+    const users = await User.find({
+      role: 'customer',
+      acceptsMarketingEmails: { $ne: false }
+    }, 'email name');
+
+    if (users.length === 0) return;
+
+    console.log(`📧 Sending ${type} notification to ${users.length} users...`);
+
+    const title = type === 'product' ? 'New Arrival at Basho!' : 'New Workshop Alert!';
+    const actionText = type === 'product' ? 'Shop Now' : 'Book Now';
+    const color = type === 'product' ? '#D97757' : '#D97757'; // Clay color for both for consistency
+
+    // Send in batches to avoid overwhelming the transporter
+    // For MVP, simple loop is fine.
+    for (const user of users) {
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: user.email,
+        subject: `${title}: ${name}`,
+        html: `
+          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+             <div style="background-color: #FDFBF7; padding: 40px 20px; text-align: center;">
+               <h1 style="color: #5A3E36; margin: 0; font-family: serif; font-size: 32px;">Basho</h1>
+               <p style="color: #8C7E72; letter-spacing: 2px; text-transform: uppercase; font-size: 10px; margin-top: 5px;">by Shivangi</p>
+             </div>
+             
+             <div style="padding: 0;">
+               ${imageUrl ? `<img src="${imageUrl}" alt="${name}" style="width: 100%; height: auto; display: block;" />` : ''}
+             </div>
+
+             <div style="padding: 40px 30px; text-align: center;">
+               <p style="color: #D97757; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; font-size: 12px; margin-bottom: 20px;">${type === 'product' ? 'Just Added' : 'Upcoming Workshop'}</p>
+               <h2 style="color: #5A3E36; font-size: 28px; margin: 0 0 20px 0; font-family: serif;">${name}</h2>
+               <p style="color: #666666; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">${description}</p>
+               
+               <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}${link}" style="display: inline-block; background-color: ${color}; color: white; text-decoration: none; padding: 15px 40px; border-radius: 50px; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">${actionText}</a>
+             </div>
+
+             <div style="background-color: #F9F9F9; padding: 30px; text-align: center; border-top: 1px solid #eeeeee;">
+               <p style="color: #999999; font-size: 12px; margin: 0;">© 2024 Basho. All rights reserved.</p>
+               <p style="color: #999999; font-size: 12px; margin-top: 10px;">You received this email because you are a registered member of Basho.</p>
+             </div>
+          </div>
+        `
+      };
+
+      // Fire and forget individual emails logic inside the loop? 
+      // Ideally we await to ensure it sends, but we don't want to block the user loop forever.
+      // We'll await inside the loop for safety in this version.
+      try {
+        await transporter.sendMail(mailOptions);
+      } catch (e) {
+        console.error(`Failed to send email to ${user.email}`, e);
+      }
+    }
+
+    console.log(`✅ Finished sending notifications.`);
+  } catch (error) {
+    console.error('Error in sendNewContentNotification:', error);
+  }
+}

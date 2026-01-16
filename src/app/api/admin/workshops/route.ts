@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Workshop from "@/models/Workshop";
 import { requireAdmin } from "@/lib/admin-guard";
+import { sendNewContentNotification } from "@/lib/email";
 
 export async function GET() {
   try {
@@ -59,12 +60,22 @@ export async function POST(req: Request) {
       image,
     });
 
+    // Send notification to all users (Async/Fire-and-forget)
+    sendNewContentNotification(
+      'workshop',
+      workshop.title,
+      workshop.description || "Join our new crafting session!",
+      workshop.image || "",
+      `/workshops#${workshop.slug}` // Anchor or direct link if page supports it
+    ).catch(err => console.error("Failed to trigger workshop notification:", err));
+
     return NextResponse.json(workshop, { status: 201 });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Failed to create workshop" }, { status: 400 });
   }
 }
+
 
 export async function PATCH(req: Request) {
   try {

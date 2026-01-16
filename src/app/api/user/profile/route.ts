@@ -54,7 +54,7 @@ export async function PUT(req: Request) {
         const userId = authUser.id;
 
         const body = await req.json();
-        const { name, phone, addresses, picture } = body;
+        const { name, phone, addresses, picture, acceptsMarketingEmails } = body;
 
         await connectDB();
 
@@ -63,6 +63,7 @@ export async function PUT(req: Request) {
         if (phone) updateData.phone = phone;
         if (addresses) updateData.addresses = addresses;
         if (picture) updateData.picture = picture;
+        if (typeof acceptsMarketingEmails === 'boolean') updateData.acceptsMarketingEmails = acceptsMarketingEmails;
 
         const user = await User.findByIdAndUpdate(
             userId,

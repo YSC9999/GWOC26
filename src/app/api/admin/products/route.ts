@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
 import { requireAdmin } from "@/lib/admin-guard";
+import { sendNewContentNotification } from "@/lib/email";
 
 /* GET ALL PRODUCTS */
 export async function GET() {
@@ -53,7 +54,14 @@ export async function POST(req: Request) {
       images,
     });
 
-
+    // Send notification to all users (Async/Fire-and-forget)
+    sendNewContentNotification(
+      'product',
+      product.name,
+      product.description || "Check out our latest addition!",
+      product.images && product.images.length > 0 ? product.images[0] : "",
+      `/products/${product.slug}`
+    ).catch(err => console.error("Failed to trigger product notification:", err));
 
     return NextResponse.json(product, { status: 201 });
   } catch (err: any) {

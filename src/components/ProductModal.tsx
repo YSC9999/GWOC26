@@ -317,9 +317,7 @@ export default function ProductModal({
                       <span className="text-sm font-medium text-clay uppercase tracking-wide bg-clay/10 px-3 py-1 rounded-full">
                         {product.category}
                       </span>
-                      <span className="text-sm text-soil/50 capitalize">
-                        {product.material}
-                      </span>
+
                     </div>
 
                     {/* Title */}
@@ -400,6 +398,7 @@ export default function ProductModal({
                             🔥 Hurry! Only {product.stockQuantity} left in stock!
                           </p>
                         )}
+
                       </div>
                     ) : (
                       <div className="flex items-center gap-2 text-red-600">

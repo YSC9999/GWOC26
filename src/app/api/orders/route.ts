@@ -242,9 +242,11 @@ export async function POST(req: Request) {
         }
 
 
-        const gstAmount = 0;
-        const walletUsed = 0;
-        const finalAmount = Math.max(0, subtotal + shippingCost - discount);
+        // Calculate GST
+        const gstRate = settings?.gstRate || 0;
+        const gstAmount = Math.ceil(subtotal * (gstRate / 100));
+
+        const finalAmount = Math.max(0, subtotal + gstAmount + shippingCost - discount);
         const totalAmount = finalAmount;
 
         // 3. Create Razorpay Order
@@ -267,10 +269,9 @@ export async function POST(req: Request) {
             gstAmount,
             shippingCost,
             discount,
-            walletAmount: walletUsed,
             finalAmount: totalAmount,
             couponCode: couponCode ? couponCode.toUpperCase() : undefined,
-            total: subtotal + shippingCost - discount,
+            total: subtotal + gstAmount + shippingCost - discount,
             shippingAddress,
             razorpayOrderId: razorpayOrder?.id,
             paymentStatus: totalAmount === 0 ? "paid" : "pending",

@@ -176,8 +176,25 @@ export default function Cart() {
 
   const { user, login, isAuthenticated } = useAuth();
 
+  // GST State
+  const [gstRate, setGstRate] = useState(0);
+
+  React.useEffect(() => {
+    // Fetch GST Rate
+    fetch("/api/admin/settings/general")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.settings?.gstRate) {
+          setGstRate(data.settings.gstRate);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch GST rate:", err));
+  }, []);
+
   const calculateTotal = () => {
     const subtotal = total();
+    const gstAmount = (subtotal * gstRate) / 100;
+
     let discountAmount = 0;
     if (appliedCoupon) {
       discountAmount = (subtotal * appliedCoupon.discountPercentage) / 100;
@@ -194,15 +211,16 @@ export default function Cart() {
 
     return {
       subtotal,
+      gstAmount,
       shipping: shippingCost,
       discount: discountAmount,
-      total: subtotal + (shippingCost || 0) - discountAmount,
+      total: subtotal + gstAmount + (shippingCost || 0) - discountAmount,
     };
   };
 
-  // Wallet Logic Removed
   const {
     subtotal,
+    gstAmount,
     shipping,
     discount,
     total: calculatedTotal,
@@ -652,11 +670,10 @@ export default function Cart() {
                         <button
                           onClick={() => updateQty(item.id, item.qty + 1)}
                           disabled={item.qty >= item.stock}
-                          className={`p-2 transition-colors ${
-                            item.qty >= item.stock
-                              ? "text-gray-300 cursor-not-allowed"
-                              : "hover:text-clay"
-                          }`}
+                          className={`p-2 transition-colors ${item.qty >= item.stock
+                            ? "text-gray-300 cursor-not-allowed"
+                            : "hover:text-clay"
+                            }`}
                         >
                           <Plus size={16} />
                         </button>
@@ -690,11 +707,10 @@ export default function Cart() {
                     {savedAddresses.map((addr) => (
                       <div
                         key={addr._id}
-                        className={`p-4 rounded-xl border-2 transition-all relative group ${
-                          selectedAddressId === addr._id
-                            ? "border-clay bg-clay/5"
-                            : "border-gray-100 hover:border-gray-200"
-                        }`}
+                        className={`p-4 rounded-xl border-2 transition-all relative group ${selectedAddressId === addr._id
+                          ? "border-clay bg-clay/5"
+                          : "border-gray-100 hover:border-gray-200"
+                          }`}
                         onClick={() => handleAddressSelect(addr._id)}
                       >
                         <div className="flex justify-between items-start">
@@ -753,11 +769,10 @@ export default function Cart() {
                     ))}
                     <div
                       onClick={() => handleAddressSelect("new")}
-                      className={`p-4 rounded-xl border-2 cursor-pointer border-dashed flex items-center justify-center gap-2 ${
-                        selectedAddressId === "new"
-                          ? "border-clay bg-clay/5"
-                          : "border-gray-200 text-soil/50 hover:text-clay hover:border-clay"
-                      }`}
+                      className={`p-4 rounded-xl border-2 cursor-pointer border-dashed flex items-center justify-center gap-2 ${selectedAddressId === "new"
+                        ? "border-clay bg-clay/5"
+                        : "border-gray-200 text-soil/50 hover:text-clay hover:border-clay"
+                        }`}
                     >
                       <Plus size={20} /> Add New Address
                     </div>
@@ -766,11 +781,10 @@ export default function Cart() {
 
                 {/* Shared Form */}
                 <div
-                  className={`space-y-6 ${
-                    !editingAddressId && selectedAddressId !== "new"
-                      ? "opacity-80 pointer-events-none grayscale"
-                      : ""
-                  }`}
+                  className={`space-y-6 ${!editingAddressId && selectedAddressId !== "new"
+                    ? "opacity-80 pointer-events-none grayscale"
+                    : ""
+                    }`}
                 >
                   {" "}
                   {/* Disable form if saved address selected */}
@@ -850,11 +864,10 @@ export default function Cart() {
                             sendingOtp ||
                             formData.phone.length < 10
                           }
-                          className={`px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-colors ${
-                            phoneVerified
-                              ? "bg-green-100 text-green-700"
-                              : "bg-clay text-white hover:bg-clay/90 disabled:opacity-50"
-                          }`}
+                          className={`px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-colors ${phoneVerified
+                            ? "bg-green-100 text-green-700"
+                            : "bg-clay text-white hover:bg-clay/90 disabled:opacity-50"
+                            }`}
                         >
                           {sendingOtp ? (
                             <Loader2 className="animate-spin" />
@@ -1004,6 +1017,12 @@ export default function Cart() {
                   <span>Subtotal</span>
                   <span>₹{subtotal.toLocaleString()}</span>
                 </div>
+                {gstRate > 0 && (
+                  <div className="flex justify-between">
+                    <span>GST ({gstRate}%)</span>
+                    <span>₹{gstAmount.toLocaleString()}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span>Shipping</span>
                   {calculatingShipping ? (

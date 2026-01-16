@@ -98,12 +98,7 @@ export default function AdminDashboard() {
       desc: "Manage accounts",
       icon: <Users size={32} />,
     },
-    {
-      href: "/admin/wallet",
-      label: "Wallet",
-      desc: "Manage user wallet credits",
-      icon: <Wallet size={32} />,
-    },
+
     {
       href: "/admin/collections",
       label: "Collections",

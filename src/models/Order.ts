@@ -45,7 +45,7 @@ export interface IOrder extends Document {
   couponCode?: string;
   customerNotes?: string;
   adminNotes?: string;
-  walletAmount?: number;
+
   finalAmount?: number;
   createdAt: Date;
   updatedAt: Date;
@@ -107,7 +107,7 @@ const OrderSchema = new Schema<IOrder>({
   couponCode: String,
   customerNotes: String,
   adminNotes: String,
-  walletAmount: { type: Number, default: 0 },
+
   finalAmount: { type: Number, required: true },
 }, { timestamps: true });
 

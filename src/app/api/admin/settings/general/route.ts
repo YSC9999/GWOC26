@@ -21,7 +21,7 @@ export async function PUT(req: Request) {
     try {
         await requireAdmin();
         await connectDB();
-        const { shippingMode, freeShippingThreshold, pincodeRateDefault, pincodeType, shiprocketReferencePincode, shiprocketReferencePrice } = await req.json();
+        const { shippingMode, freeShippingThreshold, pincodeRateDefault, pincodeType, shiprocketReferencePincode, shiprocketReferencePrice, gstRate } = await req.json();
 
         let settings = await StoreSettings.findOne();
         if (!settings) {
@@ -30,6 +30,7 @@ export async function PUT(req: Request) {
 
         if (shippingMode) settings.shippingMode = shippingMode;
         if (freeShippingThreshold !== undefined) settings.freeShippingThreshold = freeShippingThreshold;
+        if (gstRate !== undefined) settings.gstRate = gstRate;
         if (pincodeRateDefault !== undefined) settings.pincodeRateDefault = pincodeRateDefault;
         if (pincodeType) settings.pincodeType = pincodeType;
         if (shiprocketReferencePincode) settings.shiprocketReferencePincode = shiprocketReferencePincode;

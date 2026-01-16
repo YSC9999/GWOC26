@@ -13,6 +13,7 @@ import {
   Settings,
   Truck,
   ArrowLeft,
+  Check,
 } from "lucide-react";
 import AdminPageContainer from "@/components/admin/AdminPageContainer";
 
@@ -41,6 +42,7 @@ export default function AdminShipping() {
   const [settings, setSettings] = useState({
     shippingMode: "weight",
     freeShippingThreshold: 0,
+    gstRate: 0,
     pincodeRateDefault: 150,
     pincodeType: "standard", // standard | specific | shiprocket_realtime | shiprocket_reference
     shiprocketReferencePincode: "110001",
@@ -82,6 +84,7 @@ export default function AdminShipping() {
         setSettings({
           shippingMode: data.settings.shippingMode || "weight",
           freeShippingThreshold: data.settings.freeShippingThreshold || 0,
+          gstRate: data.settings.gstRate || 0,
           pincodeRateDefault: data.settings.pincodeRateDefault || 150,
           pincodeType: data.settings.pincodeType || "standard",
           shiprocketReferencePincode:
@@ -267,6 +270,17 @@ export default function AdminShipping() {
             </button>
           </div>
 
+          {successMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 bg-green-100 text-green-800 p-4 rounded-xl text-center font-bold border border-green-200 flex items-center justify-center gap-2"
+            >
+              <Check size={18} />
+              {successMessage}
+            </motion.div>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
             {/* Free Shipping Threshold */}
             <div className="bg-sand/10 p-4 md:p-6 rounded-xl border border-soil/10">
@@ -295,6 +309,33 @@ export default function AdminShipping() {
               </div>
             </div>
 
+            {/* GST Rate */}
+            <div className="bg-sand/10 p-4 md:p-6 rounded-xl border border-soil/10">
+              <label className="block font-bold text-soil mb-2">
+                GST Rate (%)
+              </label>
+              <p className="text-xs text-soil/60 mb-4">
+                Percentage added to cart value.
+              </p>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-soil/50 font-bold">
+                  %
+                </span>
+                <input
+                  type="number"
+                  value={settings.gstRate}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      gstRate: parseFloat(e.target.value) || 0,
+                    })
+                  }
+                  className="w-full pl-8 pr-4 py-3 rounded-lg border border-soil/20 focus:outline-none focus:border-clay font-bold text-lg"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+
             {/* Shipping Mode */}
             <div className="bg-sand/10 p-4 md:p-6 rounded-xl border border-soil/10">
               <label className="block font-bold text-soil mb-4">
@@ -302,11 +343,10 @@ export default function AdminShipping() {
               </label>
               <div className="flex flex-col md:flex-row gap-4 w-full">
                 <label
-                  className={`flex-1 p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                    settings.shippingMode === "weight"
-                      ? "border-clay bg-white/60 shadow-md"
-                      : "border-dashed border-soil/20 hover:bg-white/50"
-                  }`}
+                  className={`flex-1 p-3 rounded-xl border-2 cursor-pointer transition-all ${settings.shippingMode === "weight"
+                    ? "border-clay bg-white/60 shadow-md"
+                    : "border-dashed border-soil/20 hover:bg-white/50"
+                    }`}
                 >
                   <div className="flex items-start gap-2">
                     <input
@@ -329,11 +369,10 @@ export default function AdminShipping() {
                   </div>
                 </label>
                 <label
-                  className={`flex-1 min-w-0 p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                    settings.shippingMode === "pincode"
-                      ? "border-clay bg-white/60 shadow-md"
-                      : "border-dashed border-soil/20 hover:bg-white/50"
-                  }`}
+                  className={`flex-1 min-w-0 p-3 rounded-xl border-2 cursor-pointer transition-all ${settings.shippingMode === "pincode"
+                    ? "border-clay bg-white/60 shadow-md"
+                    : "border-dashed border-soil/20 hover:bg-white/50"
+                    }`}
                 >
                   <div className="flex items-start gap-2">
                     <input
@@ -358,16 +397,6 @@ export default function AdminShipping() {
               </div>
             </div>
           </div>
-
-          {successMessage && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-6 bg-green-100 text-green-800 p-4 rounded-xl text-center font-bold border border-green-200"
-            >
-              {successMessage}
-            </motion.div>
-          )}
         </section>
 
         {/* WEIGHT BASED UI */}
@@ -505,18 +534,16 @@ export default function AdminShipping() {
                   onClick={() =>
                     setSettings({ ...settings, pincodeType: opt.id })
                   }
-                  className={`text-left p-4 rounded-xl border-2 transition-all flex items-start gap-3 w-full ${
-                    settings.pincodeType === opt.id
-                      ? "border-clay bg-white/60 shadow-sm"
-                      : "border-dashed border-soil/10 hover:bg-white/30"
-                  }`}
+                  className={`text-left p-4 rounded-xl border-2 transition-all flex items-start gap-3 w-full ${settings.pincodeType === opt.id
+                    ? "border-clay bg-white/60 shadow-sm"
+                    : "border-dashed border-soil/10 hover:bg-white/30"
+                    }`}
                 >
                   <div
-                    className={`p-2 rounded-lg ${
-                      settings.pincodeType === opt.id
-                        ? "bg-clay text-white"
-                        : "bg-soil/10 text-soil"
-                    }`}
+                    className={`p-2 rounded-lg ${settings.pincodeType === opt.id
+                      ? "bg-clay text-white"
+                      : "bg-soil/10 text-soil"
+                      }`}
                   >
                     {opt.icon || <Settings size={16} />}
                   </div>
@@ -702,21 +729,19 @@ export default function AdminShipping() {
                   <div className="grid grid-cols-1 md:flex md:flex-row gap-4 mb-4">
                     <button
                       onClick={() => setIsBulkPincode(false)}
-                      className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
-                        !isBulkPincode
-                          ? "bg-soil text-white shadow-md"
-                          : "bg-white text-soil border border-soil/20"
-                      }`}
+                      className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${!isBulkPincode
+                        ? "bg-soil text-white shadow-md"
+                        : "bg-white text-soil border border-soil/20"
+                        }`}
                     >
                       Single Pincode
                     </button>
                     <button
                       onClick={() => setIsBulkPincode(true)}
-                      className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
-                        isBulkPincode
-                          ? "bg-soil text-white shadow-md"
-                          : "bg-white text-soil border border-soil/20"
-                      }`}
+                      className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${isBulkPincode
+                        ? "bg-soil text-white shadow-md"
+                        : "bg-white text-soil border border-soil/20"
+                        }`}
                     >
                       Bulk Upload (Multiple)
                     </button>

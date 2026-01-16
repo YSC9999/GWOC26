@@ -624,17 +624,15 @@ export default function Products() {
                           !isOutOfStock &&
                           setSelectedProductId(product.slug || product._id)
                         }
-                        className={`relative aspect-square bg-gradient-to-br from-sand to-sand/50 overflow-hidden ${
-                          isOutOfStock ? "cursor-not-allowed" : "cursor-pointer"
-                        }`}
+                        className={`relative aspect-square bg-gradient-to-br from-sand to-sand/50 overflow-hidden ${isOutOfStock ? "cursor-not-allowed" : "cursor-pointer"
+                          }`}
                       >
                         {getProductImage(product) ? (
                           <img
                             src={getProductImage(product)!}
                             alt={product.name}
-                            className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${
-                              isOutOfStock ? "grayscale opacity-75" : ""
-                            }`}
+                            className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${isOutOfStock ? "grayscale opacity-75" : ""
+                              }`}
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-7xl group-hover:scale-110 transition-transform duration-500">
@@ -679,7 +677,7 @@ export default function Products() {
                               <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                                 {Math.round(
                                   (1 - product.price / product.originalPrice) *
-                                    100
+                                  100
                                 )}
                                 % OFF
                               </span>
@@ -704,6 +702,13 @@ export default function Products() {
                         <p className="hidden md:block text-xs text-soil/60 mb-2 line-clamp-2 h-8">
                           {product.description}
                         </p>
+
+                        {/* Low Stock Warning */}
+                        {product.stockQuantity !== undefined && product.stockQuantity <= 5 && product.stockQuantity > 0 && (
+                          <p className="text-amber-600 text-[10px] font-bold animate-pulse mb-2">
+                            🔥 Hurry! Only {product.stockQuantity} left!
+                          </p>
+                        )}
 
                         {/* Price */}
                         <div className="flex items-center justify-between mb-3">
@@ -779,11 +784,10 @@ export default function Products() {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  currentPage === 1
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === 1
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+                  }`}
               >
                 Previous
               </button>
@@ -800,11 +804,10 @@ export default function Products() {
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
-                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                        currentPage === page
-                          ? "bg-clay text-white shadow-lg"
-                          : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-                      }`}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === page
+                        ? "bg-clay text-white shadow-lg"
+                        : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+                        }`}
                     >
                       {page}
                     </button>
@@ -825,11 +828,10 @@ export default function Products() {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  currentPage === totalPages
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === totalPages
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-white text-soil border-2 border-soil/20 hover:border-clay hover:text-clay"
+                  }`}
               >
                 Next
               </button>
@@ -1133,7 +1135,7 @@ export default function Products() {
                       required
                     >
                       <option value="">Select Material</option>
-                      <option value="Stoneware">Stoneware</option>
+
                       <option value="Porcelain">Porcelain</option>
                       <option value="Raku">Raku</option>
                       <option value="Terracotta">Terracotta</option>
@@ -1172,11 +1174,10 @@ export default function Products() {
                               glazePreference: newGlazes,
                             }));
                           }}
-                          className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
-                            customFormData.glazePreference.includes(glaze)
-                              ? "bg-clay text-white border-clay"
-                              : "bg-white text-soil/70 border-soil/20 hover:border-clay/50"
-                          }`}
+                          className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${customFormData.glazePreference.includes(glaze)
+                            ? "bg-clay text-white border-clay"
+                            : "bg-white text-soil/70 border-soil/20 hover:border-clay/50"
+                            }`}
                         >
                           {glaze}
                         </button>

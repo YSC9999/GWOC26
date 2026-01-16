@@ -28,7 +28,7 @@ export interface IUser extends Document {
   usedCoupons: string[];
   tier: "tier-0" | "tier-1" | "tier-2" | "tier-3";
   subscriptionActive: boolean;
-  walletBalance: number;
+
 
   emailVerified: boolean;
   emailVerificationOTP?: string;
@@ -45,6 +45,7 @@ export interface IUser extends Document {
   blockedUntil?: Date;
   createdAt: Date;
   updatedAt: Date;
+  acceptsMarketingEmails: boolean;
 }
 
 const AddressSchema = new Schema({
@@ -82,10 +83,7 @@ const UserSchema = new Schema<IUser>({
     enum: ["tier-0", "tier-1", "tier-2", "tier-3"],
     default: "tier-0"
   },
-  walletBalance: {
-    type: Number,
-    default: 0
-  },
+
 
   subscriptionActive: { type: Boolean, default: false },
   emailVerified: { type: Boolean, default: false },
@@ -104,7 +102,7 @@ const UserSchema = new Schema<IUser>({
   }],
   isBlocked: { type: Boolean, default: false },
   blockedUntil: Date,
-
+  acceptsMarketingEmails: { type: Boolean, default: true },
 }, { timestamps: true });
 
 const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
