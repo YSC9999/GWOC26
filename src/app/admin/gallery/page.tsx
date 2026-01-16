@@ -1,38 +1,63 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Edit2, Trash2, X, Image as ImageIcon, ChevronRight } from "lucide-react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import {
+    Plus,
+    Edit,
+    Trash2,
+    X,
+    ChevronLeft,
+    ChevronRight,
+    Search
+} from "lucide-react";
+import AdminPageContainer from "@/components/admin/AdminPageContainer";
+import MediaUpload from "@/components/MediaUpload";
 
 interface Album {
     _id: string;
     name: string;
     slug: string;
-    coverImage?: string;
     description?: string;
+    coverImage?: string;
     isActive: boolean;
     order: number;
 }
 
 export default function AdminGalleryPage() {
-    const router = useRouter();
     const [albums, setAlbums] = useState<Album[]>([]);
+    const [filteredAlbums, setFilteredAlbums] = useState<Album[]>([]);
     const [loading, setLoading] = useState(true);
-    const [showModal, setShowModal] = useState(false);
-    const [editingAlbum, setEditingAlbum] = useState<Album | null>(null);
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
 
     // Form State
     const [formData, setFormData] = useState({
         name: "",
         description: "",
         coverImage: "",
+        isActive: true
     });
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
     useEffect(() => {
         fetchAlbums();
     }, []);
+
+    useEffect(() => {
+        if (!searchTerm) {
+            setFilteredAlbums(albums);
+        } else {
+            const term = searchTerm.toLowerCase();
+            setFilteredAlbums(albums.filter(a =>
+                a.name.toLowerCase().includes(term) ||
+                (a.description && a.description.toLowerCase().includes(term))
+            ));
+        }
+    }, [searchTerm, albums]);
 
     const fetchAlbums = async () => {
         try {
@@ -40,9 +65,10 @@ export default function AdminGalleryPage() {
             const data = await res.json();
             if (data.albums) {
                 setAlbums(data.albums);
+                setFilteredAlbums(data.albums);
             }
         } catch (error) {
-            console.error("Failed to fetch albums:", error);
+            console.error("Failed to fetch albums", error);
         } finally {
             setLoading(false);
         }
@@ -50,12 +76,16 @@ export default function AdminGalleryPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError("");
+        setSuccess("");
+
         try {
             const url = "/api/albums";
-            const method = editingAlbum ? "PUT" : "POST";
-            const body = editingAlbum
-                ? { ...formData, _id: editingAlbum._id }
-                : formData;
+            const method = editingId ? "PUT" : "POST";
+            const body = {
+                ...formData,
+                _id: editingId
+            };
 
             const res = await fetch(url, {
                 method,
@@ -64,229 +94,257 @@ export default function AdminGalleryPage() {
             });
 
             if (res.ok) {
-                setShowModal(false);
-                setEditingAlbum(null);
-                setFormData({ name: "", description: "", coverImage: "" });
+                setSuccess(editingId ? "Album updated successfully" : "Album created successfully");
+                setShowAddForm(false);
+                setEditingId(null);
+                setFormData({
+                    name: "",
+                    description: "",
+                    coverImage: "",
+                    isActive: true
+                });
                 fetchAlbums();
             } else {
                 const err = await res.json();
-                alert(err.error || "Operation failed");
+                setError(err.error || "Operation failed");
             }
         } catch (error) {
             console.error("Failed to save album:", error);
+            setError("Network error occurred");
         }
     };
 
-    const handleDelete = async (id: string, name: string) => {
-        if (!confirm(`Are you sure you want to delete album "${name}"? This will confirm delete all images/videos in it.`)) return;
-
+    const handleDelete = async (id: string) => {
+        if (!confirm("Are you sure? This will delete all images/videos inside this album.")) return;
         try {
-            const res = await fetch(`/api/albums?id=${id}`, {
-                method: "DELETE",
-            });
+            const res = await fetch(`/api/albums?id=${id}`, { method: "DELETE" });
             if (res.ok) {
                 fetchAlbums();
+                setSuccess("Album deleted");
+            } else {
+                setError("Failed to delete album");
             }
         } catch (error) {
-            console.error("Failed to delete album:", error);
+            console.error("Failed to delete:", error);
         }
     };
 
-    const openEdit = (album: Album) => {
-        setEditingAlbum(album);
+    const startEdit = (album: Album) => {
+        setEditingId(album._id);
         setFormData({
             name: album.name,
             description: album.description || "",
             coverImage: album.coverImage || "",
+            isActive: album.isActive
         });
-        setShowModal(true);
-    };
-
-    const openCreate = () => {
-        if (albums.length >= 15) {
-            alert("Maximum limit of 15 albums reached.");
-            return;
-        }
-        setEditingAlbum(null);
-        setFormData({ name: "", description: "", coverImage: "" });
-        setShowModal(true);
+        setShowAddForm(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     return (
-        <div className="min-h-screen p-6 md:p-10 font-sans">
-            <div className="flex justify-between items-center mb-10">
-                <div>
-                    <h1 className="text-3xl font-bold text-soil mb-2 font-serif">Gallery Management</h1>
-                    <p className="text-soil/60">Manage your albums and collections ({albums.length}/15)</p>
-                </div>
-                <button
-                    onClick={openCreate}
-                    disabled={albums.length >= 15}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all ${albums.length >= 15
-                            ? "bg-gray-300 cursor-not-allowed"
-                            : "bg-clay text-white hover:bg-clay/90 shadow-lg hover:shadow-xl"
-                        }`}
-                >
-                    <Plus size={20} />
-                    <span>New Album</span>
-                </button>
-            </div>
-
-            {loading ? (
-                <div className="flex justify-center py-20">
-                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-clay border-t-transparent"></div>
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {albums.map((album) => (
+        <AdminPageContainer title="Gallery Albums">
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-6"
+            >
+                {/* Notifications */}
+                <AnimatePresence>
+                    {error && (
                         <motion.div
-                            key={album._id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="bg-white rounded-2xl shadow-lg border border-soil/10 overflow-hidden hover:shadow-2xl transition-all group"
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-100"
                         >
-                            <div
-                                className="h-48 bg-gray-100 relative cursor-pointer"
-                                onClick={() => router.push(`/admin/gallery/${album._id}`)}
-                            >
-                                {album.coverImage ? (
-                                    <img src={album.coverImage} alt={album.name} className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-soil/30">
-                                        <ImageIcon size={48} />
-                                    </div>
-                                )}
-                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                                    <span className="bg-white/90 text-soil px-4 py-2 rounded-full font-semibold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-all">
-                                        Manage Content
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="p-5">
-                                <div className="flex justify-between items-start mb-2">
-                                    <h3 className="text-xl font-bold text-soil font-serif truncate pr-4">{album.name}</h3>
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={() => openEdit(album)}
-                                            className="p-2 hover:bg-soil/10 rounded-full text-soil/70 hover:text-soil transition-colors"
-                                            title="Edit Album Settings"
-                                        >
-                                            <Edit2 size={18} />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(album._id, album.name)}
-                                            className="p-2 hover:bg-red-50 rounded-full text-red-400 hover:text-red-500 transition-colors"
-                                            title="Delete Album"
-                                        >
-                                            <Trash2 size={18} />
-                                        </button>
-                                    </div>
-                                </div>
-                                <p className="text-soil/60 text-sm line-clamp-2 mb-4 h-10">
-                                    {album.description || "No description provided."}
-                                </p>
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className={`px-3 py-1 rounded-full ${album.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-                                        {album.isActive ? 'Active' : 'Hidden'}
-                                    </span>
-                                    <button
-                                        onClick={() => router.push(`/admin/gallery/${album._id}`)}
-                                        className="flex items-center gap-1 text-clay font-semibold hover:underline"
-                                    >
-                                        Manage Items <ChevronRight size={16} />
-                                    </button>
-                                </div>
-                            </div>
+                            {error}
                         </motion.div>
-                    ))}
-                </div>
-            )}
-
-            {/* Modal */}
-            <AnimatePresence>
-                {showModal && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-                        onClick={() => setShowModal(false)}
-                    >
+                    )}
+                    {success && (
                         <motion.div
-                            initial={{ scale: 0.9, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            exit={{ scale: 0.9, y: 20 }}
-                            className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative"
-                            onClick={e => e.stopPropagation()}
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="bg-green-50 text-green-600 p-4 rounded-xl border border-green-100"
                         >
-                            <button
-                                onClick={() => setShowModal(false)}
-                                className="absolute top-6 right-6 text-soil/50 hover:text-soil transition-colors"
-                            >
-                                <X size={24} />
-                            </button>
+                            {success}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
-                            <h2 className="text-2xl font-bold text-soil mb-6 font-serif">
-                                {editingAlbum ? "Edit Album" : "Create New Album"}
+                {/* Controls */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="relative w-full md:w-64">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-soil/40" size={18} />
+                        <input
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search albums..."
+                            className="w-full pl-10 pr-4 py-2 bg-white/50 border border-soil/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-clay/20 transition-all placeholder:text-soil/40 text-soil"
+                        />
+                    </div>
+
+                    <button
+                        onClick={() => {
+                            setShowAddForm(!showAddForm);
+                            if (!showAddForm) {
+                                setEditingId(null);
+                                setFormData({ name: "", description: "", coverImage: "", isActive: true });
+                            }
+                        }}
+                        className={`px-6 py-2 rounded-xl font-semibold shadow-lg transition-all flex items-center gap-2 ${showAddForm
+                                ? "bg-gray-100 text-soil hover:bg-gray-200"
+                                : "bg-clay text-white hover:bg-clay/90"
+                            }`}
+                    >
+                        {showAddForm ? <><X size={18} /> Cancel</> : <><Plus size={18} /> Add Album</>}
+                    </button>
+                </div>
+
+                {/* Form */}
+                <AnimatePresence>
+                    {showAddForm && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0, overflow: "hidden" }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="bg-white/40 backdrop-blur-md rounded-2xl border border-soil/10 p-6 md:p-8"
+                        >
+                            <h2 className="text-xl font-bold text-soil mb-6 font-serif">
+                                {editingId ? "Edit Album" : "Create New Album"}
                             </h2>
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-soil/70 mb-1">Album Name</label>
+                                            <input
+                                                value={formData.name}
+                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                className="w-full p-3 bg-white/60 border border-soil/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-clay/20"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-soil/70 mb-1">Description</label>
+                                            <textarea
+                                                value={formData.description}
+                                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                                className="w-full p-3 bg-white/60 border border-soil/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-clay/20 resize-none h-32"
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                id="active"
+                                                checked={formData.isActive}
+                                                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                                                className="w-5 h-5 rounded border-soil/20 text-clay focus:ring-clay"
+                                            />
+                                            <label htmlFor="active" className="text-soil font-medium cursor-pointer">Active (Visible)</label>
+                                        </div>
+                                    </div>
 
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-soil/70 mb-1">Album Name (Unique)</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        className="w-full px-4 py-2 rounded-xl border border-soil/20 focus:outline-none focus:ring-2 focus:ring-clay/50 bg-white text-soil"
-                                        placeholder="e.g., Summer Collection"
-                                    />
+                                    <div>
+                                        <label className="block text-sm font-medium text-soil/70 mb-1">Cover Image</label>
+                                        <MediaUpload
+                                            onUploaded={(url) => setFormData(prev => ({ ...prev, coverImage: url }))}
+                                            currentUrl={formData.coverImage}
+                                            onClear={() => setFormData(prev => ({ ...prev, coverImage: "" }))}
+                                            folder="gallery/covers"
+                                            label="Upload Cover Image"
+                                        />
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-soil/70 mb-1">Description</label>
-                                    <textarea
-                                        value={formData.description}
-                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        rows={3}
-                                        className="w-full px-4 py-2 rounded-xl border border-soil/20 focus:outline-none focus:ring-2 focus:ring-clay/50 bg-white text-soil resize-none"
-                                        placeholder="Brief description of the collection..."
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-soil/70 mb-1">Cover Image URL</label>
-                                    <input
-                                        type="url"
-                                        value={formData.coverImage}
-                                        onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-                                        className="w-full px-4 py-2 rounded-xl border border-soil/20 focus:outline-none focus:ring-2 focus:ring-clay/50 bg-white text-soil"
-                                        placeholder="https://cloudinary.com/..."
-                                    />
-                                    <p className="text-xs text-soil/40 mt-1">Paste a Cloudinary or direct image link</p>
-                                </div>
-
-                                <div className="flex gap-3 mt-8">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowModal(false)}
-                                        className="flex-1 px-4 py-3 rounded-xl border border-soil/20 text-soil hover:bg-gray-50 transition-colors font-semibold"
-                                    >
-                                        Cancel
-                                    </button>
+                                <div className="flex justify-end pt-4">
                                     <button
                                         type="submit"
-                                        className="flex-1 px-4 py-3 rounded-xl bg-clay text-white hover:bg-clay/90 transition-all font-semibold shadow-lg"
+                                        className="px-8 py-3 bg-soil text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:bg-soil/90 transition-all"
                                     >
-                                        {editingAlbum ? "Save Changes" : "Create Album"}
+                                        {editingId ? "Save Changes" : "Create Album"}
                                     </button>
                                 </div>
                             </form>
                         </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
+                    )}
+                </AnimatePresence>
+
+                {/* Table */}
+                <div className="bg-white/30 backdrop-blur-sm border border-soil/10 rounded-3xl overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead className="bg-sand/20 text-soil/60 text-xs uppercase tracking-wider font-bold border-b border-soil/10">
+                                <tr>
+                                    <th className="p-4">Cover</th>
+                                    <th className="p-4">Name</th>
+                                    <th className="p-4">Status</th>
+                                    <th className="p-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-soil/5">
+                                {filteredAlbums.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={4} className="p-8 text-center text-soil/50">
+                                            No albums found. Create one to get started.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    filteredAlbums.map((album) => (
+                                        <tr
+                                            key={album._id}
+                                            className="hover:bg-white/40 transition-colors group"
+                                        >
+                                            <td className="p-4 w-24">
+                                                <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden border border-soil/10">
+                                                    {album.coverImage && (
+                                                        <img src={album.coverImage} alt={album.name} className="w-full h-full object-cover" />
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="font-bold text-soil text-lg">{album.name}</div>
+                                                <div className="text-sm text-soil/60 line-clamp-1 max-w-md">{album.description}</div>
+                                            </td>
+                                            <td className="p-4">
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${album.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
+                                                    }`}>
+                                                    {album.isActive ? "Visible" : "Hidden"}
+                                                </span>
+                                            </td>
+                                            <td className="p-4 text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <Link
+                                                        href={`/admin/gallery/${album._id}`}
+                                                        className="p-2 hover:bg-soil/10 rounded-lg text-soil/70 hover:text-soil transition-colors"
+                                                        title="Manage Items"
+                                                    >
+                                                        <ChevronRight size={20} />
+                                                    </Link>
+                                                    <button
+                                                        onClick={() => startEdit(album)}
+                                                        className="p-2 hover:bg-blue-50 rounded-lg text-blue-600 transition-colors"
+                                                        title="Edit"
+                                                    >
+                                                        <Edit size={18} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(album._id)}
+                                                        className="p-2 hover:bg-red-50 rounded-lg text-red-500 transition-colors"
+                                                        title="Delete"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </motion.div>
+        </AdminPageContainer>
     );
 }

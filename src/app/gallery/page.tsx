@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, X, Heart, ChevronLeft, ChevronRight } from "lucide-react";
-import Image from "next/image";
+import { Play, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Album {
   _id: string;
@@ -34,10 +33,10 @@ export default function GalleryPage() {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [images, setImages] = useState<GalleryItem[]>([]);
   const [videos, setVideos] = useState<GalleryItem[]>([]);
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]); // Full list for navigation
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
   const [loading, setLoading] = useState(true);
-  const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchAlbums();
@@ -48,6 +47,36 @@ export default function GalleryPage() {
       fetchGalleryByAlbum(selectedAlbum._id);
     }
   }, [selectedAlbum]);
+
+  // Keyboard Navigation
+  const handleNext = useCallback((e?: React.MouseEvent | KeyboardEvent) => {
+    e?.stopPropagation();
+    if (!selectedItem || galleryItems.length === 0) return;
+    const currentIndex = galleryItems.findIndex(item => item._id === selectedItem._id);
+    const nextIndex = (currentIndex + 1) % galleryItems.length;
+    setSelectedItem(galleryItems[nextIndex]);
+  }, [selectedItem, galleryItems]);
+
+  const handlePrev = useCallback((e?: React.MouseEvent | KeyboardEvent) => {
+    e?.stopPropagation();
+    if (!selectedItem || galleryItems.length === 0) return;
+    const currentIndex = galleryItems.findIndex(item => item._id === selectedItem._id);
+    const prevIndex = (currentIndex - 1 + galleryItems.length) % galleryItems.length;
+    setSelectedItem(galleryItems[prevIndex]);
+  }, [selectedItem, galleryItems]);
+
+  useEffect(() => {
+    if (!selectedItem) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") handleNext(e);
+      if (e.key === "ArrowLeft") handlePrev(e);
+      if (e.key === "Escape") setSelectedItem(null);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedItem, handleNext, handlePrev]);
 
   const fetchAlbums = async () => {
     try {
@@ -71,6 +100,7 @@ export default function GalleryPage() {
       const data = await res.json();
 
       const allItems: GalleryItem[] = data.gallery || [];
+      setGalleryItems(allItems);
       setImages(allItems.filter(item => item.type === 'image' || !item.type));
       setVideos(allItems.filter(item => item.type === 'video'));
 
@@ -81,23 +111,11 @@ export default function GalleryPage() {
     }
   };
 
-  const toggleLike = (itemId: string) => {
-    setLikedItems((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(itemId)) {
-        newSet.delete(itemId);
-      } else {
-        newSet.add(itemId);
-      }
-      return newSet;
-    });
-  };
-
   // Scroll album slider
   const scrollAlbums = (direction: "left" | "right") => {
     const container = document.getElementById("album-slider");
     if (container) {
-      const scrollAmount = 300;
+      const scrollAmount = 320;
       container.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
@@ -148,17 +166,23 @@ export default function GalleryPage() {
           {/* Album Cards Slider */}
           <div
             id="album-slider"
-            className="flex gap-6 overflow-x-auto scrollbar-hide px-12 py-4 snap-x snap-mandatory"
+            className="flex gap-8 overflow-x-auto scrollbar-hide px-12 py-12 snap-x snap-mandatory items-center"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {albums.map((album) => (
               <motion.div
                 key={album._id}
-                whileHover={{ y: -8 }}
                 onClick={() => setSelectedAlbum(album)}
-                className={`flex-shrink-0 w-64 h-64 rounded-2xl cursor-pointer transition-all snap-center ${selectedAlbum?._id === album._id
-                  ? "ring-4 ring-clay shadow-2xl scale-105"
-                  : "ring-2 ring-soil/10 hover:ring-clay/50 shadow-lg"
+                layout
+                animate={{
+                  scale: selectedAlbum?._id === album._id ? 1.15 : 0.95,
+                  opacity: selectedAlbum?._id === album._id ? 1 : 0.7,
+                  zIndex: selectedAlbum?._id === album._id ? 10 : 1
+                }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                className={`flex-shrink-0 w-72 h-72 rounded-2xl cursor-pointer snap-center relative ${selectedAlbum?._id === album._id
+                  ? "shadow-2xl ring-4 ring-clay"
+                  : "shadow-lg hover:opacity-90"
                   }`}
               >
                 <div className="relative w-full h-full rounded-2xl overflow-hidden bg-gradient-to-br from-sand/40 to-clay/10">
@@ -175,18 +199,18 @@ export default function GalleryPage() {
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-6">
                     <div>
-                      <h3 className="text-white font-bold text-xl font-serif mb-1">
+                      <h3 className="text-white font-bold text-xl font-serif mb-1 drop-shadow-md">
                         {album.name}
                       </h3>
                       {album.description && (
-                        <p className="text-white/80 text-sm line-clamp-2">
+                        <p className="text-white/90 text-sm line-clamp-2 drop-shadow-sm">
                           {album.description}
                         </p>
                       )}
                     </div>
                   </div>
                   {selectedAlbum?._id === album._id && (
-                    <div className="absolute top-4 right-4 bg-clay text-white px-3 py-1 rounded-full text-xs font-bold">
+                    <div className="absolute top-4 right-4 bg-clay text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
                       Selected
                     </div>
                   )}
@@ -197,7 +221,7 @@ export default function GalleryPage() {
         </div>
       </motion.div>
 
-      {/* Video Slider (if specific videos exist for this album) */}
+      {/* Video Slider */}
       {!loading && videos.length > 0 && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -214,7 +238,6 @@ export default function GalleryPage() {
           </div>
 
           <div className="relative group/slider">
-            {/* Video Scroll Buttons */}
             {videos.length > 2 && (
               <>
                 <button
@@ -240,7 +263,6 @@ export default function GalleryPage() {
               </>
             )}
 
-            {/* Video Cards Slider */}
             <div
               id="video-slider"
               className="flex gap-6 overflow-x-auto scrollbar-hide px-4 md:px-12 py-4 snap-x snap-mandatory"
@@ -275,7 +297,7 @@ export default function GalleryPage() {
         </motion.div>
       )}
 
-      {/* Gallery Grid - Masonry Layout */}
+      {/* Gallery Grid */}
       {loading ? (
         <div className="flex justify-center items-center h-96">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-clay border-t-transparent"></div>
@@ -294,7 +316,7 @@ export default function GalleryPage() {
           transition={{ delay: 0.3 }}
           className="max-w-7xl mx-auto"
         >
-          {/* Masonry Grid using CSS columns */}
+          {/* Masonry Grid */}
           <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
             {images.map((item, index) => (
               <motion.div
@@ -314,38 +336,6 @@ export default function GalleryPage() {
                       alt={item.title}
                       className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                        <h3 className="font-bold text-lg mb-1">{item.title}</h3>
-                        {item.description && (
-                          <p className="text-sm text-white/90 line-clamp-2">
-                            {item.description}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Like Button */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleLike(item._id);
-                    }}
-                    className="absolute top-3 right-3 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg transition-all hover:scale-110 z-10"
-                  >
-                    <Heart
-                      size={20}
-                      className={`transition-colors ${likedItems.has(item._id)
-                          ? "fill-red-500 text-red-500"
-                          : "text-soil"
-                        }`}
-                    />
-                  </button>
-
-                  {/* Category Badge */}
-                  <div className="absolute bottom-3 left-3 bg-clay/90 text-white px-3 py-1 rounded-full text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                    {item.category}
                   </div>
                 </div>
               </motion.div>
@@ -361,32 +351,61 @@ export default function GalleryPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/95 z-[30] flex items-center justify-center p-4 pt-28"
             onClick={() => setSelectedItem(null)}
           >
+            {/* Close Button */}
             <motion.button
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className="absolute top-4 right-4 bg-white/90 hover:bg-white rounded-full p-3 z-10 shadow-xl"
-              onClick={() => setSelectedItem(null)}
+              className="absolute top-28 right-6 bg-white/10 hover:bg-white/20 text-white rounded-full p-2 z-[60] backdrop-blur-md transition-colors border border-white/20"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedItem(null);
+              }}
             >
-              <X size={24} className="text-soil" />
+              <X size={24} />
             </motion.button>
 
+            {/* Navigation Buttons */}
+            {galleryItems.length > 1 && (
+              <>
+                <motion.button
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,0.2)" }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white backdrop-blur-md border border-white/10 z-[60]"
+                  onClick={handlePrev}
+                >
+                  <ChevronLeft size={32} />
+                </motion.button>
+                <motion.button
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,0.2)" }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white backdrop-blur-md border border-white/10 z-[60]"
+                  onClick={handleNext}
+                >
+                  <ChevronRight size={32} />
+                </motion.button>
+              </>
+            )}
+
             <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
+              key={selectedItem._id}
+              initial={{ opacity: 0.5, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
               transition={{ type: "spring", damping: 25 }}
-              className="max-w-6xl max-h-[90vh] w-full relative flex flex-col items-center"
+              className="relative max-w-7xl w-full h-auto flex items-center justify-center"
               onClick={(e) => e.stopPropagation()}
             >
               {selectedItem.type === 'video' && selectedItem.videoUrl ? (
                 // Video Player
-                <div className="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl mb-4">
+                <div className="w-full max-w-3xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl">
                   <iframe
                     src={selectedItem.videoUrl}
                     className="w-full h-full"
@@ -399,26 +418,9 @@ export default function GalleryPage() {
                 <img
                   src={selectedItem.image}
                   alt={selectedItem.title}
-                  className="max-h-[70vh] w-auto object-contain rounded-2xl mb-4"
+                  className="max-h-[80vh] max-w-[85vw] object-contain rounded-xl shadow-2xl"
                 />
               )}
-
-              <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl w-full max-w-2xl text-center border border-white/20">
-                <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2 font-serif">
-                  {selectedItem.title}
-                </h3>
-                {selectedItem.description && (
-                  <p className="text-white/90 mb-4">{selectedItem.description}</p>
-                )}
-                <div className="flex gap-2 justify-center">
-                  <span className="inline-block px-4 py-2 bg-clay text-white rounded-full text-sm font-semibold">
-                    {selectedItem.category}
-                  </span>
-                  <span className="inline-block px-4 py-2 bg-white/20 text-white rounded-full text-sm font-semibold">
-                    {selectedItem.album.name}
-                  </span>
-                </div>
-              </div>
             </motion.div>
           </motion.div>
         )}

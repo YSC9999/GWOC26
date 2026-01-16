@@ -2,15 +2,27 @@
 
 import { useState, useEffect, use } from "react";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
-import { Plus, Trash2, Edit2, ChevronLeft, Save, Video, Image as ImageIcon, ExternalLink, Play } from "lucide-react";
-import { useRouter } from "next/navigation";
+import {
+    Plus,
+    Trash2,
+    Edit2,
+    Save,
+    Video,
+    Image as ImageIcon,
+    Play,
+    GripVertical,
+    X,
+    Check
+} from "lucide-react";
+import AdminPageContainer from "@/components/admin/AdminPageContainer";
+import MediaUpload from "@/components/MediaUpload";
 
 interface GalleryItem {
     _id: string;
     title: string;
     type: 'image' | 'video';
     image: string;
-    videoUrl?: string;
+    videoUrl?: string; // YouTube/Embed URL for video type
     category: string;
     description?: string;
     featured: boolean;
@@ -23,16 +35,14 @@ interface Album {
 }
 
 export default function AlbumDetailsPage({ params }: { params: Promise<{ id: string }> }) {
-    // Unwrap params using React.use()
     const { id: albumId } = use(params);
 
-    const router = useRouter();
     const [items, setItems] = useState<GalleryItem[]>([]);
     const [album, setAlbum] = useState<Album | null>(null);
-    const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'image' | 'video'>('image');
-    const [showModal, setShowModal] = useState(false);
+    const [showForm, setShowForm] = useState(false);
     const [editingItem, setEditingItem] = useState<GalleryItem | null>(null);
+    const [hasOrderChanged, setHasOrderChanged] = useState(false);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -45,7 +55,8 @@ export default function AlbumDetailsPage({ params }: { params: Promise<{ id: str
         featured: false,
     });
 
-    const [hasOrderChanged, setHasOrderChanged] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
     useEffect(() => {
         fetchData();
@@ -53,33 +64,21 @@ export default function AlbumDetailsPage({ params }: { params: Promise<{ id: str
 
     const fetchData = async () => {
         try {
-            // Fetch Album Info (from list or separate endpoint, here we just use what we assume exists or fetch all albums to filter)
-            // Ideally we would have GET /api/albums/:id but we can simulate or fetch all.
-            // actually, let's fetch gallery items and album name from gallery endpoint
             const res = await fetch(`/api/gallery?album=${albumId}`);
             const data = await res.json();
-
-            if (data.gallery && data.gallery.length > 0) {
+            if (data.gallery) {
                 setItems(data.gallery);
-                // Assuming populated album is same for all, pick from first
-                if (data.gallery[0].album) {
-                    setAlbum(data.gallery[0].album);
-                }
-            } else {
-                setItems([]);
+                if (data.gallery.length > 0 && data.gallery[0].album) setAlbum(data.gallery[0].album);
             }
-
-            // If album info missing (empty gallery), fetch album details separately
-            // Using the albums list endpoint
-            const albumsRes = await fetch(`/api/albums?admin=true`);
-            const albumsData = await albumsRes.json();
-            const currentAlbum = albumsData.albums.find((a: any) => a._id === albumId);
-            if (currentAlbum) setAlbum(currentAlbum);
-
+            // Fallback album fetch if empty
+            if (!data.gallery?.length) {
+                const aRes = await fetch(`/api/albums?admin=true`);
+                const aData = await aRes.json();
+                const current = aData.albums.find((a: any) => a._id === albumId);
+                if (current) setAlbum(current);
+            }
         } catch (error) {
-            console.error("Failed to fetch data:", error);
-        } finally {
-            setLoading(false);
+            console.error(error);
         }
     };
 
@@ -88,28 +87,24 @@ export default function AlbumDetailsPage({ params }: { params: Promise<{ id: str
         return item.type === 'image' || !item.type;
     });
 
-    // Reorder Handler
+    const calculateCounts = () => {
+        const images = items.filter(i => i.type !== 'video').length;
+        const videos = items.filter(i => i.type === 'video').length;
+        return { images, videos };
+    };
+
     const handleReorder = (newOrder: GalleryItem[]) => {
-        // We only reorder the visible items
-        // We need to merge this back into the full list
         const otherItems = items.filter(item => {
             if (activeTab === 'video') return item.type !== 'video';
-            return item.type === 'video'; // if tab is image, preserve videos
+            return item.type === 'video';
         });
-
         setItems([...otherItems, ...newOrder]);
         setHasOrderChanged(true);
     };
 
     const saveOrder = async () => {
         try {
-            // Update order for all items based on index
-            const updates = items.map((item, index) => ({
-                _id: item._id,
-                order: index
-            }));
-
-            // We need a Batch Update API or loop PUTs. Loop is easier for now.
+            const updates = items.map((item, index) => ({ _id: item._id, order: index }));
             await Promise.all(updates.map(u =>
                 fetch('/api/gallery', {
                     method: 'PUT',
@@ -117,22 +112,20 @@ export default function AlbumDetailsPage({ params }: { params: Promise<{ id: str
                     body: JSON.stringify(u)
                 })
             ));
-
             setHasOrderChanged(false);
-            alert("Order saved!");
+            setSuccess("Order saved successfully");
+            setTimeout(() => setSuccess(""), 3000);
         } catch (error) {
             console.error("Failed to save order", error);
+            setError("Failed to save order");
         }
-    };
-
-    const calculateCounts = () => {
-        const images = items.filter(i => i.type !== 'video').length;
-        const videos = items.filter(i => i.type === 'video').length;
-        return { images, videos };
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError("");
+        setSuccess("");
+
         try {
             const url = "/api/gallery";
             const method = editingItem ? "PUT" : "POST";
@@ -149,7 +142,8 @@ export default function AlbumDetailsPage({ params }: { params: Promise<{ id: str
             });
 
             if (res.ok) {
-                setShowModal(false);
+                setSuccess(editingItem ? "Item updated" : "Item added");
+                setShowForm(false);
                 setEditingItem(null);
                 setFormData({
                     title: "",
@@ -163,34 +157,35 @@ export default function AlbumDetailsPage({ params }: { params: Promise<{ id: str
                 fetchData();
             } else {
                 const err = await res.json();
-                alert(err.error || "Operation failed");
+                setError(err.error || "Operation failed");
             }
         } catch (error) {
-            console.error("Failed to save item:", error);
+            console.error(error);
+            setError("Network error");
         }
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Delete this item?")) return;
+        if (!confirm("Are you sure?")) return;
         try {
             await fetch(`/api/gallery?id=${id}`, { method: "DELETE" });
             fetchData();
+            setSuccess("Item deleted");
         } catch (error) {
-            console.error("Failed to delete:", error);
+            setError("Delete failed");
         }
     };
 
     const openCreate = () => {
         const { images, videos } = calculateCounts();
         if (activeTab === 'image' && images >= 20) {
-            alert("Maximum 20 images allowed.");
+            alert("Maximum 20 images limit reached.");
             return;
         }
         if (activeTab === 'video' && videos >= 10) {
-            alert("Maximum 10 videos allowed.");
+            alert("Maximum 10 videos limit reached.");
             return;
         }
-
         setEditingItem(null);
         setFormData({
             title: "",
@@ -201,7 +196,7 @@ export default function AlbumDetailsPage({ params }: { params: Promise<{ id: str
             description: "",
             featured: false,
         });
-        setShowModal(true);
+        setShowForm(true);
     };
 
     const openEdit = (item: GalleryItem) => {
@@ -215,193 +210,102 @@ export default function AlbumDetailsPage({ params }: { params: Promise<{ id: str
             description: item.description || "",
             featured: item.featured,
         });
-        setShowModal(true);
+        setShowForm(true);
     };
 
     return (
-        <div className="min-h-screen p-6 md:p-10 font-sans max-w-7xl mx-auto">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => router.push('/admin/gallery')}
-                        className="p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-all text-soil"
-                    >
-                        <ChevronLeft size={24} />
-                    </button>
-                    <div>
-                        <h1 className="text-3xl font-bold text-soil font-serif">
-                            {album?.name || "Loading..."}
-                        </h1>
-                        <p className="text-soil/60 text-sm">Manage album content</p>
+        <AdminPageContainer title={`${album?.name || "Album"} Content`}>
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-6"
+            >
+                {/* Notifications */}
+                <AnimatePresence>
+                    {(error || success) && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className={`p-4 rounded-xl border ${error ? "bg-red-50 border-red-100 text-red-600" : "bg-green-50 border-green-100 text-green-600"}`}
+                        >
+                            {error || success}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Toolbar */}
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-soil/10 pb-4">
+                    <div className="flex gap-4 p-1 bg-soil/5 rounded-xl">
+                        <button
+                            onClick={() => { setActiveTab('image'); setShowForm(false); }}
+                            className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${activeTab === 'image' ? 'bg-white shadow-sm text-clay' : 'text-soil/60 hover:text-soil'}`}
+                        >
+                            <ImageIcon size={18} /> Images ({calculateCounts().images}/20)
+                        </button>
+                        <button
+                            onClick={() => { setActiveTab('video'); setShowForm(false); }}
+                            className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${activeTab === 'video' ? 'bg-white shadow-sm text-clay' : 'text-soil/60 hover:text-soil'}`}
+                        >
+                            <Video size={18} /> Videos ({calculateCounts().videos}/10)
+                        </button>
+                    </div>
+
+                    <div className="flex gap-3">
+                        {hasOrderChanged && (
+                            <button
+                                onClick={saveOrder}
+                                className="px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 shadow-md transition-all flex items-center gap-2 animate-pulse"
+                            >
+                                <Save size={18} /> Save Order
+                            </button>
+                        )}
+                        <button
+                            onClick={() => {
+                                setShowForm(!showForm);
+                                if (!showForm) openCreate();
+                            }}
+                            className={`px-6 py-2 rounded-xl font-semibold shadow-md transition-all flex items-center gap-2 ${showForm ? "bg-gray-100 text-soil" : "bg-clay text-white"}`}
+                        >
+                            {showForm ? <><X size={18} /> Cancel</> : <><Plus size={18} /> Add {activeTab === 'image' ? 'Image' : 'Video'}</>}
+                        </button>
                     </div>
                 </div>
 
-                <div className="flex gap-3">
-                    {hasOrderChanged && (
-                        <button
-                            onClick={saveOrder}
-                            className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 shadow-lg transition-all animate-pulse"
-                        >
-                            <Save size={18} /> Save Order
-                        </button>
-                    )}
-                    <button
-                        onClick={openCreate}
-                        className="flex items-center gap-2 px-6 py-2 bg-clay text-white rounded-xl hover:bg-clay/90 shadow-lg transition-all"
-                    >
-                        <Plus size={18} /> Add {activeTab === 'image' ? 'Image' : 'Video'}
-                    </button>
-                </div>
-            </div>
-
-            {/* Tabs */}
-            <div className="flex gap-6 border-b border-soil/10 mb-8">
-                <button
-                    onClick={() => setActiveTab('image')}
-                    className={`pb-3 px-2 flex items-center gap-2 font-medium transition-colors relative ${activeTab === 'image' ? 'text-clay' : 'text-soil/50 hover:text-soil'
-                        }`}
-                >
-                    <ImageIcon size={20} />
-                    Images ({calculateCounts().images}/20)
-                    {activeTab === 'image' && (
-                        <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-clay" />
-                    )}
-                </button>
-                <button
-                    onClick={() => setActiveTab('video')}
-                    className={`pb-3 px-2 flex items-center gap-2 font-medium transition-colors relative ${activeTab === 'video' ? 'text-clay' : 'text-soil/50 hover:text-soil'
-                        }`}
-                >
-                    <Video size={20} />
-                    Videos ({calculateCounts().videos}/10)
-                    {activeTab === 'video' && (
-                        <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-clay" />
-                    )}
-                </button>
-            </div>
-
-            {/* Content List */}
-            <Reorder.Group axis="y" values={filteredItems} onReorder={handleReorder} className="space-y-4">
-                {filteredItems.map((item) => (
-                    <Reorder.Item key={item._id} value={item}>
-                        <div className="bg-white rounded-xl shadow-sm border border-soil/10 p-4 flex items-center gap-4 hover:shadow-md transition-shadow cursor-move group">
-                            <div className="w-8 flex flex-col gap-1 text-soil/20 group-hover:text-soil/40">
-                                <div className="w-1 h-1 bg-current rounded-full mx-auto" />
-                                <div className="w-1 h-1 bg-current rounded-full mx-auto" />
-                                <div className="w-1 h-1 bg-current rounded-full mx-auto" />
-                            </div>
-
-                            <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 relative">
-                                <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                                {item.type === 'video' && (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                                        <Play className="text-white fill-white" size={20} />
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <h3 className="font-bold text-soil truncate">{item.title}</h3>
-                                    {item.featured && (
-                                        <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded-full">Featured</span>
-                                    )}
-                                </div>
-                                <p className="text-sm text-soil/60 truncate mb-1">{item.description || "No description"}</p>
-                                <div className="flex gap-2 text-xs text-soil/40">
-                                    <span className="capitalize">{item.category}</span>
-                                    {item.type === 'video' && <span>• Video URL: {item.videoUrl}</span>}
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                    onClick={() => openEdit(item)}
-                                    className="p-2 hover:bg-soil/10 rounded-full text-soil/60 hover:text-soil"
-                                >
-                                    <Edit2 size={18} />
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(item._id)}
-                                    className="p-2 hover:bg-red-50 rounded-full text-red-300 hover:text-red-500"
-                                >
-                                    <Trash2 size={18} />
-                                </button>
-                            </div>
-                        </div>
-                    </Reorder.Item>
-                ))}
-            </Reorder.Group>
-
-            {/* Modal */}
-            <AnimatePresence>
-                {showModal && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-                        onClick={() => setShowModal(false)}
-                    >
+                {/* Form */}
+                <AnimatePresence>
+                    {showForm && (
                         <motion.div
-                            initial={{ scale: 0.9, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            exit={{ scale: 0.9, y: 20 }}
-                            className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative max-h-[90vh] overflow-y-auto"
-                            onClick={e => e.stopPropagation()}
+                            initial={{ opacity: 0, height: 0, overflow: "hidden" }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="bg-white/40 backdrop-blur-md rounded-2xl border border-soil/10 p-6 md:p-8 overflow-hidden"
                         >
-                            <h2 className="text-2xl font-bold text-soil mb-6 font-serif">
-                                {editingItem ? "Edit Item" : `Add New ${activeTab === 'image' ? 'Image' : 'Video'}`}
+                            <h2 className="text-xl font-bold text-soil mb-6 font-serif flex items-center gap-2">
+                                {editingItem ? <Edit2 size={20} /> : <Plus size={20} />}
+                                {editingItem ? "Edit Item" : `Add ${activeTab === 'image' ? 'Image' : 'Video'}`}
                             </h2>
-
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-soil/70 mb-1">Title</label>
+                            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
                                     <input
-                                        type="text"
-                                        required
                                         value={formData.title}
                                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                        className="w-full px-4 py-2 rounded-xl border border-soil/20 focus:outline-none focus:ring-2 focus:ring-clay/50 bg-white text-soil"
+                                        placeholder="Title"
+                                        className="w-full p-3 bg-white/60 border border-soil/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-clay/20"
+                                        required
                                     />
-                                </div>
+                                    <textarea
+                                        value={formData.description}
+                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                        placeholder="Description (Optional)"
+                                        className="w-full p-3 bg-white/60 border border-soil/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-clay/20 resize-none h-24"
+                                    />
 
-                                <div>
-                                    <label className="block text-sm font-medium text-soil/70 mb-1">
-                                        {activeTab === 'video' ? 'Thumbnail Image URL' : 'Image URL'}
-                                    </label>
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="url"
-                                            required
-                                            value={formData.image}
-                                            onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                                            className="w-full px-4 py-2 rounded-xl border border-soil/20 focus:outline-none focus:ring-2 focus:ring-clay/50 bg-white text-soil"
-                                        />
-                                    </div>
-                                </div>
-
-                                {activeTab === 'video' && (
-                                    <div>
-                                        <label className="block text-sm font-medium text-soil/70 mb-1">Video URL (YouTube/Embed)</label>
-                                        <input
-                                            type="url"
-                                            required
-                                            value={formData.videoUrl}
-                                            onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-                                            className="w-full px-4 py-2 rounded-xl border border-soil/20 focus:outline-none focus:ring-2 focus:ring-clay/50 bg-white text-soil"
-                                        />
-                                    </div>
-                                )}
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-soil/70 mb-1">Category</label>
+                                    <div className="grid grid-cols-2 gap-4">
                                         <select
                                             value={formData.category}
                                             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                            className="w-full px-4 py-2 rounded-xl border border-soil/20 focus:outline-none focus:ring-2 focus:ring-clay/50 bg-white text-soil"
+                                            className="w-full p-3 bg-white/60 border border-soil/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-clay/20"
                                         >
                                             <option value="products">Products</option>
                                             <option value="studio">Studio</option>
@@ -409,50 +313,118 @@ export default function AlbumDetailsPage({ params }: { params: Promise<{ id: str
                                             <option value="process">Process</option>
                                             <option value="events">Events</option>
                                         </select>
+                                        <div className="flex items-center gap-2 p-3 bg-white/60 border border-soil/10 rounded-xl">
+                                            <input
+                                                type="checkbox"
+                                                id="featured"
+                                                checked={formData.featured}
+                                                onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                                                className="w-5 h-5 rounded border-soil/20 text-clay focus:ring-clay"
+                                            />
+                                            <label htmlFor="featured" className="text-sm font-medium text-soil cursor-pointer select-none">Featured</label>
+                                        </div>
                                     </div>
+
+                                    {activeTab === 'video' && (
+                                        <input
+                                            value={formData.videoUrl}
+                                            onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+                                            placeholder="YouTube/Video Embed URL"
+                                            className="w-full p-3 bg-white/60 border border-soil/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-clay/20"
+                                            required
+                                        />
+                                    )}
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-soil/70 mb-1">Description</label>
-                                    <textarea
-                                        value={formData.description}
-                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        rows={3}
-                                        className="w-full px-4 py-2 rounded-xl border border-soil/20 focus:outline-none focus:ring-2 focus:ring-clay/50 bg-white text-soil resize-none"
+                                    <label className="block text-sm font-medium text-soil/70 mb-2">
+                                        {activeTab === 'video' ? "Video Thumbnail" : "Upload Image"}
+                                    </label>
+                                    <MediaUpload
+                                        onUploaded={(url) => setFormData(prev => ({ ...prev, image: url }))}
+                                        currentUrl={formData.image}
+                                        onClear={() => setFormData(prev => ({ ...prev, image: "" }))}
+                                        folder="gallery/items"
+                                        label={activeTab === 'video' ? "Upload Thumbnail" : "Upload Image"}
                                     />
-                                </div>
 
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        id="featured"
-                                        checked={formData.featured}
-                                        onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                                        className="w-5 h-5 rounded border-soil/20 text-clay focus:ring-clay"
-                                    />
-                                    <label htmlFor="featured" className="text-soil/90 font-medium select-none">Mark as Featured</label>
-                                </div>
-
-                                <div className="flex gap-3 mt-8">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowModal(false)}
-                                        className="flex-1 px-4 py-3 rounded-xl border border-soil/20 text-soil hover:bg-gray-50 transition-colors font-semibold"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="flex-1 px-4 py-3 rounded-xl bg-clay text-white hover:bg-clay/90 transition-all font-semibold shadow-lg"
-                                    >
-                                        {editingItem ? "Save Changes" : "Create Item"}
-                                    </button>
+                                    <div className="flex justify-end mt-4 pt-4">
+                                        <button type="submit" className="px-8 py-3 bg-soil text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:bg-soil/90 transition-all">
+                                            {editingItem ? "Update" : "Create"}
+                                        </button>
+                                    </div>
                                 </div>
                             </form>
                         </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
+                    )}
+                </AnimatePresence>
+
+                {/* Table-like Reorder List */}
+                <div className="bg-white/30 backdrop-blur-sm border border-soil/10 rounded-3xl overflow-hidden">
+                    {/* Header */}
+                    <div className="bg-sand/20 text-soil/60 text-xs uppercase tracking-wider font-bold border-b border-soil/10 flex p-4">
+                        <div className="w-12 text-center">#</div>
+                        <div className="w-24">Media</div>
+                        <div className="flex-1 px-4">Details</div>
+                        <div className="w-24">Type</div>
+                        <div className="w-24 text-right">Actions</div>
+                    </div>
+
+                    <Reorder.Group axis="y" values={filteredItems} onReorder={handleReorder} className="divide-y divide-soil/5 min-h-[100px]">
+                        {filteredItems.length === 0 ? (
+                            <div className="p-8 text-center text-soil/50">No items found.</div>
+                        ) : (
+                            filteredItems.map((item) => (
+                                <Reorder.Item
+                                    key={item._id}
+                                    value={item}
+                                    className="flex items-center p-4 hover:bg-white/40 transition-colors group cursor-move bg-transparent"
+                                >
+                                    <div className="w-12 text-center text-soil/30">
+                                        <GripVertical size={20} className="mx-auto" />
+                                    </div>
+                                    <div className="w-24">
+                                        <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden relative border border-soil/10">
+                                            <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                                            {item.type === 'video' && (
+                                                <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                                    <Play size={20} className="text-white fill-white" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 px-4 min-w-0">
+                                        <div className="font-bold text-soil truncate flex items-center gap-2">
+                                            {item.title}
+                                            {item.featured && <span className="text-[10px] bg-yellow-100 text-yellow-700 px-2 rounded-full">Featured</span>}
+                                        </div>
+                                        <div className="text-sm text-soil/60 truncate">{item.description || "No description"}</div>
+                                        <div className="text-xs text-soil/40 mt-1 capitalize">{item.category}</div>
+                                    </div>
+                                    <div className="w-24 text-sm capitalize text-soil/70 bg-white/50 px-2 py-1 rounded w-fit h-fit">
+                                        {item.type}
+                                    </div>
+                                    <div className="w-24 text-right flex items-center justify-end gap-2">
+                                        <button
+                                            onClick={() => openEdit(item)}
+                                            className="p-2 hover:bg-blue-50 rounded-lg text-blue-600 transition-colors"
+                                        >
+                                            <Edit2 size={18} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(item._id)}
+                                            className="p-2 hover:bg-red-50 rounded-lg text-red-500 transition-colors"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
+                                </Reorder.Item>
+                            ))
+                        )}
+                    </Reorder.Group>
+                </div>
+            </motion.div>
+        </AdminPageContainer>
     );
 }
+
