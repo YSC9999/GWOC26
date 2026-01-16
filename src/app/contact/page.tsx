@@ -110,8 +110,9 @@ export default function Contact() {
   ];
 
   // Check if company name should be required based on subject
-  const isCompanyNameRequired = formData.subject === "Corporate Inquiry" || formData.subject === "Collaboration";
-
+  const isCompanyNameRequired =
+    formData.subject === "Corporate Inquiry" ||
+    formData.subject === "Collaboration";
 
   return (
     <div className="min-h-screen py-12">
@@ -125,12 +126,31 @@ export default function Contact() {
         <span className="inline-block text-clay font-medium mb-4 tracking-wider uppercase text-sm">
           Get in Touch
         </span>
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-soil mb-4 md:mb-6 font-serif">
-          For Collab & Corporate Inquiry
-        </h1>
+        <div className="flex justify-center mb-2">
+          <div
+            className="relative inline-flex items-center justify-center px-8 py-6 text-center"
+            style={{
+              backgroundImage: "url('/Background-card.jpeg')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              borderRadius: "44px",
+              border: "2px solid rgba(101, 40, 16, 0.65)",
+              filter: "saturate(1.5)",
+            }}
+          >
+            <div
+              className="absolute inset-0 bg-white/65"
+              style={{ borderRadius: "44px" }}
+            />
+            <h1 className="relative text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-soil font-serif leading-tight">
+              For Collab & Corporate Inquiry
+            </h1>
+          </div>
+        </div>
         <p className="text-base md:text-xl text-soil/70 max-w-3xl mx-auto px-4 leading-relaxed">
-          Let's create something beautiful together. From corporate gifting to brand partnerships,
-          we bring Japanese-inspired craftsmanship to your unique vision.
+          Let's create something beautiful together. From corporate gifting to
+          brand partnerships, we bring Japanese-inspired craftsmanship to your
+          unique vision.
         </p>
       </motion.section>
 
@@ -238,7 +258,8 @@ export default function Contact() {
                 Message Sent Successfully!
               </h2>
               <p className="text-soil/70 mb-8 max-w-md text-lg">
-                Thank you for reaching out. We'll get back to you within 24-48 hours.
+                Thank you for reaching out. We'll get back to you within 24-48
+                hours.
               </p>
               <button
                 onClick={() => {
@@ -262,15 +283,52 @@ export default function Contact() {
             <div className="relative bg-gradient-to-br from-sand/40 via-white to-clay/5 rounded-3xl p-8 md:p-10 shadow-2xl border-2 border-soil/10 overflow-hidden">
               {/* Decorative Background Pattern */}
               <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <svg
+                  width="100%"
+                  height="100%"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <defs>
-                    <pattern id="pottery-pattern" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
-                      <circle cx="20" cy="20" r="15" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-soil" />
-                      <circle cx="60" cy="60" r="12" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-soil" />
-                      <path d="M40 10 Q45 20 40 30 Q35 20 40 10" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-soil" />
+                    <pattern
+                      id="pottery-pattern"
+                      x="0"
+                      y="0"
+                      width="80"
+                      height="80"
+                      patternUnits="userSpaceOnUse"
+                    >
+                      <circle
+                        cx="20"
+                        cy="20"
+                        r="15"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        className="text-soil"
+                      />
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r="12"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        className="text-soil"
+                      />
+                      <path
+                        d="M40 10 Q45 20 40 30 Q35 20 40 10"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        className="text-soil"
+                      />
                     </pattern>
                   </defs>
-                  <rect width="100%" height="100%" fill="url(#pottery-pattern)" />
+                  <rect
+                    width="100%"
+                    height="100%"
+                    fill="url(#pottery-pattern)"
+                  />
                 </svg>
               </div>
 
@@ -284,7 +342,9 @@ export default function Contact() {
                     <h2 className="text-xl sm:text-2xl font-bold text-soil font-serif">
                       Send Us a Message
                     </h2>
-                    <p className="text-sm text-soil/60">We'd love to hear from you</p>
+                    <p className="text-sm text-soil/60">
+                      We'd love to hear from you
+                    </p>
                   </div>
                 </div>
 
@@ -304,7 +364,9 @@ export default function Contact() {
                   <div className="space-y-6">
                     <div className="flex items-center gap-2 pb-2 border-b border-soil/10">
                       <div className="w-2 h-2 bg-clay rounded-full"></div>
-                      <h3 className="text-sm font-bold text-soil uppercase tracking-wide">Personal Information</h3>
+                      <h3 className="text-sm font-bold text-soil uppercase tracking-wide">
+                        Personal Information
+                      </h3>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -361,14 +423,18 @@ export default function Contact() {
                   <div className="space-y-6 pt-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-soil/10">
                       <div className="w-2 h-2 bg-clay rounded-full"></div>
-                      <h3 className="text-sm font-bold text-soil uppercase tracking-wide">Company Information</h3>
+                      <h3 className="text-sm font-bold text-soil uppercase tracking-wide">
+                        Company Information
+                      </h3>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="group">
                         <label className="block text-sm font-semibold text-soil mb-2.5 flex items-center gap-1.5">
                           <span>Company Name</span>
-                          {isCompanyNameRequired && <span className="text-red-500">*</span>}
+                          {isCompanyNameRequired && (
+                            <span className="text-red-500">*</span>
+                          )}
                         </label>
                         <input
                           name="companyName"
@@ -400,7 +466,9 @@ export default function Contact() {
                   <div className="space-y-6 pt-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-soil/10">
                       <div className="w-2 h-2 bg-clay rounded-full"></div>
-                      <h3 className="text-sm font-bold text-soil uppercase tracking-wide">Inquiry Details</h3>
+                      <h3 className="text-sm font-bold text-soil uppercase tracking-wide">
+                        Inquiry Details
+                      </h3>
                     </div>
 
                     <div className="group">
@@ -423,7 +491,10 @@ export default function Contact() {
                             </option>
                           ))}
                         </select>
-                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-soil/40 pointer-events-none" size={20} />
+                        <ChevronDown
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-soil/40 pointer-events-none"
+                          size={20}
+                        />
                       </div>
                     </div>
 
@@ -456,7 +527,10 @@ export default function Contact() {
                       </>
                     ) : (
                       <>
-                        <Send size={20} className="group-hover:translate-x-1 transition-transform" />
+                        <Send
+                          size={20}
+                          className="group-hover:translate-x-1 transition-transform"
+                        />
                         <span>Send Message</span>
                       </>
                     )}
@@ -484,13 +558,49 @@ export default function Contact() {
           <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
             <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <pattern id="pottery-bg-pattern" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
-                  <circle cx="15" cy="15" r="10" fill="none" stroke="currentColor" strokeWidth="1" className="text-soil" />
-                  <circle cx="45" cy="45" r="8" fill="none" stroke="currentColor" strokeWidth="1" className="text-soil" />
-                  <ellipse cx="30" cy="30" rx="5" ry="8" fill="none" stroke="currentColor" strokeWidth="1" className="text-soil" />
+                <pattern
+                  id="pottery-bg-pattern"
+                  x="0"
+                  y="0"
+                  width="60"
+                  height="60"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <circle
+                    cx="15"
+                    cy="15"
+                    r="10"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1"
+                    className="text-soil"
+                  />
+                  <circle
+                    cx="45"
+                    cy="45"
+                    r="8"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1"
+                    className="text-soil"
+                  />
+                  <ellipse
+                    cx="30"
+                    cy="30"
+                    rx="5"
+                    ry="8"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1"
+                    className="text-soil"
+                  />
                 </pattern>
               </defs>
-              <rect width="100%" height="100%" fill="url(#pottery-bg-pattern)" />
+              <rect
+                width="100%"
+                height="100%"
+                fill="url(#pottery-bg-pattern)"
+              />
             </svg>
           </div>
 
@@ -500,7 +610,8 @@ export default function Contact() {
                 Why Partner With Basho?
               </h2>
               <p className="text-soil/70 max-w-2xl mx-auto text-base md:text-lg">
-                Discover how we can elevate your brand and create memorable experiences through artisan pottery.
+                Discover how we can elevate your brand and create memorable
+                experiences through artisan pottery.
               </p>
             </div>
 
@@ -508,48 +619,82 @@ export default function Contact() {
               {/* Corporate Gifting */}
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 border border-soil/10 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <div className="w-16 h-16 bg-gradient-to-br from-clay/10 to-clay/5 rounded-full flex items-center justify-center mb-6 mx-auto">
-                  <svg className="w-8 h-8 text-clay" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                  <svg
+                    className="w-8 h-8 text-clay"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
+                    />
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-soil mb-3 text-center font-serif">
                   Corporate Gifting
                 </h3>
                 <p className="text-soil/70 text-center text-sm leading-relaxed">
-                  Impress clients and reward employees with bespoke ceramic gifts. Each piece tells a story of craftsmanship,
-                  making your brand memorable with sustainable, handcrafted elegance.
+                  Impress clients and reward employees with bespoke ceramic
+                  gifts. Each piece tells a story of craftsmanship, making your
+                  brand memorable with sustainable, handcrafted elegance.
                 </p>
               </div>
 
               {/* Brand Partnerships */}
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 border border-soil/10 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <div className="w-16 h-16 bg-gradient-to-br from-clay/10 to-clay/5 rounded-full flex items-center justify-center mb-6 mx-auto">
-                  <svg className="w-8 h-8 text-clay" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  <svg
+                    className="w-8 h-8 text-clay"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-soil mb-3 text-center font-serif">
                   Brand Partnerships
                 </h3>
                 <p className="text-soil/70 text-center text-sm leading-relaxed">
-                  Co-create limited edition collections that blend your brand vision with our artisan expertise.
-                  From concept to kiln, we craft unique pieces that resonate with your audience.
+                  Co-create limited edition collections that blend your brand
+                  vision with our artisan expertise. From concept to kiln, we
+                  craft unique pieces that resonate with your audience.
                 </p>
               </div>
 
               {/* Team Workshops */}
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 border border-soil/10 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <div className="w-16 h-16 bg-gradient-to-br from-clay/10 to-clay/5 rounded-full flex items-center justify-center mb-6 mx-auto">
-                  <svg className="w-8 h-8 text-clay" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  <svg
+                    className="w-8 h-8 text-clay"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                    />
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-soil mb-3 text-center font-serif">
                   Team Workshops
                 </h3>
                 <p className="text-soil/70 text-center text-sm leading-relaxed">
-                  Foster creativity and connection through hands-on pottery sessions. Perfect for team building,
-                  wellness retreats, or celebrating milestones with an unforgettable tactile experience.
+                  Foster creativity and connection through hands-on pottery
+                  sessions. Perfect for team building, wellness retreats, or
+                  celebrating milestones with an unforgettable tactile
+                  experience.
                 </p>
               </div>
             </div>

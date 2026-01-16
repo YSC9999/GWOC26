@@ -14,11 +14,11 @@ interface ProductCardProps {
   userTier: UserTier;
 }
 
-export default function ProductCard({
-  product,
-  userTier,
-}: ProductCardProps) {
-  const allowed = isTierOrHigher(userTier, product.tierRequired || UserTier.TIER_0);
+export default function ProductCard({ product, userTier }: ProductCardProps) {
+  const allowed = isTierOrHigher(
+    userTier,
+    product.tierRequired || UserTier.TIER_0
+  );
   const { user } = useAuth();
   const [isLiked, setIsLiked] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
@@ -65,11 +65,11 @@ export default function ProductCard({
   };
 
   return (
-    <Link href={`/products/${product.slug || product._id}`} className="block group">
-      <motion.div
-        whileHover={hoverScale}
-        className="card p-4 relative"
-      >
+    <Link
+      href={`/products/${product.slug || product._id}`}
+      className="block group"
+    >
+      <motion.div whileHover={hoverScale} className="card p-4 relative">
         <motion.button
           whileTap={clickTap}
           onClick={handleLike}
@@ -97,13 +97,17 @@ export default function ProductCard({
           )}
         </div>
 
-        <h3 className="font-serif font-bold text-base md:text-lg text-soil mb-1 line-clamp-1">{product.name}</h3>
-        <p className="text-xs md:text-sm text-stone-500 mb-3 line-clamp-2 min-h-[32px] md:min-h-[40px]">
+        <h3 className="font-serif font-bold text-base md:text-lg text-soil mb-1 line-clamp-1">
+          {product.name}
+        </h3>
+        <p className="text-xs md:text-sm text-stone-500 mb-3 line-clamp-2 h-10">
           {product.description}
         </p>
 
-        <div className="flex justify-between items-center pt-2 border-t border-stone-100">
-          <span className="text-clay font-bold text-base md:text-lg">₹{product.price}</span>
+        <div className="flex justify-between items-end pt-2 border-t border-stone-100">
+          <span className="text-clay font-bold text-base md:text-lg">
+            ₹{product.price}
+          </span>
 
           {allowed ? (
             <motion.button

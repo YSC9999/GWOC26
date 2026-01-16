@@ -16,6 +16,8 @@ import {
   Brush,
   Truck,
   BarChart2,
+  Wallet,
+  Settings,
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -95,6 +97,12 @@ export default function AdminDashboard() {
       icon: <Users size={32} />,
     },
     {
+      href: "/admin/wallet",
+      label: "Wallet",
+      desc: "Manage user wallet credits",
+      icon: <Wallet size={32} />,
+    },
+    {
       href: "/admin/collections",
       label: "Collections",
       desc: "Manage homepage featured items",
@@ -123,6 +131,12 @@ export default function AdminDashboard() {
       label: "Studio Content",
       desc: "Manage sliders & exhibits",
       icon: <Brush size={32} />,
+    },
+    {
+      href: "/admin/settings",
+      label: "Settings",
+      desc: "Configure store settings",
+      icon: <Settings size={32} />,
     },
   ];
 

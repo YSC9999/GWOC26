@@ -427,9 +427,27 @@ export default function Products() {
         transition={{ duration: 0.8 }}
         className="text-center mb-12"
       >
-        <h1 className="text-5xl md:text-6xl font-bold text-soil mb-4 font-serif">
-          Our Collection
-        </h1>
+        <div className="flex justify-center">
+          <div
+            className="relative inline-flex items-center justify-center px-8 py-6 mb-2 text-center"
+            style={{
+              backgroundImage: "url('/Background-card.jpeg')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              borderRadius: "44px",
+              border: "2px solid rgba(101, 40, 16, 0.65)",
+              filter: "saturate(1.5)",
+            }}
+          >
+            <div
+              className="absolute inset-0 bg-white/65"
+              style={{ borderRadius: "44px" }}
+            />
+            <h1 className="relative text-5xl md:text-6xl font-bold text-soil font-serif leading-tight">
+              Our Collection
+            </h1>
+          </div>
+        </div>
         <p className="text-xl text-soil/70 max-w-2xl mx-auto">
           Handcrafted Japanese-inspired pottery. Each piece tells a story of
           tradition, craftsmanship, and the beauty of imperfection.
@@ -606,7 +624,7 @@ export default function Products() {
                           !isOutOfStock &&
                           setSelectedProductId(product.slug || product._id)
                         }
-                        className={`relative h-48 bg-gradient-to-br from-sand to-sand/50 overflow-hidden ${
+                        className={`relative aspect-square bg-gradient-to-br from-sand to-sand/50 overflow-hidden ${
                           isOutOfStock ? "cursor-not-allowed" : "cursor-pointer"
                         }`}
                       >
@@ -667,68 +685,28 @@ export default function Products() {
                               </span>
                             )}
                         </div>
-
-                        {/* Quick Add */}
-                        {!isOutOfStock && (
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={clickTap}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddToCart(product);
-                            }}
-                            className="absolute bottom-3 right-3 bg-soil text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:bg-clay shadow-lg z-20"
-                          >
-                            <ShoppingCart size={18} />
-                          </motion.button>
-                        )}
                       </div>
 
                       {/* Content */}
-                      <div
-                        className="p-3"
-                        onClick={() =>
-                          !isOutOfStock &&
-                          setSelectedProductId(product.slug || product._id)
-                        }
-                      >
-                        {/* Category & Material */}
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[10px] font-medium text-clay uppercase tracking-wide">
-                            {product.category}
-                          </span>
-                          <span className="text-soil/30 text-xs">•</span>
-                          <span className="text-[10px] text-soil/50 capitalize">
-                            {product.material}
-                          </span>
-                        </div>
-
+                      <div className="p-3 flex-1 flex flex-col">
                         {/* Name */}
-                        <h3 className="text-sm md:text-base font-bold text-soil mb-1 group-hover:text-clay transition-colors line-clamp-1">
+                        <h3
+                          onClick={() =>
+                            !isOutOfStock &&
+                            setSelectedProductId(product.slug || product._id)
+                          }
+                          className="text-sm md:text-base font-bold text-soil mb-1 group-hover:text-clay transition-colors line-clamp-1 cursor-pointer"
+                        >
                           {product.name}
                         </h3>
 
-                        {/* Description */}
-                        <p className="hidden md:block text-xs text-soil/60 mb-2 line-clamp-2 min-h-[32px]">
+                        {/* Description - 2 lines only */}
+                        <p className="hidden md:block text-xs text-soil/60 mb-2 line-clamp-2 h-8">
                           {product.description}
                         </p>
 
-                        {/* Care Icons */}
-                        <div className="flex gap-1 mb-2">
-                          {product.isFoodSafe && (
-                            <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                              Food Safe
-                            </span>
-                          )}
-                          {product.isMicrowaveSafe && (
-                            <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                              Microwave Safe
-                            </span>
-                          )}
-                        </div>
-
                         {/* Price */}
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between mb-3">
                           <div className="flex items-baseline gap-2">
                             <span className="text-lg font-bold text-clay">
                               ₹{product.price.toLocaleString()}
@@ -749,6 +727,37 @@ export default function Products() {
                                 {product.rating}
                               </span>
                             </div>
+                          )}
+                        </div>
+
+                        {/* Action Buttons - Desktop only */}
+                        <div className="hidden md:flex items-center gap-2 mt-auto pt-2 border-t border-soil/10">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedProductId(product.slug || product._id);
+                            }}
+                            className="flex-1 text-xs py-2 text-soil border border-soil/20 rounded-lg hover:bg-soil/5 transition-colors"
+                          >
+                            View Details
+                          </button>
+                          {!isOutOfStock ? (
+                            <motion.button
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={clickTap}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddToCart(product);
+                              }}
+                              className="flex-1 text-xs py-2 bg-clay text-white rounded-lg hover:bg-clay/90 transition-colors flex items-center justify-center gap-1"
+                            >
+                              <ShoppingCart size={14} />
+                              Add to Cart
+                            </motion.button>
+                          ) : (
+                            <span className="flex-1 text-xs py-2 text-center text-red-500 font-medium border border-red-200 rounded-lg">
+                              Out of Stock
+                            </span>
                           )}
                         </div>
                       </div>
@@ -848,9 +857,27 @@ export default function Products() {
             transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
             className="inline-block mb-4"
           ></motion.div>
-          <h2 className="text-4xl md:text-5xl font-bold text-soil mb-6 font-serif">
-            Custom Orders
-          </h2>
+          <div className="flex justify-center mb-2">
+            <div
+              className="relative inline-flex items-center justify-center px-8 py-6 text-center"
+              style={{
+                backgroundImage: "url('/Background-card.jpeg')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                borderRadius: "44px",
+                border: "2px solid rgba(101, 40, 16, 0.65)",
+                filter: "saturate(1.5)",
+              }}
+            >
+              <div
+                className="absolute inset-0 bg-white/65"
+                style={{ borderRadius: "44px" }}
+              />
+              <h2 className="relative text-4xl md:text-5xl font-bold text-soil font-serif leading-tight">
+                Custom Orders
+              </h2>
+            </div>
+          </div>
           <p className="text-xl text-soil/70 max-w-2xl mx-auto leading-relaxed">
             Have a specific vision? We'll bring it to life. From personalized
             gifts to bespoke tableware sets, every piece is crafted with care.

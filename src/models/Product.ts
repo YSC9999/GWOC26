@@ -103,6 +103,20 @@ const ProductSchema = new Schema<IProduct>(
   { timestamps: true }
 );
 
+// Virtual field for single image (first image from images array)
+ProductSchema.virtual('image').get(function() {
+  if (this.images && this.images.length > 0) {
+    const img = this.images[0];
+    const valid = img && (img.startsWith("/") || img.startsWith("http") || img.startsWith("data:"));
+    return valid ? img : null;
+  }
+  return null;
+});
+
+// Ensure virtuals are included in JSON output
+ProductSchema.set('toJSON', { virtuals: true });
+ProductSchema.set('toObject', { virtuals: true });
+
 // Text search index
 ProductSchema.index({
   name: "text",

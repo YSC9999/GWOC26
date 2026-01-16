@@ -44,16 +44,6 @@ interface FrameConfig {
   product?: Product;
 }
 
-const categoryEmojis: Record<string, string> = {
-  bowls: "🥣",
-  cups: "🍵",
-  plates: "🍽️",
-  platters: "🍱",
-  vases: "🏺",
-  decor: "🕯️",
-  sets: "🎁",
-};
-
 export default function Home() {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -70,8 +60,8 @@ export default function Home() {
     const { clientX, clientY } = e;
     const { innerWidth, innerHeight } = window;
     // Normalize to -0.5 to 0.5
-    setMouseX((clientX / innerWidth) - 0.5);
-    setMouseY((clientY / innerHeight) - 0.5);
+    setMouseX(clientX / innerWidth - 0.5);
+    setMouseY(clientY / innerHeight - 0.5);
   };
 
   useEffect(() => {
@@ -187,39 +177,38 @@ export default function Home() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
-                className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-soil mb-4 md:mb-6 leading-tight"
+                className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl text-center lg:text-6xl xl:text-7xl font-bold text-brick mb-4 md:mb-6 leading-tight"
                 style={{ fontFamily: "var(--font-kaushan-script)" }}
               >
                 A Quiet Splash
                 <span className="block mt-2">in Every Piece</span>
               </motion.h1>
-
+              <br />
               <motion.p
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.8 }}
-                className="text-sm md:text-lg lg:text-xl text-[#652810] mb-4 md:mb-8"
+                className="text-sm md:text-lg lg:text-xl text-center text-soil/160 mb-4 md:mb-8"
                 style={{ fontFamily: "var(--font-berkshire-swash)" }}
               >
                 Artistry for the home and the self. Discover a curated
                 collection of fashion designed to reflect your unique story with
                 grace and intention crafted with love and affection.
               </motion.p>
-
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.8 }}
-                className="flex flex-col sm:flex-row gap-6 items-start"
+                className="flex flex-col sm:flex-row gap-6 items-center justify-center"
               >
                 <Link href="/products">
-                  <button className="btn-primary flex items-center gap-2 px-5 py-2.5 md:px-8 md:py-4 text-sm md:text-lg hover:scale-105 transition-transform">
+                  <button className="flex items-center gap-2 px-5 py-2.5 md:px-8 md:py-4 text-sm md:text-lg hover:scale-105 transition-transform bg-[#8B4513] text-white rounded-full font-semibold hover:bg-[#7A3A0F]">
                     SHOP NOW
                     <ShoppingBag size={16} className="md:w-5 md:h-5" />
                   </button>
                 </Link>
                 <Link href="/workshops">
-                  <button className="btn-secondary flex items-center gap-2 px-5 py-2.5 md:px-8 md:py-4 text-sm md:text-lg hover:scale-105 transition-transform">
+                  <button className="flex items-center gap-2 px-5 py-2.5 md:px-8 md:py-4 text-sm md:text-lg hover:scale-105 transition-transform border-2 border-[#8B4513] text-[#8B4513] rounded-full font-semibold hover:bg-[#8B4513] hover:text-white">
                     Workshop
                     <ArrowRight size={16} className="md:w-5 md:h-5" />
                   </button>
@@ -268,9 +257,9 @@ export default function Home() {
                         type: "spring",
                         stiffness: 75,
                         damping: 18,
-                        mass: 0.9
-                      } as any
-                    }
+                        mass: 0.9,
+                      } as any,
+                    },
                   };
 
                   return (
@@ -279,14 +268,25 @@ export default function Home() {
                       initial="initial"
                       animate="animate"
                       variants={revealVariants}
-                      className="absolute rounded-lg overflow-hidden border-2 border-soil/20 shadow-xl cursor-pointer group"
+                      whileHover={{
+                        scale: 1.05,
+                        zIndex: 50,
+                        boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+                      }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 20,
+                      }}
+                      className="absolute rounded-lg overflow-hidden border-2 border-soil/20 shadow-xl cursor-pointer group hover:border-clay/50 transition-colors"
                       style={{
                         width: `${frame.width}px`,
                         height: `${frame.height}px`,
                         left: `${frame.left}px`,
                         top: `${frame.top}px`,
-                        perspective: "1200px",
-                        transformStyle: "preserve-3d"
+                        transform: `translate(${
+                          mouseX * (3 + (index % 3) * 2)
+                        }px, ${mouseY * (3 + (index % 4) * 2)}px)`,
                       }}
                       onClick={() => {
                         if (product) {
@@ -294,67 +294,25 @@ export default function Home() {
                         }
                       }}
                     >
-                      {/* Inner wrapper: 160% Zoom + 3D depth volume */}
-                      <motion.div
-                        className="w-[160%] h-[160%] absolute -left-[30%] -top-[30%] bg-[#F5EDE4]"
-                        animate={{
-                          x: mouseX * (18 + (index % 3) * 12),
-                          y: mouseY * (18 + (index % 4) * 10),
-                          z: Math.abs(mouseX + mouseY) * 30, // Dynamic depth on hover
-                          rotateX: mouseY * -4,
-                          rotateY: mouseX * 4,
-                        }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 50,
-                          damping: 25,
-                        }}
-                      >
-                        <motion.div
-                          className="w-full h-full relative"
-                          animate={{
-                            y: [0, -6, 0, 6, 0],
-                            x: [0, 4, 0, -4, 0],
-                          }}
-                          transition={{
-                            duration: 9 + (index % 5) * 2,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                        >
-                          {product ? (
-                            <>
-                              <img
-                                src={product.images?.[0]}
-                                alt={product.name}
-                                className="w-full h-full object-cover object-center scale-115 group-hover:scale-130 transition-transform duration-1000 ease-out"
-                              />
+                      {/* Image container - static, full visibility */}
+                      <div className="w-full h-full relative bg-[#F5EDE4]">
+                        {product ? (
+                          <>
+                            <img
+                              src={product.images?.[0]}
+                              alt={product.name}
+                              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                            />
 
-                              {/* The Glint: A shimmering light sweep on reveal and hover */}
-                              <motion.div
-                                className="absolute inset-0 z-10 pointer-events-none"
-                                initial={{ x: "-150%", skewX: -45 }}
-                                animate={{ x: ["150%", "-150%"] }}
-                                transition={{
-                                  delay: 0.8 + index * 0.1,
-                                  duration: 1.5,
-                                  ease: "easeInOut"
-                                }}
-                                style={{
-                                  background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)"
-                                }}
-                              />
-
-                              {/* Depth Vignette */}
-                              <div className="absolute inset-0 shadow-[inset_0_0_50px_rgba(0,0,0,0.1)] group-hover:shadow-[inset_0_0_70px_rgba(0,0,0,0.15)] transition-shadow duration-500" />
-                            </>
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-white text-xs font-semibold opacity-0 hover:opacity-75 transition-opacity bg-soil/30">
-                              {frame.id + 1}
-                            </div>
-                          )}
-                        </motion.div>
-                      </motion.div>
+                            {/* Depth Vignette */}
+                            <div className="absolute inset-0 shadow-[inset_0_0_50px_rgba(0,0,0,0.1)] group-hover:shadow-[inset_0_0_70px_rgba(0,0,0,0.15)] transition-shadow duration-500" />
+                          </>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-white text-xs font-semibold opacity-0 hover:opacity-75 transition-opacity bg-soil/30">
+                            {frame.id + 1}
+                          </div>
+                        )}
+                      </div>
                     </motion.div>
                   );
                 })}
@@ -404,16 +362,15 @@ export default function Home() {
               </motion.div>
             </div>
           </div>
-        </div >
-      </motion.section >
+        </div>
+      </motion.section>
 
       {/* Featured Collections Grid */}
-      < FeaturedCollections collections={collections} />
+      <FeaturedCollections collections={collections} />
 
       {/* Matsuo Bashō - The Poet Who Inspires Us */}
-      < motion.section
-        initial={{ opacity: 0 }
-        }
+      <motion.section
+        initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
         className="py-10 md:py-16 px-4 md:px-12"
@@ -438,7 +395,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#2b1b14]/60 via-transparent to-transparent" />
                 <div className="absolute top-4 sm:top-6 md:top-7 left-4 sm:left-6 md:left-8 right-4 sm:right-8 md:right-20 group/haiku cursor-pointer">
                   {/* Japanese version - visible by default */}
-                  <p className="text-soil/130 text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold font-serif group-hover/haiku:opacity-0 transition-opacity duration-300">
+                  <p className="text-soil/130 text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold font-serif transform transition-all duration-500 group-hover/haiku:opacity-0 group-hover/haiku:-translate-y-2 group-hover/haiku:blur-sm">
                     古池や
                     <br />
                     蛙飛びこむ
@@ -446,18 +403,22 @@ export default function Home() {
                     水の音
                   </p>
                   {/* English version - visible on hover */}
-                  <p className="text-soil/130 text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold italic font-serif absolute top-0 left-0 opacity-0 group-hover/haiku:opacity-100 transition-opacity duration-300">
+                  <p className="text-soil/130 text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold italic font-serif absolute top-0 left-0 opacity-0 translate-y-2 blur-sm transition-all duration-500 group-hover/haiku:opacity-100 group-hover/haiku:translate-y-0 group-hover/haiku:blur-0">
                     "The old pond—
                     <br />
                     A frog jumps in,
                     <br />
                     Sound of water."
                   </p>
-                  <p className="text-soil/110 text-sm mt-2">
+                  <p className="text-soil/110 text-sm mt-2 transition-all duration-300 group-hover/haiku:text-clay">
                     — 松尾芭蕉
                     <br />
                     (Matsuo Bashō)
                   </p>
+                  {/* Hover hint */}
+                  <span className="absolute -bottom-6 left-0 text-[10px] text-soil/50 opacity-0 group-hover/haiku:opacity-0 animate-pulse">
+                    Hover for translation
+                  </span>
                 </div>
               </div>
             </motion.div>
@@ -513,10 +474,10 @@ export default function Home() {
             </motion.div>
           </div>
         </div>
-      </motion.section >
+      </motion.section>
 
       {/* Quote */}
-      < motion.div
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         whileInView={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.4 }}
@@ -529,12 +490,13 @@ export default function Home() {
           seek what they sought."
         </p>
         <p className="text-clay mt-4 font-medium">— Matsuo Bashō</p>
-      </motion.div >
-
+      </motion.div>
+      <br />
+      <br />
       {/* Three Pillars of Our Craft */}
-      < div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-10 md:py-16" >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-10 md:py-16">
         {/* Pillar 1: Japanese Inspiration */}
-        < motion.div
+        <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
@@ -564,10 +526,10 @@ export default function Home() {
               <span className="text-[#8B4513]">◈</span> Functional beauty
             </li>
           </ul>
-        </motion.div >
+        </motion.div>
 
         {/* Pillar 2: Handcrafted Honor */}
-        < motion.div
+        <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
@@ -596,10 +558,10 @@ export default function Home() {
               <span className="text-[#8B4513]">◈</span> Food-safe glazes
             </li>
           </ul>
-        </motion.div >
+        </motion.div>
 
         {/* Pillar 3: Brand Essence */}
-        < motion.div
+        <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
@@ -626,11 +588,11 @@ export default function Home() {
               <span className="text-[#8B4513]">◈</span> Artisan integrity
             </li>
           </ul>
-        </motion.div >
-      </div >
+        </motion.div>
+      </div>
 
       {/* Know More About Basho */}
-      < motion.section
+      <motion.section
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
@@ -641,7 +603,7 @@ export default function Home() {
         }}
       >
         {/* Decorative torn paper edge effect at top */}
-        < div
+        <div
           className="absolute top-0 left-0 right-0 h-6 bg-[#F5EDE4] rounded-t-3xl"
           style={{
             clipPath:
@@ -793,13 +755,13 @@ export default function Home() {
               "polygon(0 100%, 100% 100%, 100% 60%, 97% 20%, 94% 50%, 90% 10%, 85% 60%, 80% 30%, 75% 70%, 70% 20%, 65% 50%, 60% 10%, 55% 60%, 50% 30%, 45% 70%, 40% 20%, 35% 50%, 30% 10%, 25% 60%, 20% 30%, 15% 70%, 10% 20%, 5% 50%, 0 0)",
           }}
         />
-      </motion.section >
+      </motion.section>
 
       {/* Product Modal */}
-      < ProductModal
+      <ProductModal
         productId={selectedProductId}
         onClose={() => setSelectedProductId(null)}
       />
-    </div >
+    </div>
   );
 }
