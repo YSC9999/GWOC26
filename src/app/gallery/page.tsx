@@ -1,99 +1,79 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Play, Quote, Star, Video, Image as ImageIcon } from "lucide-react";
+import { Play, X, Heart, ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
+
+interface Album {
+  _id: string;
+  name: string;
+  slug: string;
+  coverImage?: string;
+  description?: string;
+  order: number;
+}
 
 interface GalleryItem {
   _id: string;
   title: string;
-  image: string;
+  type: 'image' | 'video';
+  image: string; // Thumbnail for video
+  videoUrl?: string;
+  album: {
+    _id: string;
+    name: string;
+    slug: string;
+  };
   category: string;
   description?: string;
   featured: boolean;
 }
 
-interface Testimonial {
-  _id: string;
-  name: string;
-  location?: string;
-  content: string;
-  rating: number;
-  type: "text" | "video";
-  videoUrl?: string;
-  image?: string;
-  productRef?: string;
-  experienceType?: string;
-}
-
-// Masonry layout generator with random sizes
-const generateMasonryLayout = (items: GalleryItem[]) => {
-  const sizes = ["small", "medium", "large"];
-  return items.map((item, index) => ({
-    ...item,
-    // Randomly assign sizes but ensure good distribution
-    size: sizes[Math.floor(Math.random() * sizes.length)],
-    // Add slight randomization to positioning
-    delay: Math.random() * 0.3,
-  }));
-};
-
 export default function GalleryPage() {
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [images, setImages] = useState<GalleryItem[]>([]);
+  const [videos, setVideos] = useState<GalleryItem[]>([]);
+  const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
+  const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [activeTestimonialVideo, setActiveTestimonialVideo] = useState<
-    string | null
-  >(null);
-
-  // Videos section data (can be moved to CMS later)
-  const studioVideos = [
-    {
-      id: "1",
-      title: "The Art of Pottery Making",
-      thumbnail: "/pottery-pattern.png",
-      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Replace with actual video
-      description: "Watch our artisans create beautiful pieces",
-    },
-    {
-      id: "2",
-      title: "Behind the Scenes",
-      thumbnail: "/pottery-pattern.png",
-      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-      description: "A day in the life at our studio",
-    },
-    {
-      id: "3",
-      title: "Workshop Highlights",
-      thumbnail: "/pottery-pattern.png",
-      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-      description: "See what happens in our workshops",
-    },
-  ];
-
-  const categories = [
-    { value: "all", label: "All", emoji: "🎨" },
-    { value: "products", label: "Products", emoji: "🏺" },
-    { value: "workshops", label: "Workshops", emoji: "🎓" },
-    { value: "studio", label: "Studio", emoji: "🏠" },
-    { value: "events", label: "Events", emoji: "🎉" },
-    { value: "process", label: "Process", emoji: "⚙️" },
-  ];
+  const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    fetchGallery();
-    fetchTestimonials();
-  }, [selectedCategory]);
+    fetchAlbums();
+  }, []);
 
-  const fetchGallery = async () => {
+  useEffect(() => {
+    if (selectedAlbum) {
+      fetchGalleryByAlbum(selectedAlbum._id);
+    }
+  }, [selectedAlbum]);
+
+  const fetchAlbums = async () => {
     try {
-      const categoryQuery =
-        selectedCategory !== "all" ? `?category=${selectedCategory}` : "";
-      const res = await fetch(`/api/gallery${categoryQuery}`);
+      const res = await fetch("/api/albums");
       const data = await res.json();
-      setGalleryItems(data.gallery || []);
+      if (data.albums && data.albums.length > 0) {
+        setAlbums(data.albums);
+        setSelectedAlbum(data.albums[0]); // Select first album by default
+      }
+    } catch (error) {
+      console.error("Failed to fetch albums:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchGalleryByAlbum = async (albumId: string) => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/gallery?album=${albumId}`);
+      const data = await res.json();
+
+      const allItems: GalleryItem[] = data.gallery || [];
+      setImages(allItems.filter(item => item.type === 'image' || !item.type));
+      setVideos(allItems.filter(item => item.type === 'video'));
+
     } catch (error) {
       console.error("Failed to fetch gallery:", error);
     } finally {
@@ -101,89 +81,210 @@ export default function GalleryPage() {
     }
   };
 
-  const fetchTestimonials = async () => {
-    try {
-      const res = await fetch("/api/testimonials?limit=20");
-      const data = await res.json();
-      setTestimonials(data.testimonials || []);
-    } catch (error) {
-      console.error("Failed to fetch testimonials:", error);
-    }
+  const toggleLike = (itemId: string) => {
+    setLikedItems((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId);
+      } else {
+        newSet.add(itemId);
+      }
+      return newSet;
+    });
   };
 
-  // Memoized masonry layout to prevent re-shuffling on re-renders
-  const masonryItems = useMemo(
-    () => generateMasonryLayout(galleryItems),
-    [galleryItems]
-  );
-
-  const getSizeClasses = (size: string) => {
-    switch (size) {
-      case "small":
-        return "col-span-1 row-span-1 h-64";
-      case "medium":
-        return "col-span-1 md:col-span-2 row-span-1 h-64 md:h-80";
-      case "large":
-        return "col-span-1 md:col-span-2 lg:col-span-3 row-span-2 h-96";
-      default:
-        return "col-span-1 row-span-1 h-64";
+  // Scroll album slider
+  const scrollAlbums = (direction: "left" | "right") => {
+    const container = document.getElementById("album-slider");
+    if (container) {
+      const scrollAmount = 300;
+      container.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FDF8F3] to-[#F5EDE4] py-20 px-4 md:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-sand/20 to-white py-12 px-4 md:px-8">
       {/* Hero Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-7xl mx-auto text-center mb-16"
+        className="max-w-7xl mx-auto text-center mb-12"
       >
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#5A3E36] mb-4 font-serif">
-          Our Gallery 🎨
+        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-soil mb-4 font-serif">
+          Gallery
         </h1>
-        <p className="text-lg text-[#5A3E36]/70 max-w-2xl mx-auto">
-          Explore the artistry and craftsmanship behind every piece. From our
-          studio to your home.
+        <p className="text-lg md:text-xl text-soil/70 max-w-2xl mx-auto">
+          Explore our curated collections of handcrafted pottery and studio moments
         </p>
       </motion.div>
 
-      {/* Category Filter */}
+      {/* Album Slider */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="max-w-7xl mx-auto mb-12"
+        className="max-w-7xl mx-auto mb-16"
       >
-        <div className="flex flex-wrap justify-center gap-3">
-          {categories.map((category) => (
-            <motion.button
-              key={category.value}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setSelectedCategory(category.value)}
-              className={`px-6 py-3 rounded-full font-semibold transition-all ${
-                selectedCategory === category.value
-                  ? "bg-[#5A3E36] text-[#EFE5D8] shadow-lg"
-                  : "bg-white text-[#5A3E36] hover:bg-[#5A3E36]/10 border-2 border-[#5A3E36]/20"
-              }`}
-            >
-              <span className="mr-2">{category.emoji}</span>
-              {category.label}
-            </motion.button>
-          ))}
+        <div className="relative">
+          {/* Scroll Buttons */}
+          <button
+            onClick={() => scrollAlbums("left")}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-3 transition-all hover:scale-110"
+            aria-label="Scroll left"
+          >
+            <ChevronLeft size={24} className="text-soil" />
+          </button>
+          <button
+            onClick={() => scrollAlbums("right")}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-3 transition-all hover:scale-110"
+            aria-label="Scroll right"
+          >
+            <ChevronRight size={24} className="text-soil" />
+          </button>
+
+          {/* Album Cards Slider */}
+          <div
+            id="album-slider"
+            className="flex gap-6 overflow-x-auto scrollbar-hide px-12 py-4 snap-x snap-mandatory"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {albums.map((album) => (
+              <motion.div
+                key={album._id}
+                whileHover={{ y: -8 }}
+                onClick={() => setSelectedAlbum(album)}
+                className={`flex-shrink-0 w-64 h-64 rounded-2xl cursor-pointer transition-all snap-center ${selectedAlbum?._id === album._id
+                  ? "ring-4 ring-clay shadow-2xl scale-105"
+                  : "ring-2 ring-soil/10 hover:ring-clay/50 shadow-lg"
+                  }`}
+              >
+                <div className="relative w-full h-full rounded-2xl overflow-hidden bg-gradient-to-br from-sand/40 to-clay/10">
+                  {album.coverImage ? (
+                    <img
+                      src={album.coverImage}
+                      alt={album.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-clay/20 to-sand/40">
+                      <span className="text-6xl">🎨</span>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-6">
+                    <div>
+                      <h3 className="text-white font-bold text-xl font-serif mb-1">
+                        {album.name}
+                      </h3>
+                      {album.description && (
+                        <p className="text-white/80 text-sm line-clamp-2">
+                          {album.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  {selectedAlbum?._id === album._id && (
+                    <div className="absolute top-4 right-4 bg-clay text-white px-3 py-1 rounded-full text-xs font-bold">
+                      Selected
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </motion.div>
 
-      {/* Masonry Gallery Grid */}
+      {/* Video Slider (if specific videos exist for this album) */}
+      {!loading && videos.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-7xl mx-auto mb-16"
+        >
+          <div className="flex items-center gap-3 mb-6 px-4">
+            <div className="h-px bg-soil/20 flex-1"></div>
+            <h2 className="text-2xl font-bold text-soil font-serif flex items-center gap-2">
+              <Play size={20} className="fill-clay text-clay" />
+              Featured Videos
+            </h2>
+            <div className="h-px bg-soil/20 flex-1"></div>
+          </div>
+
+          <div className="relative group/slider">
+            {/* Video Scroll Buttons */}
+            {videos.length > 2 && (
+              <>
+                <button
+                  onClick={() => {
+                    const container = document.getElementById("video-slider");
+                    container?.scrollBy({ left: -400, behavior: "smooth" });
+                  }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-3 transition-all hover:scale-110 opacity-0 group-hover/slider:opacity-100"
+                  aria-label="Scroll videos left"
+                >
+                  <ChevronLeft size={24} className="text-soil" />
+                </button>
+                <button
+                  onClick={() => {
+                    const container = document.getElementById("video-slider");
+                    container?.scrollBy({ left: 400, behavior: "smooth" });
+                  }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-3 transition-all hover:scale-110 opacity-0 group-hover/slider:opacity-100"
+                  aria-label="Scroll videos right"
+                >
+                  <ChevronRight size={24} className="text-soil" />
+                </button>
+              </>
+            )}
+
+            {/* Video Cards Slider */}
+            <div
+              id="video-slider"
+              className="flex gap-6 overflow-x-auto scrollbar-hide px-4 md:px-12 py-4 snap-x snap-mandatory"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              {videos.map((video) => (
+                <motion.div
+                  key={video._id}
+                  whileHover={{ y: -5 }}
+                  className="flex-shrink-0 w-full md:w-[calc(50%-12px)] snap-center relative aspect-video rounded-2xl overflow-hidden shadow-xl cursor-pointer group bg-black"
+                  onClick={() => setSelectedItem(video)}
+                >
+                  <img
+                    src={video.image}
+                    alt={video.title}
+                    className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
+                        <Play size={24} className="ml-1 text-clay fill-clay" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                    <h3 className="text-white font-bold truncate">{video.title}</h3>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Gallery Grid - Masonry Layout */}
       {loading ? (
         <div className="flex justify-center items-center h-96">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#C97C5D] border-t-transparent"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-clay border-t-transparent"></div>
         </div>
-      ) : galleryItems.length === 0 ? (
+      ) : images.length === 0 && videos.length === 0 ? (
         <div className="text-center py-20">
-          <ImageIcon size={64} className="mx-auto text-[#5A3E36]/30 mb-4" />
-          <p className="text-[#5A3E36]/50 text-xl">
-            No gallery items yet. Check back soon!
+          <div className="text-6xl mb-4">🖼️</div>
+          <p className="text-soil/50 text-xl">
+            No items in this album yet. Check back soon!
           </p>
         </div>
       ) : (
@@ -193,35 +294,59 @@ export default function GalleryPage() {
           transition={{ delay: 0.3 }}
           className="max-w-7xl mx-auto"
         >
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 auto-rows-auto">
-            {masonryItems.map((item: any, index) => (
+          {/* Masonry Grid using CSS columns */}
+          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
+            {images.map((item, index) => (
               <motion.div
                 key={item._id}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: item.delay }}
-                className={`${getSizeClasses(
-                  item.size
-                )} relative rounded-2xl overflow-hidden cursor-pointer group shadow-lg hover:shadow-2xl transition-shadow`}
-                onClick={() => setSelectedImage(item)}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className="break-inside-avoid mb-4"
               >
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                    <h3 className="font-bold text-lg mb-1">{item.title}</h3>
-                    {item.description && (
-                      <p className="text-sm text-white/80 line-clamp-2">
-                        {item.description}
-                      </p>
-                    )}
+                <div className="relative group rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 bg-white">
+                  <div
+                    className="relative cursor-pointer"
+                    onClick={() => setSelectedItem(item)}
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                        <h3 className="font-bold text-lg mb-1">{item.title}</h3>
+                        {item.description && (
+                          <p className="text-sm text-white/90 line-clamp-2">
+                            {item.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="absolute top-3 right-3 bg-[#C97C5D] text-white px-3 py-1 rounded-full text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                  View
+
+                  {/* Like Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleLike(item._id);
+                    }}
+                    className="absolute top-3 right-3 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg transition-all hover:scale-110 z-10"
+                  >
+                    <Heart
+                      size={20}
+                      className={`transition-colors ${likedItems.has(item._id)
+                          ? "fill-red-500 text-red-500"
+                          : "text-soil"
+                        }`}
+                    />
+                  </button>
+
+                  {/* Category Badge */}
+                  <div className="absolute bottom-3 left-3 bg-clay/90 text-white px-3 py-1 rounded-full text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                    {item.category}
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -229,205 +354,15 @@ export default function GalleryPage() {
         </motion.div>
       )}
 
-      {/* Studio Videos Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="max-w-7xl mx-auto mt-32 mb-24"
-      >
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-5xl font-bold text-[#5A3E36] mb-4 font-serif">
-            Studio Stories 🎬
-          </h2>
-          <p className="text-lg text-[#5A3E36]/70">
-            Watch the magic unfold in our pottery studio
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {studioVideos.map((video, index) => (
-            <motion.div
-              key={video.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all group"
-            >
-              <div className="relative h-56 bg-gradient-to-br from-[#C97C5D] to-[#8B4513] overflow-hidden">
-                <img
-                  src={video.thumbnail}
-                  alt={video.title}
-                  className="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity"
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center cursor-pointer shadow-xl"
-                  >
-                    <Play size={32} className="text-[#C97C5D] ml-1" />
-                  </motion.div>
-                </div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-[#5A3E36] mb-2">
-                  {video.title}
-                </h3>
-                <p className="text-[#5A3E36]/60 text-sm">{video.description}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Customer Experience Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="max-w-7xl mx-auto mt-32"
-      >
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold text-[#5A3E36] mb-4 font-serif">
-            Customer Experiences ✨
-          </h2>
-          <p className="text-lg text-[#5A3E36]/70">
-            Hear what our customers have to say about their Basho journey
-          </p>
-        </div>
-
-        {testimonials.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-3xl">
-            <Quote size={64} className="mx-auto text-[#5A3E36]/30 mb-4" />
-            <p className="text-[#5A3E36]/50 text-xl">
-              No testimonials yet. Be the first to share your experience!
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={testimonial._id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all relative overflow-hidden"
-              >
-                {/* Decorative background */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#C97C5D]/10 to-transparent rounded-bl-full"></div>
-
-                {testimonial.type === "video" && testimonial.videoUrl ? (
-                  <>
-                    {/* Video Testimonial */}
-                    <div className="relative mb-6 rounded-xl overflow-hidden">
-                      {activeTestimonialVideo === testimonial._id ? (
-                        <iframe
-                          src={testimonial.videoUrl}
-                          className="w-full h-64 rounded-xl"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        ></iframe>
-                      ) : (
-                        <div
-                          className="relative h-64 bg-gradient-to-br from-[#C97C5D] to-[#8B4513] rounded-xl cursor-pointer group"
-                          onClick={() =>
-                            setActiveTestimonialVideo(testimonial._id)
-                          }
-                        >
-                          {testimonial.image && (
-                            <img
-                              src={testimonial.image}
-                              alt={testimonial.name}
-                              className="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity"
-                            />
-                          )}
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <motion.div
-                              whileHover={{ scale: 1.1 }}
-                              className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-xl"
-                            >
-                              <Play size={28} className="text-[#C97C5D] ml-1" />
-                            </motion.div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    {/* Text Testimonial */}
-                    <Quote
-                      size={40}
-                      className="text-[#C97C5D]/30 mb-4 relative z-10"
-                    />
-                  </>
-                )}
-
-                {/* Rating */}
-                <div className="flex gap-1 mb-4 relative z-10">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={18}
-                      className={`${
-                        i < testimonial.rating
-                          ? "fill-[#C97C5D] text-[#C97C5D]"
-                          : "text-[#5A3E36]/20"
-                      }`}
-                    />
-                  ))}
-                </div>
-
-                {/* Content */}
-                <p className="text-[#5A3E36]/80 mb-6 leading-relaxed relative z-10">
-                  {testimonial.content}
-                </p>
-
-                {/* Customer Info */}
-                <div className="flex items-center gap-3 relative z-10">
-                  {testimonial.image && testimonial.type === "text" && (
-                    <img
-                      src={testimonial.image}
-                      alt={testimonial.name}
-                      className="w-12 h-12 rounded-full object-cover border-2 border-[#C97C5D]"
-                    />
-                  )}
-                  <div>
-                    <h4 className="font-bold text-[#5A3E36]">
-                      {testimonial.name}
-                    </h4>
-                    <p className="text-sm text-[#5A3E36]/50">
-                      {testimonial.location || "Basho Customer"}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Experience Type Badge */}
-                {testimonial.experienceType && (
-                  <div className="mt-4 inline-block px-3 py-1 bg-[#C97C5D]/10 text-[#C97C5D] text-xs font-semibold rounded-full">
-                    {testimonial.experienceType}
-                  </div>
-                )}
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </motion.div>
-
-      {/* Image Modal */}
+      {/* Media Modal */}
       <AnimatePresence>
-        {selectedImage && (
+        {selectedItem && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-            onClick={() => setSelectedImage(null)}
+            className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4"
+            onClick={() => setSelectedItem(null)}
           >
             <motion.button
               initial={{ scale: 0 }}
@@ -436,9 +371,9 @@ export default function GalleryPage() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               className="absolute top-4 right-4 bg-white/90 hover:bg-white rounded-full p-3 z-10 shadow-xl"
-              onClick={() => setSelectedImage(null)}
+              onClick={() => setSelectedItem(null)}
             >
-              <X size={24} className="text-[#5A3E36]" />
+              <X size={24} className="text-soil" />
             </motion.button>
 
             <motion.div
@@ -446,29 +381,54 @@ export default function GalleryPage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{ type: "spring", damping: 25 }}
-              className="max-w-5xl max-h-[90vh] relative"
+              className="max-w-6xl max-h-[90vh] w-full relative flex flex-col items-center"
               onClick={(e) => e.stopPropagation()}
             >
-              <img
-                src={selectedImage.image}
-                alt={selectedImage.title}
-                className="w-full h-full object-contain rounded-2xl"
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 rounded-b-2xl">
-                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
-                  {selectedImage.title}
+              {selectedItem.type === 'video' && selectedItem.videoUrl ? (
+                // Video Player
+                <div className="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl mb-4">
+                  <iframe
+                    src={selectedItem.videoUrl}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              ) : (
+                // Image View
+                <img
+                  src={selectedItem.image}
+                  alt={selectedItem.title}
+                  className="max-h-[70vh] w-auto object-contain rounded-2xl mb-4"
+                />
+              )}
+
+              <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl w-full max-w-2xl text-center border border-white/20">
+                <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2 font-serif">
+                  {selectedItem.title}
                 </h3>
-                {selectedImage.description && (
-                  <p className="text-white/90">{selectedImage.description}</p>
+                {selectedItem.description && (
+                  <p className="text-white/90 mb-4">{selectedItem.description}</p>
                 )}
-                <span className="inline-block mt-3 px-4 py-2 bg-[#C97C5D] text-white rounded-full text-sm font-semibold">
-                  {selectedImage.category}
-                </span>
+                <div className="flex gap-2 justify-center">
+                  <span className="inline-block px-4 py-2 bg-clay text-white rounded-full text-sm font-semibold">
+                    {selectedItem.category}
+                  </span>
+                  <span className="inline-block px-4 py-2 bg-white/20 text-white rounded-full text-sm font-semibold">
+                    {selectedItem.album.name}
+                  </span>
+                </div>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 }

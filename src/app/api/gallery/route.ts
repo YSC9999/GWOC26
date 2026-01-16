@@ -10,6 +10,7 @@ export async function GET(req: Request) {
         const { searchParams } = new URL(req.url);
         const category = searchParams.get("category");
         const featured = searchParams.get("featured");
+        const albumId = searchParams.get("album");
 
         const query: any = {};
 
@@ -21,7 +22,12 @@ export async function GET(req: Request) {
             query.featured = true;
         }
 
+        if (albumId) {
+            query.album = albumId;
+        }
+
         const gallery = await Gallery.find(query)
+            .populate('album', 'name slug')
             .sort({ order: 1, createdAt: -1 })
             .lean();
 
