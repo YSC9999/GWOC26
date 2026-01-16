@@ -43,6 +43,8 @@ async function seedGallery() {
                 description: "Beautiful ceramic pieces displayed in our studio room",
                 order: 1,
                 isActive: true,
+                createdAt: new Date(),
+                updatedAt: new Date(),
             },
             {
                 name: "Ceramic Bowl",
@@ -51,6 +53,8 @@ async function seedGallery() {
                 description: "Handcrafted bowls with unique glazes",
                 order: 2,
                 isActive: true,
+                createdAt: new Date(),
+                updatedAt: new Date(),
             },
             {
                 name: "Ceramic Stories",
@@ -59,6 +63,8 @@ async function seedGallery() {
                 description: "Every piece tells a story",
                 order: 3,
                 isActive: true,
+                createdAt: new Date(),
+                updatedAt: new Date(),
             },
             {
                 name: "Ceramic Works",
@@ -67,6 +73,8 @@ async function seedGallery() {
                 description: "Our latest pottery creations",
                 order: 4,
                 isActive: true,
+                createdAt: new Date(),
+                updatedAt: new Date(),
             },
         ]);
 
@@ -85,6 +93,8 @@ async function seedGallery() {
                 description: `Beautiful ceramic display in our studio space - piece ${index + 1}`,
                 featured: index === 0,
                 order: index,
+                createdAt: new Date(),
+                updatedAt: new Date(),
             });
         });
 
@@ -98,6 +108,8 @@ async function seedGallery() {
                 description: `Unique handcrafted ceramic bowl with artisan glaze`,
                 featured: index === 0,
                 order: index,
+                createdAt: new Date(),
+                updatedAt: new Date(),
             });
         });
 
@@ -111,6 +123,8 @@ async function seedGallery() {
                 description: `Behind the scenes of our pottery making process`,
                 featured: index === 0,
                 order: index,
+                createdAt: new Date(),
+                updatedAt: new Date(),
             });
         });
 
@@ -124,6 +138,8 @@ async function seedGallery() {
                 description: `Latest pottery creation from our studio`,
                 featured: index === 0,
                 order: index,
+                createdAt: new Date(),
+                updatedAt: new Date(),
             });
         });
 
