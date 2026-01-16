@@ -471,31 +471,28 @@ export default function WorkshopPage() {
         <div className="flex overflow-x-auto gap-2 mb-8 border-b border-soil/10 no-scrollbar pb-1">
           <button
             onClick={() => setActiveTab("workshops")}
-            className={`pb-4 px-3 font-medium transition-colors whitespace-nowrap text-sm ${
-              activeTab === "workshops"
+            className={`pb-4 px-3 font-medium transition-colors whitespace-nowrap text-sm ${activeTab === "workshops"
                 ? "border-b-2 border-clay text-clay"
                 : "text-soil/60 hover:text-soil"
-            }`}
+              }`}
           >
             Manage Workshops
           </button>
           <button
             onClick={() => setActiveTab("inquiries")}
-            className={`pb-4 px-3 font-medium transition-colors whitespace-nowrap text-sm ${
-              activeTab === "inquiries"
+            className={`pb-4 px-3 font-medium transition-colors whitespace-nowrap text-sm ${activeTab === "inquiries"
                 ? "border-b-2 border-clay text-clay"
                 : "text-soil/60 hover:text-soil"
-            }`}
+              }`}
           >
             Custom Inquiries
           </button>
           <button
             onClick={() => setActiveTab("previous")}
-            className={`pb-4 px-3 font-medium transition-colors whitespace-nowrap text-sm ${
-              activeTab === "previous"
+            className={`pb-4 px-3 font-medium transition-colors whitespace-nowrap text-sm ${activeTab === "previous"
                 ? "border-b-2 border-clay text-clay"
                 : "text-soil/60 hover:text-soil"
-            }`}
+              }`}
           >
             Previous Workshops
           </button>
@@ -547,9 +544,8 @@ export default function WorkshopPage() {
                     </span>
                     <ChevronRight
                       size={16}
-                      className={`transition-transform duration-200 ${
-                        openDropdown === "add-type" ? "rotate-90" : ""
-                      }`}
+                      className={`transition-transform duration-200 ${openDropdown === "add-type" ? "rotate-90" : ""
+                        }`}
                     />
                   </div>
                   {openDropdown === "add-type" && (
@@ -608,9 +604,8 @@ export default function WorkshopPage() {
                     </span>
                     <ChevronRight
                       size={16}
-                      className={`transition-transform duration-200 ${
-                        openDropdown === "add-level" ? "rotate-90" : ""
-                      }`}
+                      className={`transition-transform duration-200 ${openDropdown === "add-level" ? "rotate-90" : ""
+                        }`}
                     />
                   </div>
                   {openDropdown === "add-level" && (
@@ -693,9 +688,8 @@ export default function WorkshopPage() {
                     </span>
                     <ChevronRight
                       size={16}
-                      className={`transition-transform duration-200 ${
-                        openDropdown === "add-location" ? "rotate-90" : ""
-                      }`}
+                      className={`transition-transform duration-200 ${openDropdown === "add-location" ? "rotate-90" : ""
+                        }`}
                     />
                   </div>
                   {openDropdown === "add-location" && (
@@ -862,15 +856,14 @@ export default function WorkshopPage() {
                         </td>
                         <td className="p-3 align-middle">
                           <span
-                            className={`text-xs px-2 py-1 rounded-full font-medium ${
-                              w.status === "upcoming"
+                            className={`text-xs px-2 py-1 rounded-full font-medium ${w.status === "upcoming"
                                 ? "bg-green-100 text-green-700"
                                 : w.status === "full"
-                                ? "bg-orange-100 text-orange-700"
-                                : w.status === "completed"
-                                ? "bg-gray-100 text-gray-700"
-                                : "bg-red-100 text-red-700"
-                            }`}
+                                  ? "bg-orange-100 text-orange-700"
+                                  : w.status === "completed"
+                                    ? "bg-gray-100 text-gray-700"
+                                    : "bg-red-100 text-red-700"
+                              }`}
                           >
                             {w.status}
                           </span>
@@ -952,11 +945,10 @@ export default function WorkshopPage() {
                           <button
                             key={page}
                             onClick={() => goToPage(page)}
-                            className={`px-3 py-1 border rounded text-sm flex-shrink-0 ${
-                              currentPage === page
+                            className={`px-3 py-1 border rounded text-sm flex-shrink-0 ${currentPage === page
                                 ? "bg-black text-white"
                                 : "hover:bg-gray-200"
-                            }`}
+                              }`}
                           >
                             {page}
                           </button>
@@ -1160,7 +1152,7 @@ export default function WorkshopPage() {
 
         {/* Edit Modal (Only for Workshops) */}
         {editingId && activeTab === "workshops" && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="fixed inset-0 z-[9999] flex items-start justify-center bg-black/50 p-4 pt-20">
             <div className="bg-white rounded-2xl shadow-lg w-full max-w-3xl p-6 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold">Edit Workshop</h3>
@@ -1214,9 +1206,8 @@ export default function WorkshopPage() {
                       </span>
                       <ChevronRight
                         size={16}
-                        className={`transition-transform duration-200 ${
-                          openDropdown === "edit-type" ? "rotate-90" : ""
-                        }`}
+                        className={`transition-transform duration-200 ${openDropdown === "edit-type" ? "rotate-90" : ""
+                          }`}
                       />
                     </div>
                     {openDropdown === "edit-type" && (
@@ -1278,9 +1269,8 @@ export default function WorkshopPage() {
                       </span>
                       <ChevronRight
                         size={16}
-                        className={`transition-transform duration-200 ${
-                          openDropdown === "edit-level" ? "rotate-90" : ""
-                        }`}
+                        className={`transition-transform duration-200 ${openDropdown === "edit-level" ? "rotate-90" : ""
+                          }`}
                       />
                     </div>
                     {openDropdown === "edit-level" && (
@@ -1377,9 +1367,8 @@ export default function WorkshopPage() {
                       </span>
                       <ChevronRight
                         size={16}
-                        className={`transition-transform duration-200 ${
-                          openDropdown === "edit-location" ? "rotate-90" : ""
-                        }`}
+                        className={`transition-transform duration-200 ${openDropdown === "edit-location" ? "rotate-90" : ""
+                          }`}
                       />
                     </div>
                     {openDropdown === "edit-location" && (
@@ -1431,9 +1420,8 @@ export default function WorkshopPage() {
                       </span>
                       <ChevronRight
                         size={16}
-                        className={`transition-transform duration-200 ${
-                          openDropdown === "edit-status" ? "rotate-90" : ""
-                        }`}
+                        className={`transition-transform duration-200 ${openDropdown === "edit-status" ? "rotate-90" : ""
+                          }`}
                       />
                     </div>
                     {openDropdown === "edit-status" && (
