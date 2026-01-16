@@ -179,7 +179,7 @@ export async function POST(req: Request) {
 
         const { target } = await req.json();
         if (target) {
-            await Settings.findOneAndUpdate(
+            await (Settings as any).findOneAndUpdate(
                 { key: 'dailyRevenueTarget' },
                 { value: target },
                 { upsert: true }

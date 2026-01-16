@@ -6,7 +6,7 @@ import Album from "@/models/Album";
 export async function GET() {
     try {
         await connectDB();
-        const albums = await Album.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
+        const albums = await Album.find({ isActive: true } as any).sort({ order: 1, createdAt: -1 });
         return NextResponse.json({ albums });
     } catch (error: any) {
         console.error("GET Albums Error:", error);

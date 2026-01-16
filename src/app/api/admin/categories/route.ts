@@ -16,7 +16,7 @@ export async function GET() {
                 name: c.label,
                 slug: c.id,
                 order: index,
-            }));
+            })) as any[];
             categories = await Category.insertMany(seedData);
         }
 
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
         const slug = slugify(name, { lower: true, strict: true });
 
         // Check for duplicate
-        const existing = await Category.findOne({ slug });
+        const existing = await Category.findOne({ slug } as any);
         if (existing) {
             return NextResponse.json({ error: "Category already exists" }, { status: 400 });
         }
@@ -61,7 +61,7 @@ export async function DELETE(req: Request) {
             return NextResponse.json({ error: "ID is required" }, { status: 400 });
         }
 
-        await Category.findByIdAndDelete(id);
+        await (Category as any).findByIdAndDelete(id);
         return NextResponse.json({ message: "Category deleted" });
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });

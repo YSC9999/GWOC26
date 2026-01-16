@@ -26,9 +26,9 @@ async function getCollection(slug: string) {
         .lean();
 
     if (collection) {
-        collection._id = collection._id.toString();
-        if (collection.createdAt) collection.createdAt = collection.createdAt.toISOString();
-        if (collection.updatedAt) collection.updatedAt = collection.updatedAt.toISOString();
+        (collection._id as any) = collection._id.toString();
+        if (collection.createdAt) (collection.createdAt as any) = collection.createdAt.toISOString();
+        if (collection.updatedAt) (collection.updatedAt as any) = collection.updatedAt.toISOString();
 
         if (collection.products) {
             collection.products = collection.products.map((product: any) => ({
