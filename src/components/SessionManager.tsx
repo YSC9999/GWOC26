@@ -29,7 +29,6 @@ export default function SessionManager() {
                     }
                 } else {
                     // Token invalid or User Blocked (returns 401)
-                    // Token invalid or User Blocked (returns 401)
                     // Check directly against the store to avoid stale closure issues in interval
                     const currentUser = useAuth.getState().user;
                     if (currentUser) {
@@ -38,8 +37,12 @@ export default function SessionManager() {
                         window.location.href = "/login"; // Force redirect to login page
                     }
                 }
-            } catch (err) {
-                console.error("SessionManager error:", err);
+            } catch (err: any) {
+                // Ignore "Failed to fetch" errors which happen easily during dev/reloads
+                if (err.message && err.message.includes("Failed to fetch")) {
+                    return;
+                }
+                console.warn("SessionManager error:", err);
             }
         };
 
