@@ -7,18 +7,10 @@ export default function SessionManager() {
 
     useEffect(() => {
         const checkSession = async () => {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                if (user) logout();
-                return;
-            }
-
             try {
-                const res = await fetch("/api/auth/me", {
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    }
-                });
+                // We use cookies now, so no need to check localStorage for token
+                // The browser sends the cookie automatically
+                const res = await fetch("/api/auth/me");
 
                 if (res.ok) {
                     const data = await res.json();
@@ -31,18 +23,26 @@ export default function SessionManager() {
                         // Check if data differs from current state
                         // We primarily care about wishlist being present/different
                         if (JSON.stringify(userData) !== JSON.stringify(user)) {
-                            console.log("SessionManager: Updating user data", userData);
+                            console.log("SessionManager: Updating user data");
                             login(userData);
                         }
                     }
                 } else {
-                    // Token invalid
-                    console.log("SessionManager: Token invalid, logging out");
-                    logout();
-                    localStorage.removeItem("token");
+                    // Token invalid or User Blocked (returns 401)
+                    // Check directly against the store to avoid stale closure issues in interval
+                    const currentUser = useAuth.getState().user;
+                    if (currentUser) {
+                        console.log("SessionManager: Session invalid or Blocked, logging out");
+                        logout();
+                        window.location.href = "/login"; // Force redirect to login page
+                    }
                 }
-            } catch (err) {
-                console.error("SessionManager error:", err);
+            } catch (err: any) {
+                // Ignore "Failed to fetch" errors which happen easily during dev/reloads
+                if (err.message && err.message.includes("Failed to fetch")) {
+                    return;
+                }
+                console.warn("SessionManager error:", err);
             }
         };
 
@@ -50,7 +50,12 @@ export default function SessionManager() {
 
         const handleFocus = () => checkSession();
         window.addEventListener("focus", handleFocus);
-        return () => window.removeEventListener("focus", handleFocus);
+        const interval = setInterval(checkSession, 5000); // Check every 5s
+
+        return () => {
+            window.removeEventListener("focus", handleFocus);
+            clearInterval(interval);
+        };
 
     }, []);
 

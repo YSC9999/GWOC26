@@ -104,7 +104,7 @@ const ProductSchema = new Schema<IProduct>(
 );
 
 // Virtual field for single image (first image from images array)
-ProductSchema.virtual('image').get(function() {
+ProductSchema.virtual('image').get(function () {
   if (this.images && this.images.length > 0) {
     const img = this.images[0];
     const valid = img && (img.startsWith("/") || img.startsWith("http") || img.startsWith("data:"));

@@ -14,17 +14,15 @@ import {
   LogOut,
   Camera,
   Menu,
-  X,
-  Heart
+  X
 } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 
 const navItems = [
   { label: "Overview", icon: <LayoutDashboard size={20} />, href: "/account" },
-  { label: "My Orders", icon: <Package size={20} />, href: "/account/orders" },
-  { label: "Wishlist", icon: <Heart size={20} />, href: "/account/wishlist" },
   { label: "My Workshops", icon: <Calendar size={20} />, href: "/account/workshops" },
   { label: "Custom Requests", icon: <ClipboardList size={20} />, href: "/account/custom-orders" },
+  { label: "My Orders", icon: <Package size={20} />, href: "/account/orders" },
   { label: "Addresses", icon: <MapPin size={20} />, href: "/account/profile" },
   { label: "My Reviews", icon: <Star size={20} />, href: "/account/reviews" },
 ];

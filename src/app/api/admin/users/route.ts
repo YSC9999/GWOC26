@@ -116,7 +116,10 @@ export async function PUT(req: Request) {
     if (role) user.role = role;
     if (password) user.password = await bcrypt.hash(password, 10);
 
-    if (typeof isBlocked === 'boolean') user.isBlocked = isBlocked;
+    if (typeof isBlocked === 'boolean') {
+      user.isBlocked = isBlocked;
+      user.status = isBlocked ? "blocked" : "active";
+    }
     if (blockedUntil !== undefined) user.blockedUntil = blockedUntil ? new Date(blockedUntil) : undefined;
 
     await user.save();

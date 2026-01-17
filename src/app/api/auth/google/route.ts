@@ -42,6 +42,17 @@ export async function POST(req: Request) {
       if (Object.keys(updates).length > 0) {
         await User.findByIdAndUpdate(user._id, updates);
       }
+
+      if (user.isBlocked) {
+        const now = new Date();
+        let isActiveBlock = false;
+        if (!user.blockedUntil) isActiveBlock = true;
+        else if (new Date(user.blockedUntil) > now) isActiveBlock = true;
+
+        if (isActiveBlock) {
+          return NextResponse.json({ error: "Something went wrong" }, { status: 403 });
+        }
+      }
     } else {
       // Create new user with Google info
       user = await User.create({

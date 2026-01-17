@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   try {
     await connectDB();
     const { email, password } = await req.json();
-
+    
     // 1. Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
@@ -20,14 +20,11 @@ export async function POST(req: Request) {
     if (user.isBlocked) {
       const now = new Date();
       if (!user.blockedUntil || new Date(user.blockedUntil) > now) {
-        let message = "Your account has been blocked by an administrator.";
-        if (user.blockedUntil) {
-          message += ` Try again after ${new Date(user.blockedUntil).toLocaleString()}.`;
-        }
-        return NextResponse.json({ error: message }, { status: 403 });
+        return NextResponse.json({ error: "Something went wrong" }, { status: 403 });
       } else {
         // Block has expired, auto-unblock
         user.isBlocked = false;
+        user.status = "active";
         user.blockedUntil = undefined;
         await user.save();
       }
