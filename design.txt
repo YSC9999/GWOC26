@@ -1,0 +1,553 @@
+================================================================================
+                    BASHO E-COMMERCE - SYSTEM DESIGN DIAGRAMS
+                         (Handcrafted Pottery Platform)
+================================================================================
+
+
+================================================================================
+1. HIGH-LEVEL SYSTEM ARCHITECTURE
+================================================================================
+
+    +------------------+     +------------------+     +------------------+
+    |     BROWSER      |     | RAZORPAY CHECKOUT|     | GOOGLE SIGN-IN   |
+    |    (Client)      |     |       SDK        |     |       SDK        |
+    +--------+---------+     +--------+---------+     +--------+---------+
+             |                        |                        |
+             +------------------------+------------------------+
+                                      |
+                                      v
+    +-------------------------------------------------------------------------+
+    |                         NEXT.JS APPLICATION                              |
+    |-------------------------------------------------------------------------|
+    |                                                                         |
+    |  +-------------------+  +-------------------+  +-------------------+    |
+    |  |   PUBLIC PAGES    |  |   ACCOUNT PAGES   |  |   ADMIN PANEL     |    |
+    |  |  - Home           |  |  - Profile        |  |  - Dashboard      |    |
+    |  |  - Products       |  |  - Orders         |  |  - Products CRUD  |    |
+    |  |  - Collections    |  |  - Wishlist       |  |  - Orders Mgmt    |    |
+    |  |  - Gallery        |  |  - Addresses      |  |  - Users Mgmt     |    |
+    |  |  - Workshops      |  |  - Wallet         |  |  - Analytics      |    |
+    |  +-------------------+  +-------------------+  +-------------------+    |
+    |            |                    |                      |                |
+    |            +--------------------+----------------------+                |
+    |                                 |                                       |
+    |                                 v                                       |
+    |  +----------------------------------------------------------------------+
+    |  |                      ZUSTAND STATE STORES                            |
+    |  |  +---------------------------+  +---------------------------+        |
+    |  |  |       AUTH STORE          |  |       CART STORE          |        |
+    |  |  |  - user                   |  |  - items[]                |        |
+    |  |  |  - isAuthenticated        |  |  - add(), remove()        |        |
+    |  |  |  - login(), logout()      |  |  - total()                |        |
+    |  |  +---------------------------+  +---------------------------+        |
+    |  +----------------------------------------------------------------------+
+    |                                 |                                       |
+    |                                 v                                       |
+    |  +----------------------------------------------------------------------+
+    |  |                         API ROUTES (/api)                            |
+    |  |  +----------+ +----------+ +----------+ +----------+ +----------+    |
+    |  |  |   AUTH   | | PRODUCTS | |  ORDERS  | |  ADMIN   | | WORKSHOPS|    |
+    |  |  | 11 routes| | 4 routes | | 3 routes | | 26 routes| | 5 routes |    |
+    |  |  +----------+ +----------+ +----------+ +----------+ +----------+    |
+    |  +----------------------------------------------------------------------+
+    |                                                                         |
+    +-------------------------------------------------------------------------+
+                                      |
+          +---------------------------+---------------------------+
+          |                           |                           |
+          v                           v                           v
+    +------------+              +------------+              +------------+
+    |  MONGODB   |              | CLOUDINARY |              |  RAZORPAY  |
+    |   ATLAS    |              |    CDN     |              |  PAYMENTS  |
+    | (Database) |              |  (Media)   |              |            |
+    +------------+              +------------+              +------------+
+          |
+          +---------------------------+---------------------------+
+          |                           |                           |
+          v                           v                           v
+    +------------+              +------------+              +------------+
+    |   TWILIO   |              | NODEMAILER |              | GOOGLE AI  |
+    |    SMS     |              |   EMAIL    |              |  CHATBOT   |
+    +------------+              +------------+              +------------+
+
+
+================================================================================
+2. DATA MODEL RELATIONSHIPS
+================================================================================
+
+    +------------------+           +------------------+
+    |       USER       |           |     PRODUCT      |
+    |------------------|           |------------------|
+    | _id              |           | _id              |
+    | name             |           | name             |
+    | email            |           | slug             |
+    | password         |           | price            |
+    | role             |           | category         |
+    | tier             |           | images[]         |
+    | addresses[]      |           | material         |
+    | wishlist[]   ----+---------->| stock            |
+    | cart[]       ----+---------->| dimensions       |
+    | walletBalance    |           +------------------+
+    +------------------+                   |
+           |                               |
+           |  places                       | has
+           v                               v
+    +------------------+           +------------------+
+    |      ORDER       |           |     REVIEW       |
+    |------------------|           |------------------|
+    | _id              |           | _id              |
+    | orderNumber      |           | productId -------+
+    | userId ----------+           | userId ----------+
+    | items[]          |           | rating           |
+    | total            |           | comment          |
+    | paymentStatus    |           +------------------+
+    | shippingAddress  |
+    | razorpayPaymentId|
+    +------------------+
+           |
+           | linked to
+           v
+    +------------------+           +------------------+
+    |   CUSTOM ORDER   |           |    WORKSHOP      |
+    |------------------|           |------------------|
+    | _id              |           | _id              |
+    | userId           |           | title            |
+    | productType      |           | slug             |
+    | budget           |           | date             |
+    | items[]          |           | maxParticipants  |
+    | totalPrice       |           | price            |
+    | status           |           | level            |
+    | orderId ---------+           +------------------+
+    +------------------+                   |
+                                           | has
+                                           v
+    +------------------+           +------------------+
+    |   STUDIO VISIT   |           |WORKSHOP REGISTER |
+    |------------------|           |------------------|
+    | _id              |           | _id              |
+    | name             |           | userId           |
+    | date             |           | workshopId       |
+    | guests           |           | status           |
+    | purpose          |           | payment          |
+    | status           |           +------------------+
+    +------------------+
+
+    +------------------+           +------------------+
+    |     GALLERY      |           |      ALBUM       |
+    |------------------|           |------------------|
+    | _id              |           | _id              |
+    | title            |           | name             |
+    | image            |           | description      |
+    | album -----------+---------->| coverImage       |
+    | category         |           +------------------+
+    | type             |
+    +------------------+
+
+    +------------------+           +------------------+
+    |      COUPON      |           |     EVENT        |
+    |------------------|           |------------------|
+    | _id              |           | _id              |
+    | code             |           | title            |
+    | discountType     |           | date             |
+    | discountValue    |           | type             |
+    | usageLimit       |           | description      |
+    +------------------+           +------------------+
+
+
+================================================================================
+3. API ROUTE STRUCTURE
+================================================================================
+
+    /api
+     |
+     +-- /auth (11 routes)
+     |    +-- /signup ----------------> POST: Create account
+     |    +-- /login -----------------> POST: Email/Password login
+     |    +-- /logout ----------------> POST: Clear session
+     |    +-- /google ----------------> POST: OAuth callback
+     |    +-- /me --------------------> GET:  Current user
+     |    +-- /send-otp --------------> POST: Email OTP
+     |    +-- /verify-otp ------------> POST: Verify email
+     |    +-- /send-phone-otp --------> POST: Phone OTP
+     |    +-- /verify-phone-otp ------> POST: Verify phone
+     |    +-- /forgot-password -------> POST: Reset password
+     |    +-- /verify-login-otp ------> POST: Two-factor auth
+     |
+     +-- /products (4 routes)
+     |    +-- / ----------------------> GET:  List all
+     |    +-- /[slug] ----------------> GET:  Single product
+     |    +-- /search ----------------> GET:  Search products
+     |    +-- /category --------------> GET:  By category
+     |
+     +-- /orders (3 routes)
+     |    +-- / ----------------------> POST: Create order
+     |    +-- /[id] ------------------> GET:  Order details
+     |    +-- /verify ----------------> POST: Verify payment
+     |
+     +-- /admin (26 routes)
+     |    +-- /products --------------> CRUD operations
+     |    +-- /orders ----------------> Order management
+     |    +-- /users -----------------> User management
+     |    +-- /analytics -------------> Dashboard stats
+     |    +-- /settings --------------> Store config
+     |    +-- /workshops -------------> Workshop CRUD
+     |    +-- /gallery ---------------> Media management
+     |    +-- /coupons ---------------> Coupon CRUD
+     |    +-- /shipping --------------> Rates config
+     |    +-- /testimonials ----------> CRUD
+     |    +-- /studio ----------------> Studio info
+     |    +-- /studio-visits ---------> Booking management
+     |    +-- /custom-orders ---------> Quote/fulfill
+     |
+     +-- /user (9 routes)
+     |    +-- /profile ---------------> GET/PUT: User info
+     |    +-- /addresses -------------> CRUD addresses
+     |    +-- /wishlist --------------> GET/POST/DELETE
+     |    +-- /orders ----------------> GET: User orders
+     |    +-- /wallet ----------------> GET: Balance
+     |    +-- /cart ------------------> Sync cart
+     |    +-- /tier ------------------> Subscription
+     |
+     +-- /workshops (5 routes)
+     |    +-- / ----------------------> GET: List workshops
+     |    +-- /[slug] ----------------> GET: Details
+     |    +-- /register --------------> POST: Enroll
+     |    +-- /categories ------------> GET: Categories
+     |
+     +-- /gallery -------------------> GET: Media items
+     +-- /albums --------------------> GET: Album list
+     +-- /custom-orders -------------> POST: Submit request
+     +-- /studio-visits -------------> POST: Book visit
+     +-- /reviews -------------------> GET/POST
+     +-- /coupons -------------------> POST: Validate
+     +-- /shipping ------------------> POST: Calculate
+     +-- /invoice -------------------> GET: Generate
+     +-- /chat ----------------------> POST: AI chatbot
+
+
+================================================================================
+4. AUTHENTICATION FLOW
+================================================================================
+
+    EMAIL/PASSWORD SIGNUP:
+    ----------------------
+
+    +--------+        +--------+        +--------+        +--------+
+    | CLIENT |        |  API   |        |MONGODB |        | EMAIL  |
+    +---+----+        +---+----+        +---+----+        +---+----+
+        |                 |                 |                 |
+        | POST /signup    |                 |                 |
+        +---------------->|                 |                 |
+        |                 | Create user     |                 |
+        |                 +---------------->|                 |
+        |                 |                 |                 |
+        |                 | Send OTP email  |                 |
+        |                 +---------------------------------->|
+        |                 |                 |                 |
+        |<----------------+ Return pending  |                 |
+        |                 |                 |                 |
+        | POST /verify-otp|                 |                 |
+        +---------------->|                 |                 |
+        |                 | Verify OTP      |                 |
+        |                 +---------------->|                 |
+        |                 |                 |                 |
+        |<----------------+ Set JWT cookie  |                 |
+        |                 |                 |                 |
+
+
+    GOOGLE OAUTH:
+    -------------
+
+    +--------+        +--------+        +--------+        +--------+
+    | CLIENT |        | GOOGLE |        |  API   |        |MONGODB |
+    +---+----+        +---+----+        +---+----+        +---+----+
+        |                 |                 |                 |
+        | OAuth redirect  |                 |                 |
+        +---------------->|                 |                 |
+        |                 |                 |                 |
+        |<----------------+ ID Token        |                 |
+        |                 |                 |                 |
+        | POST /auth/google (token)         |                 |
+        +---------------------------------->|                 |
+        |                 |                 | Find/Create user|
+        |                 |                 +---------------->|
+        |                 |                 |                 |
+        |<----------------------------------+ Set JWT cookie  |
+        |                 |                 |                 |
+
+
+================================================================================
+5. PAYMENT FLOW (RAZORPAY)
+================================================================================
+
+    +--------+        +--------+        +--------+        +--------+
+    | CLIENT |        |  API   |        |RAZORPAY|        |MONGODB |
+    +---+----+        +---+----+        +---+----+        +---+----+
+        |                 |                 |                 |
+        | POST /orders    |                 |                 |
+        | (cart+address)  |                 |                 |
+        +---------------->|                 |                 |
+        |                 | Create RZ Order |                 |
+        |                 +---------------->|                 |
+        |                 |<----------------+ Order ID        |
+        |                 |                 |                 |
+        |                 | Save pending order                |
+        |                 +---------------------------------->|
+        |                 |                 |                 |
+        |<----------------+ Order details   |                 |
+        |                 |                 |                 |
+        | Open Checkout   |                 |                 |
+        +---------------->|                 |                 |
+        |                 | Process payment |                 |
+        |                 +---------------->|                 |
+        |                 |<----------------+ Success/Fail    |
+        |<----------------+                 |                 |
+        |                 |                 |                 |
+        | POST /orders/verify               |                 |
+        +---------------->|                 |                 |
+        |                 | Verify signature|                 |
+        |                 +---------------->|                 |
+        |                 |<----------------+ Valid           |
+        |                 |                 |                 |
+        |                 | Update order status               |
+        |                 +---------------------------------->|
+        |                 |                 |                 |
+        |<----------------+ Order confirmed |                 |
+        |                 |                 |                 |
+
+
+================================================================================
+6. USER TIER SYSTEM
+================================================================================
+
+    +-----------------------------------------------------------------------+
+    |                           TIER HIERARCHY                               |
+    +-----------------------------------------------------------------------+
+
+          TIER-0              TIER-1              TIER-2              TIER-3
+         (Guest)             (Basic)            (Premium)             (VIP)
+         $0/mo              $4.99/mo            $9.99/mo            $19.99/mo
+           |                   |                   |                   |
+           v                   v                   v                   v
+    +-------------+     +-------------+     +-------------+     +-------------+
+    | PERMISSIONS |     | PERMISSIONS |     | PERMISSIONS |     | PERMISSIONS |
+    |-------------|     |-------------|     |-------------|     |-------------|
+    | view_products|     | + ALL T0   |     | + ALL T1    |     | + ALL T2    |
+    | view_home    |     | purchase   |     | exclusive   |     | custom_orders|
+    | view_about   |     | workshops  |     | early_access|     | admin_panel |
+    |             |     | newsletter |     | artist_chat |     | vip_events  |
+    |             |     | 10% off    |     | 20% off     |     | 30% off     |
+    |             |     |            |     | free_ship   |     | world_ship  |
+    +-------------+     +-------------+     +-------------+     +-------------+
+
+
+================================================================================
+7. COMPONENT HIERARCHY
+================================================================================
+
+    RootLayout
+        |
+        +-- CartSync (syncs localStorage cart with server)
+        |
+        +-- SessionManager (validates JWT, refreshes session)
+        |
+        +-- ScreenSizeGuard (mobile responsiveness)
+        |
+        +-- ConditionalBackground (page-specific backgrounds)
+        |
+        +-- ConditionalLayout
+        |       |
+        |       +-- Navbar
+        |               |
+        |               +-- Logo
+        |               +-- NavLinks
+        |               +-- SearchBar
+        |               +-- UserMenu (auth-aware)
+        |               +-- CartIcon (with count)
+        |               +-- MobileMenu
+        |
+        +-- PageWrapper
+        |       |
+        |       +-- [Page Content]
+        |               |
+        |               +-- Public Pages
+        |               |       +-- HomePage
+        |               |       +-- ProductsPage
+        |               |       +-- CollectionsPage
+        |               |       +-- GalleryPage
+        |               |       +-- WorkshopsPage
+        |               |       +-- StudioPage
+        |               |
+        |               +-- Account Pages
+        |               |       +-- ProfilePage
+        |               |       +-- OrdersPage
+        |               |       +-- WishlistPage
+        |               |       +-- AddressesPage
+        |               |       +-- WalletPage
+        |               |
+        |               +-- Admin Pages
+        |                       +-- DashboardPage
+        |                       +-- ProductsCRUD
+        |                       +-- OrdersManagement
+        |                       +-- UsersManagement
+        |                       +-- WorkshopsManagement
+        |                       +-- SettingsPage
+        |
+        +-- ChatBot (AI-powered assistant)
+        |
+        +-- ConditionalFooter
+
+
+================================================================================
+8. ADMIN PANEL STRUCTURE
+================================================================================
+
+    +-----------------------------------------------------------------------+
+    |                           ADMIN DASHBOARD                              |
+    +-----------------------------------------------------------------------+
+    |                                                                       |
+    |  +------------------+  +------------------+  +------------------+      |
+    |  |    ANALYTICS     |  |   RECENT ORDERS  |  |   LOW STOCK      |      |
+    |  |  - Revenue       |  |   - List         |  |   - Alerts       |      |
+    |  |  - Orders        |  |   - Quick status |  |   - Restock      |      |
+    |  |  - Users         |  |                  |  |                  |      |
+    |  +------------------+  +------------------+  +------------------+      |
+    |                                                                       |
+    +-----------------------------------------------------------------------+
+           |
+           +-- Content Management
+           |       +-- Products (CRUD + Images)
+           |       +-- Collections (Featured Groups)
+           |       +-- Gallery (Media Management)
+           |       +-- Blog (Content Posts)
+           |
+           +-- Order Management
+           |       +-- Orders (Status + Tracking)
+           |       +-- Custom Orders (Quote + Fulfill)
+           |       +-- Shipping (Rates + Zones)
+           |
+           +-- User Management
+           |       +-- Users (List + Block)
+           |       +-- Wallet (Credit + History)
+           |       +-- Contacts (Inquiries)
+           |
+           +-- Workshop & Studio
+           |       +-- Workshops (Schedule + Enroll)
+           |       +-- Studio Visits (Bookings)
+           |       +-- Studio Settings (Info + Hours)
+           |
+           +-- Configuration
+                   +-- Settings (Store Config)
+                   +-- Coupons (Discounts)
+                   +-- Frames (Display)
+
+
+================================================================================
+9. DATABASE CONNECTION FLOW
+================================================================================
+
+    +--------+        +--------+        +--------+        +--------+
+    |  APP   |        | CACHE  |        |  DNS   |        |MONGODB |
+    +---+----+        +---+----+        +---+----+        +---+----+
+        |                 |                 |                 |
+        | connectDB()     |                 |                 |
+        +---------------->|                 |                 |
+        |                 |                 |                 |
+        | Check cached?   |                 |                 |
+        +---------------->|                 |                 |
+        |                 |                 |                 |
+        |<-- YES ---------|                 |                 |
+        |   Return cached |                 |                 |
+        |                 |                 |                 |
+        |<-- NO ----------|                 |                 |
+        |                 |                 |                 |
+        | Set Google DNS  |                 |                 |
+        +---------------------------------->|                 |
+        |                 |                 |                 |
+        | Connect MongoDB |                 |                 |
+        +-------------------------------------------------->|
+        |                 |                 |                 |
+        |<--------------------------------------------------+
+        |   Connection    |                 |                 |
+        |                 |                 |                 |
+        | Cache conn      |                 |                 |
+        +---------------->|                 |                 |
+        |                 |                 |                 |
+
+
+================================================================================
+10. EXTERNAL SERVICES INTEGRATION
+================================================================================
+
+    +-----------------------------------------------------------------------+
+    |                        BASHO APPLICATION                               |
+    +---------------------------------------+-------------------------------+
+                                            |
+        +-----------------------------------+-----------------------------------+
+        |                   |                   |                   |           |
+        v                   v                   v                   v           v
+    +--------+         +--------+         +--------+         +--------+    +--------+
+    |MONGODB |         |CLOUDINARY|        |RAZORPAY|         | TWILIO |    |GOOGLE  |
+    | ATLAS  |         |   CDN   |         |PAYMENTS|         |  SMS   |    |   AI   |
+    +--------+         +--------+         +--------+         +--------+    +--------+
+    |        |         |         |         |         |         |        |    |        |
+    |Database|         |  Image  |         | Payment |         |  OTP   |    |Chatbot |
+    | Store  |         |  Upload |         |  UPI    |         | Verify |    |  FAQ   |
+    |        |         |  Video  |         |  Cards  |         | Notify |    | Assist |
+    |        |         | Transform|         | NetBank |         |        |    |        |
+    +--------+         +--------+         +--------+         +--------+    +--------+
+                            |
+                            v
+                       +--------+
+                       |NODEMAILER|
+                       |  EMAIL  |
+                       +--------+
+                       |        |
+                       |  OTP   |
+                       | Orders |
+                       | Status |
+                       | Refunds|
+                       | Market |
+                       +--------+
+
+
+================================================================================
+11. SECURITY ARCHITECTURE
+================================================================================
+
+    +-----------------------------------------------------------------------+
+    |                         SECURITY LAYERS                                |
+    +-----------------------------------------------------------------------+
+
+    AUTHENTICATION:
+    +-----------------+     +-----------------+     +-----------------+
+    |   JWT COOKIES   |     |  OTP SYSTEM     |     | GOOGLE OAUTH    |
+    |-----------------|     |-----------------|     |-----------------|
+    | HttpOnly        |     | Email OTP       |     | ID Token verify |
+    | Secure          |     | Phone OTP       |     | User mapping    |
+    | SameSite        |     | Time-limited    |     |                 |
+    +-----------------+     +-----------------+     +-----------------+
+            |                       |                       |
+            +-----------------------+-----------------------+
+                                    |
+                                    v
+    AUTHORIZATION:
+    +-----------------+     +-----------------+     +-----------------+
+    |  ROLE-BASED     |     |  TIER-BASED     |     |  ADMIN GUARD    |
+    |-----------------|     |-----------------|     |-----------------|
+    | customer        |     | T0 -> T3        |     | Middleware      |
+    | admin           |     | Permissions     |     | Route protect   |
+    +-----------------+     +-----------------+     +-----------------+
+
+    DATA PROTECTION:
+    +-----------------+     +-----------------+     +-----------------+
+    | BCRYPT HASHING  |     | INPUT VALIDATE  |     | ENV VARIABLES   |
+    |-----------------|     |-----------------|     |-----------------|
+    | Auto-salt       |     | Sanitization    |     | Secrets stored  |
+    | Password hash   |     | Type checking   |     | Not in code     |
+    +-----------------+     +-----------------+     +-----------------+
+
+
+================================================================================
+                              END OF DOCUMENT
+================================================================================
