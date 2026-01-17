@@ -115,7 +115,7 @@ export default function GalleryPage() {
   const handleMouseLeave = () => {
     timeoutRef.current = setTimeout(() => {
       setIsPaused(false);
-    }, 5000);
+    }, 1500);
   };
 
   const handleVideoMouseEnter = () => {
@@ -126,7 +126,7 @@ export default function GalleryPage() {
   const handleVideoMouseLeave = () => {
     videoTimeoutRef.current = setTimeout(() => {
       setIsVideoPaused(false);
-    }, 5000);
+    }, 1500);
   };
 
   const handleNext = (e: React.MouseEvent) => {
