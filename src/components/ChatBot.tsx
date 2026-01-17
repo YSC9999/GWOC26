@@ -131,7 +131,7 @@ export default function ChatBot() {
                         style={{ maxHeight: "calc(100vh - 140px)", height: "600px" }}
                     >
                         {/* Header */}
-                        <div className="bg-gradient-to-r from-clay to-soil text-white p-5 flex items-center justify-between shadow-md">
+                        <div className="bg-clay text-white p-5 flex items-center shadow-md">
                             <div className="flex items-center gap-3">
                                 <div className="bg-white/10 p-2.5 rounded-2xl border border-white/10 shadow-inner">
                                     <Sparkles size={18} className="text-sand animate-pulse" />
@@ -144,12 +144,6 @@ export default function ChatBot() {
                                     </div>
                                 </div>
                             </div>
-                            <button
-                                onClick={() => setIsOpen(false)}
-                                className="p-2 hover:bg-white/10 rounded-full transition-colors"
-                            >
-                                <X size={20} />
-                            </button>
                         </div>
 
                         {/* Messages */}

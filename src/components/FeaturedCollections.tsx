@@ -145,33 +145,41 @@ export default function FeaturedCollections({ collections }: FeaturedCollections
                                 >
                                     <Link
                                         href={`/collections/${collection.slug || collection._id}`}
-                                        className="block h-full"
+                                        className="block h-full group px-2 py-4"
                                     >
-                                        <div className={`bg-white rounded-2xl overflow-hidden shadow-sm transition-all duration-500 border border-soil/5 h-full flex flex-col transform relative ${isActive ? "shadow-2xl" : ""}`}>
-                                            <div className="h-64 md:h-72 bg-sand/20 overflow-hidden relative">
-                                                {thumbnailImage ? (
-                                                    <img
-                                                        src={thumbnailImage}
-                                                        alt={collection.title}
-                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                                    />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-4xl bg-sand/10">
-                                                        🏺
-                                                    </div>
-                                                )}
-
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
-
-                                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-max max-w-[90%] z-20">
-                                                    <div className="bg-white text-soil font-bold px-5 py-2.5 md:px-6 md:py-3 rounded-full shadow-lg flex items-center gap-2 hover:bg-clay hover:text-white transition-colors duration-300 text-sm md:text-base">
-                                                        <span className="truncate">
-                                                            {collection.title}
-                                                        </span>
-                                                        <ArrowRight size={16} />
-                                                    </div>
+                                        <div 
+                                            className={`relative h-[320px] md:h-[380px] w-full bg-[#E3E4C8] shadow-lg group-hover:shadow-2xl transition-all duration-500 overflow-hidden flex flex-col justify-end border border-black/5 transform ${colIndex % 2 === 0 ? '-rotate-3' : 'rotate-3'} hover:rotate-0 hover:scale-[1.02] hover:z-20`}
+                                            style={{
+                                                borderRadius: '32px', 
+                                            }}
+                                        >
+                                            {/* Full Background Image */}
+                                            {thumbnailImage ? (
+                                                <img
+                                                    src={thumbnailImage}
+                                                    alt={collection.title}
+                                                    className={`absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-105 ${colIndex === 2 ? 'mix-blend-multiply' : ''}`}
+                                                />
+                                            ) : (
+                                                <div className="absolute inset-0 w-full h-full bg-[#E3E4C8] flex items-center justify-center z-0">
+                                                    <span className="text-6xl opacity-20">🏺</span>
                                                 </div>
+                                            )}
+
+                                            {/* Bottom Overlay Gradient for Text */}
+                                            <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-10 pointer-events-none"></div>
+
+                                            {/* Footer Text Overlay - Anchored to Bottom */}
+                                            <div className="absolute bottom-6 left-0 right-0 text-center z-20 px-4">
+                                                <h4 className="text-2xl md:text-4xl text-white font-normal drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] transform -rotate-2" style={{ fontFamily: "var(--font-berkshire-swash)" }}>
+                                                    {collection.title}
+                                                </h4>
+                                                <div className="w-16 h-1 bg-white/90 mx-auto mt-3 rounded-full shadow-sm"></div>
                                             </div>
+
+                                            {/* Paper Texture Overlay (Subtle) */}
+                                            <div className="absolute inset-0 bg-white opacity-[0.02] pointer-events-none mix-blend-overlay z-30"></div>
+                                            
                                         </div>
                                     </Link>
                                 </motion.div>

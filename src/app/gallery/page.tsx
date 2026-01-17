@@ -155,13 +155,6 @@ export default function GalleryPage() {
         className="bg-[#FDF8F3] relative overflow-hidden m-2 mt-24 border-8 border-[#652810] p-6 md:p-10 min-h-[90vh]"
         style={{ borderRadius: "30px 28px 32px 29px / 28px 32px 29px 30px" }}
       >
-        {/* Background Decorations */}
-        <div className="absolute top-10 left-12 w-16 h-16 border-2 border-gray-300/30 rounded-full opacity-40 pointer-events-none" />
-        <div className="absolute top-1/4 right-20 w-24 h-1 bg-gray-400/20 rotate-45 pointer-events-none" />
-        <div className="absolute bottom-1/3 left-1/4 w-20 h-20 border border-gray-300/20 rounded opacity-35 pointer-events-none" />
-        <div className="absolute top-1/2 right-1/3 w-12 h-12 border-2 border-gray-300/25 rounded-lg opacity-30 pointer-events-none" />
-        <div className="absolute bottom-20 right-10 w-32 h-2 bg-gray-400/15 rounded-full pointer-events-none" />
-
         {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

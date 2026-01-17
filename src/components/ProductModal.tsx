@@ -154,6 +154,11 @@ export default function ProductModal({
     if (result.success) {
       setAddedToCart(true);
       setTimeout(() => setAddedToCart(false), 2000);
+      if (result.message) {
+        // Show toast for max stock reached
+        setStatusMsg("All remaining products added to cart");
+        setTimeout(() => setStatusMsg(""), 3000);
+      }
     } else if (result.message) {
       setStatusMsg(result.message);
       setTimeout(() => setStatusMsg(""), 3000);
@@ -438,23 +443,17 @@ export default function ProductModal({
                       <div className="flex gap-3">
                         <button
                           onClick={handleAddToCart}
-                          disabled={!product.inStock || addedToCart || !!statusMsg}
+                          disabled={!product.inStock || addedToCart}
                           className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full font-semibold transition-all ${addedToCart
                             ? "bg-green-500 text-white"
-                            : statusMsg
-                              ? "bg-red-500 text-white"
-                              : product.inStock
-                                ? "bg-clay text-white hover:bg-clay/90 hover:scale-[1.02]"
-                                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            : product.inStock
+                              ? "bg-clay text-white hover:bg-clay/90 hover:scale-[1.02]"
+                              : "bg-gray-300 text-gray-500 cursor-not-allowed"
                             }`}
                         >
                           {addedToCart ? (
                             <>
                               <Check size={20} /> Added!
-                            </>
-                          ) : statusMsg ? (
-                            <>
-                              <Minus size={20} /> {statusMsg}
                             </>
                           ) : (
                             <>
@@ -549,6 +548,18 @@ export default function ProductModal({
         </motion.div>
       )
       }
+
+      {/* Toast Notification */}
+      {statusMsg && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="fixed top-24 right-4 z-[10000] bg-white text-soil border-[3px] border-clay px-6 py-3 rounded-full shadow-2xl text-sm font-bold max-w-[90vw] md:max-w-sm"
+        >
+          {statusMsg}
+        </motion.div>
+      )}
     </AnimatePresence >
   );
 }

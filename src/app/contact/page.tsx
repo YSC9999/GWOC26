@@ -67,7 +67,7 @@ export default function Contact() {
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -759,8 +759,4 @@ export default function Contact() {
     </div>
   );
 }
-        </div >
-      </div >
-    </div >
-  );
-}
+// ...existing code...
