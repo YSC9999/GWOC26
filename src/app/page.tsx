@@ -181,7 +181,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
-                className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl text-center lg:text-6xl xl:text-7xl font-bold text-brick mb-4 md:mb-6 leading-tight"
+                className="text-3xl xs:text-4xl sm:text-5xl md:text-5xl text-center lg:text-6xl xl:text-7xl font-bold text-brick mb-4 md:mb-6 leading-tight"
                 style={{ fontFamily: "var(--font-kaushan-script)" }}
               >
                 A Quiet Splash
