@@ -278,12 +278,6 @@ export default function WorkshopPage() {
     setError("");
     setSuccess("");
 
-    if (!form.image) {
-      setError("Workshop image is required");
-      setLoading(false);
-      return;
-    }
-
     const formData = new FormData();
     formData.append("title", form.title);
     formData.append("description", form.description);
@@ -321,12 +315,6 @@ export default function WorkshopPage() {
   async function handleUpdate(id: string) {
     setError("");
     setSuccess("");
-
-    if (!form.image) {
-      setError("Workshop image is required");
-      return;
-    }
-
     try {
       const res = await fetch("/api/admin/workshops", {
         method: "PATCH",
@@ -665,7 +653,6 @@ export default function WorkshopPage() {
                   className="border-none"
                 />
                 <input
-                  type="text"
                   value={form.time}
                   onChange={(e) => setForm({ ...form, time: e.target.value })}
                   placeholder="10:00 AM - 1:00 PM"
@@ -1165,7 +1152,7 @@ export default function WorkshopPage() {
 
         {/* Edit Modal (Only for Workshops) */}
         {editingId && activeTab === "workshops" && (
-          <div className="fixed inset-0 z-[9999] flex items-start justify-center bg-black/50 p-4 pt-20">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="bg-white rounded-2xl shadow-lg w-full max-w-3xl p-6 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold">Edit Workshop</h3>

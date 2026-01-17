@@ -35,11 +35,7 @@ export async function POST(req: Request) {
     if (existingUser?.isBlocked) {
       const now = new Date();
       if (!existingUser.blockedUntil || new Date(existingUser.blockedUntil) > now) {
-        let message = "This email address has been blocked.";
-        if (existingUser.blockedUntil) {
-          message += ` You can try again after ${new Date(existingUser.blockedUntil).toLocaleString()}.`;
-        }
-        return NextResponse.json({ error: message }, { status: 403 });
+        return NextResponse.json({ error: "Something went wrong" }, { status: 403 });
       }
     }
 

@@ -42,6 +42,7 @@ export interface IUser extends Document {
 
   cart: { productId: mongoose.Types.ObjectId; qty: number }[];
   isBlocked: boolean;
+  status: "active" | "blocked";
   blockedUntil?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -101,6 +102,11 @@ const UserSchema = new Schema<IUser>({
     qty: { type: Number, default: 1 }
   }],
   isBlocked: { type: Boolean, default: false },
+  status: {
+    type: String,
+    enum: ["active", "blocked"],
+    default: "active"
+  },
   blockedUntil: Date,
   acceptsMarketingEmails: { type: Boolean, default: true },
 }, { timestamps: true });

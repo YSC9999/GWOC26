@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import OAuthSignin from "@/components/OAuthSignin";
+import Toast from "@/components/Toast";
 import { fadeInUp, clickTap, instantSpring } from "@/lib/animations";
 
 export default function Login() {
@@ -111,13 +112,7 @@ export default function Login() {
       </p>
 
       {error && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4"
-        >
-          ⚠️ {error}
-        </motion.div>
+        <Toast message={error} type="error" onClose={() => setError("")} />
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">

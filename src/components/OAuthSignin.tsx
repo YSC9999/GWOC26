@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
+import Toast from "./Toast";
 
 declare global {
   interface Window {
@@ -92,8 +93,8 @@ export default function OAuthSignin() {
 
       if (!res.ok) {
         const error = await res.json();
-        console.error("Signup failed:", error);
-        setErrorMSG(error.message || "Signup failed");
+        console.log("Signup failed:", error);
+        setErrorMSG(error.error || error.message || "Signup failed");
         setLoading(false);
         return;
       }
@@ -115,7 +116,7 @@ export default function OAuthSignin() {
   return (
     <div className="w-full">
       {errorMSG && (
-        <p className="text-xs text-red-500 text-center mb-2">{errorMSG}</p>
+        <Toast message={errorMSG} type="error" onClose={() => setErrorMSG("")} />
       )}
       <button
         type="button"

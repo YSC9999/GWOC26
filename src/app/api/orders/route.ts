@@ -78,10 +78,9 @@ export async function POST(req: Request) {
 
         // 2. Calculate shipping via StoreSettings (Sync with /api/shipping/calculate)
         let shippingCost = 0;
-        let settings: any = null;
         try {
             // Fetch Settings
-            settings = await StoreSettings.findOne();
+            let settings = await StoreSettings.findOne();
             if (!settings) settings = await StoreSettings.create({});
 
             // Check Free Shipping Threshold
@@ -289,7 +288,7 @@ export async function POST(req: Request) {
         return NextResponse.json({
             success: true,
             orderId: order._id,
-            razorpayOrderId: razorpayOrder?.id,
+            razorpayOrderId: razorpayOrder?.id, // Can be null if fully paid by wallet
             amount: totalAmount * 100, // Amount to pay via Razorpay
             currency: "INR",
             key: process.env.RAZORPAY_KEY_ID,

@@ -37,7 +37,7 @@ export default function AdminUsers() {
 
   const [showAdd, setShowAdd] = useState(false);
   const [showEdit, setShowEdit] = useState<UserItem | null>(null);
-  const [showBlock, setShowBlock] = useState<UserItem | null>(null);
+
 
   // add form
   const [name, setName] = useState("");
@@ -165,42 +165,26 @@ export default function AdminUsers() {
     }
   };
 
-  const toggleBlock = async (u: UserItem, duration?: string) => {
+  const toggleBlock = async (u: UserItem) => {
     setError("");
-    try {
-      let blockedUntil: string | null | undefined = undefined; // Default to undefined to clear if unblocking
-      if (!u.isBlocked) {
-        // If user is currently NOT blocked, we are blocking them
-        if (duration === "24h")
-          blockedUntil = new Date(
-            Date.now() + 24 * 60 * 60 * 1000
-          ).toISOString();
-        else if (duration === "7d")
-          blockedUntil = new Date(
-            Date.now() + 7 * 24 * 60 * 60 * 1000
-          ).toISOString();
-        else if (duration === "30d")
-          blockedUntil = new Date(
-            Date.now() + 30 * 24 * 60 * 60 * 1000
-          ).toISOString();
-        else if (duration === "forever") blockedUntil = null; // null means permanent block
-      } else {
-        // If user is currently blocked, we are unblocking them
-        blockedUntil = undefined; // Clear blockedUntil
-      }
+    // If not blocked, we block forever. If blocked, we unblock.
+    const shouldBlock = !u.isBlocked;
 
+    // Optimistic UI update/Loading state could be better, but we'll specific wait for API.
+    if (!confirm(shouldBlock ? `Are you sure you want to block ${u.name}?` : `Unblock ${u.name}?`)) return;
+
+    try {
       const res = await fetch("/api/admin/users", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
         body: JSON.stringify({
           id: u._id,
-          isBlocked: !u.isBlocked,
-          blockedUntil: blockedUntil,
+          isBlocked: shouldBlock,
+          blockedUntil: null, // Always permanent/manual unblock
         }),
       });
       if (!res.ok) throw new Error((await res.json()).error || "Failed");
-      setShowBlock(null);
       fetchUsers();
     } catch (err: any) {
       setError(err.message);
@@ -301,11 +285,10 @@ export default function AdminUsers() {
                     </td>
                     <td className="p-3 align-top text-sm">
                       <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                          u.role === "admin"
-                            ? "bg-purple-100 text-purple-700"
-                            : "bg-blue-100 text-blue-700"
-                        }`}
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${u.role === "admin"
+                          ? "bg-purple-100 text-purple-700"
+                          : "bg-blue-100 text-blue-700"
+                          }`}
                       >
                         {u.role}
                       </span>
@@ -341,14 +324,11 @@ export default function AdminUsers() {
                         <Edit2 size={18} />
                       </button>
                       <button
-                        onClick={() =>
-                          u.isBlocked ? toggleBlock(u) : setShowBlock(u)
-                        }
-                        className={`p-2 rounded-lg transition-colors ${
-                          u.isBlocked
-                            ? "text-green-600 hover:bg-green-50"
-                            : "text-orange-600 hover:bg-orange-50"
-                        }`}
+                        onClick={() => toggleBlock(u)}
+                        className={`p-2 rounded-lg transition-colors ${u.isBlocked
+                          ? "text-green-600 hover:bg-green-50"
+                          : "text-orange-600 hover:bg-orange-50"
+                          }`}
                         title={u.isBlocked ? "Unblock User" : "Block User"}
                       >
                         <X size={18} />
@@ -471,43 +451,7 @@ export default function AdminUsers() {
           />
         )}
 
-        {/* Block Duration Modal */}
-        {showBlock && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
-              <h3 className="text-xl font-serif font-bold text-soil mb-2">
-                Block {showBlock.name}
-              </h3>
-              <p className="text-sm text-soil/60 mb-6">
-                Select how long this user should be blocked from the platform.
-              </p>
 
-              <div className="space-y-2 mb-6">
-                {[
-                  { label: "24 Hours", value: "24h" },
-                  { label: "7 Days", value: "7d" },
-                  { label: "30 Days", value: "30d" },
-                  { label: "Forever", value: "forever" },
-                ].map((opt) => (
-                  <button
-                    key={opt.value}
-                    onClick={() => toggleBlock(showBlock, opt.value)}
-                    className="w-full text-left px-4 py-3 rounded-xl border border-soil/10 hover:border-clay hover:bg-clay/5 text-sm font-medium transition-all"
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                onClick={() => setShowBlock(null)}
-                className="w-full py-2 text-soil/40 hover:text-soil text-sm font-bold uppercase tracking-wider"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </AdminPageContainer>
   );

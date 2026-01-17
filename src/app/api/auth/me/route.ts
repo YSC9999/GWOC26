@@ -23,6 +23,15 @@ export async function GET(req: Request) {
       return response;
     }
 
+    if (user.isBlocked) {
+      const now = new Date();
+      if (!user.blockedUntil || new Date(user.blockedUntil) > now) {
+        const response = NextResponse.json({ error: "Something went wrong" }, { status: 401 });
+        response.cookies.delete("basho_token");
+        return response;
+      }
+    }
+
     return NextResponse.json({
       _id: user._id,
       name: user.name,

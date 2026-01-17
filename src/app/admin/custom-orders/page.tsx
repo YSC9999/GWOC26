@@ -184,21 +184,19 @@ export default function AdminCustomOrdersPage() {
         <div className="flex gap-4 border-b border-gray-200">
           <button
             onClick={() => setActiveTab("requests")}
-            className={`pb-4 px-4 font-medium transition-colors ${
-              activeTab === "requests"
+            className={`pb-4 px-4 font-medium transition-colors ${activeTab === "requests"
                 ? "border-b-2 border-clay text-clay"
                 : "text-soil/60 hover:text-soil"
-            }`}
+              }`}
           >
             Customer Requests
           </button>
           <button
             onClick={() => setActiveTab("previous")}
-            className={`pb-4 px-4 font-medium transition-colors ${
-              activeTab === "previous"
+            className={`pb-4 px-4 font-medium transition-colors ${activeTab === "previous"
                 ? "border-b-2 border-clay text-clay"
                 : "text-soil/60 hover:text-soil"
-            }`}
+              }`}
           >
             Manage Previous Works
           </button>
@@ -311,11 +309,10 @@ export default function AdminCustomOrdersPage() {
                           <button
                             key={page}
                             onClick={() => goToPage(page)}
-                            className={`px-3 py-1 rounded-lg font-medium transition-colors ${
-                              page === currentPage
+                            className={`px-3 py-1 rounded-lg font-medium transition-colors ${page === currentPage
                                 ? "bg-clay text-white"
                                 : "bg-sand/30 hover:bg-sand/50 text-soil"
-                            }`}
+                              }`}
                           >
                             {page}
                           </button>
