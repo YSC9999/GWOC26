@@ -313,25 +313,17 @@ export default function AlbumDetailsPage({ params }: { params: Promise<{ id: str
                                             <option value="process">Process</option>
                                             <option value="events">Events</option>
                                         </select>
-                                        <div className="flex items-center gap-2 p-3 bg-white/60 border border-soil/10 rounded-xl">
-                                            <input
-                                                type="checkbox"
-                                                id="featured"
-                                                checked={formData.featured}
-                                                onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                                                className="w-5 h-5 rounded border-soil/20 text-clay focus:ring-clay"
-                                            />
-                                            <label htmlFor="featured" className="text-sm font-medium text-soil cursor-pointer select-none">Featured</label>
-                                        </div>
+                                        <div></div>
                                     </div>
 
                                     {activeTab === 'video' && (
-                                        <input
-                                            value={formData.videoUrl}
-                                            onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-                                            placeholder="YouTube/Video Embed URL"
-                                            className="w-full p-3 bg-white/60 border border-soil/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-clay/20"
-                                            required
+                                        <MediaUpload
+                                            resourceType="video"
+                                            onUploaded={(url) => setFormData(prev => ({ ...prev, videoUrl: url }))}
+                                            currentUrl={formData.videoUrl}
+                                            onClear={() => setFormData(prev => ({ ...prev, videoUrl: "" }))}
+                                            folder="gallery/videos"
+                                            label="Upload Video File"
                                         />
                                     )}
                                 </div>
@@ -396,7 +388,6 @@ export default function AlbumDetailsPage({ params }: { params: Promise<{ id: str
                                     <div className="flex-1 px-4 min-w-0">
                                         <div className="font-bold text-soil truncate flex items-center gap-2">
                                             {item.title}
-                                            {item.featured && <span className="text-[10px] bg-yellow-100 text-yellow-700 px-2 rounded-full">Featured</span>}
                                         </div>
                                         <div className="text-sm text-soil/60 truncate">{item.description || "No description"}</div>
                                         <div className="text-xs text-soil/40 mt-1 capitalize">{item.category}</div>
