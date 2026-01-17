@@ -25,6 +25,7 @@ import { useAuth } from "@/lib/auth";
 import ProductModal from "@/components/ProductModal";
 import { Carousel } from "@/components/Carousel";
 import UploadInput from "@/components/UploadInput";
+import { StarRating } from "@/components/StarRating";
 
 interface Product {
   _id: string;
@@ -725,13 +726,9 @@ export default function Products() {
                           </div>
 
                           {/* Rating */}
+                          {/* Rating */}
                           {product.rating > 0 && (
-                            <div className="flex items-center gap-1 text-xs">
-                              <span className="text-yellow-500">★</span>
-                              <span className="text-soil/70">
-                                {product.rating}
-                              </span>
-                            </div>
+                            <StarRating rating={product.rating} />
                           )}
                         </div>
 

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Star, MessageSquare, Package, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { StarRating } from "@/components/StarRating";
 
 interface Review {
     _id: string;
@@ -73,14 +74,8 @@ export default function MyReviews() {
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <h3 className="font-bold text-soil font-serif text-lg">{review.productId.name}</h3>
-                                            <div className="flex items-center gap-1 mt-1">
-                                                {[...Array(5)].map((_, i) => (
-                                                    <Star
-                                                        key={i}
-                                                        size={14}
-                                                        className={i < review.rating ? "fill-orange-400 text-orange-400" : "text-sand"}
-                                                    />
-                                                ))}
+                                            <div className="mt-1">
+                                                <StarRating rating={review.rating} size={14} showCount={false} />
                                             </div>
                                         </div>
                                         <span className="text-[10px] font-bold text-soil/40 uppercase tracking-widest">

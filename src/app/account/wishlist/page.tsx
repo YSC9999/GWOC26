@@ -65,8 +65,8 @@ export default function WishlistPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-bold text-soil font-serif">My Wishlist</h1>
-                <span className="bg-sand text-soil px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-sand/30 shadow-sm">
+                <h1 className="text-3xl font-bold text-[#5A3E36] font-serif">My Wishlist</h1>
+                <span className="bg-[#EFE5D8] text-[#5A3E36] px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-[#5A3E36]/20 shadow-sm">
                     {wishlist.length} Items
                 </span>
             </div>
@@ -77,18 +77,20 @@ export default function WishlistPage() {
                         <Link
                             href={`/products/${product._id}`}
                             key={product._id}
-                            className="group bg-white rounded-3xl p-4 border border-sand/30 hover:shadow-lg hover:shadow-sand/20 transition-all"
+                            className="group bg-white/60 backdrop-blur-md rounded-3xl p-4 border border-[#5A3E36]/10 hover:shadow-xl hover:shadow-[#5A3E36]/10 transition-all hover:-translate-y-1"
                         >
-                            <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 bg-sand/20">
+                            <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 bg-[#EFE5D8]/50">
                                 <img
-                                    src={product.images?.[0] || product.image}
+                                    src={product.images?.[0] || product.image || "/placeholder.jpg"}
                                     alt={product.name}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                 />
+
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
 
                                 <button
                                     onClick={(e) => handleRemove(product._id, e)}
-                                    className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full text-red-500 hover:bg-red-50 transition-colors shadow-sm"
+                                    className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full text-red-500 hover:bg-red-50 transition-colors shadow-sm opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 duration-300"
                                     title="Remove from wishlist"
                                 >
                                     <Trash2 size={16} />
@@ -96,24 +98,27 @@ export default function WishlistPage() {
                             </div>
 
                             <div className="space-y-2 px-1">
-                                <h3 className="font-bold text-soil font-serif line-clamp-1">{product.name}</h3>
-                                <p className="text-xs text-soil/50 line-clamp-1">{product.description}</p>
+                                <h3 className="font-bold text-[#5A3E36] font-serif line-clamp-1 text-lg group-hover:text-[#C97C5D] transition-colors">{product.name}</h3>
+                                <p className="text-xs text-[#5A3E36]/60 line-clamp-1">{product.description}</p>
 
-                                <div className="flex justify-between items-center pt-2">
-                                    <span className="text-lg font-bold text-clay font-serif">₹{product.price}</span>
+                                <div className="flex justify-between items-center pt-2 border-t border-[#5A3E36]/5 mt-3">
+                                    <span className="text-lg font-bold text-[#C97C5D] font-serif">₹{product.price}</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#5A3E36]/40 group-hover:text-[#5A3E36]/60 transition-colors">View Details</span>
                                 </div>
                             </div>
                         </Link>
                     ))}
                 </div>
             ) : (
-                <div className="text-center py-20 bg-white rounded-3xl border border-sand/30 shadow-sm">
-                    <ShoppingBag size={48} className="mx-auto text-soil/10 mb-4" />
-                    <h2 className="text-xl font-bold text-soil mb-2">Your wishlist is empty</h2>
-                    <p className="text-soil/60 mb-8 font-medium">Save items you love to revisit them later.</p>
+                <div className="text-center py-20 bg-white/40 backdrop-blur-md rounded-3xl border border-[#5A3E36]/10 shadow-sm">
+                    <div className="w-20 h-20 bg-[#EFE5D8] rounded-full flex items-center justify-center mx-auto mb-6 text-[#5A3E36]/30">
+                        <ShoppingBag size={32} />
+                    </div>
+                    <h2 className="text-2xl font-bold text-[#5A3E36] mb-2 font-serif">Your wishlist is empty</h2>
+                    <p className="text-[#5A3E36]/60 mb-8 font-medium max-w-xs mx-auto">Save items you love to revisit them later. Your clay treasures await.</p>
                     <Link
                         href="/products"
-                        className="inline-block bg-brick text-white px-8 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-brick/20 transition-all"
+                        className="inline-block bg-[#5A3E36] text-[#EFE5D8] px-8 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-[#5A3E36]/20 transition-all hover:-translate-y-0.5"
                     >
                         Explore Collection
                     </Link>

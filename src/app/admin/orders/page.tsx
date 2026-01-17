@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -53,9 +53,12 @@ export default function AdminOrdersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  const [sortBy, setSortBy] = useState("newest");
+
   // Filter orders based on search
-  const filteredOrders = searchTerm
-    ? orders.filter(
+  const filteredOrders = useMemo(() => {
+    let result = searchTerm
+      ? orders.filter(
         (o) =>
           o.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
           (typeof o.userId === "object" &&
@@ -64,7 +67,20 @@ export default function AdminOrdersPage() {
             o.userId.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
           (o.email && o.email.toLowerCase().includes(searchTerm.toLowerCase()))
       )
-    : orders;
+      : [...orders];
+
+    // Sorting
+    result.sort((a, b) => {
+      if (sortBy === "newest") return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      if (sortBy === "oldest") return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      if (sortBy === "amount-high") return b.total - a.total;
+      if (sortBy === "amount-low") return a.total - b.total;
+      return 0;
+    });
+
+    return result;
+  }, [orders, searchTerm, sortBy]);
+
 
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -86,7 +102,7 @@ export default function AdminOrdersPage() {
   // Reset page when search changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, sortBy]);
 
   const fetchOrders = async (background = false) => {
     if (!background) setLoading(true);
@@ -165,6 +181,8 @@ export default function AdminOrdersPage() {
     updateOrderStatus(order._id, newStatus);
   };
 
+  /* ... */
+
   if (loading)
     return <div className="py-20 text-center">Loading orders...</div>;
 
@@ -174,6 +192,17 @@ export default function AdminOrdersPage() {
     <AdminPageContainer title="Orders">
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-end gap-4 mb-8">
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="border-soil/10 focus:bg-white/10 focus:ring-4 focus:ring-clay/5 rounded-xl px-4 py-3 bg-sand/10 backdrop-blur-sm w-full md:w-auto text-soil cursor-pointer outline-none"
+          >
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="amount-high">Amount High-Low</option>
+            <option value="amount-low">Amount Low-High</option>
+          </select>
+
           <input
             type="text"
             placeholder="Search by Order ID, Name or Email..."
@@ -317,11 +346,10 @@ export default function AdminOrdersPage() {
                             ₹{order.total.toLocaleString()}
                           </div>
                           <div
-                            className={`text-xs font-bold uppercase tracking-wider ${
-                              order.paymentStatus === "paid"
-                                ? "text-green-600"
-                                : "text-amber-500"
-                            }`}
+                            className={`text-xs font-bold uppercase tracking-wider ${order.paymentStatus === "paid"
+                              ? "text-green-600"
+                              : "text-amber-500"
+                              }`}
                           >
                             {order.paymentStatus}
                           </div>
@@ -354,11 +382,10 @@ export default function AdminOrdersPage() {
                       <button
                         key={page}
                         onClick={() => goToPage(page)}
-                        className={`px-3 py-1 rounded-lg font-medium transition-colors ${
-                          page === currentPage
-                            ? "bg-clay text-white"
-                            : "bg-sand/30 hover:bg-sand/50 text-soil"
-                        }`}
+                        className={`px-3 py-1 rounded-lg font-medium transition-colors ${page === currentPage
+                          ? "bg-clay text-white"
+                          : "bg-sand/30 hover:bg-sand/50 text-soil"
+                          }`}
                       >
                         {page}
                       </button>

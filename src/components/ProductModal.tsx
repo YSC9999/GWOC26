@@ -23,6 +23,7 @@ import {
 
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
+import { StarRating } from "@/components/StarRating";
 
 interface Product {
   _id: string;
@@ -328,19 +329,7 @@ export default function ProductModal({
                     {/* Rating */}
                     {product.rating > 0 && (
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-1">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              size={18}
-                              className={
-                                i < Math.floor(product.rating)
-                                  ? "fill-yellow-400 text-yellow-400"
-                                  : "text-gray-300"
-                              }
-                            />
-                          ))}
-                        </div>
+                        <StarRating rating={product.rating} size={18} showCount={false} />
                         <span className="text-soil/60">
                           {product.rating} ({product.reviewCount} reviews)
                         </span>
@@ -783,10 +772,8 @@ function ReviewsSection({ productId }: { productId: string }) {
                   )}
                 </div>
               </div>
-              <div className="flex text-yellow-400 mb-2 gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={14} className={i < review.rating ? "fill-current" : "text-gray-200"} />
-                ))}
+              <div className="mb-2">
+                <StarRating rating={review.rating} size={14} showCount={false} />
               </div>
               <p className="text-soil/80 text-sm leading-relaxed mb-3">{review.comment}</p>
 

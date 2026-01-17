@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { motion } from "framer-motion";
 import { MapPin, Plus, Trash2, Loader2 } from "lucide-react";
+import SmartAddressForm from "@/components/SmartAddressForm";
 
 interface Address {
   _id?: string;
@@ -263,89 +264,82 @@ export default function Profile() {
             className="bg-white p-8 rounded-3xl mt-6 border border-sand/30 shadow-sm"
           >
             <h3 className="text-xl font-bold text-soil mb-6 font-serif">New Address</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            import SmartAddressForm from "@/components/SmartAddressForm";
+
+            // ... (rest of imports)
+
+            // ... (inside Profile component)
+
+            <h3 className="text-xl font-bold text-soil mb-6 font-serif">New Address</h3>
+            <div className="mb-4 space-y-4">
               <input
                 placeholder="Label (e.g. Home, Office)"
                 value={newAddr.label}
                 onChange={(e) => setNewAddr({ ...newAddr, label: e.target.value })}
-                className="px-4 py-3 bg-sand/10 rounded-xl border border-sand/30 focus:outline-none focus:ring-2 focus:ring-clay/20 focus:border-clay transition-all"
+                className="w-full px-4 py-3 bg-sand/10 rounded-xl border border-sand/30 focus:outline-none focus:ring-2 focus:ring-clay/20 focus:border-clay transition-all"
               />
-              <input
-                placeholder="Receiver Name"
-                value={newAddr.name}
-                onChange={(e) => setNewAddr({ ...newAddr, name: e.target.value })}
-                className="px-4 py-3 bg-sand/10 rounded-xl border border-sand/30 focus:outline-none focus:ring-2 focus:ring-clay/20 focus:border-clay transition-all"
-              />
-              <input
-                placeholder="Street Address"
-                value={newAddr.street}
-                onChange={(e) => setNewAddr({ ...newAddr, street: e.target.value })}
-                className="px-4 py-3 bg-sand/10 rounded-xl border border-sand/30 focus:outline-none focus:ring-2 focus:ring-clay/20 focus:border-clay transition-all md:col-span-2"
-              />
-              <input
-                placeholder="City"
-                value={newAddr.city}
-                onChange={(e) => setNewAddr({ ...newAddr, city: e.target.value })}
-                className="px-4 py-3 bg-sand/10 rounded-xl border border-sand/30 focus:outline-none focus:ring-2 focus:ring-clay/20 focus:border-clay transition-all"
-              />
-              <input
-                placeholder="State"
-                value={newAddr.state}
-                onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })}
-                className="px-4 py-3 bg-sand/10 rounded-xl border border-sand/30 focus:outline-none focus:ring-2 focus:ring-clay/20 focus:border-clay transition-all"
-              />
-              <input
-                placeholder="Pincode (Numbers only)"
-                value={newAddr.pincode}
-                onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value.replace(/\D/g, '') })}
-                className="px-4 py-3 bg-sand/10 rounded-xl border border-sand/30 focus:outline-none focus:ring-2 focus:ring-clay/20 focus:border-clay transition-all"
-              />
-              <div className="flex flex-col gap-2">
-                <div className="flex gap-2">
-                  <input
-                    placeholder="Phone"
-                    value={newAddr.phone}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '');
-                      setNewAddr({ ...newAddr, phone: val });
-                      setIsVerified(false);
-                    }}
-                    className="px-4 py-3 bg-sand/10 rounded-xl border border-sand/30 focus:outline-none focus:ring-2 focus:ring-clay/20 focus:border-clay transition-all flex-1"
-                    disabled={isVerified}
-                  />
-                  {!isVerified && (
-                    <button
-                      onClick={handleSendAddressOtp}
-                      disabled={saving || otpTimer > 0}
-                      className="bg-brick text-white px-4 rounded-xl text-xs font-bold whitespace-nowrap disabled:opacity-50 hover:shadow-lg transition-all border-none"
-                    >
-                      {otpTimer > 0 ? `Retry (${otpTimer}s)` : "Verify"}
-                    </button>
-                  )}
-                  {isVerified && (
-                    <span className="flex items-center text-green-600 font-bold px-3 bg-green-50 rounded-xl border border-green-200 text-xs">
-                      Verified ✓
-                    </span>
-                  )}
-                </div>
 
-                {showOtpInput && !isVerified && (
-                  <div className="flex gap-2 animate-in fade-in slide-in-from-top-2">
-                    <input
-                      placeholder="Enter 6-digit OTP"
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                      className="px-4 py-3 border-2 border-clay rounded-xl flex-1 focus:outline-none"
-                    />
-                    <button
-                      onClick={handleVerifyAddressOtp}
-                      className="bg-clay text-white px-6 rounded-xl font-bold border-none cursor-pointer"
-                    >
-                      Confirm
-                    </button>
+              <SmartAddressForm
+                formData={newAddr}
+                onChange={(e) => {
+                  const { name, value } = e.target;
+                  // Handle phone verification reset
+                  if (name === 'phone') {
+                    setIsVerified(false);
+                    const val = value.replace(/\D/g, '');
+                    setNewAddr(prev => ({ ...prev, phone: val }));
+                  } else {
+                    setNewAddr(prev => ({ ...prev, [name]: value }));
+                  }
+                }}
+                disabled={saving}
+                showGst={false}
+                phoneSuffix={
+                  <div className="flex gap-2">
+                    {!isVerified && (
+                      <button
+                        onClick={handleSendAddressOtp}
+                        disabled={saving || otpTimer > 0}
+                        className="bg-brick text-white px-4 rounded-xl text-xs font-bold whitespace-nowrap disabled:opacity-50 hover:shadow-lg transition-all border-none"
+                      >
+                        {otpTimer > 0 ? `Retry (${otpTimer}s)` : "Verify"}
+                      </button>
+                    )}
+                    {isVerified && (
+                      <span className="flex items-center text-green-600 font-bold px-3 bg-green-50 rounded-xl border border-green-200 text-xs">
+                        Verified ✓
+                      </span>
+                    )}
                   </div>
-                )}
-              </div>
+                }
+              />
+
+              {/* OTP Logic moved outside form input grid or integrated? 
+                  SmartAddressForm puts phoneSuffix INSIDE the grid cell. 
+                  So the OTP input should be OUTSIDE/BELOW if it takes much space.
+                  The Profile page had phone inputs and Verify button in one row.
+                  SmartAddressForm puts phone in a 50% width column.
+                  With suffix, verify button fits.
+                  But the OTP Input itself? That was below.
+              */}
+
+              {showOtpInput && !isVerified && (
+                <div className="flex gap-2 animate-in fade-in slide-in-from-top-2 mt-2">
+                  <input
+                    placeholder="Enter 6-digit OTP"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                    className="px-4 py-3 border-2 border-clay rounded-xl flex-1 focus:outline-none"
+                  />
+                  <button
+                    onClick={handleVerifyAddressOtp}
+                    className="bg-clay text-white px-6 rounded-xl font-bold border-none cursor-pointer"
+                  >
+                    Confirm
+                  </button>
+                </div>
+              )}
+
             </div>
             <div className="flex gap-4 mt-8 pt-6 border-t border-sand/30">
               <button

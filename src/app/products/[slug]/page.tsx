@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { StarRating } from "@/components/StarRating";
 import {
     Heart,
     Share2,
@@ -213,19 +214,7 @@ export default function ProductDetail() {
                     {/* Rating */}
                     {product.rating > 0 && (
                         <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-1">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star
-                                        key={i}
-                                        size={20}
-                                        className={
-                                            i < Math.floor(product.rating)
-                                                ? "fill-yellow-400 text-yellow-400"
-                                                : "text-gray-300"
-                                        }
-                                    />
-                                ))}
-                            </div>
+                            <StarRating rating={product.rating} size={20} showCount={false} />
                             <span className="text-soil/60">
                                 {product.rating} ({product.reviewCount} reviews)
                             </span>
@@ -501,11 +490,7 @@ export default function ProductDetail() {
                     <div>
                         <h2 className="text-3xl font-bold text-soil font-serif">Customer Reviews</h2>
                         <div className="flex items-center gap-2 mt-2">
-                            <div className="flex items-center gap-0.5">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star key={i} size={16} className={i < Math.floor(product.rating) ? "fill-orange-400 text-orange-400" : "text-sand"} />
-                                ))}
-                            </div>
+                            <StarRating rating={product.rating} size={16} showCount={false} />
                             <span className="font-bold text-soil">{product.rating} / 5.0</span>
                             <span className="text-soil/40 font-medium">({product.reviewCount} reviews)</span>
                         </div>

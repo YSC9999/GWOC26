@@ -2,6 +2,7 @@ import { connectDB } from "@/lib/mongodb";
 import FeaturedCollection from "@/models/FeaturedCollection";
 import Product from "@/models/Product";
 import ProductCard from "@/components/ProductCard";
+import ProductGridWithSort from "@/components/ProductGridWithSort";
 import { UserTier } from "@/lib/tiers";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -101,26 +102,8 @@ export default async function CollectionPage({ params }: PageProps) {
           )}
         </div>
 
-        {/* Products Grid */}
-        {collection.products && collection.products.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
-            {collection.products.map((product: any) => (
-              <ProductCard
-                key={product._id}
-                product={product}
-                userTier={userTier}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-20 bg-sand/10 rounded-3xl border border-sand/30">
-            <div className="text-4xl mb-4">🏺</div>
-            <h3 className="text-xl font-bold text-soil mb-2">
-              No products found
-            </h3>
-            <p className="text-soil/60">This collection is currently empty.</p>
-          </div>
-        )}
+        {/* Product Grid with Sort */}
+        <ProductGridWithSort products={collection.products || []} userTier={userTier} />
       </div>
     </div>
   );

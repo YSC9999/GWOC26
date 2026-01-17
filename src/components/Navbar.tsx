@@ -276,7 +276,7 @@ export default function Navbar() {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setProfileOpen(!profileOpen)}
-                      className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#C97C5D] text-white hover:shadow-lg transition-all border-2 border-[#EFE5D8] overflow-hidden"
+                      className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#C97C5D] text-white hover:shadow-lg transition-all border-4 border-[#EFE5D8] overflow-hidden"
                     >
                       {user.picture ? (
                         <img src={user.picture} alt="Profile" className="w-full h-full object-cover" />

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, X, Send, Sparkles } from "lucide-react";
+import { MessageCircle, X, Send, Sparkles, MessageSquare } from "lucide-react";
 import { instantSpring } from "@/lib/animations";
 
 type Message = {
@@ -113,42 +113,47 @@ export default function ChatBot() {
         }
     };
 
+    const isAdminPage = pathname?.startsWith("/admin");
+
     // Fix: Hooks must run before conditional return
-    if (isAuthPage) return null;
+    if (isAuthPage || isAdminPage) return null;
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end pointer-events-none">
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        initial={{ opacity: 0, scale: 0.9, y: 20, transformOrigin: "bottom right" }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
                         transition={instantSpring}
-                        className="fixed sm:static bottom-20 sm:bottom-0 right-4 sm:right-0 mb-4 w-[calc(100vw-2rem)] sm:w-96 bg-white rounded-2xl shadow-2xl border border-soil/10 overflow-hidden flex flex-col z-[60]"
-                        style={{ maxHeight: "calc(100vh - 120px)", height: "500px" }}
+                        className="pointer-events-auto fixed sm:static bottom-24 right-6 mb-4 w-[calc(100vw-3rem)] sm:w-96 bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-white/50 overflow-hidden flex flex-col z-[60]"
+                        style={{ maxHeight: "calc(100vh - 140px)", height: "600px" }}
                     >
                         {/* Header */}
-                        <div className="bg-soil text-white p-4 flex items-center justify-between">
+                        <div className="bg-gradient-to-r from-clay to-soil text-white p-5 flex items-center justify-between shadow-md">
                             <div className="flex items-center gap-3">
-                                <div className="bg-white/10 p-2 rounded-full">
-                                    <Sparkles size={18} className="text-sand" />
+                                <div className="bg-white/10 p-2.5 rounded-2xl border border-white/10 shadow-inner">
+                                    <Sparkles size={18} className="text-sand animate-pulse" />
                                 </div>
                                 <div>
-                                    <h3 className="font-serif font-bold">Basho Assistant</h3>
-                                    <p className="text-xs text-white/70">Online</p>
+                                    <h3 className="font-serif font-bold text-lg tracking-wide">Basho Assistant</h3>
+                                    <div className="flex items-center gap-1.5 opacity-80">
+                                        <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+                                        <p className="text-[10px] font-medium uppercase tracking-wider">Online</p>
+                                    </div>
                                 </div>
                             </div>
                             <button
                                 onClick={() => setIsOpen(false)}
-                                className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                                className="p-2 hover:bg-white/10 rounded-full transition-colors"
                             >
                                 <X size={20} />
                             </button>
                         </div>
 
                         {/* Messages */}
-                        <div className="flex-1 overflow-y-auto p-4 bg-sand/20 space-y-4">
+                        <div className="flex-1 overflow-y-auto p-5 bg-sand/10 space-y-4 scrollbar-thin scrollbar-thumb-clay/20 scrollbar-track-transparent">
                             {messages.map((msg) => (
                                 <motion.div
                                     key={msg.id}
@@ -157,12 +162,15 @@ export default function ChatBot() {
                                     className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
                                 >
                                     <div
-                                        className={`max-w-[80%] p-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${msg.sender === "user"
+                                        className={`max-w-[85%] p-4 rounded-2xl text-[15px] leading-relaxed shadow-sm ${msg.sender === "user"
                                             ? "bg-clay text-white rounded-br-none"
-                                            : "bg-white text-soil border border-soil/5 rounded-bl-none shadow-sm"
+                                            : "bg-white text-soil border border-white/50 rounded-bl-none"
                                             }`}
                                     >
                                         {msg.text}
+                                        <div className={`text-[10px] mt-1 opacity-50 text-right ${msg.sender === 'user' ? 'text-white' : 'text-soil'}`}>
+                                            {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </div>
                                     </div>
                                 </motion.div>
                             ))}
@@ -170,23 +178,26 @@ export default function ChatBot() {
                         </div>
 
                         {/* Input */}
-                        <div className="p-4 bg-white border-t border-soil/10">
-                            <div className="flex gap-2">
+                        <div className="p-4 bg-white border-t border-sand/30">
+                            <div className="flex gap-2 items-center bg-sand/10 rounded-[2rem] p-1.5 border border-sand/20 focus-within:ring-2 focus-within:ring-clay/20 focus-within:border-clay/50 transition-all shadow-inner">
                                 <input
                                     type="text"
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e.target.value)}
                                     onKeyDown={handleKeyDown}
                                     placeholder="Type a message..."
-                                    className="flex-1 bg-san/10 border border-soil/10 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-clay focus:ring-1 focus:ring-clay/20 transition-all"
+                                    className="flex-1 bg-transparent px-4 py-2 text-sm focus:outline-none placeholder:text-soil/40 text-soil"
                                 />
                                 <button
                                     onClick={handleSend}
                                     disabled={!inputValue.trim()}
-                                    className="p-2 bg-soil text-white rounded-full hover:bg-clay transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="p-3 bg-clay text-white rounded-full hover:bg-soil transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                                 >
                                     <Send size={18} />
                                 </button>
+                            </div>
+                            <div className="text-center mt-2">
+                                <p className="text-[10px] text-soil/30 font-medium tracking-wide uppercase">Powered by Gemini AI</p>
                             </div>
                         </div>
                     </motion.div>
@@ -194,10 +205,10 @@ export default function ChatBot() {
             </AnimatePresence>
 
             <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-14 h-14 bg-clay text-white rounded-full shadow-lg flex items-center justify-center hover:bg-soil transition-colors relative"
+                className="pointer-events-auto w-16 h-16 bg-gradient-to-br from-clay to-soil text-white rounded-2xl shadow-xl shadow-clay/30 flex items-center justify-center hover:shadow-2xl hover:shadow-clay/40 transition-all relative border border-white/20"
             >
                 <AnimatePresence mode="wait">
                     {isOpen ? (
@@ -208,7 +219,7 @@ export default function ChatBot() {
                             exit={{ rotate: 90, opacity: 0 }}
                             transition={{ duration: 0.2 }}
                         >
-                            <X size={28} />
+                            <X size={28} strokeWidth={2.5} />
                         </motion.div>
                     ) : (
                         <motion.div
@@ -217,15 +228,18 @@ export default function ChatBot() {
                             animate={{ rotate: 0, opacity: 1 }}
                             exit={{ rotate: -90, opacity: 0 }}
                             transition={{ duration: 0.2 }}
+                            className="relative flex items-center justify-center"
                         >
-                            <MessageCircle size={28} />
+                            <MessageSquare size={28} strokeWidth={2.5} className="text-white drop-shadow-md fill-white/20" />
                         </motion.div>
                     )}
                 </AnimatePresence>
 
                 {/* Notification Dot */}
                 {!isOpen && (
-                    <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-pulse" />
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-[3px] border-sand flex items-center justify-center shadow-sm">
+                        <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                    </span>
                 )}
             </motion.button>
         </div>

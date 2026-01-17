@@ -40,60 +40,68 @@ export default function Footer({ studioInfo }: { studioInfo?: any }) {
 
         {/* Links */}
         <nav className="flex flex-wrap justify-center gap-6 md:gap-8 mb-6 text-sm font-semibold uppercase tracking-widest text-soil">
-          <Link href="/products" className="hover:text-clay transition-colors">
-            Shop
-          </Link>
-          <Link href="/workshops" className="hover:text-clay transition-colors">
-            Workshops
-          </Link>
-          <Link href="/studio" className="hover:text-clay transition-colors">
-            Studio
-          </Link>
-          <Link href="/about" className="hover:text-clay transition-colors">
-            About
-          </Link>
-          <Link href="/contact" className="hover:text-clay transition-colors">
-            Contact
-          </Link>
+          {["Shop", "Workshops", "Studio", "About", "Contact"].map((label, idx) => (
+            <Link
+              key={idx}
+              href={`/${label.toLowerCase()}`}
+              className="relative group"
+            >
+              <motion.span
+                className="inline-block"
+                whileHover={{ scale: 1.2, color: "#C97C5D" }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                {label}
+              </motion.span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-clay transition-all duration-300 group-hover:w-full" />
+            </Link>
+          ))}
         </nav>
 
         {/* Social & Contact Icons */}
         <div className="flex justify-center gap-5 mb-6">
-          <a
+          <motion.a
             href={studioInfo?.instagram || "https://www.instagram.com/bashobyyshivangi"}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-soil hover:text-clay transition-colors p-2"
-            aria-label="Instagram"
+            className="text-soil p-3 bg-white/50 rounded-full backdrop-blur-sm border border-soil/10 shadow-sm"
+            whileHover={{ scale: 1.25, rotate: 10, backgroundColor: "#fff", color: "#C97C5D", boxShadow: "0px 10px 20px rgba(0,0,0,0.1)" }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 300, damping: 10 }}
           >
             <Instagram size={24} />
-          </a>
-          <a
+          </motion.a>
+          <motion.a
             href={`mailto:${studioInfo?.email || "hello@basho.com"}`}
-            className="text-soil hover:text-clay transition-colors p-2"
-            aria-label="Email"
+            className="text-soil p-3 bg-white/50 rounded-full backdrop-blur-sm border border-soil/10 shadow-sm"
+            whileHover={{ scale: 1.25, rotate: -10, backgroundColor: "#fff", color: "#C97C5D", boxShadow: "0px 10px 20px rgba(0,0,0,0.1)" }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 300, damping: 10 }}
           >
             <Mail size={24} />
-          </a>
-          <a
+          </motion.a>
+          <motion.a
             href={studioInfo?.mapLink || studioInfo?.mapUrl || "/contact"}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-soil hover:text-clay transition-colors p-2"
-            aria-label="Visit Us"
+            className="text-soil p-3 bg-white/50 rounded-full backdrop-blur-sm border border-soil/10 shadow-sm"
+            whileHover={{ scale: 1.25, y: -5, backgroundColor: "#fff", color: "#C97C5D", boxShadow: "0px 10px 20px rgba(0,0,0,0.1)" }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 300, damping: 10 }}
           >
             <MapPin size={24} />
-          </a>
+          </motion.a>
         </div>
 
         {/* Copyright */}
         <div className="border-t border-soil/20 pt-4 flex flex-col md:flex-row justify-between items-center text-sm text-soil font-medium">
           <p>© {currentYear} {studioInfo?.name || "Basho"}. All Rights Reserved.</p>
           <div className="flex gap-4 mt-2 md:mt-0">
-            <Link href="/privacy" className="hover:text-clay transition-colors">
+            <Link href="/privacy" className="hover:text-clay hover:translate-x-1 transition-all duration-300 inline-block">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="hover:text-clay transition-colors">
+            <Link href="/terms" className="hover:text-clay hover:translate-x-1 transition-all duration-300 inline-block">
               Terms and Conditions
             </Link>
           </div>

@@ -59,7 +59,9 @@ export default function AdminProductsPage() {
     stockQuantity: "",
     weightGrams: "", // Added weight field
     images: [],
+    tags: [] as string[], // Added tags
   });
+  const [tagInput, setTagInput] = useState("");
   const [categories, setCategories] = useState<any[]>([]); // Dynamic categories
   const [category, setCategory] = useState<string>("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Custom dropdown interactions
@@ -68,6 +70,8 @@ export default function AdminProductsPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
+
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
 
   const filteredProducts = products.filter((p) => {
     const term = searchTerm.toLowerCase();
@@ -79,6 +83,26 @@ export default function AdminProductsPage() {
       p.category?.toLowerCase().includes(term) || catLabel?.includes(term);
     return nameMatch || catMatch;
   });
+
+  if (sortConfig) {
+    filteredProducts.sort((a, b) => {
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === "asc" ? -1 : 1;
+      }
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === "asc" ? 1 : -1;
+      }
+      return 0;
+    });
+  }
+
+  const handleSort = (key: string) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
 
   /* PAGINATION */
   const [currentPage, setCurrentPage] = useState(1);
@@ -147,6 +171,7 @@ export default function AdminProductsPage() {
           images: form.images, // secure URLs
           description: descriptionText,
           category,
+          tags: form.tags,
         }),
       });
 
@@ -163,7 +188,9 @@ export default function AdminProductsPage() {
         stockQuantity: 0,
         weightGrams: "",
         images: [],
+        tags: [],
       });
+      setTagInput("");
       setCategory("");
       setDescriptionText("");
       setSuccess("Product added");
@@ -233,6 +260,7 @@ export default function AdminProductsPage() {
           ...form,
           category,
           description: descriptionText,
+          tags: form.tags,
         }),
       });
 
@@ -304,11 +332,10 @@ export default function AdminProductsPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowAddForm(!showAddForm)}
-              className={`px-4 py-2 rounded-lg font-medium shadow-md transition-all flex items-center justify-center gap-2 ${
-                showAddForm
-                  ? "bg-gray-200 text-soil hover:bg-gray-300"
-                  : "bg-black text-white hover:bg-gray-800"
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium shadow-md transition-all flex items-center justify-center gap-2 ${showAddForm
+                ? "bg-gray-200 text-soil hover:bg-gray-300"
+                : "bg-black text-white hover:bg-gray-800"
+                }`}
             >
               {showAddForm ? (
                 <>
@@ -389,6 +416,57 @@ export default function AdminProductsPage() {
                   />
                 </div>
 
+                {/* Tags Input */}
+                <div className="w-full">
+                  <div className="flex gap-2 mb-2">
+                    <input
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          if (tagInput.trim()) {
+                            if (!form.tags.includes(tagInput.trim())) {
+                              setForm({ ...form, tags: [...(form.tags || []), tagInput.trim()] });
+                            }
+                            setTagInput("");
+                          }
+                        }
+                      }}
+                      placeholder="Add tags (Press Enter)..."
+                      className="bg-white/10 border border-soil/10 p-4 rounded-xl flex-grow focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (tagInput.trim()) {
+                          if (!form.tags?.includes(tagInput.trim())) {
+                            setForm({ ...form, tags: [...(form.tags || []), tagInput.trim()] });
+                          }
+                          setTagInput("");
+                        }
+                      }}
+                      className="bg-soil/10 text-soil px-4 rounded-xl hover:bg-soil/20 font-bold"
+                    >
+                      Add
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {form.tags?.map((tag: string, idx: number) => (
+                      <span key={idx} className="bg-clay/10 text-clay px-3 py-1 rounded-full text-sm font-bold flex items-center gap-2">
+                        #{tag}
+                        <button
+                          type="button"
+                          onClick={() => setForm({ ...form, tags: form.tags.filter((t: string) => t !== tag) })}
+                          className="hover:text-red-500"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="w-full">
                   <UploadInput
                     uploadPreset={"products_unsigned"}
@@ -453,9 +531,8 @@ export default function AdminProductsPage() {
                           "Select category"}
                       </span>
                       <ChevronRight
-                        className={`w-5 h-5 transition-transform text-soil/30 ${
-                          isDropdownOpen ? "rotate-90" : ""
-                        }`}
+                        className={`w-5 h-5 transition-transform text-soil/30 ${isDropdownOpen ? "rotate-90" : ""
+                          }`}
                       />
                     </div>
 
@@ -494,8 +571,8 @@ export default function AdminProductsPage() {
                   </div>
 
                   {category === "other" ||
-                  (!categories.find((c) => c.slug === category) &&
-                    category !== "") ? (
+                    (!categories.find((c) => c.slug === category) &&
+                      category !== "") ? (
                     <motion.input
                       initial={{ opacity: 0, width: 0 }}
                       animate={{ opacity: 1, width: "auto" }}
@@ -507,11 +584,12 @@ export default function AdminProductsPage() {
                   ) : null}
                 </div>
 
-                <input
+                <textarea
                   value={descriptionText}
                   onChange={(e) => setDescriptionText(e.target.value)}
-                  placeholder="Short description"
-                  className="bg-white/10 border border-soil/10 p-4 rounded-xl w-full focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil"
+                  placeholder="Product Description"
+                  rows={4}
+                  className="bg-white/10 border border-soil/10 p-4 rounded-xl w-full focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil resize-none"
                 />
 
                 <motion.button
@@ -532,12 +610,27 @@ export default function AdminProductsPage() {
             <table className="w-full table-fixed min-w-[800px] bg-white/5 backdrop-blur-xl">
               <thead className="bg-sand/20 backdrop-blur-md text-soil/60 border-b border-soil/10 uppercase tracking-wider text-[10px] font-bold">
                 <tr>
-                  <th className="w-4/12 p-3 text-left font-semibold">Name</th>
+                  <th
+                    className="w-4/12 p-3 text-left font-semibold cursor-pointer hover:text-clay transition-colors group"
+                    onClick={() => handleSort("name")}
+                  >
+                    Name {sortConfig?.key === "name" && (sortConfig.direction === "asc" ? "↑" : "↓")}
+                  </th>
                   <th className="w-2/12 p-3 text-left font-semibold">
                     Category
                   </th>
-                  <th className="w-1/12 p-3 text-left font-semibold">Price</th>
-                  <th className="w-1/12 p-3 text-left font-semibold">Stock</th>
+                  <th
+                    className="w-1/12 p-3 text-left font-semibold cursor-pointer hover:text-clay transition-colors"
+                    onClick={() => handleSort("price")}
+                  >
+                    Price {sortConfig?.key === "price" && (sortConfig.direction === "asc" ? "↑" : "↓")}
+                  </th>
+                  <th
+                    className="w-1/12 p-3 text-left font-semibold cursor-pointer hover:text-clay transition-colors"
+                    onClick={() => handleSort("stockQuantity")}
+                  >
+                    Stock {sortConfig?.key === "stockQuantity" && (sortConfig.direction === "asc" ? "↑" : "↓")}
+                  </th>
                   <th className="w-1/12 p-3 text-left font-semibold">Img</th>
                   <th className="w-3/12 p-3 text-right font-semibold">
                     Actions
@@ -570,11 +663,10 @@ export default function AdminProductsPage() {
                       </td>
                       <td className="p-3 align-top text-sm text-soil/70">
                         <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            p.stockQuantity > 0
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${p.stockQuantity > 0
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                            }`}
                         >
                           {p.stockQuantity}
                         </span>
@@ -592,6 +684,7 @@ export default function AdminProductsPage() {
                               stockQuantity: p.stockQuantity,
                               weightGrams: p.weightGrams || 500,
                               images: p.images || [],
+                              tags: p.tags || [],
                             });
                             setCategory(p.category || "");
                             setDescriptionText(p.description || "");
@@ -645,11 +738,10 @@ export default function AdminProductsPage() {
                       <button
                         key={page}
                         onClick={() => goToPage(page)}
-                        className={`px-3 py-1 border rounded text-sm flex-shrink-0 transition-all ${
-                          currentPage === page
-                            ? "bg-soil text-white shadow-md"
-                            : "bg-white/40 hover:bg-white/60 border-soil/10"
-                        }`}
+                        className={`px-3 py-1 border rounded text-sm flex-shrink-0 transition-all ${currentPage === page
+                          ? "bg-soil text-white shadow-md"
+                          : "bg-white/40 hover:bg-white/60 border-soil/10"
+                          }`}
                       >
                         {page}
                       </button>
