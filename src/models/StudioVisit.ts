@@ -1,6 +1,18 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Model } from "mongoose";
 
-const StudioVisitSchema = new mongoose.Schema({
+export interface IStudioVisit extends Document {
+    name: string;
+    email: string;
+    phone: string;
+    date: Date;
+    guests: number;
+    purpose: "Tour" | "Workshop Inquiry" | "Other";
+    message?: string;
+    status: "pending" | "confirmed" | "completed" | "cancelled";
+    createdAt: Date;
+}
+
+const StudioVisitSchema = new mongoose.Schema<IStudioVisit>({
     name: {
         type: String,
         required: [true, "Please provide a name"],
@@ -41,5 +53,6 @@ const StudioVisitSchema = new mongoose.Schema({
     },
 });
 
-export default mongoose.models.StudioVisit ||
-    mongoose.model("StudioVisit", StudioVisitSchema);
+const StudioVisit: Model<IStudioVisit> = mongoose.models.StudioVisit || mongoose.model<IStudioVisit>("StudioVisit", StudioVisitSchema);
+
+export default StudioVisit;

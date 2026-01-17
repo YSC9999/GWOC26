@@ -399,8 +399,62 @@ export async function sendNewContentNotification(
       }
     }
 
+
     console.log(`✅ Finished sending notifications.`);
   } catch (error) {
     console.error('Error in sendNewContentNotification:', error);
+  }
+}
+
+export async function sendWalletCreditEmail(email: string, amount: number, newBalance: number, message?: string): Promise<boolean> {
+  try {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.log('📧 EMAIL SERVICE NOT CONFIGURED - WALLET CREDIT');
+      console.log(`Credit ${amount} to ${email}. New Balance: ${newBalance}`);
+      return true;
+    }
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Wallet Credited - Basho',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="color: white; margin: 0; text-align: center;">Wallet Credited</h2>
+          </div>
+          <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px;">
+            <p style="color: #333; font-size: 16px; margin-bottom: 20px;">Hello,</p>
+            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Your Basho wallet has been credited!</p>
+            
+            <div style="background: white; border: 2px solid #10B981; border-radius: 8px; padding: 20px; text-align: center; margin: 30px 0;">
+              
+              <div style="margin-bottom: 15px;">
+                  <p style="margin: 0; font-size: 12px; color: #999;">Amount Added</p>
+                  <p style="margin: 5px 0 10px 0; font-size: 32px; font-weight: bold; color: #10B981;">₹${amount}</p>
+              </div>
+
+               <div style="border-top: 1px dashed #eee; padding-top: 15px;">
+                  <p style="margin: 0; font-size: 12px; color: #999;">New Wallet Balance</p>
+                  <p style="margin: 5px 0 0 0; font-size: 20px; font-weight: bold; color: #333;">₹${newBalance}</p>
+              </div>
+              
+              ${message ? `<p style="margin-top: 15px; font-style: italic; color: #666;">"${message}"</p>` : ''}
+            </div>
+            
+            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">You can use this balance for your next purchase on Basho.</p>
+            
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">© 2024 Basho. All rights reserved.</p>
+          </div>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error('Error sending wallet credit email:', error);
+    return false;
   }
 }

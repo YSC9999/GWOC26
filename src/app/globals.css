@@ -248,6 +248,42 @@ button {
   background: #a85a47;
 }
 
+/* Custom Patterns */
+.pottery-bg-alt {
+  background-color: #fff8f0;
+  background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23C97C5D' stroke-width='1.5' stroke-opacity='0.25'%3E%3C!-- Vase --%3E%3Cpath d='M20 30 Q25 45 20 60 Q15 45 20 30 M15 30 L25 30 M15 60 Q20 65 25 60' transform='translate(0, 0)' /%3E%3C!-- Bowl --%3E%3Cpath d='M60 30 Q80 30 80 45 Q80 65 60 65 Q40 65 40 45 Q40 30 60 30' transform='translate(0, 0)' /%3E%3C!-- Cup --%3E%3Cpath d='M100 35 L100 55 Q100 65 90 65 Q80 65 80 55 L80 35 M80 35 L100 35 M100 45 Q110 45 110 55 Q110 60 100 60' transform='translate(0, 0)' /%3E%3C!-- Teapot Body --%3E%3Cpath d='M30 90 Q30 70 50 70 Q70 70 70 90 Q70 110 50 110 Q30 110 30 90 M20 90 Q20 80 30 85' transform='translate(0, 0)' /%3E%3C!-- Small Plate --%3E%3Cpath d='M90 90 Q110 90 110 95 Q110 100 90 100 Q70 100 70 95 Q70 90 90 90' transform='translate(0, 0)' /%3E%3C/g%3E%3C/svg%3E");
+  background-size: 120px 120px;
+}
+
+/* Form Design - Notebook/Ruled Paper */
+.ruled-paper {
+  background-color: #fffbeb;
+  background-image: linear-gradient(#e5e7eb 1px, transparent 1px);
+  background-size: 100% 3rem;
+  padding: 3rem;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  line-height: 3rem;
+}
+
+.ruled-input {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  width: 100%;
+  font-family: inherit;
+  font-size: 1.125rem;
+  color: #5A3E36;
+  padding: 0 0.5rem;
+  height: 3rem;
+  line-height: 3rem;
+}
+
+.ruled-input:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .section-title {

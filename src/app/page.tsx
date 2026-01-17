@@ -143,16 +143,20 @@ export default function Home() {
   };
 
   // Static frame data from original design
+  // Static frame data with distinct earthy colors for poster effect
   const frameData = [
-    { id: 0, width: 120, height: 95, left: 10, top: 5, color: "#442D1C" },
-    { id: 1, width: 145, height: 125, left: 155, top: 0, color: "#652810" },
-    { id: 2, width: 105, height: 115, left: 325, top: 10, color: "#8E5022" },
-    { id: 3, width: 130, height: 105, left: 35, top: 155, color: "#C85428" },
-    { id: 4, width: 160, height: 135, left: 190, top: 170, color: "#EDD8B4" },
-    { id: 5, width: 115, height: 125, left: 375, top: 155, color: "#442D1C" },
-    { id: 6, width: 125, height: 110, left: 5, top: 290, color: "#652810" },
-    { id: 7, width: 150, height: 140, left: 155, top: 335, color: "#8E5022" },
-    { id: 8, width: 120, height: 110, left: 330, top: 315, color: "#C85428" },
+    // Row 1
+    { id: 0, width: 130, height: 150, left: 20, top: 10, rotation: -4, zIndex: 1, color: "#F5EDE4" }, // Off-white/Beige
+    { id: 1, width: 140, height: 140, left: 190, top: 0, rotation: 3, zIndex: 2, color: "#E6D2C4" }, // Light Clay
+    { id: 2, width: 130, height: 150, left: 360, top: 15, rotation: -2, zIndex: 1, color: "#D4C5B9" }, // Stone
+    // Row 2
+    { id: 3, width: 150, height: 130, left: 0, top: 200, rotation: 4, zIndex: 2, color: "#C9A690" }, // Dusty Earth
+    { id: 4, width: 130, height: 150, left: 180, top: 180, rotation: -1, zIndex: 3, color: "#FFFFFF" }, // White Accent
+    { id: 5, width: 140, height: 140, left: 350, top: 200, rotation: 3, zIndex: 2, color: "#E0D8D0" }, // Light Greyish
+    // Row 3
+    { id: 6, width: 130, height: 140, left: 30, top: 380, rotation: -5, zIndex: 1, color: "#DDBEA9" }, // Warm Beige
+    { id: 7, width: 150, height: 130, left: 200, top: 370, rotation: 2, zIndex: 2, color: "#F0EAD6" }, // Eggshell
+    { id: 8, width: 130, height: 150, left: 380, top: 390, rotation: -3, zIndex: 1, color: "#CB997E" }, // Terracotta tint
   ];
 
   if (showPreloader) {
@@ -216,14 +220,14 @@ export default function Home() {
               </motion.div>
             </div>
 
-            {/* Right Image Grid - Responsive Handling */}
-            <div className="relative pt-12 w-full min-h-[400px] md:h-[500px] md:pt-6">
-              {/* Desktop: Absolute Positioned Scattered Frames */}
+            {/* Right Image Grid - Scattered Poster Frames */}
+            <div className="relative w-full h-[500px] md:h-[600px] mt-8 md:mt-0">
+              
               <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4, duration: 0.8 }}
-                className="hidden md:block relative w-full h-full scale-90 lg:scale-100 origin-top-left"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5, duration: 1 }}
+                className="absolute inset-0 w-full h-full"
               >
                 {frameData.map((frame, index) => {
                   const configuredFrame = dynamicFrames.find(
@@ -231,33 +235,29 @@ export default function Home() {
                   );
                   const product = configuredFrame?.product;
 
+                  const centerX = 255;
+                  const centerY = 270;
+                  
                   const revealVariants = {
                     initial: {
                       opacity: 0,
-                      scale: 0.4,
-                      z: -500,
-                      rotateX: 80,
-                      rotateY: index % 2 === 0 ? 30 : -30,
-                      rotate: index % 2 === 0 ? 15 : -15,
-                      x: (180 - frame.left) * 0.8,
-                      y: (180 - frame.top) * 0.8,
+                      scale: 0.1,
+                      x: centerX - (frame.left + frame.width / 2),
+                      y: centerY - (frame.top + frame.height / 2),
+                      rotate: 0,
                     },
                     animate: {
                       opacity: 1,
                       scale: 1,
-                      z: 0,
-                      rotateX: 0,
-                      rotateY: 0,
-                      rotate: 0,
                       x: 0,
                       y: 0,
+                      rotate: frame.rotation,
                       transition: {
-                        delay: 0.2 + index * 0.04,
-                        duration: 1.4,
                         type: "spring",
-                        stiffness: 75,
-                        damping: 18,
-                        mass: 0.9,
+                        stiffness: 90,
+                        damping: 15,
+                        mass: 1.0,
+                        delay: 0.1 + index * 0.06,
                       } as any,
                     },
                   };
@@ -268,98 +268,46 @@ export default function Home() {
                       initial="initial"
                       animate="animate"
                       variants={revealVariants}
-                      whileHover={{
-                        scale: 1.05,
+                      whileHover={{ 
+                        scale: 1.1, 
                         zIndex: 50,
-                        boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+                        rotate: 0,
+                        transition: { duration: 0.3 }
                       }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 20,
-                      }}
-                      className="absolute rounded-lg overflow-hidden border-2 border-soil/20 shadow-xl cursor-pointer group hover:border-clay/50 transition-colors"
+                      className="absolute p-[3px] shadow-md hover:shadow-xl transition-all duration-300 transform origin-center rounded-[3px] overflow-hidden border-[0.5px] border-black/10"
                       style={{
+                        backgroundColor: frame.color,
                         width: `${frame.width}px`,
                         height: `${frame.height}px`,
                         left: `${frame.left}px`,
                         top: `${frame.top}px`,
-                        transform: `translate(${
-                          mouseX * (3 + (index % 3) * 2)
-                        }px, ${mouseY * (3 + (index % 4) * 2)}px)`,
+                        zIndex: frame.zIndex
                       }}
-                      onClick={() => {
+                       onClick={() => {
                         if (product) {
                           setSelectedProductId(product._id);
                         }
                       }}
                     >
-                      {/* Image container - static, full visibility */}
-                      <div className="w-full h-full relative bg-[#F5EDE4]">
+                      <div className="w-full h-full overflow-hidden relative cursor-pointer shadow-sm rounded-[1px]">
                         {product ? (
-                          <>
-                            <img
-                              src={product.images?.[0]}
-                              alt={product.name}
-                              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                            />
-
-                            {/* Depth Vignette */}
-                            <div className="absolute inset-0 shadow-[inset_0_0_50px_rgba(0,0,0,0.1)] group-hover:shadow-[inset_0_0_70px_rgba(0,0,0,0.15)] transition-shadow duration-500" />
-                          </>
+                          <img 
+                            src={product.images?.[0]} 
+                            alt={product.name} 
+                            className="w-full h-full object-cover filter contrast-[1.05] brightness-105"
+                          />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-white text-xs font-semibold opacity-0 hover:opacity-75 transition-opacity bg-soil/30">
-                            {frame.id + 1}
-                          </div>
+                           <div className="w-full h-full flex items-center justify-center bg-gray-100 text-[#5A3E36]/20 text-4xl">
+                             🍯
+                           </div>
                         )}
+                        {/* Shadow overlay for depth */}
+                        <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.05)] pointer-events-none"></div>
                       </div>
                     </motion.div>
                   );
-                })}
-              </motion.div>
-
-              {/* Mobile: Simple Grid Layout */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="md:hidden grid grid-cols-3 gap-3"
-              >
-                {frameData.map((frame) => {
-                  const configuredFrame = dynamicFrames.find(
-                    (f) => f.frameId === frame.id
-                  );
-                  const product = configuredFrame?.product;
-
-                  // Skip empty frames on mobile to save space if desired, or show colored blocks
-                  if (!product && !frame.color) return null;
-
-                  return (
-                    <motion.div
-                      key={frame.id}
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: frame.id * 0.05 }}
-                      className="aspect-square rounded-lg overflow-hidden border border-soil/20 shadow-sm"
-                      style={{
-                        backgroundColor: product ? "white" : frame.color,
-                      }}
-                      onClick={() => {
-                        if (product) {
-                          setSelectedProductId(product._id);
-                        }
-                      }}
-                    >
-                      {product && (
-                        <img
-                          src={product.images?.[0]}
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
-                    </motion.div>
-                  );
-                })}
-              </motion.div>
+                 })}
+               </motion.div>
             </div>
           </div>
         </div>

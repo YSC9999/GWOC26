@@ -78,9 +78,10 @@ export async function POST(req: Request) {
 
         // 2. Calculate shipping via StoreSettings (Sync with /api/shipping/calculate)
         let shippingCost = 0;
+        let settings: any = null;
         try {
             // Fetch Settings
-            let settings = await StoreSettings.findOne();
+            settings = await StoreSettings.findOne();
             if (!settings) settings = await StoreSettings.create({});
 
             // Check Free Shipping Threshold

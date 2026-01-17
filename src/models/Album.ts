@@ -1,6 +1,17 @@
-import mongoose from 'mongoose';
+import mongoose, { Document, Model } from 'mongoose';
 
-const AlbumSchema = new mongoose.Schema({
+export interface IAlbum extends Document {
+    name: string;
+    slug: string;
+    coverImage?: string;
+    description?: string;
+    order: number;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+const AlbumSchema = new mongoose.Schema<IAlbum>({
     name: { type: String, required: true, unique: true },
     slug: { type: String, required: true, unique: true },
     coverImage: String,
@@ -9,4 +20,6 @@ const AlbumSchema = new mongoose.Schema({
     isActive: { type: Boolean, default: true },
 }, { timestamps: true });
 
-export default mongoose.models.Album || mongoose.model('Album', AlbumSchema);
+const Album: Model<IAlbum> = mongoose.models.Album || mongoose.model<IAlbum>('Album', AlbumSchema);
+
+export default Album;
