@@ -16,7 +16,9 @@ import {
   Mail,
   Send,
   Plus,
-  Minus
+  Minus,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { Carousel } from "@/components/Carousel";
 import EventCalendar from "@/components/EventCalendar";
@@ -98,6 +100,10 @@ export default function Workshops() {
   });
   const [inquiryLoading, setInquiryLoading] = useState(false);
   const [inquirySuccess, setInquirySuccess] = useState(false);
+
+  // Image Popup State
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImageWorkshop, setSelectedImageWorkshop] = useState<Workshop | null>(null);
 
   useEffect(() => {
     fetchWorkshops();
@@ -366,12 +372,24 @@ export default function Workshops() {
                   <motion.div
                     key={workshop._id}
                     variants={fadeInUp}
-                    className="bg-white rounded-3xl p-5 shadow-sm hover:shadow-lg transition-all border border-soil/5 flex flex-col md:flex-row gap-6 group"
+                    onClick={() => {
+                      setSelectedImage(workshop.image || null);
+                      setSelectedImageWorkshop(workshop);
+                    }}
+                    className="bg-white rounded-3xl p-5 shadow-sm hover:shadow-lg transition-all border border-soil/5 flex flex-col md:flex-row gap-6 group cursor-pointer"
                   >
                     {/* Image */}
                     <div className="w-full md:w-48 h-48 rounded-2xl overflow-hidden bg-sand shrink-0 relative">
                       {workshop.image ? (
-                        <img src={workshop.image} alt={workshop.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <img
+                          src={workshop.image}
+                          alt={workshop.title}
+                          onClick={() => {
+                            setSelectedImage(workshop.image);
+                            setSelectedImageWorkshop(workshop);
+                          }}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 cursor-pointer"
+                        />
                       ) : (
                         <div className="flex items-center justify-center h-full text-4xl">🎨</div>
                       )}
@@ -876,6 +894,141 @@ export default function Workshops() {
                   </form>
                 </div>
               )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Image Popup Modal */}
+      <AnimatePresence>
+        {selectedImage && selectedImageWorkshop && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pt-20 bg-black/80 backdrop-blur-sm"
+            onClick={() => {
+              setSelectedImage(null);
+              setSelectedImageWorkshop(null);
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              className="relative bg-white rounded-3xl w-full max-w-4xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col lg:flex-row"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => {
+                  setSelectedImage(null);
+                  setSelectedImageWorkshop(null);
+                }}
+                className="absolute top-4 right-4 z-10 p-2 bg-white/90 hover:bg-white rounded-full shadow-lg text-soil hover:text-clay transition-colors"
+              >
+                <X size={24} />
+              </button>
+
+              {/* Image Container - Left Side */}
+              <div className="bg-gradient-to-br from-sand to-sand/50 h-96 lg:h-auto lg:w-1/2 flex items-center justify-center overflow-hidden flex-shrink-0">
+                {selectedImage ? (
+                  <motion.img
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                    src={selectedImage}
+                    alt={selectedImageWorkshop.title}
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <div className="text-6xl">🎨</div>
+                )}
+              </div>
+
+              {/* Workshop Info - Right Side */}
+              <div className="p-6 lg:w-1/2 overflow-y-auto space-y-4 flex flex-col justify-between">
+                <div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-soil font-serif mb-2">
+                      {selectedImageWorkshop.title}
+                    </h3>
+                    <span className="inline-block bg-clay/10 text-clay text-xs font-bold px-3 py-1 rounded-full mb-3">
+                      {typeLabels[selectedImageWorkshop.type] || selectedImageWorkshop.type}
+                    </span>
+                  </div>
+
+                  <p className="text-soil/70 text-sm mb-4">{selectedImageWorkshop.description}</p>
+
+                  <div className="grid grid-cols-2 gap-3 text-xs text-soil/60 bg-sand/20 p-3 rounded-lg mb-4">
+                    <div className="flex items-center gap-1">
+                      <Calendar size={13} className="text-clay" />
+                      <span>{formatDate(selectedImageWorkshop.date)}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock size={13} className="text-clay" />
+                      <span>{selectedImageWorkshop.time}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock size={13} className="text-clay" />
+                      <span>{selectedImageWorkshop.duration}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <MapPin size={13} className="text-clay" />
+                      <span>{selectedImageWorkshop.location}</span>
+                    </div>
+                  </div>
+
+                  {selectedImageWorkshop.includes && selectedImageWorkshop.includes.length > 0 && (
+                    <div className="mb-4">
+                      <p className="text-xs font-bold text-soil uppercase tracking-wide mb-2">What's Included</p>
+                      <ul className="space-y-1">
+                        {selectedImageWorkshop.includes.map((item, idx) => (
+                          <li key={idx} className="text-xs text-soil/70 flex items-start gap-2">
+                            <Check size={12} className="text-clay mt-0.5 flex-shrink-0" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-4 border-t border-soil/10 pt-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-soil/60">Price per person</p>
+                      <p className="text-2xl font-bold text-clay">₹{selectedImageWorkshop.price.toLocaleString()}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-soil/60">Available Spots</p>
+                      <p className={`text-2xl font-bold ${getAvailableSpots(selectedImageWorkshop) < 3 ? 'text-orange-600' : 'text-soil'}`}>
+                        {getAvailableSpots(selectedImageWorkshop)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setSelectedImage(null);
+                      setSelectedImageWorkshop(null);
+                      if (getAvailableSpots(selectedImageWorkshop) > 0) {
+                        setBookingWorkshop(selectedImageWorkshop);
+                      }
+                    }}
+                    disabled={getAvailableSpots(selectedImageWorkshop) === 0}
+                    className={`w-full py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
+                      getAvailableSpots(selectedImageWorkshop) === 0
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        : "bg-soil text-white hover:bg-clay hover:scale-105 shadow-md"
+                    }`}
+                  >
+                    {getAvailableSpots(selectedImageWorkshop) === 0 ? "Fully Booked" : "Book Now"}
+                    {getAvailableSpots(selectedImageWorkshop) > 0 && <ArrowRight size={16} />}
+                  </button>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         )}
