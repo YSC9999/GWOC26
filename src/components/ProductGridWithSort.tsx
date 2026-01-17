@@ -49,7 +49,7 @@ export default function ProductGridWithSort({ products: initialProducts, userTie
 
             {/* Grid */}
             {sortedProducts.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
                     <AnimatePresence mode="popLayout">
                         {sortedProducts.map((product) => (
                             <motion.div
@@ -59,6 +59,7 @@ export default function ProductGridWithSort({ products: initialProducts, userTie
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 transition={{ duration: 0.3 }}
+                                className="h-full"
                             >
                                 <ProductCard
                                     product={product}

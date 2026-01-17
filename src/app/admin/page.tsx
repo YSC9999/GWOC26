@@ -155,16 +155,6 @@ export default function AdminDashboard() {
         className="bg-white relative overflow-hidden m-4 md:m-8 border-8 border-[#652810] p-6 md:p-10 min-h-[calc(100vh-2rem)] md:min-h-[calc(100vh-4rem)]"
         style={{ borderRadius: "50px 48px 52px 49px / 48px 52px 49px 50px" }}
       >
-        {" "}
-        {/* Random decorative elements */}
-        <div className="absolute top-10 left-12 w-16 h-16 border-2 border-gray-300/30 rounded-full opacity-40 pointer-events-none" />
-        <div className="absolute top-1/4 right-20 w-24 h-1 bg-gray-400/20 rotate-45 pointer-events-none" />
-        <div className="absolute bottom-1/3 left-1/4 w-20 h-20 border border-gray-300/20 rounded opacity-35 pointer-events-none" />
-        <div className="absolute top-1/2 right-1/3 w-12 h-12 border-2 border-gray-300/25 rounded-lg opacity-30 pointer-events-none" />
-        <div className="absolute bottom-20 right-10 w-32 h-2 bg-gray-400/15 rounded-full pointer-events-none" />
-        <div className="absolute top-1/3 left-1/3 w-3 h-3 bg-gray-500/20 rounded-full pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-28 h-1 bg-gray-300/20 rotate-12 pointer-events-none" />
-        <div className="absolute top-2/3 left-10 w-14 h-14 border-2 border-gray-300/20 rounded-full opacity-25 pointer-events-none" />
         <motion.div
           initial="hidden"
           animate="visible"

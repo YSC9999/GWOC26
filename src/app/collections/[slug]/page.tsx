@@ -73,37 +73,42 @@ export default async function CollectionPage({ params }: PageProps) {
   const userTier = UserTier.TIER_0;
 
   return (
-    <div className="min-h-screen pt-24 pb-16 px-4 md:px-12 bg-[#FDF9F5]">
-      <div className="max-w-7xl mx-auto">
-        {/* Back Link */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-soil/60 hover:text-soil mb-8 transition-colors group"
-        >
-          <ArrowLeft
-            size={20}
-            className="group-hover:-translate-x-1 transition-transform"
-          />
-          Back to Home
-        </Link>
+    <div className="min-h-screen">
+      <div
+        className="bg-[#FDF8F3] relative overflow-hidden m-2 mt-24 border-8 border-[#652810] p-6 md:p-10 min-h-[90vh]"
+        style={{ borderRadius: "30px 28px 32px 29px / 28px 32px 29px 30px" }}
+      >
+        <div className="max-w-7xl mx-auto relative z-10">
+          {/* Back Link */}
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-soil/60 hover:text-soil mb-8 transition-colors group"
+          >
+            <ArrowLeft
+              size={20}
+              className="group-hover:-translate-x-1 transition-transform"
+            />
+            Back to Home
+          </Link>
 
-        {/* Header */}
-        <div className="text-center mb-16 space-y-4">
-          <span className="text-clay font-bold tracking-widest uppercase text-sm block">
-            Collection
-          </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-soil">
-            {collection.title}
-          </h1>
-          {collection.description && (
-            <p className="text-soil/70 max-w-2xl mx-auto text-lg leading-relaxed">
-              {collection.description}
-            </p>
-          )}
+          {/* Header */}
+          <div className="text-center mb-16 space-y-4">
+            <span className="text-clay font-bold tracking-widest uppercase text-sm block">
+              Collection
+            </span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-soil">
+              {collection.title}
+            </h1>
+            {collection.description && (
+              <p className="text-soil/70 max-w-2xl mx-auto text-lg leading-relaxed">
+                {collection.description}
+              </p>
+            )}
+          </div>
+
+          {/* Product Grid with Sort */}
+          <ProductGridWithSort products={collection.products || []} userTier={userTier} />
         </div>
-
-        {/* Product Grid with Sort */}
-        <ProductGridWithSort products={collection.products || []} userTier={userTier} />
       </div>
     </div>
   );
