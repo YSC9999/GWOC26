@@ -29,14 +29,14 @@ export default function About() {
               <motion.div
                 variants={fadeInUp}
                 whileHover={hoverScale}
-                className="relative w-full max-w-md mx-auto lg:mx-0 rounded-3xl overflow-hidden shadow-2xl border-4 border-soil"
+                className="relative w-full max-w-md mx-auto lg:mx-0"
               >
                 <Image
-                  src="/Shivangi-Frame1.jpeg"
+                  src="/Shivangi-Frame.jpeg"
                   alt="Shivangi - The Artist"
                   width={800}
                   height={600}
-                  className="w-full h-auto object-cover"
+                  className="w-full h-auto object-cover rounded-3xl shadow-2xl"
                   priority
                 />
               </motion.div>

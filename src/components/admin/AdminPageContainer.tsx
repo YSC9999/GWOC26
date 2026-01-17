@@ -8,11 +8,13 @@ import { ReactNode } from "react";
 interface AdminPageContainerProps {
   title: string;
   children: ReactNode;
+  backLink?: string;
 }
 
 export default function AdminPageContainer({
   title,
   children,
+  backLink = "/admin",
 }: AdminPageContainerProps) {
   return (
     <div className="min-h-screen bg-white/0 pb-8">
@@ -29,12 +31,12 @@ export default function AdminPageContainer({
             className="mb-8 flex items-center gap-4 pb-6 border-b border-clay/20"
           >
             <Link
-              href="/admin"
+              href={backLink}
               className="flex items-center gap-2 text-soil/70 hover:text-clay transition-colors p-2 hover:bg-sand/30 rounded-lg -ml-2"
-              title="Back to Admin Dashboard"
+              title="Back"
             >
               <ArrowLeft size={20} />
-              <span className="text-sm font-medium">Admin</span>
+              <span className="text-sm font-medium">Back</span>
             </Link>
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-soil">
               {title}

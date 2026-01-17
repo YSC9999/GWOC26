@@ -1,12 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
+import { AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Trash2, ShoppingBag } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import ProductModal from "@/components/ProductModal";
 
 export default function WishlistPage() {
     const [wishlist, setWishlist] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
     useEffect(() => {
         fetchWishlist();
@@ -98,10 +101,10 @@ export default function WishlistPage() {
             {wishlist.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {wishlist.map((product) => (
-                        <Link
-                            href={`/products/${product._id}`}
+                        <div
                             key={product._id}
-                            className="group bg-white/60 backdrop-blur-md rounded-3xl p-4 border border-[#5A3E36]/10 hover:shadow-xl hover:shadow-[#5A3E36]/10 transition-all hover:-translate-y-1"
+                            onClick={() => setSelectedProductId(product._id)}
+                            className="group bg-white/60 backdrop-blur-md rounded-3xl p-4 border border-[#5A3E36]/10 hover:shadow-xl hover:shadow-[#5A3E36]/10 transition-all hover:-translate-y-1 cursor-pointer"
                         >
                             <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 bg-[#EFE5D8]/50">
                                 <img
@@ -130,7 +133,7 @@ export default function WishlistPage() {
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-[#5A3E36]/40 group-hover:text-[#5A3E36]/60 transition-colors">View Details</span>
                                 </div>
                             </div>
-                        </Link>
+                        </div>
                     ))}
                 </div>
             ) : (
@@ -148,6 +151,16 @@ export default function WishlistPage() {
                     </Link>
                 </div>
             )}
+            {/* Product Modal */}
+            <AnimatePresence>
+                {selectedProductId && (
+                    <ProductModal
+                        productId={selectedProductId}
+                        onClose={() => setSelectedProductId(null)}
+                        topPaddingClass="items-start pt-24"
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 }

@@ -62,12 +62,15 @@ const categoryEmojis: Record<string, string> = {
 interface ProductModalProps {
   productId: string | null;
   onClose: () => void;
+  topPaddingClass?: string;
 }
 
 export default function ProductModal({
   productId,
   onClose,
+  topPaddingClass = "items-center pt-28",
 }: ProductModalProps) {
+  //...
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -228,7 +231,7 @@ export default function ProductModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pt-28 bg-black/60 backdrop-blur-sm"
+          className={`fixed inset-0 z-[9999] flex justify-center p-4 ${topPaddingClass} bg-black/60 backdrop-blur-sm`}
           onClick={onClose}
         >
           <motion.div

@@ -214,7 +214,7 @@ export default function AlbumDetailsPage({ params }: { params: Promise<{ id: str
     };
 
     return (
-        <AdminPageContainer title={`${album?.name || "Album"} Content`}>
+        <AdminPageContainer title={`${album?.name || "Album"} Content`} backLink="/admin/gallery">
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
