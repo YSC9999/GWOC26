@@ -69,7 +69,7 @@ export default function ViewAllGalleryPage() {
     const handleMouseLeave = () => {
         timeoutRef.current = setTimeout(() => {
             setIsPaused(false);
-        }, 5000);
+        }, 1500);
     };
 
     const handleNext = (e: React.MouseEvent) => {
