@@ -220,94 +220,141 @@ export default function Home() {
               </motion.div>
             </div>
 
-            {/* Right Image Grid - Scattered Poster Frames */}
-            <div className="relative w-full h-[500px] md:h-[600px] mt-8 md:mt-0">
+            {/* Right Image Grid - Responsive Handling */}
+            <div className="relative w-full mt-8 md:mt-0">
               
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5, duration: 1 }}
-                className="absolute inset-0 w-full h-full"
-              >
-                {frameData.map((frame, index) => {
-                  const configuredFrame = dynamicFrames.find(
-                    (f) => f.frameId === frame.id
-                  );
-                  const product = configuredFrame?.product;
-
-                  const centerX = 255;
-                  const centerY = 270;
-                  
-                  const revealVariants = {
-                    initial: {
-                      opacity: 0,
-                      scale: 0.1,
-                      x: centerX - (frame.left + frame.width / 2),
-                      y: centerY - (frame.top + frame.height / 2),
-                      rotate: 0,
-                    },
-                    animate: {
-                      opacity: 1,
-                      scale: 1,
-                      x: 0,
-                      y: 0,
-                      rotate: frame.rotation,
-                      transition: {
-                        type: "spring",
-                        stiffness: 90,
-                        damping: 15,
-                        mass: 1.0,
-                        delay: 0.1 + index * 0.06,
-                      } as any,
-                    },
-                  };
-
-                  return (
-                    <motion.div
-                      key={frame.id}
-                      initial="initial"
-                      animate="animate"
-                      variants={revealVariants}
-                      whileHover={{ 
-                        scale: 1.1, 
-                        zIndex: 50,
-                        rotate: 0,
-                        transition: { duration: 0.3 }
-                      }}
-                      className="absolute p-[3px] shadow-md hover:shadow-xl transition-all duration-300 transform origin-center rounded-[3px] overflow-hidden border-[0.5px] border-black/10"
-                      style={{
-                        backgroundColor: frame.color,
-                        width: `${frame.width}px`,
-                        height: `${frame.height}px`,
-                        left: `${frame.left}px`,
-                        top: `${frame.top}px`,
-                        zIndex: frame.zIndex
-                      }}
-                       onClick={() => {
-                        if (product) {
-                          setSelectedProductId(product._id);
-                        }
-                      }}
-                    >
-                      <div className="w-full h-full overflow-hidden relative cursor-pointer shadow-sm rounded-[1px]">
-                        {product ? (
-                          <img 
-                            src={product.images?.[0]} 
-                            alt={product.name} 
-                            className="w-full h-full object-cover filter contrast-[1.05] brightness-105"
-                          />
-                        ) : (
-                           <div className="w-full h-full flex items-center justify-center bg-gray-100 text-[#5A3E36]/20 text-4xl">
-                             🍯
-                           </div>
-                        )}
-                        {/* Shadow overlay for depth */}
-                        <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.05)] pointer-events-none"></div>
-                      </div>
-                    </motion.div>
-                  );
+              {/* Mobile/Small Tablet View (Grid Layout) */}
+              <div className="grid grid-cols-3 gap-3 md:hidden max-w-sm mx-auto">
+                 {frameData.map((frame, index) => {
+                   const configuredFrame = dynamicFrames.find(f => f.frameId === frame.id);
+                   const product = configuredFrame?.product;
+                   
+                   return (
+                     <motion.div
+                       key={`mobile-${frame.id}`}
+                       initial={{ scale: 0, opacity: 0, rotate: 0 }}
+                       animate={{ 
+                         scale: 1, 
+                         opacity: 1, 
+                         rotate: frame.rotation 
+                       }}
+                       transition={{
+                         type: "spring",
+                         stiffness: 90,
+                         damping: 15,
+                         delay: index * 0.05
+                       }}
+                       whileHover={{ scale: 1.05 }}
+                       className="relative w-full aspect-[0.85] p-[3px] shadow-md rounded-[3px] overflow-hidden border-[0.5px] border-black/10"
+                       style={{ backgroundColor: frame.color }}
+                       onClick={() => product && setSelectedProductId(product._id)}
+                     >
+                       <div className="w-full h-full overflow-hidden relative shadow-sm rounded-[1px]">
+                         {product ? (
+                           <img 
+                             src={product.images?.[0]} 
+                             alt={product.name} 
+                             className="w-full h-full object-cover filter contrast-[1.05] brightness-105"
+                           />
+                         ) : (
+                           <div className="w-full h-full flex items-center justify-center bg-gray-100 text-[#5A3E36]/20 text-2xl">🍯</div>
+                         )}
+                         <div className="absolute inset-0 shadow-[inset_0_0_10px_rgba(0,0,0,0.05)] pointer-events-none"></div>
+                       </div>
+                     </motion.div>
+                   );
                  })}
-               </motion.div>
+              </div>
+
+              {/* Desktop/Landscape View (Scattered Layout - Preserved) */}
+              <div className="hidden md:block relative w-full h-[600px]">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5, duration: 1 }}
+                  className="absolute inset-0 w-full h-full"
+                >
+                  {frameData.map((frame, index) => {
+                    const configuredFrame = dynamicFrames.find(
+                      (f) => f.frameId === frame.id
+                    );
+                    const product = configuredFrame?.product;
+
+                    const centerX = 255;
+                    const centerY = 270;
+                    
+                    const revealVariants = {
+                      initial: {
+                        opacity: 0,
+                        scale: 0.1,
+                        x: centerX - (frame.left + frame.width / 2),
+                        y: centerY - (frame.top + frame.height / 2),
+                        rotate: 0,
+                      },
+                      animate: {
+                        opacity: 1,
+                        scale: 1,
+                        x: 0,
+                        y: 0,
+                        rotate: frame.rotation,
+                        transition: {
+                          type: "spring",
+                          stiffness: 90,
+                          damping: 15,
+                          mass: 1.0,
+                          delay: 0.1 + index * 0.06,
+                        } as any,
+                      },
+                    };
+
+                    return (
+                      <motion.div
+                        key={frame.id}
+                        initial="initial"
+                        animate="animate"
+                        variants={revealVariants}
+                        whileHover={{ 
+                          scale: 1.1, 
+                          zIndex: 50,
+                          rotate: 0,
+                          transition: { duration: 0.3 }
+                        }}
+                        className="absolute p-[3px] shadow-md hover:shadow-xl transition-all duration-300 transform origin-center rounded-[3px] overflow-hidden border-[0.5px] border-black/10"
+                        style={{
+                          backgroundColor: frame.color,
+                          width: `${frame.width}px`,
+                          height: `${frame.height}px`,
+                          left: `${frame.left}px`,
+                          top: `${frame.top}px`,
+                          zIndex: frame.zIndex
+                        }}
+                         onClick={() => {
+                          if (product) {
+                            setSelectedProductId(product._id);
+                          }
+                        }}
+                      >
+                        <div className="w-full h-full overflow-hidden relative cursor-pointer shadow-sm rounded-[1px]">
+                          {product ? (
+                            <img 
+                              src={product.images?.[0]} 
+                              alt={product.name} 
+                              className="w-full h-full object-cover filter contrast-[1.05] brightness-105"
+                            />
+                          ) : (
+                             <div className="w-full h-full flex items-center justify-center bg-gray-100 text-[#5A3E36]/20 text-4xl">
+                               🍯
+                             </div>
+                          )}
+                          {/* Shadow overlay for depth */}
+                          <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.05)] pointer-events-none"></div>
+                        </div>
+                      </motion.div>
+                    );
+                   })}
+                 </motion.div>
+              </div>
+
             </div>
           </div>
         </div>
