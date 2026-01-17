@@ -278,6 +278,12 @@ export default function WorkshopPage() {
     setError("");
     setSuccess("");
 
+    if (!form.image) {
+      setError("Workshop image is required");
+      setLoading(false);
+      return;
+    }
+
     const formData = new FormData();
     formData.append("title", form.title);
     formData.append("description", form.description);
@@ -315,6 +321,12 @@ export default function WorkshopPage() {
   async function handleUpdate(id: string) {
     setError("");
     setSuccess("");
+
+    if (!form.image) {
+      setError("Workshop image is required");
+      return;
+    }
+
     try {
       const res = await fetch("/api/admin/workshops", {
         method: "PATCH",
@@ -653,6 +665,7 @@ export default function WorkshopPage() {
                   className="border-none"
                 />
                 <input
+                  type="text"
                   value={form.time}
                   onChange={(e) => setForm({ ...form, time: e.target.value })}
                   placeholder="10:00 AM - 1:00 PM"
