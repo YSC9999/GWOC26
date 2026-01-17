@@ -170,9 +170,16 @@ export default function ProductModal({
 
     const targetId = product._id;
     const currentWishlist = user.wishlist || [];
-    const isLiked = currentWishlist.includes(targetId);
+    const isLiked = currentWishlist.some((item: any) => {
+      const itemId = typeof item === "string" ? item : item._id;
+      return itemId === targetId;
+    });
+
     const newWishlist = isLiked
-      ? currentWishlist.filter((id) => id !== targetId)
+      ? currentWishlist.filter((item: any) => {
+        const itemId = typeof item === "string" ? item : item._id;
+        return itemId !== targetId;
+      })
       : [...currentWishlist, targetId];
 
     login({ ...user, wishlist: newWishlist });
@@ -458,14 +465,14 @@ export default function ProductModal({
 
                         <button
                           onClick={handleWishlist}
-                          className={`p-3 rounded-full border-2 transition-all ${product?._id && user?.wishlist?.includes(product._id)
+                          className={`p-3 rounded-full border-2 transition-all ${product?._id && user?.wishlist?.some((item: any) => (typeof item === 'string' ? item : item._id) === product._id)
                             ? "bg-red-50 border-red-300 text-red-500"
                             : "border-soil/20 text-soil hover:border-clay hover:text-clay"
                             }`}
                         >
                           <Heart
                             size={20}
-                            fill={product?._id && user?.wishlist?.includes(product._id) ? "currentColor" : "none"}
+                            fill={product?._id && user?.wishlist?.some((item: any) => (typeof item === 'string' ? item : item._id) === product._id) ? "currentColor" : "none"}
                           />
                         </button>
                       </div>

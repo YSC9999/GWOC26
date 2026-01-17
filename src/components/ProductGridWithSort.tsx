@@ -26,6 +26,7 @@ export default function ProductGridWithSort({ products: initialProducts, userTie
     };
 
     const sortedProducts = getSortedProducts();
+    const [selectedProductId, setSelectedProductId] = React.useState<string | null>(null);
 
     return (
         <div>
@@ -59,7 +60,11 @@ export default function ProductGridWithSort({ products: initialProducts, userTie
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 transition={{ duration: 0.3 }}
                             >
-                                <ProductCard product={product} userTier={userTier} />
+                                <ProductCard
+                                    product={product}
+                                    userTier={userTier}
+                                    onProductClick={(p) => setSelectedProductId(p._id)}
+                                />
                             </motion.div>
                         ))}
                     </AnimatePresence>
@@ -71,6 +76,14 @@ export default function ProductGridWithSort({ products: initialProducts, userTie
                     <p className="text-soil/60">This collection is currently empty.</p>
                 </div>
             )}
+
+            {/* Product Modal */}
+            <ProductModal
+                productId={selectedProductId}
+                onClose={() => setSelectedProductId(null)}
+            />
         </div>
     );
 }
+
+import ProductModal from "@/components/ProductModal";

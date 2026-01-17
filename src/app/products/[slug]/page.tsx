@@ -63,12 +63,23 @@ export default function ProductDetail() {
     const [wishlist, setWishlist] = useState(false);
     const [addedToCart, setAddedToCart] = useState(false);
     const cart = useCart();
+    const { user } = useAuth();
 
     useEffect(() => {
         if (params.slug) {
             fetchProduct();
         }
     }, [params.slug]);
+
+    useEffect(() => {
+        if (user?.wishlist && product) {
+            const isInWishlist = user.wishlist.some((item: any) => {
+                const itemId = typeof item === "string" ? item : item._id;
+                return itemId === product._id;
+            });
+            setWishlist(isInWishlist);
+        }
+    }, [user, product]);
 
     const fetchProduct = async () => {
         setLoading(true);
@@ -322,13 +333,30 @@ export default function ProductDetail() {
                             </button>
 
                             <button
-                                onClick={() => setWishlist(!wishlist)}
+                                onClick={async () => {
+                                    if (!user) {
+                                        alert("Please login to add to wishlist");
+                                        return;
+                                    }
+                                    const prevState = wishlist;
+                                    setWishlist(!wishlist);
+                                    try {
+                                        const res = await fetch("/api/user/wishlist", {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({ productId: product._id }),
+                                        });
+                                        if (!res.ok) setWishlist(prevState);
+                                    } catch (e) {
+                                        setWishlist(prevState);
+                                    }
+                                }}
                                 className={`p-4 rounded-full border-2 transition-all ${wishlist
-                                    ? "bg-red-50 border-red-300 text-red-500"
+                                    ? "bg-red-50 border-red-300 text-red-500 fill-red-500"
                                     : "border-soil/20 text-soil hover:border-clay hover:text-clay"
                                     }`}
                             >
-                                <Heart size={22} fill={wishlist ? "currentColor" : "none"} />
+                                <Heart size={22} className={wishlist ? "fill-current" : ""} />
                             </button>
 
                             <button className="p-4 rounded-full border-2 border-soil/20 text-soil hover:border-clay hover:text-clay transition-all">

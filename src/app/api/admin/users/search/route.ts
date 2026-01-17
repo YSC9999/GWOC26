@@ -28,7 +28,7 @@ export async function GET(req: Request) {
             // User requested to fix search not appearing. The user 's snm' is likely NOT a customer role if he is an Admin.
         }
 
-        const users = await User.find(filter).select("name email walletBalance").limit(5);
+        const users = await User.find(filter).select("name email").limit(5);
 
         return NextResponse.json({ users });
     } catch (error: any) {

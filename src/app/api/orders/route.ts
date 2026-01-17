@@ -288,7 +288,7 @@ export async function POST(req: Request) {
         return NextResponse.json({
             success: true,
             orderId: order._id,
-            razorpayOrderId: razorpayOrder?.id, // Can be null if fully paid by wallet
+            razorpayOrderId: razorpayOrder?.id,
             amount: totalAmount * 100, // Amount to pay via Razorpay
             currency: "INR",
             key: process.env.RAZORPAY_KEY_ID,

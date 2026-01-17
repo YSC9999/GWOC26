@@ -125,52 +125,7 @@ export async function sendForgotPasswordEmail(email: string, otp: string): Promi
   }
 }
 
-export async function sendWalletCreditEmail(email: string, amount: number, balance: number, message?: string): Promise<boolean> {
-  try {
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-      console.log('📧 EMAIL SERVICE NOT CONFIGURED - WALLET CREDIT');
-      console.log(`Credit ${amount} to ${email}. New Balance: ${balance}`);
-      return true;
-    }
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: 'Wallet Credited - Basho',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); padding: 20px; border-radius: 8px 8px 0 0;">
-            <h2 style="color: white; margin: 0; text-align: center;">Basho Wallet</h2>
-          </div>
-          <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px;">
-            <p style="color: #333; font-size: 16px; margin-bottom: 20px;">Hello,</p>
-            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">Great news! Your Basho wallet has been credited.</p>
-            
-            <div style="background: white; border: 2px solid #10B981; border-radius: 8px; padding: 20px; text-align: center; margin: 30px 0;">
-              <p style="margin: 0; font-size: 12px; color: #999;">Amount Added</p>
-              <p style="margin: 5px 0 15px 0; font-size: 32px; font-weight: bold; color: #10B981;">₹${amount}</p>
-              ${message ? `<p style="margin: 0; font-style: italic; color: #666;">"${message}"</p>` : ''}
-              <div style="margin-top: 15px; border-top: 1px dashed #eee; padding-top: 10px;">
-                <p style="font-size: 14px; color: #333;">New Balance: <strong>₹${balance}</strong></p>
-              </div>
-            </div>
-            
-            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">You can use this balance for your next purchase.</p>
-            
-            <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-            <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">© 2024 Basho. All rights reserved.</p>
-          </div>
-        </div>
-      `,
-    };
-
-    await transporter.sendMail(mailOptions);
-    return true;
-  } catch (error) {
-    console.error('Error sending wallet email:', error);
-    return false;
-  }
-}
 
 export async function sendRefundEmail(email: string, amount: number, orderNumber: string, message?: string): Promise<boolean> {
   try {

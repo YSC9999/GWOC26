@@ -32,7 +32,8 @@ export async function GET(req: Request) {
       role: user.role,
       picture: user.picture,
       tier: user.tier,
-      addresses: user.addresses
+      addresses: user.addresses,
+      wishlist: user.wishlist
     });
 
   } catch (error) {

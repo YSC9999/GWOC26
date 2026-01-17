@@ -45,6 +45,8 @@ import { connectDB } from "@/lib/mongodb";
 import StudioInfo from "@/models/StudioInfo";
 import ScreenSizeGuard from "../components/ScreenSizeGuard";
 
+import SessionManager from "../components/SessionManager";
+
 export default async function RootLayout({
   children,
   modal,
@@ -71,6 +73,7 @@ export default async function RootLayout({
           strategy="afterInteractive"
         />
         <CartSync />
+        <SessionManager />
         <ScreenSizeGuard />
         <ConditionalBackground />
         <ConditionalLayout />

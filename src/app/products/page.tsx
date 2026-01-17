@@ -313,9 +313,16 @@ export default function Products() {
 
     // Optimistic update
     const currentWishlist = user.wishlist || [];
-    const isLiked = currentWishlist.includes(productId);
+    const isLiked = currentWishlist.some((item: any) => {
+      const itemId = typeof item === "string" ? item : item._id;
+      return itemId === productId;
+    });
+
     const newWishlist = isLiked
-      ? currentWishlist.filter((id) => id !== productId)
+      ? currentWishlist.filter((item: any) => {
+        const itemId = typeof item === "string" ? item : item._id;
+        return itemId !== productId;
+      })
       : [...currentWishlist, productId];
 
     // Update local state immediately
@@ -345,7 +352,11 @@ export default function Products() {
   };
 
   const isProductLiked = (productId: string) => {
-    return user?.wishlist?.includes(productId) || false;
+    if (!user?.wishlist) return false;
+    return user.wishlist.some((item: any) => {
+      const itemId = typeof item === "string" ? item : item._id;
+      return itemId === productId;
+    });
   };
 
   const isValidImage = (img?: string) =>

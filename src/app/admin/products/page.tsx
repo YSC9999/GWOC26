@@ -883,6 +883,53 @@ export default function AdminProductsPage() {
                     onChange={(e) => setDescriptionText(e.target.value)}
                     className="border p-2 w-full"
                   />
+
+                  <div className="mt-4">
+                    <label className="block text-sm text-soil mb-1">Tags</label>
+                    <div className="flex gap-2">
+                      <input
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault(); // prevent form submit
+                            if (tagInput.trim()) {
+                              setForm((prev) => ({ ...prev, tags: [...(prev.tags || []), tagInput.trim()] }));
+                              setTagInput("");
+                            }
+                          }
+                        }}
+                        placeholder="Add a tag..."
+                        className="border p-2 w-full flex-1"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (tagInput.trim()) {
+                            setForm((prev) => ({ ...prev, tags: [...(prev.tags || []), tagInput.trim()] }));
+                            setTagInput("");
+                          }
+                        }}
+                        className="px-4 py-2 bg-soil text-white rounded hover:bg-soil/90"
+                      >
+                        Add
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {(form.tags || []).map((tag, idx) => (
+                        <span key={idx} className="bg-sand/30 text-soil px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() => setForm((prev) => ({ ...prev, tags: prev.tags.filter((_, i) => i !== idx) }))}
+                            className="hover:text-red-500"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                 <div>

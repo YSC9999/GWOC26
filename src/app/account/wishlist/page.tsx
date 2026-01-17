@@ -28,6 +28,30 @@ export default function WishlistPage() {
 
     const { user, login } = useAuth();
 
+    // Sync global state when wishlist is fetched
+    useEffect(() => {
+        if (user && wishlist.length > 0) {
+            // Only update if truly different to avoid loops (though useAuth might handle it)
+            // simplified check: just ensure wishlist IDs match
+            const globalIds = user.wishlist || [];
+            const localIds = wishlist.map(item => item._id);
+
+            // If lengths differ or not all local items are in global, sync.
+            // We can just blindly sync here safely because this component fetches fresh data.
+            if (JSON.stringify(globalIds) !== JSON.stringify(localIds)) {
+                // Ensure we map back to just IDs if that's what the global state expects, 
+                // OR if we updated auth to support objects, that's fine too. 
+                // But usually auth store keeps IDs for lightweight.
+                // However, our code now handles objects! 
+                // Let's safe-guard: store mixed is fine, but cleaner to store IDs or consistently objects.
+                // The API /api/user/wishlist returns populated objects. 
+                // The login function expects User object. 
+                // Let's just update the wishlist field.
+                login({ ...user, wishlist: wishlist });
+            }
+        }
+    }, [wishlist, user, login]);
+
     // ...
 
     const handleRemove = async (id: string, e: React.MouseEvent) => {

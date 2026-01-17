@@ -35,9 +35,9 @@ export async function POST(req: Request) {
             order.status = "pending"; // Wait for Admin Confirmation
             await order.save();
 
-            // NOW we finalize the Coupons and Wallet usage if we were deferring it. 
+            // NOW we finalize the Coupons usage if we were deferring it. 
             // But we did it optimistically in creation. 
-            // If payment failed, we would have already deducted wallet/coupon. 
+            // If payment failed, we would have already deducted coupon. 
             // This is a known trade-off. Correct way is two-phase commit or refund on failure.
             // For now, simpler flow.
 
