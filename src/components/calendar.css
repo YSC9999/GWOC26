@@ -10,37 +10,58 @@
 .react-calendar__navigation {
     display: flex;
     height: 44px;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
+    /* Increased margin */
+    align-items: center;
 }
 
-.react-calendar__navigation button {
+.react-calendar__navigation__label {
+    font-family: var(--font-berkshire-swash) !important;
+    font-size: 1.75rem;
+    /* Larger Title */
+    font-weight: 800;
+    color: #5A3E36;
+    cursor: pointer;
+}
+
+/* Custom Navigation Arrow Buttons */
+.react-calendar__navigation__arrow {
     min-width: 44px;
     background: none;
-    font-size: 1.25rem;
-    font-family: inherit;
-    font-weight: bold;
+    font-size: 1.25rem !important;
+    font-weight: 400;
     color: #5A3E36;
-    /* soil */
 }
 
 .react-calendar__navigation button:disabled {
-    background-color: #f0f0f0;
+    opacity: 0.3;
 }
 
 .react-calendar__month-view__weekdays {
     text-align: center;
     text-transform: uppercase;
-    font-weight: bold;
-    font-size: 0.75em;
-    color: rgba(90, 62, 54, 0.4);
-    margin-bottom: 0.5rem;
+    font-weight: 900;
+    font-size: 0.8rem;
+    color: #9CA3AF;
+    /* Light gray text */
+    margin-bottom: 1.5rem;
+}
+
+.react-calendar__month-view__weekdays__weekday abbr {
+    text-decoration: none;
+    border-bottom: 2px dotted #9CA3AF;
+    /* Matching dotted underline */
+    padding-bottom: 4px;
+    cursor: help;
 }
 
 .react-calendar__month-view__days__day {
     font-family: inherit;
-    font-size: 0.9rem;
+    font-size: 1.1rem;
+    /* Slightly larger dates */
     font-weight: 500;
     color: #5A3E36;
+    padding: 12px !important;
 }
 
 .react-calendar__tile {

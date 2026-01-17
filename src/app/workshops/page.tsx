@@ -341,7 +341,7 @@ export default function Workshops() {
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
 
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative">
 
           {/* LEFT: Upcoming Workshops List & Completed Workshops */}
           <div className="lg:col-span-8 order-2 lg:order-1 pt-2">
@@ -453,25 +453,27 @@ export default function Workshops() {
 
           {/* RIGHT: Sticky Sidebar (Get in Touch + Calendar) */}
           <div className="lg:col-span-4 order-1 lg:order-2 h-full">
-            <div className="sticky top-6 space-y-4">
-              {/* Get in Touch Card - Reduced Padding/Size */}
-              <div className="bg-clay text-white rounded-2xl p-5 shadow-xl relative overflow-hidden group">
+            <div className="sticky top-24 space-y-4 mt-12">
+              {/* Get in Touch Card - Compact */}
+              <div className="bg-clay text-white rounded-xl p-4 shadow-lg relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-8 bg-white/10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2"></div>
-                <div className="relative z-10">
-                  <h3 className="text-lg font-bold font-serif mb-1">Private Workshops</h3>
-                  <p className="text-white/80 text-xs mb-3 leading-relaxed">
-                    Looking for a unique team building event or a private detailed session? We craft custom experiences just for you.
-                  </p>
+                <div className="relative z-10 flex flex-col gap-2">
+                  <div>
+                    <h3 className="text-base font-bold font-serif leading-tight">Private Workshops</h3>
+                    <p className="text-white/80 text-[10px] leading-tight mt-1">
+                      Custom experiences for teams and individuals.
+                    </p>
+                  </div>
                   <button
                     onClick={scrollToInquiry}
-                    className="w-full bg-white text-clay font-bold py-2 rounded-lg hover:bg-soil hover:text-white transition-all shadow-md flex items-center justify-center gap-2 text-sm"
+                    className="w-full bg-white text-clay font-bold py-1.5 rounded-lg hover:bg-soil hover:text-white transition-all shadow-sm flex items-center justify-center gap-2 text-xs"
                   >
-                    Get in Touch <ArrowRight size={14} />
+                    Get in Touch <ArrowRight size={12} />
                   </button>
                 </div>
               </div>
 
-              {/* Compact Calendar - Scaled Down */}
+              {/* Compact Calendar - Reduced Padding */}
               <div className="transform scale-90 origin-top -mt-2">
                 <EventCalendar
                   events={calendarEvents}
