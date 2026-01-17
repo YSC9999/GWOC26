@@ -120,7 +120,7 @@ export async function PUT(req: Request) {
       user.isBlocked = isBlocked;
       user.status = isBlocked ? "blocked" : "active";
     }
-    if (blockedUntil !== undefined) user.blockedUntil = blockedUntil ? new Date(blockedUntil) : undefined;
+    if (blockedUntil !== undefined) user.blockedUntil = blockedUntil ? new Date(blockedUntil) : null;
 
     await user.save();
 

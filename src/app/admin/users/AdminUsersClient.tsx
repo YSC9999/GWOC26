@@ -37,6 +37,7 @@ export default function AdminUsers() {
 
   const [showAdd, setShowAdd] = useState(false);
   const [showEdit, setShowEdit] = useState<UserItem | null>(null);
+  const [showBlock, setShowBlock] = useState<UserItem | null>(null);
 
 
   // add form
@@ -104,7 +105,9 @@ export default function AdminUsers() {
     u: UserItem,
     newName: string,
     newEmail: string,
-    newRole: string
+    newRole: string,
+    isBlocked: boolean,
+    blockedUntil: string | null
   ) => {
     setError("");
     try {
@@ -117,6 +120,8 @@ export default function AdminUsers() {
           name: newName,
           email: newEmail,
           role: newRole,
+          isBlocked,
+          blockedUntil,
         }),
       });
       if (!res.ok)
@@ -165,14 +170,24 @@ export default function AdminUsers() {
     }
   };
 
-  const toggleBlock = async (u: UserItem) => {
+  const handleBlockClick = (u: UserItem) => {
+    if (u.isBlocked) {
+      // Unblock directly
+      if (confirm(`Unblock ${u.name}?`)) {
+        submitBlock(u, false, null);
+      }
+    } else {
+      // Open modal
+      setShowBlock(u);
+    }
+  };
+
+  const submitBlock = async (
+    u: UserItem,
+    isBlocked: boolean,
+    blockedUntil: string | null
+  ) => {
     setError("");
-    // If not blocked, we block forever. If blocked, we unblock.
-    const shouldBlock = !u.isBlocked;
-
-    // Optimistic UI update/Loading state could be better, but we'll specific wait for API.
-    if (!confirm(shouldBlock ? `Are you sure you want to block ${u.name}?` : `Unblock ${u.name}?`)) return;
-
     try {
       const res = await fetch("/api/admin/users", {
         method: "PUT",
@@ -180,11 +195,12 @@ export default function AdminUsers() {
         credentials: "same-origin",
         body: JSON.stringify({
           id: u._id,
-          isBlocked: shouldBlock,
-          blockedUntil: null, // Always permanent/manual unblock
+          isBlocked,
+          blockedUntil,
         }),
       });
       if (!res.ok) throw new Error((await res.json()).error || "Failed");
+      setShowBlock(null);
       fetchUsers();
     } catch (err: any) {
       setError(err.message);
@@ -324,7 +340,7 @@ export default function AdminUsers() {
                         <Edit2 size={18} />
                       </button>
                       <button
-                        onClick={() => toggleBlock(u)}
+                        onClick={() => handleBlockClick(u)}
                         className={`p-2 rounded-lg transition-colors ${u.isBlocked
                           ? "text-green-600 hover:bg-green-50"
                           : "text-orange-600 hover:bg-orange-50"
@@ -451,6 +467,15 @@ export default function AdminUsers() {
           />
         )}
 
+        {/* Block modal */}
+        {showBlock && (
+          <BlockModal
+            user={showBlock}
+            onClose={() => setShowBlock(null)}
+            onConfirm={submitBlock}
+          />
+        )}
+
 
       </div>
     </AdminPageContainer>
@@ -468,20 +493,51 @@ function EditModal({
     u: UserItem,
     name: string,
     email: string,
-    role: string
+    role: string,
+    isBlocked: boolean,
+    blockedUntil: string | null
   ) => Promise<void>;
 }) {
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
   const [role, setRole] = useState(user.role);
+
+  // Block state
+  const [blockStatus, setBlockStatus] = useState<"active" | "permanent" | "temporary">(() => {
+    if (!user.isBlocked) return "active";
+    if (user.blockedUntil) return "temporary";
+    return "permanent";
+  });
+  const [blockDate, setBlockDate] = useState(() => {
+    if (user.blockedUntil) {
+      return new Date(user.blockedUntil).toISOString().split('T')[0];
+    }
+    return "";
+  });
+
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
 
   const save = async () => {
     setErr("");
+    if (blockStatus === "temporary" && !blockDate) {
+      setErr("Please select an unblock date for temporary block");
+      return;
+    }
+
     setSaving(true);
     try {
-      await onSave(user, name, email, role);
+      let isBlocked = false;
+      let until: string | null = null;
+
+      if (blockStatus !== "active") {
+        isBlocked = true;
+        if (blockStatus === "temporary") {
+          until = blockDate;
+        }
+      }
+
+      await onSave(user, name, email, role, isBlocked, until);
     } catch (e: any) {
       setErr(e.message || "Failed");
     } finally {
@@ -490,16 +546,16 @@ function EditModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg max-w-lg w-full p-6">
-        <div className="flex items-start justify-between">
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-start justify-between mb-4">
           <h3 className="text-xl font-semibold">Edit {user.name}</h3>
           <button onClick={onClose} className="text-sm text-clay underline">
             Close
           </button>
         </div>
 
-        <div className="mt-4 space-y-3">
+        <div className="space-y-4">
           <div>
             <label className="text-sm text-soil/60">Name</label>
             <input
@@ -528,21 +584,150 @@ function EditModal({
             </select>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="pt-4 border-t border-soil/10">
+            <h4 className="text-sm font-semibold mb-3 text-soil">Block Settings</h4>
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm text-soil/60">Status</label>
+                <select
+                  value={blockStatus}
+                  onChange={(e) => setBlockStatus(e.target.value as any)}
+                  className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm"
+                >
+                  <option value="active">Active</option>
+                  <option value="permanent">Permanent Block</option>
+                  <option value="temporary">Temporary Block</option>
+                </select>
+              </div>
+              {blockStatus === "temporary" && (
+                <div>
+                  <label className="text-sm text-soil/60">Unblock Date</label>
+                  <input
+                    type="date"
+                    value={blockDate}
+                    min={new Date().toISOString().split("T")[0]}
+                    onChange={(e) => setBlockDate(e.target.value)}
+                    className="input-field w-full px-3 py-2 rounded-md text-base md:text-sm"
+                  />
+                  <p className="text-[10px] text-soil/50 mt-1">
+                    User will be automatically unblocked after this date.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 pt-2">
             <button
               disabled={saving}
               onClick={save}
-              className="px-4 py-2 bg-clay text-white rounded"
+              className="px-4 py-2 bg-clay text-white rounded hover:bg-clay/90 transition-colors"
             >
-              Save
+              {saving ? "Saving..." : "Save Changes"}
             </button>
-            <button onClick={onClose} className="px-4 py-2 border rounded">
+            <button onClick={onClose} className="px-4 py-2 border rounded hover:bg-sand/10 transition-colors">
               Cancel
             </button>
           </div>
         </div>
 
-        {err && <div className="mt-4 text-red-600">{err}</div>}
+        {err && <div className="mt-4 text-red-600 bg-red-50 p-2 rounded text-sm">{err}</div>}
+      </div>
+    </div>
+  );
+}
+
+function BlockModal({
+  user,
+  onClose,
+  onConfirm,
+}: {
+  user: UserItem;
+  onClose: () => void;
+  onConfirm: (
+    u: UserItem,
+    isBlocked: boolean,
+    blockedUntil: string | null
+  ) => Promise<void>;
+}) {
+  const [type, setType] = useState<"permanent" | "temporary">("permanent");
+  const [date, setDate] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleConfirm = async () => {
+    if (type === "temporary" && !date) {
+      alert("Please select a date");
+      return;
+    }
+    setSubmitting(true);
+    await onConfirm(user, true, type === "temporary" ? date : null);
+    setSubmitting(false);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg max-w-sm w-full p-6 shadow-xl">
+        <h3 className="text-xl font-semibold mb-4 text-soil">
+          Block {user.name}
+        </h3>
+
+        <div className="flex flex-col gap-3 mb-6">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              checked={type === "permanent"}
+              onChange={() => setType("permanent")}
+              name="blockType"
+              className="text-clay focus:ring-clay"
+            />
+            <span className="text-soil">Permanent Block</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              checked={type === "temporary"}
+              onChange={() => setType("temporary")}
+              name="blockType"
+              className="text-clay focus:ring-clay"
+            />
+            <span className="text-soil">Temporary Block</span>
+          </label>
+        </div>
+
+        {type === "temporary" && (
+          <div className="mb-6">
+            <label className="text-xs text-soil/60 mb-1 block uppercase font-bold">
+              Unblock Date
+            </label>
+            <input
+              type="date"
+              value={date}
+              min={new Date().toISOString().split("T")[0]}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full border border-soil/20 rounded-lg px-3 py-2 text-soil focus:outline-none focus:border-clay"
+            />
+            <p className="text-[10px] text-soil/50 mt-1">
+              User will be automatically unblocked after this date.
+            </p>
+          </div>
+        )}
+
+        <div className="flex items-center justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-soil hover:bg-black/5 rounded-lg transition-colors"
+            disabled={submitting}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleConfirm}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-sm disabled:opacity-50"
+            disabled={submitting}
+          >
+            {submitting ? "Blocking..." : "Block User"}
+          </button>
+        </div>
       </div>
     </div>
   );
