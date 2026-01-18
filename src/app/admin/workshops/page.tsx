@@ -124,6 +124,8 @@ export default function WorkshopPage() {
   const [pDescription, setPDescription] = useState("");
   const [pLoading, setPLoading] = useState(false);
 
+  const [sortBy, setSortBy] = useState("upcoming");
+
   // Filtered workshops
   const filteredWorkshops = workshops.filter((w) => {
     const term = searchTerm.toLowerCase();
@@ -131,6 +133,16 @@ export default function WorkshopPage() {
     const typeMatch = w.type?.toLowerCase().includes(term);
     const statusMatch = w.status?.toLowerCase().includes(term);
     return titleMatch || typeMatch || statusMatch;
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case "upcoming": return new Date(a.date).getTime() - new Date(b.date).getTime();
+      case "past": return new Date(b.date).getTime() - new Date(a.date).getTime();
+      case "price-high": return (Number(b.price) || 0) - (Number(a.price) || 0);
+      case "price-low": return (Number(a.price) || 0) - (Number(b.price) || 0);
+      case "enrollment-high": return (Number(b.enrolledCount) || 0) - (Number(a.enrolledCount) || 0);
+      case "enrollment-low": return (Number(a.enrolledCount) || 0) - (Number(b.enrolledCount) || 0);
+      default: return 0;
+    }
   });
 
   /* PAGINATION */
@@ -472,8 +484,8 @@ export default function WorkshopPage() {
           <button
             onClick={() => setActiveTab("workshops")}
             className={`pb-4 px-3 font-medium transition-colors whitespace-nowrap text-sm ${activeTab === "workshops"
-                ? "border-b-2 border-clay text-clay"
-                : "text-soil/60 hover:text-soil"
+              ? "border-b-2 border-clay text-clay"
+              : "text-soil/60 hover:text-soil"
               }`}
           >
             Manage Workshops
@@ -481,8 +493,8 @@ export default function WorkshopPage() {
           <button
             onClick={() => setActiveTab("inquiries")}
             className={`pb-4 px-3 font-medium transition-colors whitespace-nowrap text-sm ${activeTab === "inquiries"
-                ? "border-b-2 border-clay text-clay"
-                : "text-soil/60 hover:text-soil"
+              ? "border-b-2 border-clay text-clay"
+              : "text-soil/60 hover:text-soil"
               }`}
           >
             Custom Inquiries
@@ -490,8 +502,8 @@ export default function WorkshopPage() {
           <button
             onClick={() => setActiveTab("previous")}
             className={`pb-4 px-3 font-medium transition-colors whitespace-nowrap text-sm ${activeTab === "previous"
-                ? "border-b-2 border-clay text-clay"
-                : "text-soil/60 hover:text-soil"
+              ? "border-b-2 border-clay text-clay"
+              : "text-soil/60 hover:text-soil"
               }`}
           >
             Previous Workshops
@@ -775,13 +787,25 @@ export default function WorkshopPage() {
               </div>
             </form>
 
-            {/* SEARCH BAR */}
-            <div className="mb-4">
+            {/* SEARCH BAR & SORT */}
+            <div className="mb-4 flex flex-col md:flex-row justify-end gap-4">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="border-soil/10 focus:bg-white/10 focus:ring-4 focus:ring-clay/5 rounded-xl px-4 py-3 bg-sand/10 backdrop-blur-sm w-full md:w-auto text-soil cursor-pointer outline-none"
+              >
+                <option value="upcoming">Upcoming First</option>
+                <option value="past">Past First</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="enrollment-high">Enrollment: High to Low</option>
+                <option value="enrollment-low">Enrollment: Low to High</option>
+              </select>
               <input
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search by title, type, or status..."
-                className="border p-2 w-full max-w-md rounded-md"
+                className="border-soil/10 focus:bg-white/10 focus:ring-4 focus:ring-clay/5 rounded-xl px-4 py-3 bg-sand/10 backdrop-blur-sm w-full md:w-80 text-soil placeholder:text-soil/30 transition-all outline-none"
               />
             </div>
 
@@ -857,12 +881,12 @@ export default function WorkshopPage() {
                         <td className="p-3 align-middle">
                           <span
                             className={`text-xs px-2 py-1 rounded-full font-medium ${w.status === "upcoming"
-                                ? "bg-green-100 text-green-700"
-                                : w.status === "full"
-                                  ? "bg-orange-100 text-orange-700"
-                                  : w.status === "completed"
-                                    ? "bg-gray-100 text-gray-700"
-                                    : "bg-red-100 text-red-700"
+                              ? "bg-green-100 text-green-700"
+                              : w.status === "full"
+                                ? "bg-orange-100 text-orange-700"
+                                : w.status === "completed"
+                                  ? "bg-gray-100 text-gray-700"
+                                  : "bg-red-100 text-red-700"
                               }`}
                           >
                             {w.status}
@@ -946,8 +970,8 @@ export default function WorkshopPage() {
                             key={page}
                             onClick={() => goToPage(page)}
                             className={`px-3 py-1 border rounded text-sm flex-shrink-0 ${currentPage === page
-                                ? "bg-black text-white"
-                                : "hover:bg-gray-200"
+                              ? "bg-black text-white"
+                              : "hover:bg-gray-200"
                               }`}
                           >
                             {page}

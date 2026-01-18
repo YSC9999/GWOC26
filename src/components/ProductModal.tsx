@@ -130,9 +130,14 @@ export default function ProductModal({
     setLoading(true);
     try {
       const res = await fetch(`/api/products/${productId}`);
+      if (!res.ok) {
+        throw new Error(`Error: ${res.status}`);
+      }
       const data = await res.json();
       if (data.product) {
         setProduct(data.product);
+      } else {
+        console.warn("Product not found in response:", data);
       }
     } catch (error) {
       console.error("Failed to fetch product:", error);

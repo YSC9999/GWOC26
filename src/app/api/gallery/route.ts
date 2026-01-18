@@ -103,7 +103,7 @@ export async function DELETE(req: Request) {
 
         if (!id) return NextResponse.json({ error: "Item ID required" }, { status: 400 });
 
-        await (Gallery.findByIdAndDelete(id) as any);
+        await (Gallery as any).findByIdAndDelete(id);
         return NextResponse.json({ message: "Item deleted successfully" });
     } catch (error: any) {
         console.error("Gallery DELETE error:", error);
