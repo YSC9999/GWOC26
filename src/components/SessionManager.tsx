@@ -1,63 +1,65 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth";
 
 export default function SessionManager() {
-    const { login, logout, user } = useAuth();
+  const { login, logout, user } = useAuth();
+  const lastCheckRef = useRef<number>(0);
+  const MIN_CHECK_INTERVAL = 30000; // Minimum 30 seconds between checks
 
-    useEffect(() => {
-        const checkSession = async () => {
-            try {
-                // We use cookies now, so no need to check localStorage for token
-                // The browser sends the cookie automatically
-                const res = await fetch("/api/auth/me");
+  useEffect(() => {
+    const checkSession = async (force = false) => {
+      const now = Date.now();
+      // Skip if we checked recently (unless forced)
+      if (!force && now - lastCheckRef.current < MIN_CHECK_INTERVAL) {
+        return;
+      }
+      lastCheckRef.current = now;
 
-                if (res.ok) {
-                    const data = await res.json();
+      try {
+        const res = await fetch("/api/auth/me");
 
-                    // The API returns the user object directly.
-                    // Check if data has _id to confirm it's a user object
-                    const userData = data.user || data;
+        if (res.ok) {
+          const data = await res.json();
+          const userData = data.user || data;
 
-                    if (userData && userData._id) {
-                        // Check if data differs from current state
-                        // We primarily care about wishlist being present/different
-                        if (JSON.stringify(userData) !== JSON.stringify(user)) {
-                            console.log("SessionManager: Updating user data");
-                            login(userData);
-                        }
-                    }
-                } else {
-                    // Token invalid or User Blocked (returns 401)
-                    // Check directly against the store to avoid stale closure issues in interval
-                    const currentUser = useAuth.getState().user;
-                    if (currentUser) {
-                        console.log("SessionManager: Session invalid or Blocked, logging out");
-                        logout();
-                        window.location.href = "/login"; // Force redirect to login page
-                    }
-                }
-            } catch (err: any) {
-                // Ignore "Failed to fetch" errors which happen easily during dev/reloads
-                if (err.message && err.message.includes("Failed to fetch")) {
-                    return;
-                }
-                console.warn("SessionManager error:", err);
+          if (userData && userData._id) {
+            // Only update if data actually changed
+            const currentUser = useAuth.getState().user;
+            if (JSON.stringify(userData) !== JSON.stringify(currentUser)) {
+              login(userData);
             }
-        };
+          }
+        } else {
+          const currentUser = useAuth.getState().user;
+          if (currentUser) {
+            logout();
+            window.location.href = "/login";
+          }
+        }
+      } catch (err: any) {
+        if (err.message && err.message.includes("Failed to fetch")) {
+          return;
+        }
+        console.warn("SessionManager error:", err);
+      }
+    };
 
-        checkSession();
+    // Initial check
+    checkSession(true);
 
-        const handleFocus = () => checkSession();
-        window.addEventListener("focus", handleFocus);
-        const interval = setInterval(checkSession, 5000); // Check every 5s
+    // Check on focus (but respect the interval)
+    const handleFocus = () => checkSession(false);
+    window.addEventListener("focus", handleFocus);
 
-        return () => {
-            window.removeEventListener("focus", handleFocus);
-            clearInterval(interval);
-        };
+    // Check every 60 seconds instead of 5 seconds
+    const interval = setInterval(() => checkSession(false), 60000);
 
-    }, []);
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      clearInterval(interval);
+    };
+  }, [login, logout]);
 
-    return null;
+  return null;
 }

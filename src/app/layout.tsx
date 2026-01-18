@@ -97,22 +97,17 @@ export const metadata: Metadata = {
 
 import ChatBot from "../components/ChatBot";
 
-import { connectDB } from "@/lib/mongodb";
-import StudioInfo from "@/models/StudioInfo";
 import ScreenSizeGuard from "../components/ScreenSizeGuard";
-
 import SessionManager from "../components/SessionManager";
+import GlobalToast from "@/components/GlobalToast";
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
   modal,
 }: {
   children: ReactNode;
   modal: ReactNode;
 }) {
-  // await connectDB();
-  // const studioInfo = await StudioInfo.findOne().lean();
-
   return (
     <html
       lang="en"
@@ -138,6 +133,7 @@ export default async function RootLayout({
 
         <ChatBot />
         <ConditionalFooter studioInfo={undefined} />
+        <GlobalToast />
       </body>
     </html>
   );

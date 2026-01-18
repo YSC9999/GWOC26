@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
+import Link from "next/link";
 
 interface OrderSuccessCardsProps {
   customerEmail: string;
@@ -91,15 +92,61 @@ export default function OrderSuccessCards({
             </div>
 
             {/* Continue Shopping Button */}
-            <div className="px-6 py-6 bg-white border-t border-soil/10 flex justify-center">
+            <div className="px-6 py-6 bg-white border-t border-soil/10 flex flex-col sm:flex-row justify-center gap-4">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleClose}
-                className="bg-clay hover:bg-clay/90 text-white px-6 py-2.5 sm:px-8 sm:py-3 rounded-xl transition-colors font-semibold shadow-md text-sm sm:text-base"
+                className="bg-sand text-soil hover:bg-sand/80 px-6 py-2.5 sm:px-8 sm:py-3 rounded-xl transition-colors font-semibold shadow-md text-sm sm:text-base order-2 sm:order-1"
               >
                 Continue Shopping
               </motion.button>
+
+              {orderId && (
+                <Link
+                  href={`/account/order-details?id=${orderId}`}
+                  onClick={handleClose}
+                  className="bg-clay hover:bg-clay/90 text-white px-6 py-2.5 sm:px-8 sm:py-3 rounded-xl transition-all font-semibold shadow-md text-sm sm:text-base flex items-center justify-center gap-2 order-1 sm:order-2 hover:shadow-xl hover:-translate-y-1"
+                >
+                  Track Order
+                </Link>
+              )}
+            </div>
+
+            {/* Celebration Animation (Framer Motion Particle effect) */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              {[...Array(20)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{
+                    top: "50%",
+                    left: "50%",
+                    scale: 0,
+                    x: 0,
+                    y: 0,
+                    rotate: 0,
+                    opacity: 1
+                  }}
+                  animate={{
+                    x: (Math.random() - 0.5) * 800,
+                    y: (Math.random() - 0.5) * 800,
+                    scale: [0, 1, 0],
+                    rotate: Math.random() * 720,
+                    opacity: [0, 1, 0]
+                  }}
+                  transition={{
+                    duration: 1.5 + Math.random() * 2,
+                    ease: "easeOut",
+                    repeat: Infinity,
+                    repeatDelay: Math.random() * 3
+                  }}
+                  className="absolute w-2 h-2 sm:w-3 sm:h-3"
+                  style={{
+                    backgroundColor: ['#D97757', '#652810', '#F5EDE4', '#FFD700', '#FF6347'][i % 5],
+                    borderRadius: i % 2 === 0 ? "50%" : "2px"
+                  }}
+                />
+              ))}
             </div>
           </motion.div>
         </motion.div>

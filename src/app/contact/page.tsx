@@ -48,15 +48,6 @@ export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
 
-  // Success Sound Effect
-  useEffect(() => {
-    if (submitted) {
-      const audio = new Audio("/sounds/success.mp3");
-      audio.volume = 0.5;
-      audio.play().catch(err => console.log("Sound play prevented by browser:", err));
-    }
-  }, [submitted]);
-
   useEffect(() => {
     fetchStudioInfo();
   }, []);
@@ -101,6 +92,10 @@ export default function Contact() {
       }
 
       setSubmitted(true);
+      // Play success sound
+      const audio = new Audio("/sounds/success.mp3");
+      audio.volume = 0.5;
+      audio.play().catch(err => console.log("Sound play prevented by browser:", err));
     } catch (err: any) {
       setError(err.message);
     } finally {

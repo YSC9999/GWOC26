@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { X, MapPin, CreditCard, Package, User, Mail, Phone, Calendar, Star } from "lucide-react";
+import { X, MapPin, CreditCard, Package, User, Mail, Phone, Calendar, Star, CheckCircle } from "lucide-react";
 import Link from "next/link";
 
 interface OrderModalProps {
@@ -40,8 +40,50 @@ export default function OrderModal({ order, onClose }: OrderModalProps) {
                     </button>
                 </div>
 
+                {/* Status Tracker */}
+                {order.status !== 'cancelled' && (
+                    <div className="px-8 py-6 bg-white border-b border-slate-50">
+                        <div className="relative flex justify-between">
+                            {/* Connector Line */}
+                            <div className="absolute top-1/2 left-0 w-full h-1 bg-slate-100 -translate-y-1/2 z-0" />
+                            <div
+                                className="absolute top-1/2 left-0 h-1 bg-clay -translate-y-1/2 z-0 transition-all duration-1000"
+                                style={{
+                                    width: order.status === 'confirmed' ? '0%' :
+                                        order.status === 'processing' ? '33%' :
+                                            order.status === 'shipped' ? '66%' :
+                                                order.status === 'delivered' ? '100%' : '0%'
+                                }}
+                            />
+
+                            {[
+                                { label: 'Confirmed', status: 'confirmed' },
+                                { label: 'Processing', status: 'processing' },
+                                { label: 'Shipped', status: 'shipped' },
+                                { label: 'Delivered', status: 'delivered' }
+                            ].map((step, idx) => {
+                                const isCompleted = ['confirmed', 'processing', 'shipped', 'delivered'].indexOf(order.status) >= idx;
+                                const isCurrent = order.status === step.status;
+
+                                return (
+                                    <div key={idx} className="relative z-10 flex flex-col items-center">
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center border-4 transition-all duration-500 ${isCompleted ? 'bg-clay border-clay text-white' : 'bg-white border-slate-100 text-slate-300'
+                                            } ${isCurrent ? 'ring-4 ring-clay/20 scale-110' : ''}`}>
+                                            {isCompleted ? <CheckCircle size={14} strokeWidth={3} /> : <div className="w-2 h-2 rounded-full bg-current" />}
+                                        </div>
+                                        <span className={`absolute -bottom-6 whitespace-nowrap text-[10px] font-bold uppercase tracking-wider ${isCompleted ? 'text-clay' : 'text-slate-400'
+                                            }`}>
+                                            {step.label}
+                                        </span>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+                )}
+
                 {/* Content - Scrollable */}
-                <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto p-6 pt-10 custom-scrollbar">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
                         {/* Left Column: Items (2 cols wide) */}

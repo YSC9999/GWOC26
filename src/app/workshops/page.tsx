@@ -105,15 +105,6 @@ export default function Workshops() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageWorkshop, setSelectedImageWorkshop] = useState<Workshop | null>(null);
 
-  // Success Sound Effect
-  useEffect(() => {
-    if (bookingSuccess || inquirySuccess) {
-      const audio = new Audio("/sounds/success.mp3");
-      audio.volume = 0.5;
-      audio.play().catch(err => console.log("Sound play prevented by browser:", err));
-    }
-  }, [bookingSuccess, inquirySuccess]);
-
   useEffect(() => {
     fetchWorkshops();
   }, []);
@@ -280,6 +271,10 @@ export default function Workshops() {
             );
             if (verifyRes.ok) {
               setBookingSuccess(true);
+              // Play success sound
+              const audio = new Audio("/sounds/success.mp3");
+              audio.volume = 0.5;
+              audio.play().catch(err => console.log("Sound play prevented by browser:", err));
               fetchWorkshops();
             } else {
               setBookingError("Payment verification failed. Please contact support.");
@@ -328,6 +323,10 @@ export default function Workshops() {
       });
       if (res.ok) {
         setInquirySuccess(true);
+        // Play success sound
+        const audio = new Audio("/sounds/success.mp3");
+        audio.volume = 0.5;
+        audio.play().catch(err => console.log("Sound play prevented by browser:", err));
         setInquiryForm({
           name: "",
           email: "",
@@ -1028,8 +1027,8 @@ export default function Workshops() {
                     }}
                     disabled={getAvailableSpots(selectedImageWorkshop) === 0}
                     className={`w-full py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${getAvailableSpots(selectedImageWorkshop) === 0
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                        : "bg-soil text-white hover:bg-clay hover:scale-105 shadow-md"
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-soil text-white hover:bg-clay hover:scale-105 shadow-md"
                       }`}
                   >
                     {getAvailableSpots(selectedImageWorkshop) === 0 ? "Fully Booked" : "Book Now"}
