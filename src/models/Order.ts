@@ -111,6 +111,9 @@ const OrderSchema = new Schema<IOrder>({
   finalAmount: { type: Number, required: true },
 }, { timestamps: true });
 
+// Index for review verification (optimizes purchase check)
+OrderSchema.index({ userId: 1, 'items.productId': 1, paymentStatus: 1, status: 1 });
+
 // Generate order number before saving
 OrderSchema.pre('save', async function () {
   if (!this.orderNumber) {

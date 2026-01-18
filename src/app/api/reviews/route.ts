@@ -54,20 +54,21 @@ export async function GET(req: Request) {
             const userObjectId = new mongoose.Types.ObjectId(user.id);
             const productObjectId = new mongoose.Types.ObjectId(productId);
 
-            // Check if user has ANY order with this product (still useful for the "Verified Purchase" badge)
-            const order = await Order.findOne({
+            // Check if user has a DELIVERED order with this product
+            const deliveredOrder = await Order.findOne({
                 userId: userObjectId,
                 "items.productId": productObjectId,
-                status: { $ne: "cancelled" }
+                status: "delivered", // Must be delivered to review
+                paymentStatus: "paid"
             });
 
             // Check if user already reviewed
             const existingReview = await Review.findOne({ product: productId, user: user.id });
 
             return NextResponse.json({
-                eligible: !!order, // For "Verified Purchase" badge
+                eligible: !!deliveredOrder, // User must have received the product
                 hasReviewed: !!existingReview,
-                canReview: !existingReview // ALLOW ALL USERS TO REVIEW if they haven't already
+                canReview: !!deliveredOrder && !existingReview // Can review ONLY if delivered and hasn't reviewed yet
             });
         }
 
@@ -105,6 +106,23 @@ export async function POST(req: Request) {
 
         if (existing) {
             return NextResponse.json({ error: "You have already reviewed this product." }, { status: 400 });
+        }
+
+        // VERIFY PURCHASE - User must have a delivered order with this product
+        const userObjectId = new mongoose.Types.ObjectId(user.id);
+        const productObjectId = new mongoose.Types.ObjectId(productId);
+
+        const deliveredOrder = await Order.findOne({
+            userId: userObjectId,
+            "items.productId": productObjectId,
+            status: "delivered", // Must be delivered to review
+            paymentStatus: "paid"
+        });
+
+        if (!deliveredOrder) {
+            return NextResponse.json({
+                error: "You can only review products after they have been delivered to you."
+            }, { status: 403 });
         }
 
         // Create Review

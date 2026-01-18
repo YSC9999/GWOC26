@@ -15,6 +15,7 @@ import {
   Plus,
   ChevronLeft,
   ChevronRight,
+  XCircle,
 } from "lucide-react";
 
 // ... (keep existing imports)
@@ -578,6 +579,7 @@ function ReviewsSection({ productId }: { productId: string }) {
   const [comment, setComment] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reviewError, setReviewError] = useState("");
   const { user } = useAuth();
 
   useEffect(() => {
@@ -633,13 +635,15 @@ function ReviewsSection({ productId }: { productId: string }) {
         setShowForm(false);
         setComment("");
         setImages([]);
+        setReviewError("");
         fetchReviews(); // Refresh
         checkEligibility(); // Hide form logic
       } else {
-        alert(data.error);
+        setReviewError(data.error || "Failed to submit review");
       }
     } catch (e) {
       console.error(e);
+      setReviewError("An error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -747,13 +751,25 @@ function ReviewsSection({ productId }: { productId: string }) {
                 </div>
               </div>
 
+              {/* Error Message */}
+              {reviewError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-4 p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 text-sm font-medium flex items-start gap-2"
+                >
+                  <XCircle size={18} className="flex-shrink-0 mt-0.5" />
+                  <span>{reviewError}</span>
+                </motion.div>
+              )}
+
               <div className="flex gap-3">
                 <button type="submit" disabled={isSubmitting} className="bg-clay text-white px-6 py-2 rounded-full text-sm font-bold hover:bg-clay/90 disabled:opacity-50 disabled:cursor-not-allowed">
                   {isSubmitting ? (
                     <span className="flex items-center gap-2"><Loader2 className="animate-spin" size={14} /> Posting...</span>
                   ) : "Submit Review"}
                 </button>
-                <button type="button" onClick={() => setShowForm(false)} className="text-soil/60 px-4 py-2 text-sm hover:text-soil">Cancel</button>
+                <button type="button" onClick={() => { setShowForm(false); setReviewError(""); }} className="text-soil/60 px-4 py-2 text-sm hover:text-soil">Cancel</button>
               </div>
             </form>
           )
