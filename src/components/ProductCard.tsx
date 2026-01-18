@@ -86,7 +86,14 @@ export default function ProductCard({ product, userTier, onProductClick }: Produ
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
+    // Check if user is logged in
+    if (!user) {
+      setToastMessage("Please login first to add items to cart");
+      setTimeout(() => setToastMessage(""), 3000);
+      return;
+    }
+
     const result = add({
       id: product._id,
       name: product.name,
@@ -186,28 +193,28 @@ export default function ProductCard({ product, userTier, onProductClick }: Produ
 
               {allowed ? (
                 qtyInCart > 0 ? (
-                  <div 
+                  <div
                     className="flex items-center gap-3 bg-[#C88265] text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg shadow-sm"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
                     }} // Prevent card click
                   >
-                    <motion.button 
-                      whileTap={clickTap} 
-                      onClick={handleDecrement} 
+                    <motion.button
+                      whileTap={clickTap}
+                      onClick={handleDecrement}
                       className="p-0.5 hover:bg-white/20 rounded-full transition-colors"
                     >
                       <Minus size={14} strokeWidth={3} />
                     </motion.button>
-                    
+
                     <span className="text-xs font-bold w-4 text-center select-none pt-[1px]">
                       {qtyInCart}
                     </span>
-                    
-                    <motion.button 
-                      whileTap={clickTap} 
-                      onClick={handleAddToCart} 
+
+                    <motion.button
+                      whileTap={clickTap}
+                      onClick={handleAddToCart}
                       className="p-0.5 hover:bg-white/20 rounded-full transition-colors"
                     >
                       <Plus size={14} strokeWidth={3} />

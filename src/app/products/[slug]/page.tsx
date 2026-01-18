@@ -99,6 +99,12 @@ export default function ProductDetail() {
     const handleAddToCart = () => {
         if (!product) return;
 
+        // Check if user is logged in
+        if (!user) {
+            alert("Please login first to add items to cart");
+            return;
+        }
+
         for (let i = 0; i < quantity; i++) {
             cart.add({
                 id: product._id as any,

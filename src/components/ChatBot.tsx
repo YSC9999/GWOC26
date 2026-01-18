@@ -80,10 +80,21 @@ export default function ChatBot() {
         setInputValue("");
 
         try {
+            // Send conversation history (excluding the initial greeting)
+            const conversationHistory = messages
+                .filter(msg => msg.id !== "1") // Exclude initial greeting
+                .map(msg => ({
+                    sender: msg.sender,
+                    text: msg.text
+                }));
+
             const res = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: userText }),
+                body: JSON.stringify({
+                    message: userText,
+                    history: conversationHistory
+                }),
             });
             const data = await res.json();
 

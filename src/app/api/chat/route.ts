@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
     try {
-        const { message } = await req.json();
+        const { message, history = [] } = await req.json();
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
@@ -13,6 +13,12 @@ export async function POST(req: Request) {
         // Using gemini-2.5-flash (visible in user's dashboard)
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
+        // Build conversation context from history
+        const conversationHistory = history.map((msg: any) => ({
+            role: msg.sender === 'user' ? 'user' : 'model',
+            parts: [{ text: msg.text }]
+        }));
+
         const response = await fetch(url, {
             method: "POST",
             headers: {
@@ -20,17 +26,25 @@ export async function POST(req: Request) {
             },
             body: JSON.stringify({
                 contents: [
+                    ...conversationHistory,
                     {
                         role: "user",
                         parts: [
                             {
-                                text: `You are the AI assistant for 'Basho by Shivangi', a premium handcrafted pottery brand. 
-                Your tone is warm, artistic, and sophisticated. 
-                Visitor says: ${message}`
+                                text: message
                             }
                         ]
                     }
-                ]
+                ],
+                systemInstruction: {
+                    parts: [{
+                        text: `You are the AI assistant for 'Basho by Shivangi', a premium handcrafted pottery brand. 
+Your tone is warm, artistic, and sophisticated. 
+IMPORTANT: Keep ALL responses SHORT and CONCISE - maximum 2-3 sentences. Be friendly but brief.
+DO NOT repeat greetings like "Welcome to Basho" in every response - only greet at the start of a NEW conversation.
+Answer questions directly and naturally, as if continuing an ongoing conversation.`
+                    }]
+                }
             })
         });
 
