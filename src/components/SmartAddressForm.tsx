@@ -98,20 +98,33 @@ export default function SmartAddressForm({ formData, onChange, disabled = false,
                         placeholder="John Doe"
                     />
                 </div>
-                <div>
+                <div className="space-y-2">
                     <label className="block text-xs font-bold text-soil/60 uppercase mb-1">Phone Number</label>
-                    <div className="flex gap-2">
-                        <input
-                            name="phone"
-                            value={formData.phone}
-                            onChange={onChange}
-                            disabled={disabled}
-                            maxLength={10}
-                            className="w-full px-4 py-2 border rounded-xl border-soil/20 focus:outline-none focus:border-clay bg-white/80 backdrop-blur-sm shadow-sm transition-all"
-                            placeholder="9876543210"
-                        />
-                        {phoneSuffix}
+                    <div className="flex gap-2 items-start">
+                        <div className="relative flex-1">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-soil/60 font-medium z-10">
+                                +91
+                            </span>
+                            <input
+                                name="phone"
+                                value={formData.phone}
+                                onChange={(e) => {
+                                    // Only allow numbers and limit to 10 digits
+                                    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                    // Create a proper synthetic event
+                                    const syntheticEvent = {
+                                        target: { name: 'phone', value }
+                                    } as React.ChangeEvent<HTMLInputElement>;
+                                    onChange(syntheticEvent);
+                                }}
+                                disabled={disabled}
+                                maxLength={10}
+                                className="w-full pl-14 pr-4 py-2 border rounded-xl border-soil/20 focus:outline-none focus:border-clay bg-white/80 backdrop-blur-sm shadow-sm transition-all"
+                                placeholder="9876543210"
+                            />
+                        </div>
                     </div>
+                    {phoneSuffix && <div className="mt-2">{phoneSuffix}</div>}
                 </div>
             </div>
 

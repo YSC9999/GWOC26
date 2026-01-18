@@ -384,7 +384,11 @@ export default function Cart() {
       if (res.ok) {
         setOtpSent(true);
         setShowOtpInput(true);
-        // Alert removed as requested
+
+        // Show OTP in alert if in dev mode (SMS failed)
+        if (data.devMode && data.devOtp) {
+          alert(`SMS Service Unavailable (Dev Mode)\n\nYour OTP is: ${data.devOtp}\n\nPlease enter this code to verify your phone number.`);
+        }
       } else {
         // Handle error silently
       }
@@ -824,6 +828,65 @@ export default function Cart() {
                     <SmartAddressForm
                       formData={formData}
                       onChange={(e: any) => handleInputChange(e)}
+                      phoneSuffix={
+                        selectedAddressId === "new" && !editingAddressId ? (
+                          <div className="space-y-3 w-full">
+                            {!phoneVerified ? (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={sendOtp}
+                                  disabled={sendingOtp || formData.phone.length < 10}
+                                  className="w-full px-4 py-2.5 bg-clay text-white rounded-xl hover:bg-clay/90 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium flex items-center justify-center gap-2"
+                                >
+                                  {sendingOtp ? (
+                                    <>
+                                      <Loader2 size={16} className="animate-spin" />
+                                      Sending OTP...
+                                    </>
+                                  ) : otpSent ? (
+                                    "Resend OTP"
+                                  ) : (
+                                    "Send OTP"
+                                  )}
+                                </button>
+                                {showOtpInput && (
+                                  <div className="flex gap-2 w-full">
+                                    <input
+                                      type="text"
+                                      value={otp}
+                                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                      maxLength={6}
+                                      placeholder="Enter 6-digit OTP"
+                                      className="flex-1 px-4 py-2.5 border rounded-xl border-soil/20 focus:outline-none focus:border-clay bg-white/80 backdrop-blur-sm shadow-sm text-center text-lg tracking-widest font-mono"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={verifyOtp}
+                                      disabled={verifyingOtp || otp.length !== 6}
+                                      className="px-6 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap text-sm font-medium flex items-center gap-2"
+                                    >
+                                      {verifyingOtp ? (
+                                        <Loader2 size={16} className="animate-spin" />
+                                      ) : (
+                                        <>
+                                          <Check size={16} />
+                                          Verify
+                                        </>
+                                      )}
+                                    </button>
+                                  </div>
+                                )}
+                              </>
+                            ) : (
+                              <div className="flex items-center justify-center gap-2 text-green-600 text-sm font-medium bg-green-50 py-2.5 px-4 rounded-xl border border-green-200">
+                                <Check size={18} className="text-green-600" />
+                                Phone Number Verified
+                              </div>
+                            )}
+                          </div>
+                        ) : null
+                      }
                     />
                     <button
                       type="button"

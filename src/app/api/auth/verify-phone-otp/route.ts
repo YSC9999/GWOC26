@@ -28,8 +28,6 @@ export async function POST(req: Request) {
         // Clear OTP fields
         await User.findByIdAndUpdate(authUser.id, {
             $unset: { phoneVerificationOTP: 1, phoneOtpExpiry: 1 },
-            // We can also implicitly verify the phone number field on the user if it matches
-            // But for now just return success
         });
 
         return NextResponse.json({ success: true });

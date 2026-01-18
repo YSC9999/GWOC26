@@ -14,9 +14,14 @@ export async function POST(req: Request) {
         // Sanitize: strip spaces, dashes, etc. Keep leading +
         phone = phone.trim().replace(/[^\d+]/g, '');
 
+        // Add +91 prefix if not present
+        if (!phone.startsWith('+')) {
+            phone = '+91' + phone;
+        }
+
         const authUser = await getUser();
 
-        // Mock OTP generation
+        // Generate OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const expiry = new Date(Date.now() + 10 * 60 * 1000);
 
@@ -27,20 +32,21 @@ export async function POST(req: Request) {
             });
         }
 
-        // Send Real SMS
+        // Send SMS via Twilio
         const smsResult = await sendSMS(phone, `Your Basho Verification Code is: ${otp}`);
 
         if (smsResult.success) {
             return NextResponse.json({ success: true, message: "OTP sent via SMS" });
         } else {
-            // Fallback for Dev/Error cases (as requested by user)
-            // "if not then otp in terminal"
+            // Fallback for Dev/Error cases - return OTP for frontend alert
             console.log(`[DEV MODE] SMS Failed (${smsResult.error}). OTP for ${phone}: ${otp}`);
 
-            // Return SUCCESS so the Frontend UI shows the OTP Input field
+            // Return SUCCESS with OTP so the Frontend can show it in an alert
             return NextResponse.json({
                 success: true,
-                message: `SMS Failed. Check Server Console for OTP.` // User will see this as a toast/alert but can proceed
+                message: "SMS service unavailable. Your OTP is shown in the alert.",
+                devOtp: otp, // Send OTP to frontend for alert display
+                devMode: true
             });
         }
     } catch (error: any) {
