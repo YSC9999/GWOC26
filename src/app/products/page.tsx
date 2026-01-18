@@ -13,6 +13,8 @@ import {
   Send,
   Check,
   Image as ImageIcon,
+  Minus,
+  Plus,
 } from "lucide-react";
 import {
   fadeInUp,
@@ -623,6 +625,9 @@ export default function Products() {
                   (product.stockQuantity !== undefined &&
                     product.stockQuantity <= 0);
 
+                const cartItem = cart.items.find((i) => String(i.id) === String(product._id));
+                const inCartQty = cartItem?.qty || 0;
+
                 return (
                   <motion.div
                     key={product._id}
@@ -656,6 +661,24 @@ export default function Products() {
                             {categoryEmojis[product.category] || "🏺"}
                           </div>
                         )}
+
+                        {/* In Cart Counter Badge */}
+                        <AnimatePresence>
+                          {inCartQty > 0 && (
+                            <motion.div
+                              initial={{ scale: 0, opacity: 0, y: 10 }}
+                              animate={{ scale: 1, opacity: 1, y: 0 }}
+                              exit={{ scale: 0, opacity: 0, y: 10 }}
+                              className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none"
+                            >
+                              <div className="bg-clay/90 backdrop-blur-md text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-2xl border border-white/20">
+                                <ShoppingCart size={14} className="animate-bounce" />
+                                <span className="font-bold text-lg">{inCartQty}</span>
+                                <span className="text-xs opacity-80">in cart</span>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
 
                         {/* Out of Stock Overlay */}
                         {isOutOfStock && (
@@ -760,18 +783,44 @@ export default function Products() {
                             View Details
                           </button>
                           {!isOutOfStock ? (
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={clickTap}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleAddToCart(product);
-                              }}
-                              className="flex-1 text-xs py-2 bg-clay text-white rounded-lg hover:bg-clay/90 transition-colors flex items-center justify-center gap-1"
-                            >
-                              <ShoppingCart size={14} />
-                              Add to Cart
-                            </motion.button>
+                            inCartQty > 0 ? (
+                              <div className="flex-1 flex items-center justify-between bg-clay/10 rounded-lg overflow-hidden border-2 border-clay/20 h-[34px]">
+                                <motion.button
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    cart.updateQty(product._id, inCartQty - 1);
+                                  }}
+                                  className="px-3 h-full text-clay hover:bg-clay hover:text-white transition-all flex items-center justify-center"
+                                >
+                                  <Minus size={14} />
+                                </motion.button>
+                                <span className="font-bold text-soil text-xs">{inCartQty}</span>
+                                <motion.button
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAddToCart(product);
+                                  }}
+                                  className="px-3 h-full text-clay hover:bg-clay hover:text-white transition-all flex items-center justify-center"
+                                >
+                                  <Plus size={14} />
+                                </motion.button>
+                              </div>
+                            ) : (
+                              <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={clickTap}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddToCart(product);
+                                }}
+                                className="flex-1 text-xs py-2 bg-clay text-white rounded-lg hover:bg-clay/90 transition-colors flex items-center justify-center gap-1 h-[34px]"
+                              >
+                                <ShoppingCart size={14} />
+                                Add to Cart
+                              </motion.button>
+                            )
                           ) : (
                             <span className="flex-1 text-xs py-2 text-center text-red-500 font-medium border border-red-200 rounded-lg">
                               Out of Stock
