@@ -25,6 +25,7 @@ import {
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import { StarRating } from "@/components/StarRating";
+import AuthModal from "@/components/AuthModal";
 
 interface Product {
   _id: string;
@@ -77,6 +78,7 @@ export default function ProductModal({
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const cart = useCart();
   const { user, login } = useAuth();
 
@@ -151,6 +153,14 @@ export default function ProductModal({
   const handleAddToCart = () => {
     if (!product) return;
 
+    if (!user) {
+      setShowAuthModal(true);
+      setTimeout(() => {
+        // Only if I need to do something after
+      }, 0);
+      return;
+    }
+
     console.log("Adding to cart:", { name: product.name, qty: quantity, stock: product.stockQuantity, id: product._id });
     const result = cart.add({
       id: product._id as any,
@@ -176,7 +186,7 @@ export default function ProductModal({
 
   const handleWishlist = async () => {
     if (!user) {
-      alert("Please login to add to wishlist");
+      setShowAuthModal(true);
       return;
     }
 
@@ -569,6 +579,12 @@ export default function ProductModal({
           {statusMsg}
         </motion.div>
       )}
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        message="Please login to add items to cart"
+      />
     </AnimatePresence >
   );
 }
