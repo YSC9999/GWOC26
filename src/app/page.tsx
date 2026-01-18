@@ -56,6 +56,7 @@ export default function Home() {
   const [showPreloader, setShowPreloader] = useState(false);
   const [mouseX, setMouseX] = useState(0);
   const [mouseY, setMouseY] = useState(0);
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
 
   const handleMouseMove = (e: React.MouseEvent) => {
     const { clientX, clientY } = e;
@@ -322,16 +323,25 @@ export default function Home() {
                             src={product.images[0]}
                             alt={product.name || "Product"}
                             className="w-full h-full object-cover filter contrast-[1.05] brightness-105"
+                            onLoad={(e) => {
+                              setLoadedImages(
+                                (prev) => new Set([...prev, product._id]),
+                              );
+                              e.currentTarget.style.display = "block";
+                              const fallback =
+                                e.currentTarget.nextElementSibling;
+                              if (fallback) fallback.classList.add("hidden");
+                            }}
                             onError={(e) => {
                               e.currentTarget.style.display = "none";
-                              e.currentTarget.nextElementSibling?.classList.remove(
-                                "hidden",
-                              );
+                              const fallback =
+                                e.currentTarget.nextElementSibling;
+                              if (fallback) fallback.classList.remove("hidden");
                             }}
                           />
                         ) : null}
                         <div
-                          className={`w-full h-full flex items-center justify-center bg-gray-100 text-[#5A3E36]/20 text-2xl ${product && product.images?.[0] ? "hidden" : ""}`}
+                          className={`w-full h-full flex items-center justify-center bg-gray-100 text-[#5A3E36]/20 text-2xl ${product && product.images?.[0] && loadedImages.has(product._id) ? "hidden" : ""}`}
                         >
                           🍯
                         </div>
@@ -417,16 +427,26 @@ export default function Home() {
                               src={product.images[0]}
                               alt={product.name || "Product"}
                               className="w-full h-full object-cover filter contrast-[1.05] brightness-105"
+                              onLoad={(e) => {
+                                setLoadedImages(
+                                  (prev) => new Set([...prev, product._id]),
+                                );
+                                e.currentTarget.style.display = "block";
+                                const fallback =
+                                  e.currentTarget.nextElementSibling;
+                                if (fallback) fallback.classList.add("hidden");
+                              }}
                               onError={(e) => {
                                 e.currentTarget.style.display = "none";
-                                e.currentTarget.nextElementSibling?.classList.remove(
-                                  "hidden",
-                                );
+                                const fallback =
+                                  e.currentTarget.nextElementSibling;
+                                if (fallback)
+                                  fallback.classList.remove("hidden");
                               }}
                             />
                           ) : null}
                           <div
-                            className={`w-full h-full flex items-center justify-center bg-gray-100 text-[#5A3E36]/20 text-4xl absolute inset-0 ${product && product.images?.[0] ? "hidden" : ""}`}
+                            className={`w-full h-full flex items-center justify-center bg-gray-100 text-[#5A3E36]/20 text-4xl absolute inset-0 ${product && product.images?.[0] && loadedImages.has(product._id) ? "hidden" : ""}`}
                           >
                             🍯
                           </div>

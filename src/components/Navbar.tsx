@@ -46,6 +46,18 @@ export default function Navbar() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -138,12 +150,13 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   onMouseEnter={() => setHoveredPath(link.href)}
-                  className={`relative px-3 py-2 rounded-full transition-colors duration-200 group ${isActive
-                    ? "text-[#EFE5D8]"
-                    : isHovered
-                      ? "text-[#C97C5D]"
-                      : "hover:text-[#C97C5D]"
-                    }`}
+                  className={`relative px-3 py-2 rounded-full transition-colors duration-200 group ${
+                    isActive
+                      ? "text-[#EFE5D8]"
+                      : isHovered
+                        ? "text-[#C97C5D]"
+                        : "hover:text-[#C97C5D]"
+                  }`}
                 >
                   {isActive && (
                     <motion.div
@@ -182,14 +195,16 @@ export default function Navbar() {
                       className="flex flex-col items-center"
                     >
                       <span
-                        className={`block ${isActive ? "font-bold" : "font-semibold"
-                          }`}
+                        className={`block ${
+                          isActive ? "font-bold" : "font-semibold"
+                        }`}
                       >
                         {link.label}
                       </span>
                       <span
-                        className={`block absolute top-full ${isActive ? "font-bold" : "font-semibold"
-                          }`}
+                        className={`block absolute top-full ${
+                          isActive ? "font-bold" : "font-semibold"
+                        }`}
                       >
                         {link.label}
                       </span>
@@ -271,7 +286,10 @@ export default function Navbar() {
                     </Link>
                   </div>
                 ) : (
-                  <div className="relative ml-2" ref={profileRef}>
+                  <div
+                    className="relative ml-2 hidden sm:block"
+                    ref={profileRef}
+                  >
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
@@ -279,7 +297,11 @@ export default function Navbar() {
                       className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#C97C5D] text-white hover:shadow-lg transition-all border-4 border-[#EFE5D8] overflow-hidden"
                     >
                       {user.picture ? (
-                        <img src={user.picture} alt="Profile" className="w-full h-full object-cover" />
+                        <img
+                          src={user.picture}
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <User size={16} className="md:w-[18px] md:h-[18px]" />
                       )}
@@ -292,14 +314,18 @@ export default function Navbar() {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
                           transition={{ duration: 0.2 }}
-                          className="absolute right-0 mt-6 w-72 bg-gradient-to-b from-[#FDF8F3] to-[#F5EDE4] rounded-2xl shadow-2xl border-[3px] border-[#5A3E36] py-4 overflow-hidden z-50"
+                          className="absolute right-0 mt-6 w-72 bg-gradient-to-b from-[#FDF8F3] to-[#F5EDE4] rounded-2xl shadow-2xl border-[3px] border-[#5A3E36] py-4 overflow-hidden z-50 sm:w-80 md:w-72"
                         >
                           {/* Profile Header */}
                           <div className="px-5 py-4 border-b-2 border-[#5A3E36]/20">
                             <div className="flex items-center gap-4">
                               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#C97C5D] to-[#a85a47] flex items-center justify-center text-white text-xl font-bold shadow-lg overflow-hidden">
                                 {user.picture ? (
-                                  <img src={user.picture} alt="Profile" className="w-full h-full object-cover" />
+                                  <img
+                                    src={user.picture}
+                                    alt="Profile"
+                                    className="w-full h-full object-cover"
+                                  />
                                 ) : (
                                   user?.name?.charAt(0)?.toUpperCase() || "U"
                                 )}
@@ -312,10 +338,11 @@ export default function Navbar() {
                                   {user?.email}
                                 </p>
                                 <span
-                                  className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 text-xs font-medium rounded-full ${user?.role === "admin"
-                                    ? "bg-[#5A3E36]/10 text-[#5A3E36]"
-                                    : "bg-[#C97C5D]/10 text-[#C97C5D]"
-                                    }`}
+                                  className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 text-xs font-medium rounded-full ${
+                                    user?.role === "admin"
+                                      ? "bg-[#5A3E36]/10 text-[#5A3E36]"
+                                      : "bg-[#C97C5D]/10 text-[#C97C5D]"
+                                  }`}
                                 >
                                   {user?.role === "admin" ? (
                                     "⛩️"
@@ -414,7 +441,7 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 200, damping: 25 }}
-            className="lg:hidden bg-[#EFE5D8] border-4 border-[#5A3E36] rounded-2xl mt-2 mx-auto w-11/12 max-w-6xl px-5 py-6 absolute top-20 md:top-24 z-40 shadow-2xl"
+            className="lg:hidden bg-[#EFE5D8] border-4 border-[#5A3E36] rounded-2xl mt-2 mx-auto w-11/12 max-w-6xl px-5 py-6 absolute top-20 md:top-24 z-40 shadow-2xl max-h-[70vh] overflow-y-auto"
           >
             <div
               className="flex flex-col space-y-2 uppercase tracking-widest text-xs text-center text-[#5A3E36]"
@@ -449,11 +476,11 @@ export default function Navbar() {
                   </Link>
                 </div>
               ) : (
-                <div className="mt-6 space-y-2 pt-4 border-t-2 border-[#5A3E36]/20">
+                <div className="mt-6 flex flex-col space-y-0 pt-4 border-t-2 border-[#5A3E36]/20">
                   {user?.role === "admin" && (
                     <Link
                       href="/admin"
-                      className="nav-link hover:text-[#C97C5D] block font-bold py-3 border-b border-[#5A3E36]/10"
+                      className="hover:text-[#C97C5D] font-bold py-3 border-b border-[#5A3E36]/10 w-full"
                       onClick={() => setOpen(false)}
                     >
                       ⛩️ Admin Dashboard
@@ -461,14 +488,14 @@ export default function Navbar() {
                   )}
                   <Link
                     href="/cart"
-                    className="nav-link hover:text-[#C97C5D] block font-bold py-3 border-b border-[#5A3E36]/10"
+                    className="hover:text-[#C97C5D] font-bold py-3 border-b border-[#5A3E36]/10 w-full"
                     onClick={() => setOpen(false)}
                   >
-                    🛍️ Cart ({cartCount})
+                    🛍️ Cart
                   </Link>
                   <Link
                     href="/account"
-                    className="nav-link hover:text-[#C97C5D] block font-bold py-3 border-b border-[#5A3E36]/10"
+                    className="hover:text-[#C97C5D] font-bold py-3 border-b border-[#5A3E36]/10 w-full"
                     onClick={() => setOpen(false)}
                   >
                     👤 My Account
