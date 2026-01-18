@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Script from "next/script";
 import { motion } from "framer-motion";
@@ -25,6 +25,13 @@ import SmartAddressForm from "@/components/SmartAddressForm";
 export default function Cart() {
   const { items, updateQty, remove, total, clear } = useCart();
   const [loading, setLoading] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Hydration check - ensure cart is loaded from localStorage
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
   // Coupon State
   const [checkoutStep, setCheckoutStep] = useState(1); // 1: Cart, 2: Address, 3: Success
   const [completedOrderId, setCompletedOrderId] = useState<string | null>(null);
@@ -570,6 +577,18 @@ export default function Cart() {
     );
   }
 
+  if (!isHydrated) {
+    // Show loading state while hydrating
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center py-20 px-4">
+          <Loader2 className="w-12 h-12 mx-auto text-clay animate-spin mb-4" />
+          <p className="text-soil/60">Loading your cart...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (items.length === 0 && checkoutStep === 1) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -636,12 +655,12 @@ export default function Cart() {
                   {items.map((item) => (
                     <div
                       key={item.id}
-                      className="bg-white p-3 md:p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row gap-3 md:gap-6 items-start sm:items-center"
+                      className="bg-white p-3 md:p-6 rounded-2xl shadow-sm flex flex-row gap-3 md:gap-6 items-center"
                     >
                       {/* Image */}
                       <Link
                         href={`/products/${item.id}`}
-                        className="w-full sm:w-20 h-40 sm:h-20 bg-gray-100 rounded-xl overflow-hidden shrink-0 border border-soil/10"
+                        className="w-20 h-20 md:w-24 md:h-24 bg-gray-100 rounded-xl overflow-hidden shrink-0 border border-soil/10"
                       >
                         {item.image ? (
                           <img
@@ -922,6 +941,10 @@ export default function Cart() {
                     <span>Shipping</span>
                     {calculatingShipping ? (
                       <Loader2 className="animate-spin w-4 h-4 text-clay" />
+                    ) : shipping === null ? (
+                      <span className="text-soil/50 text-xs italic">
+                        Calculated at next step
+                      </span>
                     ) : shipping === 0 ? (
                       <span className="text-green-600 font-medium">Free</span>
                     ) : (
