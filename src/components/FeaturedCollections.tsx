@@ -41,7 +41,13 @@ export default function FeaturedCollections({
 
   // Auto-scroll logic
   useEffect(() => {
-    if (isInView && scrollRef.current && window.innerWidth < 768) {
+    if (
+      isInView &&
+      scrollRef.current &&
+      window.innerWidth < 768 &&
+      Array.isArray(collections) &&
+      collections.length > 0
+    ) {
       const container = scrollRef.current;
 
       // Force start at beginning
@@ -138,7 +144,7 @@ export default function FeaturedCollections({
           <div className="text-center py-12 bg-red-100 rounded-2xl mx-4">
             <p className="text-red-700 italic font-semibold">{error}</p>
           </div>
-        ) : collections.length > 0 ? (
+        ) : Array.isArray(collections) && collections.length > 0 ? (
           <div
             ref={scrollRef}
             onScroll={handleScroll}
@@ -149,8 +155,10 @@ export default function FeaturedCollections({
             }}
           >
             {collections.map((collection, colIndex) => {
-              const thumbnailProduct = collection.products?.[0];
-              const thumbnailImage = thumbnailProduct?.images?.[0];
+              const thumbnailProduct = Array.isArray(collection.products)
+                ? collection.products[0]
+                : null;
+              const thumbnailImage = thumbnailProduct?.images?.[0] || null;
               const isActive = colIndex === activeIndex;
 
               return (

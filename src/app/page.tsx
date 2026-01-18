@@ -289,9 +289,9 @@ export default function Home() {
               {/* Mobile/Small Tablet View (Grid Layout) */}
               <div className="grid grid-cols-3 gap-3 md:hidden max-w-sm mx-auto">
                 {frameData.map((frame, index) => {
-                  const configuredFrame = dynamicFrames.find(
-                    (f) => f.frameId === frame.id,
-                  );
+                  const configuredFrame = Array.isArray(dynamicFrames)
+                    ? dynamicFrames.find((f) => f.frameId === frame.id)
+                    : undefined;
                   const product = configuredFrame?.product;
 
                   return (
@@ -317,17 +317,24 @@ export default function Home() {
                       }
                     >
                       <div className="w-full h-full overflow-hidden relative shadow-sm rounded-[1px]">
-                        {product ? (
+                        {product && product.images?.[0] ? (
                           <img
-                            src={product.images?.[0]}
-                            alt={product.name}
+                            src={product.images[0]}
+                            alt={product.name || "Product"}
                             className="w-full h-full object-cover filter contrast-[1.05] brightness-105"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                              e.currentTarget.nextElementSibling?.classList.remove(
+                                "hidden",
+                              );
+                            }}
                           />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gray-100 text-[#5A3E36]/20 text-2xl">
-                            🍯
-                          </div>
-                        )}
+                        ) : null}
+                        <div
+                          className={`w-full h-full flex items-center justify-center bg-gray-100 text-[#5A3E36]/20 text-2xl ${product && product.images?.[0] ? "hidden" : ""}`}
+                        >
+                          🍯
+                        </div>
                         <div className="absolute inset-0 shadow-[inset_0_0_10px_rgba(0,0,0,0.05)] pointer-events-none"></div>
                       </div>
                     </motion.div>
@@ -344,9 +351,9 @@ export default function Home() {
                   className="absolute inset-0 w-full h-full"
                 >
                   {frameData.map((frame, index) => {
-                    const configuredFrame = dynamicFrames.find(
-                      (f) => f.frameId === frame.id,
-                    );
+                    const configuredFrame = Array.isArray(dynamicFrames)
+                      ? dynamicFrames.find((f) => f.frameId === frame.id)
+                      : undefined;
                     const product = configuredFrame?.product;
 
                     const centerX = 255;
@@ -405,17 +412,24 @@ export default function Home() {
                         }}
                       >
                         <div className="w-full h-full overflow-hidden relative cursor-pointer shadow-sm rounded-[1px]">
-                          {product ? (
+                          {product && product.images?.[0] ? (
                             <img
-                              src={product.images?.[0]}
-                              alt={product.name}
+                              src={product.images[0]}
+                              alt={product.name || "Product"}
                               className="w-full h-full object-cover filter contrast-[1.05] brightness-105"
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                                e.currentTarget.nextElementSibling?.classList.remove(
+                                  "hidden",
+                                );
+                              }}
                             />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-100 text-[#5A3E36]/20 text-4xl">
-                              🍯
-                            </div>
-                          )}
+                          ) : null}
+                          <div
+                            className={`w-full h-full flex items-center justify-center bg-gray-100 text-[#5A3E36]/20 text-4xl absolute inset-0 ${product && product.images?.[0] ? "hidden" : ""}`}
+                          >
+                            🍯
+                          </div>
                           {/* Shadow overlay for depth */}
                           <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.05)] pointer-events-none"></div>
                         </div>
