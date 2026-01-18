@@ -32,10 +32,66 @@ const eduNSWACT = Edu_NSW_ACT_Foundation({
 });
 
 export const metadata: Metadata = {
-  title: "Basho by Shivangi",
-  description: "Handcrafted Japanese-inspired pottery",
+  metadataBase: new URL("https://basho-byy-shivangi.vercel.app"),
+  title: {
+    default: "Basho by Shivangi",
+    template: "%s | Basho by Shivangi",
+  },
+  description:
+    "Handcrafted Japanese-inspired pottery and ceramics by Shivangi. Explore our unique collections of art and home decor.",
+  keywords: [
+    "Pottery",
+    "Ceramics",
+    "Handcrafted",
+    "Japanese Art",
+    "Home Decor",
+    "Basho",
+    "Shivangi",
+    "Artisan",
+    "Clay",
+    "Studio Pottery",
+  ],
+  authors: [{ name: "Shivangi" }],
+  creator: "Shivangi",
+  publisher: "Basho by Shivangi",
   icons: {
     icon: "/website icon.png",
+    shortcut: "/website icon.png",
+    apple: "/website icon.png",
+  },
+  openGraph: {
+    title: "Basho by Shivangi",
+    description:
+      "Handcrafted Japanese-inspired pottery and ceramics by Shivangi. Explore our unique collections.",
+    url: "https://basho-byy-shivangi.vercel.app",
+    siteName: "Basho by Shivangi",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: "/website icon.png",
+        width: 800,
+        height: 600,
+        alt: "Basho by Shivangi Logo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Basho by Shivangi",
+    description: "Handcrafted Japanese-inspired pottery and ceramics.",
+    images: ["/website icon.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
