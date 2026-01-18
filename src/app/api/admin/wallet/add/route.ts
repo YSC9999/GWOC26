@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
-import WalletTransaction from "@/models/WalletTransaction";
+// import WalletTransaction from "@/models/WalletTransaction";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { sendWalletCreditEmail } from "@/lib/email";
@@ -51,13 +51,13 @@ export async function POST(req: Request) {
                 const newBalance = (user.walletBalance || 0) + Number(amount);
                 updates.push(User.findByIdAndUpdate(user._id, { walletBalance: newBalance }));
 
-                // 2. Create Transaction
-                updates.push(WalletTransaction.create({
-                    user: user._id,
-                    amount: Number(amount),
-                    type: 'credit',
-                    description: message || "Admin Giveaway Surprise! 🎉"
-                }));
+                // 2. Create Transaction (WalletTransaction model removed)
+                // updates.push(WalletTransaction.create({
+                //     user: user._id,
+                //     amount: Number(amount),
+                //     type: 'credit',
+                //     description: message || "Admin Giveaway Surprise! 🎉"
+                // }));
 
                 // 3. Send Email
                 updates.push(sendWalletCreditEmail(user.email, amount, newBalance, message));
@@ -75,12 +75,13 @@ export async function POST(req: Request) {
 
             await User.findByIdAndUpdate(userId, { walletBalance: newBalance });
 
-            await WalletTransaction.create({
-                user: userId,
-                amount: Number(amount),
-                type: 'credit',
-                description: message || "Admin Added Funds"
-            });
+            // WalletTransaction model removed; skipping transaction creation
+            // await WalletTransaction.create({
+            //     user: userId,
+            //     amount: Number(amount),
+            //     type: 'credit',
+            //     description: message || "Admin Added Funds"
+            // });
 
             await sendWalletCreditEmail(user.email, amount, newBalance, message);
 
