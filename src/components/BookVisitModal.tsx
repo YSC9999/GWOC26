@@ -22,15 +22,6 @@ export default function BookVisitModal({ isOpen, onClose }: BookVisitModalProps)
     const [errorMessage, setErrorMessage] = useState("");
     const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 
-    // Success Sound Effect
-    useEffect(() => {
-        if (status === "success") {
-            const audio = new Audio("/sounds/success.mp3");
-            audio.volume = 0.5;
-            audio.play().catch(err => console.log("Sound play prevented by browser:", err));
-        }
-    }, [status]);
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -49,6 +40,11 @@ export default function BookVisitModal({ isOpen, onClose }: BookVisitModalProps)
             if (!res.ok) throw new Error(data.error || "Failed to book visit");
 
             setStatus("success");
+            // Play success sound
+            const audio = new Audio("/sounds/success.mp3");
+            audio.volume = 0.5;
+            audio.play().catch(err => console.log("Sound play prevented by browser:", err));
+
             setTimeout(() => {
                 onClose();
                 setStatus("idle");

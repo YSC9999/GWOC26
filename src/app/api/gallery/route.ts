@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Gallery from "@/models/Gallery";
+import "@/models/Album"; // Ensure Album model is registered for populate
 
 // GET gallery items
 export async function GET(req: Request) {

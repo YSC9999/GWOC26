@@ -43,7 +43,7 @@ export default function Footer({ studioInfo }: { studioInfo?: any }) {
           {["Shop", "Workshops", "Studio", "About", "Contact"].map((label, idx) => (
             <Link
               key={idx}
-              href={`/${label.toLowerCase()}`}
+              href={label === "Shop" ? "/products" : `/${label.toLowerCase()}`}
               className="relative group"
             >
               <motion.span
