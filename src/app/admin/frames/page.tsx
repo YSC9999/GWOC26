@@ -28,7 +28,7 @@ interface Frame {
 
 export default function AdminFramesPage() {
   const [frames, setFrames] = useState<Frame[]>(
-    Array.from({ length: 9 }, (_, i) => ({ frameId: i, product: null }))
+    Array.from({ length: 9 }, (_, i) => ({ frameId: i, product: null })),
   );
   const [loading, setLoading] = useState(true);
 
@@ -78,7 +78,7 @@ export default function AdminFramesPage() {
     setSearching(true);
     try {
       const res = await fetch(
-        `/api/products/search?q=${encodeURIComponent(query)}`
+        `/api/products/search?q=${encodeURIComponent(query)}`,
       );
       const data = await res.json();
       setSearchResults(data.products || []);
@@ -187,6 +187,78 @@ export default function AdminFramesPage() {
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-medium text-center p-2">
                       {frame.product.name}
                     </div>
+                    {/* Only allow image change for the front polaroid (center frame, frameId 4) */}
+                    {frame.frameId === 4 && (
+                      <form
+                        className="absolute bottom-2 right-2 bg-white/80 rounded shadow p-1 flex items-center gap-1"
+                        onSubmit={async (e) => {
+                          e.preventDefault();
+                          const fileInput = (e.target as any).elements[0];
+                          const file = fileInput.files[0];
+                          if (!file) return;
+                          const formData = new FormData();
+                          formData.append("file", file);
+                          formData.append("upload_preset", "basho_upload"); // Cloudinary preset
+                          // Upload to Cloudinary
+                          const res = await fetch(
+                            "https://api.cloudinary.com/v1_1/dkqxnquga/image/upload",
+                            {
+                              method: "POST",
+                              body: formData,
+                            },
+                          );
+                          const data = await res.json();
+                          if (data.secure_url) {
+                            // Update product image array (replace first image)
+                            const updatedProduct = {
+                              ...frame.product,
+                              images: [
+                                data.secure_url,
+                                ...frame.product.images.slice(1),
+                              ],
+                            };
+                            // Save to backend (assume PATCH endpoint exists)
+                            await fetch(`/api/products/${frame.product._id}`, {
+                              method: "PATCH",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                images: updatedProduct.images,
+                              }),
+                            });
+                            // Optimistically update UI
+                            const updatedFrames = [...frames];
+                            updatedFrames[frame.frameId] = {
+                              ...updatedFrames[frame.frameId],
+                              product: updatedProduct,
+                            };
+                            setFrames(updatedFrames);
+                            alert("Image updated!");
+                          } else {
+                            alert("Image upload failed");
+                          }
+                          fileInput.value = "";
+                        }}
+                      >
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          id={`upload-image-${frame.frameId}`}
+                        />
+                        <label
+                          htmlFor={`upload-image-${frame.frameId}`}
+                          className="cursor-pointer text-xs px-2 py-1 bg-clay text-white rounded hover:bg-soil transition-colors"
+                        >
+                          Change Image
+                        </label>
+                        <button
+                          type="submit"
+                          className="text-xs px-2 py-1 bg-soil text-white rounded hover:bg-clay transition-colors ml-1"
+                        >
+                          Save
+                        </button>
+                      </form>
+                    )}
                   </>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-soil/20">
@@ -207,7 +279,7 @@ export default function AdminFramesPage() {
                           document
                             .getElementById(`search-${frame.frameId}`)
                             ?.focus(),
-                        100
+                        100,
                       );
                     }}
                     className="w-full py-3 border-2 border-clay text-clay rounded-xl font-semibold hover:bg-clay hover:text-white transition-all flex items-center justify-center gap-2"

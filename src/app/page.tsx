@@ -48,8 +48,9 @@ export default function Home() {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
-    null
+    null,
   );
   const [dynamicFrames, setDynamicFrames] = useState<FrameConfig[]>([]);
   const [showPreloader, setShowPreloader] = useState(false);
@@ -72,11 +73,17 @@ export default function Home() {
 
   const fetchData = async () => {
     try {
+      setError(null);
       const [collectionsRes, testimonialsRes, framesRes] = await Promise.all([
         fetch("/api/featured-collections?active=true", { cache: "no-store" }),
         fetch("/api/testimonials?featured=true&limit=3", { cache: "no-store" }),
         fetch("/api/admin/frames", { cache: "no-store" }),
       ]);
+
+      if (!collectionsRes.ok)
+        throw new Error("Failed to load featured collections");
+      if (!testimonialsRes.ok) throw new Error("Failed to load testimonials");
+      if (!framesRes.ok) throw new Error("Failed to load frames");
 
       const collectionsData = await collectionsRes.json();
       const testimonialsData = await testimonialsRes.json();
@@ -109,7 +116,8 @@ export default function Home() {
           new Promise((resolve) => setTimeout(resolve, 3000)), // 3s max wait time
         ]);
       }
-    } catch (error) {
+    } catch (error: any) {
+      setError(error?.message || "An error occurred while loading data.");
       console.error("Failed to fetch data:", error);
     } finally {
       setLoading(false);
@@ -121,17 +129,98 @@ export default function Home() {
   // Static frame data with distinct earthy colors for poster effect
   const frameData = [
     // Row 1
-    { id: 0, width: 130, height: 150, left: 20, top: 10, rotation: -4, zIndex: 1, color: "#F5EDE4" }, // Off-white/Beige
-    { id: 1, width: 140, height: 140, left: 190, top: 0, rotation: 3, zIndex: 2, color: "#E6D2C4" }, // Light Clay
-    { id: 2, width: 130, height: 150, left: 360, top: 15, rotation: -2, zIndex: 1, color: "#D4C5B9" }, // Stone
+    {
+      id: 0,
+      width: 130,
+      height: 150,
+      left: 20,
+      top: 10,
+      rotation: -4,
+      zIndex: 1,
+      color: "#F5EDE4",
+    }, // Off-white/Beige
+    {
+      id: 1,
+      width: 140,
+      height: 140,
+      left: 190,
+      top: 0,
+      rotation: 3,
+      zIndex: 2,
+      color: "#E6D2C4",
+    }, // Light Clay
+    {
+      id: 2,
+      width: 130,
+      height: 150,
+      left: 360,
+      top: 15,
+      rotation: -2,
+      zIndex: 1,
+      color: "#D4C5B9",
+    }, // Stone
     // Row 2
-    { id: 3, width: 150, height: 130, left: 0, top: 200, rotation: 4, zIndex: 2, color: "#C9A690" }, // Dusty Earth
-    { id: 4, width: 130, height: 150, left: 180, top: 180, rotation: -1, zIndex: 3, color: "#FFFFFF" }, // White Accent
-    { id: 5, width: 140, height: 140, left: 350, top: 200, rotation: 3, zIndex: 2, color: "#E0D8D0" }, // Light Greyish
+    {
+      id: 3,
+      width: 150,
+      height: 130,
+      left: 0,
+      top: 200,
+      rotation: 4,
+      zIndex: 2,
+      color: "#C9A690",
+    }, // Dusty Earth
+    {
+      id: 4,
+      width: 130,
+      height: 150,
+      left: 180,
+      top: 180,
+      rotation: -1,
+      zIndex: 3,
+      color: "#FFFFFF",
+    }, // White Accent
+    {
+      id: 5,
+      width: 140,
+      height: 140,
+      left: 350,
+      top: 200,
+      rotation: 3,
+      zIndex: 2,
+      color: "#E0D8D0",
+    }, // Light Greyish
     // Row 3
-    { id: 6, width: 130, height: 140, left: 30, top: 380, rotation: -5, zIndex: 1, color: "#DDBEA9" }, // Warm Beige
-    { id: 7, width: 150, height: 130, left: 200, top: 370, rotation: 2, zIndex: 2, color: "#F0EAD6" }, // Eggshell
-    { id: 8, width: 130, height: 150, left: 380, top: 390, rotation: -3, zIndex: 1, color: "#CB997E" }, // Terracotta tint
+    {
+      id: 6,
+      width: 130,
+      height: 140,
+      left: 30,
+      top: 380,
+      rotation: -5,
+      zIndex: 1,
+      color: "#DDBEA9",
+    }, // Warm Beige
+    {
+      id: 7,
+      width: 150,
+      height: 130,
+      left: 200,
+      top: 370,
+      rotation: 2,
+      zIndex: 2,
+      color: "#F0EAD6",
+    }, // Eggshell
+    {
+      id: 8,
+      width: 130,
+      height: 150,
+      left: 380,
+      top: 390,
+      rotation: -3,
+      zIndex: 1,
+      color: "#CB997E",
+    }, // Terracotta tint
   ];
 
   if (showPreloader) {
@@ -197,11 +286,12 @@ export default function Home() {
 
             {/* Right Image Grid - Responsive Handling */}
             <div className="relative w-full mt-8 md:mt-0">
-
               {/* Mobile/Small Tablet View (Grid Layout) */}
               <div className="grid grid-cols-3 gap-3 md:hidden max-w-sm mx-auto">
                 {frameData.map((frame, index) => {
-                  const configuredFrame = dynamicFrames.find(f => f.frameId === frame.id);
+                  const configuredFrame = dynamicFrames.find(
+                    (f) => f.frameId === frame.id,
+                  );
                   const product = configuredFrame?.product;
 
                   return (
@@ -211,18 +301,20 @@ export default function Home() {
                       animate={{
                         scale: 1,
                         opacity: 1,
-                        rotate: frame.rotation
+                        rotate: frame.rotation,
                       }}
                       transition={{
                         type: "spring",
                         stiffness: 90,
                         damping: 15,
-                        delay: index * 0.05
+                        delay: index * 0.05,
                       }}
                       whileHover={{ scale: 1.05 }}
                       className="relative w-full aspect-[0.85] p-[3px] shadow-md rounded-[3px] overflow-hidden border-[0.5px] border-black/10"
                       style={{ backgroundColor: frame.color }}
-                      onClick={() => product && setSelectedProductId(product._id)}
+                      onClick={() =>
+                        product && setSelectedProductId(product._id)
+                      }
                     >
                       <div className="w-full h-full overflow-hidden relative shadow-sm rounded-[1px]">
                         {product ? (
@@ -232,7 +324,9 @@ export default function Home() {
                             className="w-full h-full object-cover filter contrast-[1.05] brightness-105"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gray-100 text-[#5A3E36]/20 text-2xl">🍯</div>
+                          <div className="w-full h-full flex items-center justify-center bg-gray-100 text-[#5A3E36]/20 text-2xl">
+                            🍯
+                          </div>
                         )}
                         <div className="absolute inset-0 shadow-[inset_0_0_10px_rgba(0,0,0,0.05)] pointer-events-none"></div>
                       </div>
@@ -251,7 +345,7 @@ export default function Home() {
                 >
                   {frameData.map((frame, index) => {
                     const configuredFrame = dynamicFrames.find(
-                      (f) => f.frameId === frame.id
+                      (f) => f.frameId === frame.id,
                     );
                     const product = configuredFrame?.product;
 
@@ -292,8 +386,9 @@ export default function Home() {
                           scale: 1.1,
                           zIndex: 50,
                           rotate: 0,
-                          transition: { duration: 0.3 }
+                          transition: { duration: 0.3 },
                         }}
+                        transition={{ duration: 0 }}
                         className="absolute p-[3px] shadow-md hover:shadow-xl transition-all duration-300 transform origin-center rounded-[3px] overflow-hidden border-[0.5px] border-black/10"
                         style={{
                           backgroundColor: frame.color,
@@ -301,7 +396,7 @@ export default function Home() {
                           height: `${frame.height}px`,
                           left: `${frame.left}px`,
                           top: `${frame.top}px`,
-                          zIndex: frame.zIndex
+                          zIndex: frame.zIndex,
                         }}
                         onClick={() => {
                           if (product) {
@@ -329,14 +424,17 @@ export default function Home() {
                   })}
                 </motion.div>
               </div>
-
             </div>
           </div>
         </div>
       </motion.section>
 
       {/* Featured Collections Grid */}
-      <FeaturedCollections collections={collections} />
+      <FeaturedCollections
+        collections={collections}
+        loading={loading}
+        error={error}
+      />
 
       {/* Matsuo Bashō - The Poet Who Inspires Us */}
       <motion.section

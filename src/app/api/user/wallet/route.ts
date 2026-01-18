@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
-import WalletTransaction from "@/models/WalletTransaction";
+// import WalletTransaction from "@/models/WalletTransaction";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
@@ -32,11 +32,10 @@ export async function GET(req: Request) {
         if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
         const dbUser = await User.findById(user.id).select("walletBalance");
-        const transactions = await WalletTransaction.find({ user: user.id }).sort({ createdAt: -1 });
-
+        // WalletTransaction model removed; returning only balance
         return NextResponse.json({
             balance: dbUser?.walletBalance || 0,
-            transactions
+            transactions: []
         });
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
