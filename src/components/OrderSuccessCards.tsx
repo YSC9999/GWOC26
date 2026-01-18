@@ -16,8 +16,17 @@ export default function OrderSuccessCards({
 }: OrderSuccessCardsProps) {
   const [showModal, setShowModal] = useState(true);
 
-  // Auto-send email on component mount
+  // Success sound and auto-send email on component mount
   useEffect(() => {
+    // Play success sound
+    const playSound = () => {
+      const audio = new Audio("/sounds/success.mp3");
+      audio.volume = 0.5;
+      audio.play().catch(err => console.log("Sound play prevented by browser:", err));
+    };
+
+    playSound();
+
     const sendEmail = async () => {
       try {
         await fetch("/api/orders/send-cards", {

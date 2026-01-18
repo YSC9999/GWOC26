@@ -99,6 +99,16 @@ export default function Products() {
   const [customLoading, setCustomLoading] = useState(false);
   const [customSubmitted, setCustomSubmitted] = useState(false);
   const [customError, setCustomError] = useState("");
+
+  // Success Sound Effect
+  useEffect(() => {
+    if (customSubmitted) {
+      const audio = new Audio("/sounds/success.mp3");
+      audio.volume = 0.5;
+      audio.play().catch(err => console.log("Sound play prevented by browser:", err));
+    }
+  }, [customSubmitted]);
+
   const [previousOrders, setPreviousOrders] = useState<any[]>([]);
   const [otp, setOtp] = useState("");
 

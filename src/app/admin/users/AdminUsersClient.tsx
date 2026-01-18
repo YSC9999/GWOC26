@@ -33,6 +33,7 @@ export default function AdminUsers() {
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
   const [error, setError] = useState("");
 
   const [showAdd, setShowAdd] = useState(false);
@@ -48,7 +49,7 @@ export default function AdminUsers() {
 
   useEffect(() => {
     fetchUsers();
-  }, [page, search, role]);
+  }, [page, search, role, sortBy]);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -58,7 +59,8 @@ export default function AdminUsers() {
       params.append("page", String(page));
       params.append("limit", String(limit));
       if (search) params.append("search", search);
-      if (role && role !== "all") params.append("role", role); // Only append if not 'all'
+      if (role && role !== "all") params.append("role", role);
+      params.append("sortBy", sortBy);
 
       const res = await fetch(`/api/admin/users?${params.toString()}`, {
         credentials: "same-origin",
@@ -210,38 +212,52 @@ export default function AdminUsers() {
   return (
     <AdminPageContainer title="User Management">
       <div className="space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center gap-3">
+        <div className="flex flex-col md:flex-row md:items-center justify-end gap-3">
           <input
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setPage(1);
             }}
-            placeholder="Search by name or email"
-            className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full md:w-auto flex-1 text-base md:text-sm text-soil shadow-sm placeholder:text-soil/30"
+            placeholder="Search by name or email..."
+            className="border-soil/10 focus:bg-white/10 focus:ring-4 focus:ring-clay/5 rounded-xl px-4 py-3 bg-sand/10 backdrop-blur-sm w-full md:w-80 text-soil placeholder:text-soil/30 transition-all outline-none"
           />
           <select
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            className="bg-sand/10 focus:bg-white/10 border border-soil/10 focus:border-clay/50 rounded-xl px-4 py-3 outline-none transition-all w-full md:w-auto text-base md:text-sm text-soil shadow-sm"
+            className="border-soil/10 focus:bg-white/10 focus:ring-4 focus:ring-clay/5 rounded-xl px-4 py-3 bg-sand/10 backdrop-blur-sm w-full md:w-auto text-soil cursor-pointer outline-none"
           >
             <option value="all">All Roles</option>
             <option value="customer">Customer</option>
             <option value="admin">Admin</option>
+          </select>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="border-soil/10 focus:bg-white/10 focus:ring-4 focus:ring-clay/5 rounded-xl px-4 py-3 bg-sand/10 backdrop-blur-sm w-full md:w-auto text-soil cursor-pointer outline-none"
+          >
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="name-asc">Name: A to Z</option>
+            <option value="name-desc">Name: Z to A</option>
+            <option value="email-asc">Email: A to Z</option>
+            <option value="email-desc">Email: Z to A</option>
+            <option value="tier-desc">Tier: High to Low</option>
+            <option value="tier-asc">Tier: Low to High</option>
           </select>
           <button
             onClick={() => {
               setPage(1);
               fetchUsers();
             }}
-            className="bg-clay text-white px-6 py-2 rounded-lg w-full md:w-auto hover:bg-clay/90 transition-colors shadow-md font-medium"
+            className="bg-clay text-white px-6 py-3 rounded-xl hover:bg-clay/90 transition-all shadow-md font-medium"
           >
-            Search
+            Fetch
           </button>
-          <div className="ml-auto w-full md:w-auto">
+          <div className="md:ml-2">
             <button
               onClick={() => setShowAdd(true)}
-              className="bg-green-600 text-white px-6 py-2 rounded-lg w-full md:w-auto hover:bg-green-700 transition-colors shadow-md font-medium"
+              className="bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-800 transition-all shadow-md font-medium"
             >
               Add User
             </button>

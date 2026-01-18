@@ -38,12 +38,40 @@ export default function AdminCustomOrdersPage() {
   const [description, setDescription] = useState("");
   const [loadingPrevious, setLoadingPrevious] = useState(false);
 
+  const [sortBy, setSortBy] = useState("newest");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredAndSortedOrders = React.useMemo(() => {
+    let result = orders.filter((o) => {
+      const term = searchTerm.toLowerCase();
+      return (
+        o.name?.toLowerCase().includes(term) ||
+        o.email?.toLowerCase().includes(term) ||
+        o.description?.toLowerCase().includes(term) ||
+        o._id.toLowerCase().includes(term)
+      );
+    });
+
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case "newest": return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case "oldest": return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        case "status-asc": return a.status.localeCompare(b.status);
+        case "status-desc": return b.status.localeCompare(a.status);
+        case "price-high": return (b.totalPrice || 0) - (a.totalPrice || 0);
+        case "price-low": return (a.totalPrice || 0) - (b.totalPrice || 0);
+        default: return 0;
+      }
+    });
+    return result;
+  }, [orders, sortBy, searchTerm]);
+
   /* PAGINATION */
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const totalPages = Math.ceil(orders.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredAndSortedOrders.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentOrders = orders.slice(startIndex, startIndex + itemsPerPage);
+  const currentOrders = filteredAndSortedOrders.slice(startIndex, startIndex + itemsPerPage);
 
   const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -185,8 +213,8 @@ export default function AdminCustomOrdersPage() {
           <button
             onClick={() => setActiveTab("requests")}
             className={`pb-4 px-4 font-medium transition-colors ${activeTab === "requests"
-                ? "border-b-2 border-clay text-clay"
-                : "text-soil/60 hover:text-soil"
+              ? "border-b-2 border-clay text-clay"
+              : "text-soil/60 hover:text-soil"
               }`}
           >
             Customer Requests
@@ -194,8 +222,8 @@ export default function AdminCustomOrdersPage() {
           <button
             onClick={() => setActiveTab("previous")}
             className={`pb-4 px-4 font-medium transition-colors ${activeTab === "previous"
-                ? "border-b-2 border-clay text-clay"
-                : "text-soil/60 hover:text-soil"
+              ? "border-b-2 border-clay text-clay"
+              : "text-soil/60 hover:text-soil"
               }`}
           >
             Manage Previous Works
@@ -210,6 +238,7 @@ export default function AdminCustomOrdersPage() {
                 <Loader2 className="animate-spin" />
               </div>
             ) : orders.length === 0 ? (
+              /* ... empty state ... */
               <div className="bg-sand/30 rounded-3xl p-12 text-center">
                 <h2 className="text-xl font-bold text-soil mb-2">
                   No custom requests
@@ -220,6 +249,27 @@ export default function AdminCustomOrdersPage() {
               </div>
             ) : (
               <>
+                <div className="flex flex-col md:flex-row md:items-center justify-end gap-3 mb-6">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="border-soil/10 focus:bg-white/10 focus:ring-4 focus:ring-clay/5 rounded-xl px-4 py-3 bg-sand/10 backdrop-blur-sm w-full md:w-auto text-soil cursor-pointer outline-none"
+                  >
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="status-asc">Status: A to Z</option>
+                    <option value="status-desc">Status: Z to A</option>
+                    <option value="price-high">Budget: High to Low</option>
+                    <option value="price-low">Budget: Low to High</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Search by name, email or desc..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="border-soil/10 focus:bg-white/10 focus:ring-4 focus:ring-clay/5 rounded-xl px-4 py-3 bg-sand/10 backdrop-blur-sm w-full md:w-80 text-soil placeholder:text-soil/30 transition-all outline-none"
+                  />
+                </div>
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden overflow-x-auto">
                   <table className="w-full text-left">
                     <thead className="bg-sand/30 text-soil/70 font-medium">
@@ -310,8 +360,8 @@ export default function AdminCustomOrdersPage() {
                             key={page}
                             onClick={() => goToPage(page)}
                             className={`px-3 py-1 rounded-lg font-medium transition-colors ${page === currentPage
-                                ? "bg-clay text-white"
-                                : "bg-sand/30 hover:bg-sand/50 text-soil"
+                              ? "bg-clay text-white"
+                              : "bg-sand/30 hover:bg-sand/50 text-soil"
                               }`}
                           >
                             {page}

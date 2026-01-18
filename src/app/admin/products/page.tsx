@@ -71,7 +71,7 @@ export default function AdminProductsPage() {
   const [success, setSuccess] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
 
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+  const [sortBy, setSortBy] = useState("newest");
 
   const filteredProducts = products.filter((p) => {
     const term = searchTerm.toLowerCase();
@@ -82,27 +82,21 @@ export default function AdminProductsPage() {
     const catMatch =
       p.category?.toLowerCase().includes(term) || catLabel?.includes(term);
     return nameMatch || catMatch;
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case "newest": return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      case "oldest": return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+      case "price-high": return b.price - a.price;
+      case "price-low": return a.price - b.price;
+      case "name-asc": return a.name.localeCompare(b.name);
+      case "name-desc": return b.name.localeCompare(a.name);
+      case "stock-high": return b.stockQuantity - a.stockQuantity;
+      case "stock-low": return a.stockQuantity - b.stockQuantity;
+      default: return 0;
+    }
   });
 
-  if (sortConfig) {
-    filteredProducts.sort((a, b) => {
-      if (a[sortConfig.key] < b[sortConfig.key]) {
-        return sortConfig.direction === "asc" ? -1 : 1;
-      }
-      if (a[sortConfig.key] > b[sortConfig.key]) {
-        return sortConfig.direction === "asc" ? 1 : -1;
-      }
-      return 0;
-    });
-  }
-
-  const handleSort = (key: string) => {
-    let direction: "asc" | "desc" = "asc";
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
-    }
-    setSortConfig({ key, direction });
-  };
+  /* REMOVED OLD SORT CONFIG LOGIC */
 
   /* PAGINATION */
   const [currentPage, setCurrentPage] = useState(1);
@@ -319,21 +313,37 @@ export default function AdminProductsPage() {
           </motion.div>
         )}
 
-        <div className="flex flex-col md:flex-row md:items-center justify-end gap-4 mb-6 flex-wrap">
+        <div className="flex flex-col md:flex-row md:items-center justify-end gap-3 mb-6 flex-wrap">
           <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+            {/* SORT DROPDOWN */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="border-soil/10 focus:bg-white/10 focus:ring-4 focus:ring-clay/5 rounded-xl px-4 py-3 bg-sand/10 backdrop-blur-sm w-full md:w-auto text-soil cursor-pointer outline-none"
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="name-asc">Name: A to Z</option>
+              <option value="name-desc">Name: Z to A</option>
+              <option value="stock-high">Stock: High to Low</option>
+              <option value="stock-low">Stock: Low to High</option>
+            </select>
+
             {/* SEARCH BAR */}
             <input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by name or category..."
-              className="border border-soil/10 p-2 w-full md:w-64 rounded-xl bg-sand/10 focus:bg-white/10 focus:outline-none focus:ring-4 focus:ring-clay/5 transition-all text-soil placeholder:text-soil/40"
+              className="border-soil/10 focus:bg-white/10 focus:ring-4 focus:ring-clay/5 rounded-xl px-4 py-3 bg-sand/10 backdrop-blur-sm w-full md:w-80 text-soil placeholder:text-soil/30 transition-all outline-none"
             />
 
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowAddForm(!showAddForm)}
-              className={`px-4 py-2 rounded-lg font-medium shadow-md transition-all flex items-center justify-center gap-2 ${showAddForm
+              className={`px-6 py-3 rounded-xl font-medium shadow-md transition-all flex items-center justify-center gap-2 ${showAddForm
                 ? "bg-gray-200 text-soil hover:bg-gray-300"
                 : "bg-black text-white hover:bg-gray-800"
                 }`}
@@ -624,26 +634,17 @@ export default function AdminProductsPage() {
             <table className="w-full table-fixed min-w-[800px] bg-white/5 backdrop-blur-xl">
               <thead className="bg-sand/20 backdrop-blur-md text-soil/60 border-b border-soil/10 uppercase tracking-wider text-[10px] font-bold">
                 <tr>
-                  <th
-                    className="w-4/12 p-3 text-left font-semibold cursor-pointer hover:text-clay transition-colors group"
-                    onClick={() => handleSort("name")}
-                  >
-                    Name {sortConfig?.key === "name" && (sortConfig.direction === "asc" ? "↑" : "↓")}
+                  <th className="w-4/12 p-3 text-left font-semibold">
+                    Name
                   </th>
                   <th className="w-2/12 p-3 text-left font-semibold">
                     Category
                   </th>
-                  <th
-                    className="w-1/12 p-3 text-left font-semibold cursor-pointer hover:text-clay transition-colors"
-                    onClick={() => handleSort("price")}
-                  >
-                    Price {sortConfig?.key === "price" && (sortConfig.direction === "asc" ? "↑" : "↓")}
+                  <th className="w-1/12 p-3 text-left font-semibold">
+                    Price
                   </th>
-                  <th
-                    className="w-1/12 p-3 text-left font-semibold cursor-pointer hover:text-clay transition-colors"
-                    onClick={() => handleSort("stockQuantity")}
-                  >
-                    Stock {sortConfig?.key === "stockQuantity" && (sortConfig.direction === "asc" ? "↑" : "↓")}
+                  <th className="w-1/12 p-3 text-left font-semibold">
+                    Stock
                   </th>
                   <th className="w-1/12 p-3 text-left font-semibold">Img</th>
                   <th className="w-3/12 p-3 text-right font-semibold">
@@ -776,167 +777,179 @@ export default function AdminProductsPage() {
         </div>
 
         {/* Edit Modal */}
-        {editingId && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-soil/20 backdrop-blur-md p-4">
-            <div className="bg-[#EFE5D8] rounded-2xl shadow-xl w-full max-w-2xl p-6 border border-soil/10">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold">Edit Product</h3>
-                <button
-                  onClick={() => setEditingId(null)}
-                  className="text-soil/60 hover:text-soil inline-flex items-center gap-1"
-                >
-                  <X size={18} /> Close
-                </button>
-              </div>
+        <AnimatePresence>
+          {editingId && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-soil/20 backdrop-blur-md p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-[#EFE5D8] rounded-2xl shadow-2xl w-full max-w-4xl p-6 md:p-8 border border-white/20 max-h-[90vh] overflow-y-auto relative"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-serif font-bold text-soil flex items-center gap-2">
+                    Edit Product
+                  </h3>
+                  <button
+                    onClick={() => setEditingId(null)}
+                    className="p-2 hover:bg-soil/10 rounded-full transition-colors text-soil/60 hover:text-soil"
+                  >
+                    <X size={24} />
+                  </button>
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-soil mb-1">Name</label>
-                  <input
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="border p-2 w-full"
-                  />
-
-                  <label className="block text-sm text-soil mt-3 mb-1">
-                    Price
-                  </label>
-                  <input
-                    type="number"
-                    value={form.price}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        price:
-                          e.target.value === "" ? "" : Number(e.target.value),
-                      })
-                    }
-                    className="border p-2 w-full"
-                  />
-
-                  <label className="block text-sm text-soil mt-3 mb-1">
-                    Stock
-                  </label>
-                  <input
-                    type="number"
-                    value={form.stockQuantity}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        stockQuantity:
-                          e.target.value === "" ? "" : Number(e.target.value),
-                      })
-                    }
-                    className="border p-2 w-full"
-                  />
-
-                  <label className="block text-sm text-soil mt-3 mb-1">
-                    Weight (grams)
-                  </label>
-                  <input
-                    type="number"
-                    value={form.weightGrams}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        weightGrams:
-                          e.target.value === "" ? "" : Number(e.target.value),
-                      })
-                    }
-                    className="border p-2 w-full"
-                    placeholder="e.g. 500"
-                  />
-
-                  <label className="block text-sm text-soil mt-3 mb-1">
-                    Category
-                  </label>
-                  <div className="space-y-2">
-                    <select
-                      value={
-                        PRODUCT_CATEGORIES.some((c) => c.id === category)
-                          ? category
-                          : "other"
+                <div className="flex gap-4 flex-wrap">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+                    <input
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      placeholder="Name"
+                      className="bg-white/40 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/60 text-soil"
+                    />
+                    <input
+                      type="number"
+                      value={form.price}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          price:
+                            e.target.value === "" ? "" : Number(e.target.value),
+                        })
                       }
-                      onChange={(e) => {
-                        if (e.target.value === "other") {
-                          setCategory(""); // Clear to allow typing, or keep existing if it was already custom?
-                          // Better: if "other", user intends to type.
-                        } else {
-                          setCategory(e.target.value);
-                        }
-                      }}
-                      className="border p-2 w-full"
-                    >
-                      <option value="">Select category</option>
-                      {PRODUCT_CATEGORIES.filter((c) => c.id !== "all").map(
-                        (cat) => (
-                          <option key={cat.id} value={cat.id}>
-                            {cat.label}
-                          </option>
-                        )
-                      )}
-                      <option value="other">Other (Add New)</option>
-                    </select>
-
-                    {/* Show input if category is NOT in the predefined list (meaning it's custom or "other" selected) */}
-                    {!PRODUCT_CATEGORIES.some((c) => c.id === category) && (
-                      <input
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                        placeholder="Enter custom category"
-                        className="border p-2 w-full"
-                      />
-                    )}
+                      placeholder="Price"
+                      className="bg-white/40 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/60 text-soil"
+                    />
+                    <input
+                      type="number"
+                      value={form.stockQuantity}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          stockQuantity:
+                            e.target.value === "" ? "" : Number(e.target.value),
+                        })
+                      }
+                      placeholder="Stock"
+                      className="bg-white/40 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/60 text-soil"
+                    />
+                    <input
+                      type="number"
+                      value={form.weightGrams}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          weightGrams:
+                            e.target.value === "" ? "" : Number(e.target.value),
+                        })
+                      }
+                      placeholder="Weight (g)"
+                      className="bg-white/40 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/60 text-soil"
+                    />
                   </div>
 
-                  <label className="block text-sm text-soil mt-3 mb-1">
-                    Short description
-                  </label>
-                  <input
+                  {/* Category Selection */}
+                  <div className="flex gap-4 w-full relative">
+                    <div className="relative flex-grow">
+                      <div
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        className="border border-soil/10 p-4 rounded-xl w-full bg-white/40 focus:bg-white/60 transition-all cursor-pointer flex justify-between items-center"
+                      >
+                        <span className={category ? "text-soil font-medium" : "text-soil/40"}>
+                          {categories.find((c) => c.slug === category)?.name || category || "Select category"}
+                        </span>
+                        <ChevronRight className={`w-5 h-5 transition-transform text-soil/30 ${isDropdownOpen ? "rotate-90" : ""}`} />
+                      </div>
+
+                      {isDropdownOpen && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-[#FAF7F2] border border-soil/10 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                          {categories.map((cat) => (
+                            <div
+                              key={cat._id}
+                              className="flex items-center justify-between p-3 hover:bg-brown-50 cursor-pointer group transition-colors"
+                              onClick={() => {
+                                setCategory(cat.slug);
+                                setIsDropdownOpen(false);
+                              }}
+                            >
+                              <span>{cat.name}</span>
+                            </div>
+                          ))}
+                          <div
+                            className="p-3 hover:bg-brown-50 cursor-pointer text-clay font-medium border-t border-soil/5"
+                            onClick={() => {
+                              setCategory("other");
+                              setIsDropdownOpen(false);
+                            }}
+                          >
+                            + Add New Category
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {category === "other" || (!categories.find((c) => c.slug === category) && category !== "") ? (
+                      <input
+                        value={category === "other" ? "" : category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        placeholder="Enter new category"
+                        className="border border-soil/10 p-4 rounded-xl flex-grow focus:ring-4 focus:ring-clay/5 outline-none bg-white/40"
+                      />
+                    ) : null}
+                  </div>
+
+                  <textarea
                     value={descriptionText}
                     onChange={(e) => setDescriptionText(e.target.value)}
-                    className="border p-2 w-full"
+                    placeholder="Product Description"
+                    rows={4}
+                    className="bg-white/40 border border-soil/10 p-4 rounded-xl w-full focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/60 text-soil resize-none"
                   />
 
-                  <div className="mt-4">
-                    <label className="block text-sm text-soil mb-1">Tags</label>
-                    <div className="flex gap-2">
+                  {/* Tags Input */}
+                  <div className="w-full bg-white/30 p-4 rounded-xl border border-soil/5">
+                    <label className="block text-sm font-medium text-soil/70 mb-2">Tags</label>
+                    <div className="flex gap-2 mb-3">
                       <input
                         value={tagInput}
                         onChange={(e) => setTagInput(e.target.value)}
                         onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault(); // prevent form submit
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
                             if (tagInput.trim()) {
-                              setForm((prev) => ({ ...prev, tags: [...(prev.tags || []), tagInput.trim()] }));
+                              if (!form.tags.includes(tagInput.trim())) {
+                                setForm({ ...form, tags: [...(form.tags || []), tagInput.trim()] });
+                              }
                               setTagInput("");
                             }
                           }
                         }}
-                        placeholder="Add a tag..."
-                        className="border p-2 w-full flex-1"
+                        placeholder="Type tag and press Enter..."
+                        className="bg-white/50 border border-soil/10 p-3 rounded-lg flex-grow focus:ring-2 focus:ring-clay/20 outline-none text-soil"
                       />
                       <button
                         type="button"
                         onClick={() => {
                           if (tagInput.trim()) {
-                            setForm((prev) => ({ ...prev, tags: [...(prev.tags || []), tagInput.trim()] }));
+                            if (!form.tags?.includes(tagInput.trim())) {
+                              setForm({ ...form, tags: [...(form.tags || []), tagInput.trim()] });
+                            }
                             setTagInput("");
                           }
                         }}
-                        className="px-4 py-2 bg-soil text-white rounded hover:bg-soil/90"
+                        className="bg-soil text-white px-5 rounded-lg hover:bg-soil/90 font-medium"
                       >
                         Add
                       </button>
                     </div>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {(form.tags || []).map((tag, idx) => (
-                        <span key={idx} className="bg-sand/30 text-soil px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
-                          {tag}
+                    <div className="flex flex-wrap gap-2 min-h-[30px]">
+                      {form?.tags?.length === 0 && <span className="text-soil/40 text-sm italic">No tags added yet</span>}
+                      {form?.tags?.map((tag: string, idx: number) => (
+                        <span key={idx} className="bg-white text-clay px-3 py-1 rounded-full text-sm font-bold shadow-sm border border-clay/10 flex items-center gap-2">
+                          #{tag}
                           <button
                             type="button"
-                            onClick={() => setForm((prev) => ({ ...prev, tags: prev.tags.filter((_, i) => i !== idx) }))}
-                            className="hover:text-red-500"
+                            onClick={() => setForm({ ...form, tags: form.tags.filter((t: string) => t !== tag) })}
+                            className="hover:text-red-500 w-4 h-4 flex items-center justify-center rounded-full hover:bg-red-50"
                           >
                             ×
                           </button>
@@ -944,63 +957,64 @@ export default function AdminProductsPage() {
                       ))}
                     </div>
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-sm text-soil mb-1">Images</label>
-                  <div className="flex gap-2 flex-wrap mb-3">
-                    {(form.images || []).map((img, idx) => (
-                      <div key={idx} className="relative">
-                        <img
-                          src={img}
-                          className="w-24 h-24 object-cover rounded"
-                        />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setForm((prev) => ({
-                              ...prev,
-                              images: prev.images.filter((_, i) => i !== idx),
-                            }))
-                          }
-                          className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 text-xs"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
+                  {/* Images */}
+                  <div className="w-full">
+                    <label className="block text-sm font-medium text-soil/70 mb-2">Images</label>
+                    <div className="flex gap-2 mb-3 flex-wrap">
+                      {(form.images || []).map((img, idx) => (
+                        <div key={idx} className="relative group">
+                          <img
+                            src={img}
+                            className="w-24 h-24 object-cover rounded-lg shadow-sm bg-white"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setForm((prev) => ({
+                                ...prev,
+                                images: prev.images.filter((_, i) => i !== idx),
+                              }))
+                            }
+                            className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <UploadInput
+                      uploadPreset={"products_unsigned"}
+                      folder={"products/"}
+                      onUploaded={(urls) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          images: [...(prev.images || []), ...urls],
+                        }))
+                      }
+                    />
                   </div>
 
-                  <UploadInput
-                    uploadPreset={"products_unsigned"}
-                    folder={"products/"}
-                    onUploaded={(urls) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        images: [...(prev.images || []), ...urls],
-                      }))
-                    }
-                  />
-
-                  <div className="mt-6 flex gap-3 justify-end">
+                  <div className="w-full mt-6 flex gap-3 justify-end">
                     <button
                       onClick={() => setEditingId(null)}
-                      className="px-4 py-2 border rounded hover:bg-gray-50 inline-flex items-center gap-2"
+                      className="px-6 py-3 border border-soil/10 rounded-xl hover:bg-white/40 text-soil transition-colors inline-flex items-center gap-2 font-medium"
                     >
-                      <X size={16} /> Cancel
+                      <X size={18} /> Cancel
                     </button>
                     <button
                       onClick={() => editingId && handleUpdate(editingId)}
-                      className="px-4 py-2 bg-clay text-white rounded hover:bg-clay/90 inline-flex items-center gap-2"
+                      className="px-6 py-3 bg-clay text-white rounded-xl hover:bg-clay/90 shadow-lg hover:shadow-xl transition-all inline-flex items-center gap-2 font-medium"
                     >
-                      <Save size={16} /> Save
+                      <Save size={18} /> Save Changes
                     </button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
-          </div>
-        )}
+          )}
+        </AnimatePresence>
       </motion.div>
     </AdminPageContainer>
   );

@@ -14,6 +14,7 @@ export async function GET(req: Request) {
     const role = url.searchParams.get("role") || "all";
     const limit = parseInt(url.searchParams.get("limit") || "10");
     const page = parseInt(url.searchParams.get("page") || "1");
+    const sortBy = url.searchParams.get("sortBy") || "newest";
 
     const query: any = {};
     // Filter out unverified temporary users (created by send-otp)
@@ -28,9 +29,21 @@ export async function GET(req: Request) {
       ];
     }
 
+    let sortOptions: any = { createdAt: -1 };
+    switch (sortBy) {
+      case "oldest": sortOptions = { createdAt: 1 }; break;
+      case "name-asc": sortOptions = { name: 1 }; break;
+      case "name-desc": sortOptions = { name: -1 }; break;
+      case "email-asc": sortOptions = { email: 1 }; break;
+      case "email-desc": sortOptions = { email: -1 }; break;
+      case "tier-asc": sortOptions = { tier: 1 }; break;
+      case "tier-desc": sortOptions = { tier: -1 }; break;
+      default: sortOptions = { createdAt: -1 };
+    }
+
     const skip = (page - 1) * limit;
     const [users, total] = await Promise.all([
-      User.find(query).select("-password").sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      User.find(query).select("-password").sort(sortOptions).skip(skip).limit(limit).lean(),
       User.countDocuments(query),
     ]);
 

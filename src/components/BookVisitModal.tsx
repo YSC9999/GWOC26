@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, Users, Clock } from "lucide-react";
 
@@ -19,8 +19,17 @@ export default function BookVisitModal({ isOpen, onClose }: BookVisitModalProps)
         message: "",
     });
     const [loading, setLoading] = useState(false);
-    const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
     const [errorMessage, setErrorMessage] = useState("");
+    const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+
+    // Success Sound Effect
+    useEffect(() => {
+        if (status === "success") {
+            const audio = new Audio("/sounds/success.mp3");
+            audio.volume = 0.5;
+            audio.play().catch(err => console.log("Sound play prevented by browser:", err));
+        }
+    }, [status]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

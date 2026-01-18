@@ -140,6 +140,13 @@ export default function InvoicePage() {
                             <span>+₹{order.shippingCost.toLocaleString()}</span>
                         </div>
                     )}
+
+                    {order.gstAmount > 0 && (
+                        <div className="flex justify-between text-slate-600">
+                            <span>GST (Included/Extra)</span>
+                            <span>+₹{order.gstAmount.toLocaleString()}</span>
+                        </div>
+                    )}
                     {(order.shippingCost === 0 || !order.shippingCost) && (
                         <div className="flex justify-between text-green-600 text-sm">
                             <span>Shipping</span>
