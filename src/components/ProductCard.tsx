@@ -153,11 +153,14 @@ export default function ProductCard({ product, userTier, onProductClick }: Produ
             />
           </motion.button>
 
-          <div className="relative overflow-hidden rounded-lg mb-3 h-40">
+          <div className="relative overflow-hidden rounded-lg mb-3 h-40 bg-gray-100">
             <img
               src={product.images?.[0] || product.image}
               alt={product.name}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+              style={{ contentVisibility: "auto" }}
             />
             {!allowed && (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px]">

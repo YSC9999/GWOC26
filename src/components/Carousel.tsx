@@ -67,7 +67,11 @@ export function Carousel({ items }: { items: SlideData[] }) {
             <img
               src={items[currentIndex].image}
               alt="Showcase"
+              loading="eager"
+              decoding="sync"
+              fetchPriority="high"
               className="w-full h-full object-cover"
+              style={{ contentVisibility: "auto" }}
             />
             {/* Optional Title Overlay */}
             {items[currentIndex].title && (

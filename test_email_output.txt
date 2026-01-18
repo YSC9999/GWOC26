@@ -1,0 +1,6 @@
+Starting email test...
+SMTP connection verified
+Attempting to send test email to yschaitanya9999@gmail.com...
+Email sent successfully!
+Message ID: <dd664627-f3c1-7910-c39a-22b6b56a7d52@gmail.com>
+Database updated with test OTP: 817683

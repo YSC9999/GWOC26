@@ -318,28 +318,31 @@ export default function Home() {
                       }
                     >
                       <div className="w-full h-full overflow-hidden relative shadow-sm rounded-[1px]">
-                        {product && product.images?.[0] ? (
-                          <img
-                            src={product.images[0]}
-                            alt={product.name || "Product"}
-                            className="w-full h-full object-cover filter contrast-[1.05] brightness-105"
-                            onLoad={(e) => {
-                              setLoadedImages(
-                                (prev) => new Set([...prev, product._id]),
-                              );
-                              e.currentTarget.style.display = "block";
-                              const fallback =
-                                e.currentTarget.nextElementSibling;
-                              if (fallback) fallback.classList.add("hidden");
-                            }}
-                            onError={(e) => {
-                              e.currentTarget.style.display = "none";
-                              const fallback =
-                                e.currentTarget.nextElementSibling;
-                              if (fallback) fallback.classList.remove("hidden");
-                            }}
-                          />
-                        ) : null}
+                          {product && product.images?.[0] ? (
+                            <img
+                              src={product.images[0]}
+                              alt={product.name || "Product"}
+                              loading="lazy"
+                              decoding="async"
+                              className="w-full h-full object-cover filter contrast-[1.05] brightness-105"
+                              style={{ contentVisibility: "auto", willChange: "transform, opacity" }}
+                              onLoad={(e) => {
+                                setLoadedImages(
+                                  (prev) => new Set([...prev, product._id]),
+                                );
+                                e.currentTarget.style.display = "block";
+                                const fallback =
+                                  e.currentTarget.nextElementSibling;
+                                if (fallback) fallback.classList.add("hidden");
+                              }}
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                                const fallback =
+                                  e.currentTarget.nextElementSibling;
+                                if (fallback) fallback.classList.remove("hidden");
+                              }}
+                            />
+                          ) : null}
                         <div
                           className={`w-full h-full flex items-center justify-center bg-gray-100 text-[#5A3E36]/20 text-2xl ${product && product.images?.[0] && loadedImages.has(product._id) ? "hidden" : ""}`}
                         >
@@ -426,7 +429,10 @@ export default function Home() {
                             <img
                               src={product.images[0]}
                               alt={product.name || "Product"}
+                              loading="lazy"
+                              decoding="async"
                               className="w-full h-full object-cover filter contrast-[1.05] brightness-105"
+                              style={{ contentVisibility: "auto", willChange: "transform, opacity" }}
                               onLoad={(e) => {
                                 setLoadedImages(
                                   (prev) => new Set([...prev, product._id]),

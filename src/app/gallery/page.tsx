@@ -234,7 +234,7 @@ export default function GalleryPage() {
 
                   <div className="relative w-full aspect-square bg-gray-100 overflow-hidden mb-4 border border-gray-100">
                     {album.coverImage ? (
-                      <img src={album.coverImage} alt={album.name} className="w-full h-full object-cover" />
+                  <img src={album.coverImage} alt={album.name} loading="lazy" decoding="async" className="w-full h-full object-cover" style={{ contentVisibility: "auto" }} />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gray-100">
                         <span className="text-4xl text-soil/20 font-serif">🎨</span>
@@ -296,7 +296,7 @@ export default function GalleryPage() {
                       className="flex-shrink-0 w-80 md:w-96 aspect-video relative rounded-2xl overflow-hidden shadow-xl cursor-pointer group bg-black"
                       onClick={() => setSelectedItem(video)}
                     >
-                      <img src={video.image} alt={video.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity" />
+                      <img src={video.image} alt={video.title} loading="lazy" decoding="async" className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity" style={{ contentVisibility: "auto" }} />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                           <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
@@ -326,20 +326,21 @@ export default function GalleryPage() {
               <p className="text-soil/40 text-xl font-serif italic">No images in this album yet</p>
             </div>
           ) : (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4" style={{ contain: "layout" }}>
               {images.map((item, index) => (
                 <motion.div
                   key={item._id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
+                  transition={{ delay: index < 8 ? index * 0.03 : 0, duration: 0.3 }}
                   className="break-inside-avoid mb-4"
+                  style={{ contain: "layout paint" }}
                 >
                   <div
                     className="relative group rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 bg-white cursor-pointer"
                     onClick={() => setSelectedItem(item)}
                   >
-                    <img src={item.image} alt={item.title} className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img src={item.image} alt={item.title} loading="lazy" decoding="async" className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" style={{ contentVisibility: "auto" }} />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
                       <h3 className="text-white font-bold text-lg font-serif truncate">{item.title}</h3>
                     </div>
@@ -442,10 +443,12 @@ export default function GalleryPage() {
           .animate-scroll-albums {
             animation: scroll-albums 60s linear infinite;
             width: max-content;
+            will-change: transform;
           }
           .animate-scroll-videos {
             animation: scroll-videos 40s linear infinite;
             width: max-content;
+            will-change: transform;
           }
           .hide-scrollbar::-webkit-scrollbar {
             display: none;

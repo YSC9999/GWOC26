@@ -199,6 +199,8 @@ export default function ViewAllGalleryPage() {
                                                 alt={img.title}
                                                 className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
                                                 loading="lazy"
+                                                decoding="async"
+                                                style={{ contentVisibility: "auto" }}
                                             />
                                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
                                                 <p className="text-white font-serif font-medium truncate w-full">{img.title}</p>
@@ -301,6 +303,7 @@ export default function ViewAllGalleryPage() {
           .animate-scroll {
              animation: scroll 40s linear infinite;
              width: max-content;
+             will-change: transform;
           }
           .hide-scrollbar::-webkit-scrollbar {
             display: none;
@@ -323,7 +326,10 @@ function VideoCard({ video, onClick }: { video: GalleryItem; onClick: () => void
             <img
                 src={video.image}
                 alt={video.title}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity duration-300"
+                style={{ contentVisibility: "auto" }}
             />
             <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">

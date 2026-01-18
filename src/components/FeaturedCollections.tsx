@@ -4,6 +4,7 @@ import { motion, useInView } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
+import OptimizedImage from "./OptimizedImage";
 
 interface Product {
   _id: string;
@@ -41,10 +42,13 @@ export default function FeaturedCollections({
 
   // Auto-scroll logic
   useEffect(() => {
+    // Check if horizontal scroll is active (mobile OR desktop with >4 items)
+    const isHorizontalScroll = window.innerWidth < 768 || collections.length > 4;
+    
     if (
       isInView &&
       scrollRef.current &&
-      window.innerWidth < 768 &&
+      isHorizontalScroll &&
       Array.isArray(collections) &&
       collections.length > 0
     ) {
@@ -95,7 +99,10 @@ export default function FeaturedCollections({
 
   // Track active item on scroll for "zoom" effect
   const handleScroll = () => {
-    if (scrollRef.current && window.innerWidth < 768) {
+    // Check if horizontal scroll is active (mobile OR desktop with >4 items)
+    const isHorizontalScroll = window.innerWidth < 768 || collections.length > 4;
+    
+    if (scrollRef.current && isHorizontalScroll) {
       const container = scrollRef.current;
       const containerCenter = container.scrollLeft + container.clientWidth / 2;
 
@@ -148,7 +155,11 @@ export default function FeaturedCollections({
           <div
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex overflow-x-auto snap-x snap-mandatory gap-4 px-4 md:px-12 md:grid md:grid-cols-3 lg:grid-cols-4 md:gap-8 pb-8 scrollbar-hide items-center"
+            className={`flex overflow-x-auto snap-x snap-mandatory gap-4 px-4 pb-8 scrollbar-hide items-center ${
+              collections.length <= 4 
+                ? "md:grid md:grid-cols-3 lg:grid-cols-4 md:gap-8 md:px-12" 
+                : "md:gap-6 md:px-12"
+            }`}
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
@@ -168,7 +179,14 @@ export default function FeaturedCollections({
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5 }}
-                  className={`group min-w-[75vw] md:min-w-0 snap-center first:pl-2 last:pr-4 transition-all duration-500 ease-out ${isActive ? "scale-100 z-10" : "scale-95 opacity-100"}`} // Fixed opacity and scale
+                  className={`group snap-center first:pl-2 last:pr-4 transition-all duration-500 ease-out ${
+                    isActive ? "scale-100 z-10" : "scale-95 opacity-100"
+                  } ${
+                    collections.length > 4 
+                      ? "min-w-[75vw] md:min-w-[320px] lg:min-w-[380px]" 
+                      : "min-w-[75vw] md:min-w-0"
+                  }`}
+                  style={{ willChange: "transform, opacity" }}
                 >
                   <Link
                     href={`/collections/${collection.slug || collection._id}`}
@@ -182,13 +200,13 @@ export default function FeaturedCollections({
                     >
                       {/* Full Background Image */}
                       {thumbnailImage ? (
-                        <img
+                        <OptimizedImage
                           src={thumbnailImage}
                           alt={collection.title || "Collection"}
-                          className={`absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-105 ${colIndex === 2 ? "mix-blend-multiply" : ""}`}
-                          onError={(e) => {
-                            e.currentTarget.src = "/Logo.png";
-                          }}
+                          priority={colIndex < 2}
+                          fallbackSrc="/Logo.png"
+                          containerClassName="absolute inset-0 w-full h-full z-0"
+                          className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${colIndex === 2 ? "mix-blend-multiply" : ""}`}
                         />
                       ) : (
                         <div className="absolute inset-0 w-full h-full bg-[#E3E4C8] flex items-center justify-center z-0">
