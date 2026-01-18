@@ -49,6 +49,19 @@ export async function PATCH(
             return NextResponse.json({ error: "Order not found" }, { status: 404 });
         }
 
+        // Send Email if status is changed to 'quoted'
+        if (body.status === 'quoted' && updatedOrder.totalPrice) {
+            import("@/lib/email").then(async ({ sendCustomOrderQuotationEmail }) => {
+                await sendCustomOrderQuotationEmail(
+                    updatedOrder.email,
+                    updatedOrder.name,
+                    updatedOrder.productType,
+                    updatedOrder.totalPrice,
+                    updatedOrder.adminNotes || "We have reviewed your request. Please check the quote."
+                );
+            });
+        }
+
         return NextResponse.json(updatedOrder);
     } catch (err: any) {
         return NextResponse.json({ error: err.message }, { status: 500 });

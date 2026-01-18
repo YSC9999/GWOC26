@@ -194,6 +194,7 @@ export default function AdminProductsPage() {
       setCategory("");
       setDescriptionText("");
       setSuccess("Product added");
+      setShowAddForm(false);
 
       // Check if this was a new category and refresh list if needed
       if (!categories.find((c) => c.slug === category)) {
@@ -350,257 +351,270 @@ export default function AdminProductsPage() {
           </div>
         </div>
 
-        {/* ADD PRODUCT FORM */}
+        {/* ADD PRODUCT MODAL */}
         <AnimatePresence>
           {showAddForm && (
-            <motion.div
-              initial={{ opacity: 0, height: 0, overflow: "hidden" }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="bg-white/5 backdrop-blur-xl p-4 md:p-8 rounded-3xl shadow-sm border border-white/10 overflow-hidden"
-            >
-              <h2 className="text-2xl font-serif font-bold text-soil mb-6 flex items-center gap-2">
-                <span>✨</span> Add New Product
-              </h2>
-              <form onSubmit={handleAdd} className="flex gap-4 flex-wrap">
-                {/* ... existing form inputs ... */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-                  <input
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    placeholder="Name"
-                    className="bg-white/10 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil text-base md:text-sm"
-                    required
-                  />
-                  <input
-                    type="number"
-                    value={form.price}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        price:
-                          e.target.value === "" ? "" : Number(e.target.value),
-                      })
-                    }
-                    placeholder="Price"
-                    className="bg-white/10 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil text-base md:text-sm"
-                    required
-                  />
-                  <input
-                    type="number"
-                    value={form.stockQuantity}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        stockQuantity:
-                          e.target.value === "" ? "" : Number(e.target.value),
-                      })
-                    }
-                    placeholder="Stock"
-                    className="bg-white/10 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil text-base md:text-sm"
-                    required
-                  />
-                  <input
-                    type="number"
-                    value={form.weightGrams}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        weightGrams:
-                          e.target.value === "" ? "" : Number(e.target.value),
-                      })
-                    }
-                    placeholder="Weight (Optional, default 500g)"
-                    className="bg-white/10 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil text-base md:text-sm"
-                    title="Weight in grams (e.g. 500 for 0.5kg)"
-                  />
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-soil/20 backdrop-blur-md p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-[#EFE5D8] rounded-2xl shadow-2xl w-full max-w-4xl p-6 md:p-8 border border-white/20 max-h-[90vh] overflow-y-auto relative"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-serif font-bold text-soil flex items-center gap-2">
+                    <span>✨</span> Add New Product
+                  </h2>
+                  <button
+                    onClick={() => setShowAddForm(false)}
+                    className="p-2 hover:bg-soil/10 rounded-full transition-colors text-soil/60 hover:text-soil"
+                  >
+                    <X size={24} />
+                  </button>
                 </div>
 
-                {/* Tags Input */}
-                <div className="w-full">
-                  <div className="flex gap-2 mb-2">
+                <form onSubmit={handleAdd} className="flex gap-4 flex-wrap">
+                  {/* ... existing form inputs ... */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
                     <input
-                      value={tagInput}
-                      onChange={(e) => setTagInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      placeholder="Name"
+                      className="bg-white/40 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/60 text-soil"
+                      required
+                    />
+                    <input
+                      type="number"
+                      value={form.price}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          price:
+                            e.target.value === "" ? "" : Number(e.target.value),
+                        })
+                      }
+                      placeholder="Price"
+                      className="bg-white/40 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/60 text-soil"
+                      required
+                    />
+                    <input
+                      type="number"
+                      value={form.stockQuantity}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          stockQuantity:
+                            e.target.value === "" ? "" : Number(e.target.value),
+                        })
+                      }
+                      placeholder="Stock"
+                      className="bg-white/40 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/60 text-soil"
+                      required
+                    />
+                    <input
+                      type="number"
+                      value={form.weightGrams}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          weightGrams:
+                            e.target.value === "" ? "" : Number(e.target.value),
+                        })
+                      }
+                      placeholder="Weight (g)"
+                      className="bg-white/40 border border-soil/10 p-4 rounded-xl focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/60 text-soil"
+                      title="Weight in grams (e.g. 500 for 0.5kg)"
+                    />
+                  </div>
+
+                  {/* Tags Input */}
+                  <div className="w-full bg-white/30 p-4 rounded-xl border border-soil/5">
+                    <label className="block text-sm font-medium text-soil/70 mb-2">Tags</label>
+                    <div className="flex gap-2 mb-3">
+                      <input
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (tagInput.trim()) {
+                              if (!form.tags.includes(tagInput.trim())) {
+                                setForm({ ...form, tags: [...(form.tags || []), tagInput.trim()] });
+                              }
+                              setTagInput("");
+                            }
+                          }
+                        }}
+                        placeholder="Type tag and press Enter..."
+                        className="bg-white/50 border border-soil/10 p-3 rounded-lg flex-grow focus:ring-2 focus:ring-clay/20 outline-none text-soil"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
                           if (tagInput.trim()) {
-                            if (!form.tags.includes(tagInput.trim())) {
+                            if (!form.tags?.includes(tagInput.trim())) {
                               setForm({ ...form, tags: [...(form.tags || []), tagInput.trim()] });
                             }
                             setTagInput("");
                           }
-                        }
-                      }}
-                      placeholder="Add tags (Press Enter)..."
-                      className="bg-white/10 border border-soil/10 p-4 rounded-xl flex-grow focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (tagInput.trim()) {
-                          if (!form.tags?.includes(tagInput.trim())) {
-                            setForm({ ...form, tags: [...(form.tags || []), tagInput.trim()] });
-                          }
-                          setTagInput("");
-                        }
-                      }}
-                      className="bg-soil/10 text-soil px-4 rounded-xl hover:bg-soil/20 font-bold"
-                    >
-                      Add
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {form.tags?.map((tag: string, idx: number) => (
-                      <span key={idx} className="bg-clay/10 text-clay px-3 py-1 rounded-full text-sm font-bold flex items-center gap-2">
-                        #{tag}
-                        <button
-                          type="button"
-                          onClick={() => setForm({ ...form, tags: form.tags.filter((t: string) => t !== tag) })}
-                          className="hover:text-red-500"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="w-full">
-                  <UploadInput
-                    uploadPreset={"products_unsigned"}
-                    folder={"products/"}
-                    onUploaded={(urls) => {
-                      setForm((prev) => ({
-                        ...prev,
-                        images: [...(prev.images || []), ...urls],
-                      }));
-                    }}
-                  />
-                </div>
-
-                {/* Thumbnails */}
-                {form.images?.length > 0 && (
-                  <div className="flex gap-2 mt-2 flex-wrap w-full">
-                    <AnimatePresence>
-                      {(form.images || []).map((img, idx) => (
-                        <motion.div
-                          key={img}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.5 }}
-                          className="relative group"
-                        >
-                          <img
-                            src={img}
-                            className="w-20 h-20 object-cover rounded-lg shadow-sm"
-                          />
+                        }}
+                        className="bg-soil text-white px-5 rounded-lg hover:bg-soil/90 font-medium"
+                      >
+                        Add
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap gap-2 min-h-[30px]">
+                      {form.tags?.length === 0 && <span className="text-soil/40 text-sm italic">No tags added yet</span>}
+                      {form.tags?.map((tag: string, idx: number) => (
+                        <span key={idx} className="bg-white text-clay px-3 py-1 rounded-full text-sm font-bold shadow-sm border border-clay/10 flex items-center gap-2">
+                          #{tag}
                           <button
                             type="button"
-                            onClick={() =>
-                              setForm((prev) => ({
-                                ...prev,
-                                images: prev.images.filter((_, i) => i !== idx),
-                              }))
-                            }
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs shadow-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center transform hover:scale-110"
+                            onClick={() => setForm({ ...form, tags: form.tags.filter((t: string) => t !== tag) })}
+                            className="hover:text-red-500 w-4 h-4 flex items-center justify-center rounded-full hover:bg-red-50"
                           >
                             ×
                           </button>
-                        </motion.div>
+                        </span>
                       ))}
-                    </AnimatePresence>
-                  </div>
-                )}
-
-                <div className="flex gap-4 w-full relative">
-                  {/* Custom Dropdown */}
-                  <div className="relative flex-grow">
-                    <div
-                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      className="border border-soil/10 p-4 rounded-xl w-full bg-white/10 focus:bg-white/20 transition-all cursor-pointer flex justify-between items-center"
-                    >
-                      <span
-                        className={
-                          category ? "text-soil font-medium" : "text-soil/40"
-                        }
-                      >
-                        {categories.find((c) => c.slug === category)?.name ||
-                          category ||
-                          "Select category"}
-                      </span>
-                      <ChevronRight
-                        className={`w-5 h-5 transition-transform text-soil/30 ${isDropdownOpen ? "rotate-90" : ""
-                          }`}
-                      />
                     </div>
+                  </div>
 
-                    {isDropdownOpen && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#EFE5D8]/95 backdrop-blur-xl border border-soil/10 rounded-2xl shadow-2xl z-50 max-h-60 overflow-y-auto">
-                        {categories.map((cat) => (
+                  <div className="w-full">
+                    <UploadInput
+                      uploadPreset={"products_unsigned"}
+                      folder={"products/"}
+                      onUploaded={(urls) => {
+                        setForm((prev) => ({
+                          ...prev,
+                          images: [...(prev.images || []), ...urls],
+                        }));
+                      }}
+                    />
+                  </div>
+
+                  {/* Thumbnails */}
+                  {form.images?.length > 0 && (
+                    <div className="flex gap-2 mt-2 flex-wrap w-full bg-white/30 p-4 rounded-xl border border-soil/5">
+                      <AnimatePresence>
+                        {(form.images || []).map((img, idx) => (
+                          <motion.div
+                            key={img}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.5 }}
+                            className="relative group"
+                          >
+                            <img
+                              src={img}
+                              className="w-24 h-24 object-cover rounded-lg shadow-sm bg-white"
+                            />
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setForm((prev) => ({
+                                  ...prev,
+                                  images: prev.images.filter((_, i) => i !== idx),
+                                }))
+                              }
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs shadow-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center transform hover:scale-110"
+                            >
+                              ×
+                            </button>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </div>
+                  )}
+
+                  <div className="flex gap-4 w-full relative">
+                    {/* Custom Dropdown */}
+                    <div className="relative flex-grow">
+                      <div
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        className="border border-soil/10 p-4 rounded-xl w-full bg-white/40 focus:bg-white/60 transition-all cursor-pointer flex justify-between items-center"
+                      >
+                        <span
+                          className={
+                            category ? "text-soil font-medium" : "text-soil/40"
+                          }
+                        >
+                          {categories.find((c) => c.slug === category)?.name ||
+                            category ||
+                            "Select category"}
+                        </span>
+                        <ChevronRight
+                          className={`w-5 h-5 transition-transform text-soil/30 ${isDropdownOpen ? "rotate-90" : ""
+                            }`}
+                        />
+                      </div>
+
+                      {isDropdownOpen && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-[#FAF7F2] border border-soil/10 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                          {categories.map((cat) => (
+                            <div
+                              key={cat._id}
+                              className="flex items-center justify-between p-3 hover:bg-brown-50 cursor-pointer group transtion-colors"
+                              onClick={() => {
+                                setCategory(cat.slug);
+                                setIsDropdownOpen(false);
+                              }}
+                            >
+                              <span>{cat.name}</span>
+                              <button
+                                onClick={(e) => handleDeleteCategory(cat._id, e)}
+                                className="p-1 hover:bg-red-100 rounded text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                title="Delete Category"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          ))}
                           <div
-                            key={cat._id}
-                            className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer group"
+                            className="p-3 hover:bg-brown-50 cursor-pointer text-clay font-medium border-t border-soil/5"
                             onClick={() => {
-                              setCategory(cat.slug);
+                              setCategory("other");
                               setIsDropdownOpen(false);
                             }}
                           >
-                            <span>{cat.name}</span>
-                            <button
-                              onClick={(e) => handleDeleteCategory(cat._id, e)}
-                              className="p-1 hover:bg-red-100 rounded text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                              title="Delete Category"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                            + Add New Category
                           </div>
-                        ))}
-                        <div
-                          className="p-3 hover:bg-gray-50 cursor-pointer text-clay font-medium border-t"
-                          onClick={() => {
-                            setCategory("other");
-                            setIsDropdownOpen(false);
-                          }}
-                        >
-                          + Add New Category
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
+
+                    {category === "other" ||
+                      (!categories.find((c) => c.slug === category) &&
+                        category !== "") ? (
+                      <motion.input
+                        initial={{ opacity: 0, width: 0 }}
+                        animate={{ opacity: 1, width: "auto" }}
+                        value={category === "other" ? "" : category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        placeholder="Enter new category"
+                        className="border border-soil/10 p-4 rounded-xl flex-grow focus:ring-4 focus:ring-clay/5 outline-none bg-white/40"
+                      />
+                    ) : null}
                   </div>
 
-                  {category === "other" ||
-                    (!categories.find((c) => c.slug === category) &&
-                      category !== "") ? (
-                    <motion.input
-                      initial={{ opacity: 0, width: 0 }}
-                      animate={{ opacity: 1, width: "auto" }}
-                      value={category === "other" ? "" : category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      placeholder="Enter new category"
-                      className="border p-3 rounded-lg flex-grow focus:ring-2 focus:ring-clay/20 outline-none"
-                    />
-                  ) : null}
-                </div>
+                  <textarea
+                    value={descriptionText}
+                    onChange={(e) => setDescriptionText(e.target.value)}
+                    placeholder="Product Description"
+                    rows={4}
+                    className="bg-white/40 border border-soil/10 p-4 rounded-xl w-full focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/60 text-soil resize-none"
+                  />
 
-                <textarea
-                  value={descriptionText}
-                  onChange={(e) => setDescriptionText(e.target.value)}
-                  placeholder="Product Description"
-                  rows={4}
-                  className="bg-white/10 border border-soil/10 p-4 rounded-xl w-full focus:ring-4 focus:ring-clay/5 outline-none transition-all hover:bg-white/20 text-soil resize-none"
-                />
-
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="bg-soil text-white px-10 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl hover:bg-soil/90 transition-all w-full md:w-auto flex items-center gap-2 justify-center"
-                >
-                  <Plus size={24} /> Save Product
-                </motion.button>
-              </form>
-            </motion.div>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="bg-soil text-white px-10 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl hover:bg-soil/90 transition-all w-full flex items-center gap-2 justify-center mt-4"
+                  >
+                    <Plus size={24} /> Save Product
+                  </motion.button>
+                </form>
+              </motion.div>
+            </div>
           )}
         </AnimatePresence>
 

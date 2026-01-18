@@ -180,99 +180,184 @@ export default function About() {
       </div>
 
       {/* Process & Care Section */}
-      <section className="py-24 bg-sand/20 my-16 -mx-4 md:-mx-12 px-4 md:px-12 relative overflow-hidden">
+      <section className="py-24 bg-[#F9F5F0] my-24 -mx-4 md:-mx-12 px-4 md:px-12 relative overflow-hidden">
         <div className="max-w-7xl mx-auto relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
 
-            {/* Left Column: Process (Vertical Timeline) */}
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-            >
-              <motion.div variants={fadeInUp} className="mb-12">
-                <span className="text-clay font-bold tracking-widest uppercase text-xs mb-2 block">The Journey</span>
-                <h2 className="text-4xl md:text-5xl font-serif font-bold text-soil">
-                  Our Process
-                </h2>
-              </motion.div>
+          {/* New Full Width Header */}
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInUp}
+            className="text-center mb-32"
+          >
+            <h2 className="text-5xl md:text-7xl font-serif font-bold text-soil mb-4 leading-tight">
+              The Journey of Artistry
+            </h2>
+            <span className="text-clay font-medium tracking-wide text-lg text-soil/60 font-serif italic block">
+              Where Earth, Hand, and Fire Converse
+            </span>
+          </motion.div>
 
-              <div className="space-y-0 relative border-l-2 border-clay/20 ml-3 md:ml-4 pl-8 md:pl-12 py-2">
-                {[
-                  { id: "01", title: "Clay Preparation", desc: "Local stoneware clay is wedged and kneaded by hand to remove air bubbles." },
-                  { id: "02", title: "Wheel Throwing", desc: "Each piece is thrown on the potter's wheel, guided by rhythm and intuition." },
-                  { id: "03", title: "Leather Hard Trimming", desc: "Excess clay is removed, revealing the piece's true form." },
-                  { id: "04", title: "Bisque Firing", desc: "First firing at 900°C transforms clay into porous bisqueware." },
-                  { id: "05", title: "Glazing", desc: "Hand-dipped in our signature, food-safe glaze formulas." },
-                  { id: "06", title: "Final Firing", desc: "High-fire at 1200°C brings out the glaze's true colors and strength." }
-                ].map((step, idx) => (
-                  <motion.div key={step.id} variants={fadeInUp} className="relative pb-12 last:pb-0 group">
-                    {/* Timeline Dot */}
-                    <div className="absolute -left-[41px] md:-left-[58px] top-1 w-6 h-6 rounded-full bg-sand border-4 border-white shadow-sm group-hover:bg-clay group-hover:scale-125 transition-all duration-300 z-10" />
+          {/* Zigzag Timeline */}
+          <div className="relative mb-48">
+            {/* Center Line (Desktop Only) */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-px bg-gradient-to-b from-transparent via-clay/30 to-transparent hidden md:block" />
 
-                    <div className="relative -top-1">
-                      <span className="text-[10px] font-bold text-soil/30 mb-1 block tracking-wider uppercase">Step {step.id}</span>
-                      <h3 className="text-xl font-bold text-soil mb-2 group-hover:text-clay transition-colors duration-300">{step.title}</h3>
-                      <p className="text-soil/70 leading-relaxed text-sm">{step.desc}</p>
+            {[
+              {
+                id: "01",
+                poster: "/pottery_clay_kneading.png",
+                video: "/process-kneading.mp4.mp4",
+                title: "The Artistry of Awakening Clay",
+                desc: "Raw stoneware begins its transformation through rhythmic wedging and kneading. This foundational act awakens the clay’s memory, expelling air and aligning its body for creation."
+              },
+              {
+                id: "02",
+                poster: "/pottery_wheel_throwing.png",
+                video: "/process-throwing.mp4.mp4",
+                title: "The Artistry of Form in Motion",
+                desc: "Centered on the spinning wheel, clay responds to the potter’s touch. Guided by intuition and steady rhythm, form rises as movement and stillness meet."
+              },
+              {
+                id: "03",
+                poster: "/pottery_trimming.png",
+                video: "/process-trimming.mp4",
+                title: "The Artistry of Refined Restraint",
+                desc: "At the leather-hard stage, excess is carefully pared away. This deliberate subtraction sharpens silhouettes and reveals the vessel’s intended elegance."
+              },
+              {
+                id: "04",
+                poster: "/pottery_kiln_fire.png",
+                video: "/process-firing.mp4",
+                title: "The Artistry of First Fire",
+                desc: "The initial firing tempers the piece at 900°C, shifting clay into bisqueware. Porous yet strong, it stands ready to receive color, depth, and surface expression."
+              },
+              {
+                id: "05",
+                poster: "/pottery_glazing.png",
+                video: "/process-glazing.mp4",
+                title: "The Artistry of Surface Alchemy",
+                desc: "Glaze is applied by hand, flowing and settling like liquid poetry. Minerals and pigments cloak the form, preparing it for its final metamorphosis."
+              },
+              {
+                id: "06",
+                poster: "/pottery_finished_firing.png",
+                video: "/process-finished.mp4",
+                title: "The Artistry of Completion Through Flame",
+                desc: "A high firing at 1200°C seals the journey. Fire crystallizes color, strengthens form, and completes the vessel’s artistic destiny."
+              }
+            ].map((step, idx) => {
+              const isEven = idx % 2 === 0;
+              return (
+                <motion.div
+                  key={step.id}
+                  initial={{ opacity: 0, y: 100 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  whileHover={{ scale: 1.02 }}
+                  className={`relative flex flex-col md:flex-row items-center mb-48 last:mb-0 gap-12 md:gap-0 ${!isEven ? 'md:flex-row-reverse' : ''}`}
+                >
+                  {/* Center Dot (Desktop Only) */}
+                  <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-clay border-4 border-sand/50 shadow-sm z-10 hidden md:block" />
+
+                  {/* Text Side */}
+                  <div className={`w-full md:w-1/2 px-4 md:px-24 ${isEven ? 'text-center md:text-right' : 'text-center md:text-left'}`}>
+                    <div className="flex flex-col gap-6">
+                      <span className="text-clay font-bold tracking-[0.2em] text-sm uppercase">Step {step.id}</span>
+                      <h3 className="text-3xl md:text-4xl font-bold text-soil font-serif leading-tight">
+                        {step.title}
+                      </h3>
+                      <p className="text-soil/70 leading-relaxed text-lg md:text-xl font-serif">
+                        {step.desc}
+                      </p>
                     </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+                  </div>
 
-            {/* Right Column: Material & Care (Minimalist Cards) */}
+                  {/* Video/Visual Side */}
+                  <div className={`w-full md:w-1/2 px-4 md:px-16 flex ${isEven ? 'justify-start' : 'justify-end'}`}>
+                    <motion.div
+                      className="w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl relative group bg-black"
+                    >
+                      <video
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        poster={step.poster}
+                        className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-700"
+                      >
+                        <source src={step.video} type="video/mp4" />
+                        {/* Fallback image if video fails or not supported */}
+                        <Image
+                          src={step.poster}
+                          alt={step.title}
+                          fill
+                          className="object-cover"
+                        />
+                      </video>
+
+                      {/* Optional Overlay to dark slightly for text contrast if needed, but keeping clean for video */}
+                      <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-500 pointer-events-none" />
+                    </motion.div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Material & Care Section (Refactored below) */}
+          <div className="max-w-5xl mx-auto mt-32 border-t border-clay/20 pt-20">
             <motion.div
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ once: true }}
               variants={staggerContainer}
-              className="lg:sticky lg:top-24"
             >
-              <motion.div variants={fadeInUp} className="mb-12">
+              <div className="text-center mb-16">
                 <span className="text-clay font-bold tracking-widest uppercase text-xs mb-2 block">Longevity</span>
                 <h2 className="text-4xl md:text-5xl font-serif font-bold text-soil">
                   Material & Care
                 </h2>
-              </motion.div>
+              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                 {[
-                  { icon: <Utensils size={20} />, title: "Food Safe", desc: "Lead-free & certified safe" },
-                  { icon: <Flame size={20} />, title: "Thermal Safe", desc: "Freezer to oven ready" },
-                  { icon: <Droplets size={20} />, title: "Dishwasher Safe", desc: "Durable for daily wash" },
-                  { icon: <Heart size={20} />, title: "Heirloom Quality", desc: "Built to last generations" }
+                  { icon: <Utensils size={24} />, title: "Food Safe", desc: "Lead-free & certified safe" },
+                  { icon: <Flame size={24} />, title: "Thermal Safe", desc: "Freezer to oven ready" },
+                  { icon: <Droplets size={24} />, title: "Dishwasher Safe", desc: "Durable for daily wash" },
+                  { icon: <Heart size={24} />, title: "Heirloom Quality", desc: "Built to last generations" }
                 ].map((item, idx) => (
                   <motion.div
                     key={idx}
                     variants={fadeInUp}
                     whileHover={{ y: -5 }}
-                    className="bg-white rounded-2xl p-6 shadow-sm border border-sand/30 hover:shadow-md hover:border-clay/30 transition-all duration-300"
+                    className="bg-white rounded-2xl p-6 shadow-sm border border-sand/30 hover:shadow-md hover:border-clay/30 transition-all duration-300 text-center"
                   >
-                    <div className="w-10 h-10 rounded-full bg-sand/20 text-clay flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 rounded-full bg-sand/20 text-clay flex items-center justify-center mb-4 mx-auto">
                       {item.icon}
                     </div>
-                    <h3 className="text-lg font-bold text-soil mb-1">{item.title}</h3>
-                    <p className="text-soil/60 text-xs font-medium">{item.desc}</p>
+                    <h3 className="text-lg font-bold text-soil mb-2">{item.title}</h3>
+                    <p className="text-soil/60 text-sm font-medium">{item.desc}</p>
                   </motion.div>
                 ))}
               </div>
 
-              <motion.div variants={fadeInUp} className="bg-white rounded-3xl p-8 border border-sand/30 shadow-sm relative overflow-hidden">
+              <motion.div variants={fadeInUp} className="bg-white rounded-3xl p-8 md:p-12 border border-sand/30 shadow-sm relative overflow-hidden text-center max-w-3xl mx-auto">
                 <div className="absolute top-0 right-0 p-8 opacity-5">
                   <Utensils size={120} className="text-soil" />
                 </div>
-                <h4 className="text-soil font-bold mb-4 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-clay" />
+                <h4 className="text-xl md:text-2xl text-soil font-bold mb-6 font-serif">
                   Care Instructions
                 </h4>
-                <p className="text-soil/70 text-sm leading-relaxed italic z-10 relative font-serif">
+                <p className="text-soil/70 text-base md:text-lg leading-relaxed italic z-10 relative font-serif">
                   "While durable, hand washing with mild soap preserves the glaze's luster. Avoid sudden temperature changes. Each piece develops a unique patina with use—a beautiful record of shared meals and memories."
                 </p>
               </motion.div>
             </motion.div>
-
           </div>
+
         </div>
       </section>
 

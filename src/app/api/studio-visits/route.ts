@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import StudioVisit from "@/models/StudioVisit";
-import { sendEmail } from "@/lib/email";
+import { sendStudioVisitConfirmationEmail, sendAdminNotification } from "@/lib/email";
 
 export async function POST(req: Request) {
     try {
@@ -11,24 +11,24 @@ export async function POST(req: Request) {
         const visit = await StudioVisit.create(data);
 
         // Send confirmation email to user
-        await sendEmail({
-            to: visit.email,
-            subject: "Studio Visit Request Received - Basho",
-            html: `
-        <div style="font-family: sans-serif; color: #5A3E36;">
-          <h1>Thank you for your interest!</h1>
-          <p>Hi ${visit.name},</p>
-          <p>We have received your request for a studio visit on <strong>${new Date(visit.date).toLocaleDateString()}</strong>.</p>
-          <p>We will review your request and get back to you shortly with a confirmation.</p>
-          <br/>
-          <p>Best regards,</p>
-          <p>The Basho Team</p>
-        </div>
-      `,
-        });
+        await sendStudioVisitConfirmationEmail(visit.email, visit.name, new Date(visit.date).toLocaleDateString(), "Not Specified", visit.guests);
 
-        // Send notification to admin (hardcoded for now or use env var)
-        // await sendEmail({ to: "admin@basho.com", ... }) 
+        // Send notification to admin
+        await sendAdminNotification(
+            "New Studio Visit Request",
+            `
+            <div style="margin-bottom: 20px;">
+                <p><strong>Visitor:</strong> ${visit.name}</p>
+                <p><strong>Email:</strong> ${visit.email}</p>
+                <p><strong>Phone:</strong> ${visit.phone}</p>
+                <p><strong>Date:</strong> ${new Date(visit.date).toLocaleDateString()}</p>
+                <p><strong>Guests:</strong> ${visit.guests}</p>
+                <p><strong>Purpose:</strong> ${visit.purpose}</p>
+                ${visit.message ? `<p><strong>Message:</strong> ${visit.message}</p>` : ''}
+            </div>
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || ''}/admin/studio-visits" style="background-color: #5A3E36; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">View in Admin Panel</a>
+            `
+        );
 
         return NextResponse.json({ success: true, visit }, { status: 201 });
     } catch (error: any) {

@@ -458,3 +458,218 @@ export async function sendWalletCreditEmail(email: string, amount: number, newBa
     return false;
   }
 }
+
+export async function sendAdminNotification(subject: string, html: string): Promise<boolean> {
+  try {
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
+
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD || !adminEmail) {
+      console.log('📧 EMAIL SERVICE NOT CONFIGURED - ADMIN NOTIFICATION');
+      console.log(`Subject: ${subject}`);
+      return true;
+    }
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: adminEmail,
+      subject: `[Admin Alert] ${subject}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #1f2937 0%, #111827 100%); padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="color: white; margin: 0; text-align: center;">Admin Notification</h2>
+          </div>
+          <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px;">
+            <h3 style="color: #333; font-size: 18px; margin-top: 0;">${subject}</h3>
+            <div style="color: #666; font-size: 14px; line-height: 1.6;">
+              ${html}
+            </div>
+            
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">Basho Admin System</p>
+          </div>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`Admin notification sent: ${subject}`);
+    return true;
+  } catch (error) {
+    console.error('Error sending admin notification:', error);
+    return false;
+  }
+}
+
+export async function sendWorkshopBookingEmail(email: string, workshopName: string, date: string, participants: number, amount: number): Promise<boolean> {
+  try {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.log('📧 EMAIL SERVICE NOT CONFIGURED - WORKSHOP BOOKING');
+      return true;
+    }
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: `Workshop Booking Confirmed - ${workshopName} - Basho`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #D97757 0%, #A05A44 100%); padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="color: white; margin: 0; text-align: center;">Booking Confirmed</h2>
+          </div>
+          <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px;">
+            <p style="color: #333; font-size: 16px;">Hello,</p>
+            <p style="color: #666;">We are excited to see you at the workshop!</p>
+            
+            <div style="background: white; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0;">
+              <h3 style="color: #5A3E36; margin: 0 0 10px 0;">${workshopName}</h3>
+              <p style="margin: 5px 0;"><strong>Date:</strong> ${new Date(date).toLocaleDateString()}</p>
+              <p style="margin: 5px 0;"><strong>Participants:</strong> ${participants}</p>
+              <p style="margin: 5px 0;"><strong>Total Paid:</strong> ₹${amount}</p>
+            </div>
+            
+            <p style="color: #666; font-size: 14px;">Please arrive 10 minutes early. All materials will be provided.</p>
+            <p style="color: #999; font-size: 12px; text-align: center; margin-top: 30px;">© 2024 Basho. All rights reserved.</p>
+          </div>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error('Error sending workshop email:', error);
+    return false;
+  }
+}
+
+export async function sendStudioVisitConfirmationEmail(email: string, name: string, date: string, time: string, guests: number): Promise<boolean> {
+  try {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) return true;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: `Studio Visit Requested - Basho`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #8B7355 0%, #6B5B45 100%); padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="color: white; margin: 0; text-align: center;">Visit Request Received</h2>
+          </div>
+          <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px;">
+            <p style="color: #333;">Hello ${name},</p>
+            <p style="color: #666;">We have received your request to visit our studio. We will confirm your slot shortly.</p>
+            
+            <div style="background: white; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0;">
+              <p><strong>Proposed Date:</strong> ${new Date(date).toLocaleDateString()}</p>
+              <p><strong>Time:</strong> ${time || 'Not specified'}</p>
+              <p><strong>Guests:</strong> ${guests}</p>
+            </div>
+            
+            <p style="color: #666; font-size: 14px;">We look forward to welcoming you.</p>
+             <p style="color: #999; font-size: 12px; text-align: center; margin-top: 30px;">© 2024 Basho. All rights reserved.</p>
+          </div>
+        </div>
+      `
+    };
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
+}
+
+export async function sendCustomOrderConfirmationEmail(email: string, name: string, productType: string): Promise<boolean> {
+  try {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) return true;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: `Custom Order Request Received - Basho`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #5A3E36 0%, #3E2b26 100%); padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="color: white; margin: 0; text-align: center;">Request Received</h2>
+          </div>
+          <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px;">
+            <p style="color: #333;">Hello ${name},</p>
+            <p style="color: #666;">Thank you for your interest in a custom piece (${productType}). We have received your request and our team will review the details.</p>
+            <p style="color: #666;">We will get back to you with a quotation and timeline within 24-48 hours.</p>
+             <p style="color: #999; font-size: 12px; text-align: center; margin-top: 30px;">© 2024 Basho. All rights reserved.</p>
+          </div>
+        </div>
+      `
+    };
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (e) { console.error(e); return false; }
+}
+
+export async function sendCustomOrderQuotationEmail(email: string, name: string, productType: string, quoteAmount: number, message: string): Promise<boolean> {
+  try {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) return true;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: `Quotation for Custom Order - Basho`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="color: white; margin: 0; text-align: center;">Quotation Ready</h2>
+          </div>
+          <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px;">
+            <p style="color: #333;">Hello ${name},</p>
+            <p style="color: #666;">We have prepared a quotation for your custom <strong>${productType}</strong>.</p>
+            
+            <div style="background: white; border: 2px solid #10B981; border-radius: 8px; padding: 20px; text-align: center; margin: 30px 0;">
+               <p style="color: #999; font-size: 12px; margin:0;">Estimated Cost</p>
+               <h1 style="color: #10B981; margin: 10px 0;">₹${quoteAmount}</h1>
+               <p style="color: #666; font-size: 14px;">${message}</p>
+            </div>
+
+            <p style="color: #666; font-size: 14px;">To proceed, please reply to this email or visit your account dashboard.</p>
+             <p style="color: #999; font-size: 12px; text-align: center; margin-top: 30px;">© 2024 Basho. All rights reserved.</p>
+          </div>
+        </div>
+      `
+    };
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (e) { console.error(e); return false; }
+}
+
+export async function sendOrderReceivedEmail(email: string, orderNumber: string, itemsCount: number, totalAmount: number): Promise<boolean> {
+  try {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) return true;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: `Order Received - Awaiting Confirmation - ${orderNumber}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #8B7355 0%, #6B5B45 100%); padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="color: white; margin: 0; text-align: center;">Order Received</h2>
+          </div>
+          <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px;">
+            <p style="color: #333;">Hello,</p>
+            <p style="color: #666;">Thank you for your order! We have received your payment and order details.</p>
+            <p style="color: #666;">Your order is currently <strong>awaiting confirmation</strong> from our team. You will receive another email once it has been confirmed and shipped.</p>
+            
+            <div style="background: white; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0;">
+              <p><strong>Order Number:</strong> ${orderNumber}</p>
+              <p><strong>Items:</strong> ${itemsCount}</p>
+              <p><strong>Total Amount:</strong> ₹${totalAmount}</p>
+            </div>
+            
+             <p style="color: #999; font-size: 12px; text-align: center; margin-top: 30px;">© 2024 Basho. All rights reserved.</p>
+          </div>
+        </div>
+      `
+    };
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (e) { console.error(e); return false; }
+}

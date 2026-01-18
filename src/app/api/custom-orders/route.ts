@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import CustomOrder from "@/models/CustomOrder";
 import { getUser } from "@/lib/server-auth";
+import { sendAdminNotification } from "@/lib/email";
 
 // GET - List user's custom orders or get single by ID
 export async function GET(req: Request) {
@@ -83,6 +84,30 @@ export async function POST(req: Request) {
             budget,
             status: "pending",
             items: []
+        });
+
+        // Send confirmation email to admin
+        await sendAdminNotification(
+            "New Custom Order Request",
+            `
+            <div style="margin-bottom: 20px;">
+                <p><strong>Customer:</strong> ${name}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Phone:</strong> ${phone}</p>
+                <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;" />
+                <p><strong>Type:</strong> ${productType}</p>
+                <p><strong>Material:</strong> ${material}</p>
+                <p><strong>Budget:</strong> ${budget}</p>
+                <p><strong>Timeline:</strong> ${timeline || 'Not specified'}</p>
+                <p><strong>Description:</strong> ${description || 'N/A'}</p>
+            </div>
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || ''}/admin/custom-orders" style="background-color: #5A3E36; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">View Order in Admin Panel</a>
+            `
+        );
+
+        // Notify User
+        import("@/lib/email").then(async ({ sendCustomOrderConfirmationEmail }) => {
+            await sendCustomOrderConfirmationEmail(email, name, productType);
         });
 
         return NextResponse.json({
