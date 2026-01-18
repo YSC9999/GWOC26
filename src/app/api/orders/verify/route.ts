@@ -76,6 +76,17 @@ export async function POST(req: Request) {
                 }
             });
 
+            // Notify User via SMS
+            import("@/lib/sms").then(async ({ sendSMS }) => {
+                const startPhone = order.shippingAddress?.phone;
+                if (startPhone) {
+                    await sendSMS(
+                        startPhone,
+                        `Basho: Order #${order.orderNumber || order._id} confirmed! Amount: Rs.${order.finalAmount || order.total}. We will notify you when it ships.`
+                    );
+                }
+            });
+
             // NOW we finalize the Coupons usage if we were deferring it. 
             // But we did it optimistically in creation. 
             // If payment failed, we would have already deducted coupon. 

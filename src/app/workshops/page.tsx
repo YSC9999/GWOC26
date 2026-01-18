@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { useAuth } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 import Script from "next/script";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
@@ -58,6 +60,8 @@ export default function Workshops() {
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
   // Refs for scrolling
   const inquiryFormRef = useRef<HTMLDivElement>(null);
@@ -314,6 +318,10 @@ export default function Workshops() {
   // --- Inquiry Form Logic ---
   const handleInquirySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isAuthenticated) {
+      router.push("/auth/login?redirect=/workshops");
+      return;
+    }
     setInquiryLoading(true);
     try {
       const res = await fetch("/api/workshops/inquire", {
@@ -433,7 +441,13 @@ export default function Workshops() {
 
                       <div className="flex justify-end pt-2">
                         <button
-                          onClick={() => getAvailableSpots(workshop) > 0 && setBookingWorkshop(workshop)}
+                          onClick={() => {
+                            if (!isAuthenticated) {
+                              router.push("/auth/login?redirect=/workshops");
+                              return;
+                            }
+                            getAvailableSpots(workshop) > 0 && setBookingWorkshop(workshop);
+                          }}
                           disabled={getAvailableSpots(workshop) === 0}
                           className={`w-full md:w-auto px-6 py-2 rounded-full font-semibold text-xs transition-all flex items-center justify-center gap-2 ${getAvailableSpots(workshop) === 0
                             ? "bg-gray-100 text-gray-400 cursor-not-allowed"

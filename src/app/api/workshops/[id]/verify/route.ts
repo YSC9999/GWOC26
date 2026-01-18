@@ -64,7 +64,7 @@ export async function POST(
             `
         );
 
-        // Notify User
+        // Notify User via Email
         import("@/lib/email").then(async ({ sendWorkshopBookingEmail }) => {
             const workshop = await (Workshop as any).findById(id);
             if (workshop) {
@@ -74,6 +74,20 @@ export async function POST(
                     workshop.date,
                     registration.numberOfParticipants,
                     registration.totalAmount
+                );
+            }
+        });
+
+        // Notify User via SMS
+        import("@/lib/sms").then(async ({ sendSMS }) => {
+            const workshop = await (Workshop as any).findById(id);
+            if (workshop && registration.phone) {
+                const dateStr = new Date(workshop.date).toLocaleDateString("en-IN", {
+                    month: "short", day: "numeric"
+                });
+                await sendSMS(
+                    registration.phone,
+                    `Basho: Your booking for ${workshop.title} on ${dateStr} is confirmed! (${registration.numberOfParticipants} ppl). See you there!`
                 );
             }
         });

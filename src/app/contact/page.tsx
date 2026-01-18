@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Mail,
@@ -47,6 +49,8 @@ export default function Contact() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     fetchStudioInfo();
@@ -75,6 +79,12 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isAuthenticated) {
+      router.push("/auth/login?redirect=/contact");
+      return;
+    }
+
     setLoading(true);
     setError("");
 

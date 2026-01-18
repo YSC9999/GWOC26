@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
 import {
@@ -55,6 +57,8 @@ export default function Studio() {
   const [selectedEventDetails, setSelectedEventDetails] =
     useState<Event | null>(null);
   const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -633,7 +637,13 @@ export default function Studio() {
                   </div>
 
                   <button
-                    onClick={() => setIsVisitModalOpen(true)}
+                    onClick={() => {
+                      if (!isAuthenticated) {
+                        router.push("/auth/login?redirect=/studio");
+                        return;
+                      }
+                      setIsVisitModalOpen(true);
+                    }}
                     className="w-full bg-[#5A3E36] text-white py-4 rounded-2xl font-bold text-lg hover:bg-[#4a332c] transition-all transform active:scale-[0.98] shadow-lg shadow-[#5A3E36]/20 flex items-center justify-center gap-2 group"
                   >
                     Book a Studio Visit
