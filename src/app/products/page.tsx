@@ -23,6 +23,7 @@ import {
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import ProductModal from "@/components/ProductModal";
+import AuthModal from "@/components/AuthModal";
 import { Carousel } from "@/components/Carousel";
 import UploadInput from "@/components/UploadInput";
 import { StarRating } from "@/components/StarRating";
@@ -75,6 +76,7 @@ export default function Products() {
   const [priceRange, setPriceRange] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("featured");
   const [showFilters, setShowFilters] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const itemsPerPage = 12;
   const cart = useCart();
   const { user, login } = useAuth();
@@ -299,6 +301,10 @@ export default function Products() {
   };
 
   const handleAddToCart = (product: Product) => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
     cart.add({
       id: product._id as any,
       name: product.name,
@@ -312,7 +318,7 @@ export default function Products() {
   const handleWishlist = async (e: React.MouseEvent, productId: string) => {
     e.stopPropagation();
     if (!user) {
-      alert("Please login to add to wishlist");
+      setShowAuthModal(true);
       return;
     }
 
@@ -1483,7 +1489,7 @@ export default function Products() {
                     {
                       step: "3",
                       title: "Confirm & Pay",
-                      desc: "50% advance to begin crafting",
+                      desc: "Advance to begin crafting",
                       emoji: "✅",
                     },
                     {
@@ -1589,6 +1595,12 @@ export default function Products() {
       <ProductModal
         productId={selectedProductId}
         onClose={() => setSelectedProductId(null)}
+      />
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        message="Please login to continue"
       />
     </div>
   );

@@ -43,8 +43,9 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error("Error in verify OTP:", error);
+    const errorMessage = error instanceof Error ? error.message : "Server error";
     return NextResponse.json(
-      { error: "Server error" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

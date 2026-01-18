@@ -16,9 +16,9 @@ export async function GET(req: Request) {
             .populate("products");
 
         return NextResponse.json({ collections });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Fetch Collections Error:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
     }
 }
 

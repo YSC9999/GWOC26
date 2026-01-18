@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
+import AuthModal from "@/components/AuthModal";
 
 interface Product {
     _id: string;
@@ -62,6 +63,7 @@ export default function ProductDetail() {
     const [quantity, setQuantity] = useState(1);
     const [wishlist, setWishlist] = useState(false);
     const [addedToCart, setAddedToCart] = useState(false);
+    const [showAuthModal, setShowAuthModal] = useState(false);
     const cart = useCart();
     const { user } = useAuth();
 
@@ -101,7 +103,7 @@ export default function ProductDetail() {
 
         // Check if user is logged in
         if (!user) {
-            alert("Please login first to add items to cart");
+            setShowAuthModal(true);
             return;
         }
 
@@ -341,7 +343,7 @@ export default function ProductDetail() {
                             <button
                                 onClick={async () => {
                                     if (!user) {
-                                        alert("Please login to add to wishlist");
+                                        setShowAuthModal(true);
                                         return;
                                     }
                                     const prevState = wishlist;
@@ -566,6 +568,12 @@ export default function ProductDetail() {
                     </div>
                 </div>
             </section>
+
+            <AuthModal
+                isOpen={showAuthModal}
+                onClose={() => setShowAuthModal(false)}
+                message="Please login to continue"
+            />
         </div>
     );
 }

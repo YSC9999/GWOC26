@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     if (existingUser?.isBlocked) {
       const now = new Date();
       if (!existingUser.blockedUntil || new Date(existingUser.blockedUntil) > now) {
-        return NextResponse.json({ error: "Something went wrong" }, { status: 403 });
+        return NextResponse.json({ error: "Account is temporarily blocked. Please contact support." }, { status: 403 });
       }
     }
 
@@ -101,6 +101,6 @@ export async function POST(req: Request) {
     return response;
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({ error: (error as Error).message || "Server error" }, { status: 500 });
   }
 }

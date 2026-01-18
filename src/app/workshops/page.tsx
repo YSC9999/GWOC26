@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { Carousel } from "@/components/Carousel";
 import EventCalendar from "@/components/EventCalendar";
+import AuthModal from "@/components/AuthModal";
 
 interface Workshop {
   _id: string;
@@ -91,6 +92,7 @@ export default function Workshops() {
   const [otpSent, setOtpSent] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Inquiry Form State
   const [inquiryForm, setInquiryForm] = useState({
@@ -319,7 +321,7 @@ export default function Workshops() {
   const handleInquirySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthenticated) {
-      router.push("/auth/login?redirect=/workshops");
+      setShowAuthModal(true);
       return;
     }
     setInquiryLoading(true);
@@ -443,7 +445,7 @@ export default function Workshops() {
                         <button
                           onClick={() => {
                             if (!isAuthenticated) {
-                              router.push("/auth/login?redirect=/workshops");
+                              setShowAuthModal(true);
                               return;
                             }
                             getAvailableSpots(workshop) > 0 && setBookingWorkshop(workshop);
@@ -1054,6 +1056,12 @@ export default function Workshops() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        message="Please login to book a workshop"
+      />
     </div>
   );
 }

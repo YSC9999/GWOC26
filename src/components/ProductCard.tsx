@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useCart } from "@/lib/cart";
+import AuthModal from "@/components/AuthModal";
 
 import { motion, AnimatePresence } from "framer-motion";
 import { hoverScale, clickTap } from "@/lib/animations";
@@ -25,6 +26,7 @@ export default function ProductCard({ product, userTier, onProductClick }: Produ
   const { add, items, updateQty } = useCart();
   const [isLiked, setIsLiked] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const qtyInCart = items.find((i) => i.id === product._id)?.qty || 0;
 
@@ -44,8 +46,7 @@ export default function ProductCard({ product, userTier, onProductClick }: Produ
     e.stopPropagation();
 
     if (!user) {
-      setToastMessage("Please login to add to wishlist");
-      setTimeout(() => setToastMessage(""), 3000);
+      setShowAuthModal(true);
       return;
     }
 
@@ -89,8 +90,7 @@ export default function ProductCard({ product, userTier, onProductClick }: Produ
 
     // Check if user is logged in
     if (!user) {
-      setToastMessage("Please login first to add items to cart");
-      setTimeout(() => setToastMessage(""), 3000);
+      setShowAuthModal(true);
       return;
     }
 
@@ -251,6 +251,12 @@ export default function ProductCard({ product, userTier, onProductClick }: Produ
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        message="Please login to add items to your cart"
+      />
     </div>
   );
 }

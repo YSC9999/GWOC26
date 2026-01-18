@@ -16,6 +16,7 @@ import {
 import EventCalendar from "@/components/EventCalendar";
 import EventModal from "@/components/EventModal";
 import BookVisitModal from "@/components/BookVisitModal";
+import AuthModal from "@/components/AuthModal";
 
 interface Event {
   _id: string;
@@ -57,6 +58,7 @@ export default function Studio() {
   const [selectedEventDetails, setSelectedEventDetails] =
     useState<Event | null>(null);
   const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const { isAuthenticated } = useAuth();
   const router = useRouter();
 
@@ -639,7 +641,7 @@ export default function Studio() {
                   <button
                     onClick={() => {
                       if (!isAuthenticated) {
-                        router.push("/auth/login?redirect=/studio");
+                        setShowAuthModal(true);
                         return;
                       }
                       setIsVisitModalOpen(true);
@@ -664,6 +666,12 @@ export default function Studio() {
       <BookVisitModal
         isOpen={isVisitModalOpen}
         onClose={() => setIsVisitModalOpen(false)}
+      />
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        message="Please login to book a studio visit"
       />
     </div>
   );

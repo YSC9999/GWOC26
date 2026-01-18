@@ -16,6 +16,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { fadeInUp } from "@/lib/animations";
+import AuthModal from "@/components/AuthModal";
 
 interface StudioInfo {
   name: string;
@@ -50,6 +51,7 @@ export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const { isAuthenticated } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -81,7 +83,7 @@ export default function Contact() {
     e.preventDefault();
 
     if (!isAuthenticated) {
-      router.push("/auth/login?redirect=/contact");
+      setShowAuthModal(true);
       return;
     }
 
@@ -770,6 +772,11 @@ export default function Contact() {
           ))}
         </div>
       </div>
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        message="Please login to send a message"
+      />
     </div>
   );
 }

@@ -125,9 +125,9 @@ ProductSchema.index({
 });
 
 // Prevent Mongoose recompilation error in development
-if (process.env.NODE_ENV !== 'production') {
-  delete mongoose.models.Product;
-}
+// if (process.env.NODE_ENV !== 'production') {
+//   delete mongoose.models.Product;
+// }
 
 const Product: Model<IProduct> =
   mongoose.models.Product ||
