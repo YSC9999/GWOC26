@@ -1,6 +1,6 @@
 # Basho E-commerce Platform
 
-Welcome to the GWOC26 Basho project! This is a modern e-commerce platform built with Next.js and TypeScript, designed for handcrafted Japanese-inspired pottery. Whether you're a developer, admin, or new visitor, this guide will help you understand the project structure, features, and how to get started.
+Welcome to the GWOC26 Basho project! This is a modern e-commerce platform built with Next.js and TypeScript, designed for handcrafted Japanese-inspired pottery. This README reflects the latest project cleanup: **all files present are necessary for the core website and its features.**
 
 ---
 
@@ -14,7 +14,7 @@ Welcome to the GWOC26 Basho project! This is a modern e-commerce platform built 
 
 ## 📦 Project Structure (What’s Inside)
 
-The codebase is organized for clarity and scalability. Here’s a simplified view:
+The codebase is organized for clarity and scalability. All files and folders listed below are actively used or required for the website’s operation:
 
 ```
 gwoc26/
@@ -24,11 +24,11 @@ gwoc26/
 │   ├── models/      # Database schemas (Mongoose)
 │   ├── lib/         # Utility modules (auth, cart, email, etc.)
 │   └── data/        # Static data (e.g., chatbot FAQs)
-├── scripts/         # Utility scripts (e.g., database seeding)
-└── public/          # Static assets (images, etc.)
+├── scripts/         # Utility scripts (database, admin, gallery management)
+└── public/          # Static assets (images, icons, media)
 ```
 
-**Tip:** Each folder is commented for its purpose. Explore `src/app` for routes, `components` for UI, and `models` for data structure.
+**Note:** `.txt` and `.md` files are retained for documentation and linting purposes.
 
 ---
 
@@ -49,6 +49,19 @@ gwoc26/
 | AI               | Google Generative AI      | Chatbot assistant          |
 | Icons            | Lucide React              | Icon library               |
 | Charts           | Recharts                  | Admin analytics            |
+
+---
+
+## 🧹 Project Cleanup Status
+
+All unused files (except `.txt` and `.md` documentation/lint files) have been removed. Every remaining file is required for:
+
+- Website functionality
+- Admin and database management
+- Gallery and product management
+- Static assets for UI/UX
+
+Scripts in the `scripts/` folder are essential for database seeding, admin setup, and gallery operations. All files in `public/` are used for images, icons, and media.
 
 ---
 
@@ -271,7 +284,6 @@ erDiagram
 | **PincodeRate**          | Pincode-based rates      | pincode, deliveryDays, rate                                 |
 | **StudioInfo**           | Studio configuration     | address, hours, phone                                       |
 | **StoreSettings**        | Store configuration      | tax, currency, shipping defaults                            |
-| **WalletTransaction**    | Wallet history           | userId, amount, type, description                           |
 
 ---
 
