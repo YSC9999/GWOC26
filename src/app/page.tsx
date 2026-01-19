@@ -288,7 +288,7 @@ export default function Home() {
             {/* Right Image Grid - Responsive Handling */}
             <div className="relative w-full mt-8 md:mt-0">
               {/* Mobile/Small Tablet View (Grid Layout) */}
-              <div className="grid grid-cols-3 gap-3 md:hidden max-w-sm mx-auto">
+              <div className="grid grid-cols-1 gap-6 md:hidden max-w-sm mx-auto">
                 {frameData.map((frame, index) => {
                   const configuredFrame = Array.isArray(dynamicFrames)
                     ? dynamicFrames.find((f) => f.frameId === frame.id)
@@ -318,31 +318,31 @@ export default function Home() {
                       }
                     >
                       <div className="w-full h-full overflow-hidden relative shadow-sm rounded-[1px]">
-                          {product && product.images?.[0] ? (
-                            <img
-                              src={product.images[0]}
-                              alt={product.name || "Product"}
-                              loading="lazy"
-                              decoding="async"
-                              className="w-full h-full object-cover filter contrast-[1.05] brightness-105"
-                              style={{ contentVisibility: "auto", willChange: "transform, opacity" }}
-                              onLoad={(e) => {
-                                setLoadedImages(
-                                  (prev) => new Set([...prev, product._id]),
-                                );
-                                e.currentTarget.style.display = "block";
-                                const fallback =
-                                  e.currentTarget.nextElementSibling;
-                                if (fallback) fallback.classList.add("hidden");
-                              }}
-                              onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                                const fallback =
-                                  e.currentTarget.nextElementSibling;
-                                if (fallback) fallback.classList.remove("hidden");
-                              }}
-                            />
-                          ) : null}
+                        {product && product.images?.[0] ? (
+                          <img
+                            src={product.images[0]}
+                            alt={product.name || "Product"}
+                            loading="lazy"
+                            decoding="async"
+                            className="w-full h-full object-cover filter contrast-[1.05] brightness-105"
+                            style={{ willChange: "transform, opacity" }}
+                            onLoad={(e) => {
+                              setLoadedImages(
+                                (prev) => new Set([...prev, product._id]),
+                              );
+                              e.currentTarget.style.display = "block";
+                              const fallback =
+                                e.currentTarget.nextElementSibling;
+                              if (fallback) fallback.classList.add("hidden");
+                            }}
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                              const fallback =
+                                e.currentTarget.nextElementSibling;
+                              if (fallback) fallback.classList.remove("hidden");
+                            }}
+                          />
+                        ) : null}
                         <div
                           className={`w-full h-full flex items-center justify-center bg-gray-100 text-[#5A3E36]/20 text-2xl ${product && product.images?.[0] && loadedImages.has(product._id) ? "hidden" : ""}`}
                         >
@@ -552,13 +552,7 @@ export default function Home() {
                   simple observations of nature into profound meditations on
                   existence.
                 </p>
-                <p>
-                  His philosophy of{" "}
-                  <em className="text-clay font-medium">wabi-sabi</em> — finding
-                  beauty in imperfection and transience — deeply influences
-                  every piece we create. Like his poems, our pottery celebrates
-                  the authentic, the handmade, and the beautifully imperfect.
-                </p>
+                {/* Paragraph removed */}
                 <p>
                   Bashō believed that true art emerges from deep connection with
                   nature and mindful presence. Each bowl we shape, each cup we

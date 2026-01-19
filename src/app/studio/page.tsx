@@ -488,10 +488,7 @@ export default function Studio() {
       <section className="py-20 px-4 md:px-12">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-
-            <p className="text-soil/70 max-w-2xl mx-auto">
-              {studioInfo?.aboutText || "A space for creation and community."}
-            </p>
+            {/* Intro text removed as per request */}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
@@ -523,10 +520,10 @@ export default function Studio() {
                     ([day, time]: [string, any]) => (
                       <li
                         key={day}
-                        className="flex justify-between text-base border-b border-stone-200/50 pb-3 last:border-0 last:pb-0"
+                        className="flex justify-between items-center gap-4 text-base border-b border-stone-200/50 pb-3 last:border-0 last:pb-0"
                       >
                         <span className="text-stone-500 capitalize">{day}</span>
-                        <span className="font-medium text-[#5A3E36]">
+                        <span className="font-medium text-[#5A3E36] text-right">
                           {time}
                         </span>
                       </li>
