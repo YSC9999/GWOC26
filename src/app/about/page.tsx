@@ -66,10 +66,8 @@ export default function About() {
                   What started as a weekend hobby quickly became an
                   all-consuming passion. I trained under master potters, studied
                   Japanese ceramic traditions, and fell deeply in love with the
-                  philosophy of
-                  wabi-sabi — finding
-                  beauty in imperfection and embracing the natural, the
-                  authentic, and the handmade.
+                  Japanese ceramic traditions, and fell deeply in love with the
+                  philosophy of pottery.
                 </p>
 
                 <div className="mt-8 bg-white/90 backdrop-blur-sm border border-sand/40 rounded-xl px-5 py-3 flex flex-col items-center text-center">
@@ -91,93 +89,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* Philosophy */}
-      <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center border border-soil rounded-xl p-6 md:p-8 bg-white/90 shadow-md">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={staggerContainer}
-          className="border-l-2 border-clay pl-4"
-        >
-          <motion.span
-            variants={fadeInUp}
-            className="text-clay font-medium tracking-wider uppercase mb-1 block text-xs"
-          >
-            Our Philosophy
-          </motion.span>
-          <motion.h2
-            variants={fadeInUp}
-            className="text-2xl md:text-3xl font-bold text-soil font-serif mb-4"
-          >
-            Wabi-Sabi & The Art of Imperfection
-          </motion.h2>
-          <motion.div
-            variants={staggerContainer}
-            className="space-y-3 text-sm text-soil/70 leading-relaxed"
-          >
-            <motion.p variants={fadeInUp}>
-              Named after Matsuo Bashō, the master of haiku, our studio embodies
-              the principles of finding profound meaning in simple things. We
-              believe that objects we use daily should carry a soul.
-            </motion.p>
-            <motion.p variants={fadeInUp}>
-              Every bowl, cup, and vase is hand-thrown or hand-built, embracing
-              the natural texture of clay and the unpredictable magic of
-              glazing. No two pieces are identical, just as no two moments in
-              life are the same.
-            </motion.p>
-            <motion.p variants={fadeInUp}>
-              In a world of mass production, we choose to slow down. To feel the
-              earth between our fingers. To create with intention.
-            </motion.p>
-          </motion.div>
-
-          <motion.div
-            variants={staggerContainer}
-            className="mt-6 grid grid-cols-2 gap-3"
-          >
-            <motion.div
-              variants={fadeInUp}
-              whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
-              className="border border-soil rounded-lg p-3 bg-sand/20 cursor-pointer"
-            >
-              <h4 className="font-bold text-soil mb-1 text-base">
-                Sustainable
-              </h4>
-              <p className="text-soil/60 text-xs">
-                Using locally sourced clay and eco-friendly practices.
-              </p>
-            </motion.div>
-            <motion.div
-              variants={fadeInUp}
-              whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
-              className="border border-soil rounded-lg p-3 bg-sand/20 cursor-pointer"
-            >
-              <h4 className="font-bold text-soil mb-1 text-base">Timeless</h4>
-              <p className="text-soil/60 text-xs">
-                Designs meant to be cherished for generations.
-              </p>
-            </motion.div>
-          </motion.div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          whileHover={{ scale: 1.02 }}
-          className="relative h-[350px] rounded-xl overflow-hidden shadow-lg border border-soil"
-        >
-          <div className="absolute inset-0 bg-sand/10 z-10" />
-          <img
-            src="https://images.unsplash.com/photo-1493106641515-6b5631de4bb9?q=80&w=2694&auto=format&fit=crop"
-            alt="Pottery making"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        </motion.div>
-      </div>
+      {/* Philosophy Section Removed */}
 
       {/* Process & Care Section */}
       <section className="py-24 bg-[#F9F5F0] my-24 -mx-4 md:-mx-12 px-4 md:px-12 relative overflow-hidden">
@@ -389,6 +301,6 @@ export default function About() {
           </motion.div>
         </div>
       </section>
-    </div>
+    </div >
   );
 }
