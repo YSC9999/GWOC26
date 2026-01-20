@@ -178,7 +178,7 @@ export default function AdminDashboard() {
             </h1>
           </motion.div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+          <div className="grid grid-cols-1 min-[360px]:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             {adminLinks.map((link, idx) => (
               <motion.div
                 key={link.href}
