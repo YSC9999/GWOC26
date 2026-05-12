@@ -26,6 +26,7 @@ import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import { StarRating } from "@/components/StarRating";
 import AuthModal from "@/components/AuthModal";
+import OptimizedImage from "@/components/OptimizedImage";
 
 interface Product {
   _id: string;
@@ -278,15 +279,16 @@ export default function ProductModal({
                   <div className="bg-gradient-to-br from-sand to-sand/50 h-96 lg:h-auto lg:min-h-[500px] flex items-center justify-center overflow-hidden relative group">
                     {/* Main Image */}
                     {validImages.length > 0 ? (
-                      <motion.img
-                        key={currentImageIndex}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                        src={validImages[currentImageIndex]}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
+                      <div className="w-full h-full relative">
+                        <OptimizedImage
+                          key={currentImageIndex}
+                          src={validImages[currentImageIndex]}
+                          alt={product.name}
+                          priority
+                          containerClassName="w-full h-full"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                     ) : (
                       <div className="text-[120px]">
                         {categoryEmojis[product.category] || "🏺"}
@@ -730,7 +732,7 @@ function ReviewsSection({ productId }: { productId: string }) {
                   <div className="flex flex-wrap gap-2">
                     {images.map((img, idx) => (
                       <div key={idx} className="relative w-16 h-16 rounded-md overflow-hidden border border-soil/20 group">
-                        <img src={img} alt="Preview" className="w-full h-full object-cover" />
+                        <OptimizedImage src={img} alt="Preview" containerClassName="w-full h-full" className="w-full h-full object-cover" />
                         <button
                           type="button"
                           onClick={() => setImages(prev => prev.filter((_, i) => i !== idx))}

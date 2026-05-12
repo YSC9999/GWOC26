@@ -8,6 +8,7 @@ import { ArrowRight, ShoppingBag, Star, Quote } from "lucide-react";
 import ProductModal from "@/components/ProductModal";
 import Preloader from "@/components/Preloader";
 import FeaturedCollections from "@/components/FeaturedCollections";
+import OptimizedImage from "@/components/OptimizedImage";
 
 interface Product {
   _id: string;
@@ -81,45 +82,15 @@ export default function Home() {
         fetch("/api/admin/frames", { cache: "no-store" }),
       ]);
 
-      if (!collectionsRes.ok)
-        throw new Error("Failed to load featured collections");
-      if (!testimonialsRes.ok) throw new Error("Failed to load testimonials");
-      if (!framesRes.ok) throw new Error("Failed to load frames");
+      const collectionsData = collectionsRes.ok ? await collectionsRes.json().catch(() => ({})) : {};
+      const testimonialsData = testimonialsRes.ok ? await testimonialsRes.json().catch(() => ({})) : {};
+      const framesData = framesRes.ok ? await framesRes.json().catch(() => ({})) : {};
 
-      const collectionsData = await collectionsRes.json();
-      const testimonialsData = await testimonialsRes.json();
-      const framesData = await framesRes.json();
-
-      const newCollections = collectionsData.collections || [];
-      const newTestimonials = testimonialsData.testimonials || [];
-      const newFrames = framesData.frames || [];
-
-      setCollections(newCollections);
-      setTestimonials(newTestimonials);
-      setDynamicFrames(newFrames);
-
-      // Preload images for frames
-      if (newFrames && Array.isArray(newFrames)) {
-        const imagePromises = newFrames
-          .filter((frame: any) => frame.product?.images?.[0])
-          .map((frame: any) => {
-            return new Promise((resolve, reject) => {
-              const img = new window.Image();
-              img.src = frame.product.images[0];
-              img.onload = resolve;
-              img.onerror = resolve; // Continue even if one fails
-            });
-          });
-
-        // Wait for images to load, but set a timeout to avoid hanging forever
-        await Promise.race([
-          Promise.all(imagePromises),
-          new Promise((resolve) => setTimeout(resolve, 3000)), // 3s max wait time
-        ]);
-      }
+      setCollections(collectionsData.collections || []);
+      setTestimonials(testimonialsData.testimonials || []);
+      setDynamicFrames(framesData.frames || []);
     } catch (error: any) {
-      setError(error?.message || "An error occurred while loading data.");
-      console.error("Failed to fetch data:", error);
+      console.warn("Failed to fetch data, using empty fallbacks:", error);
     } finally {
       setLoading(false);
       setShowPreloader(false);
@@ -319,27 +290,14 @@ export default function Home() {
                     >
                       <div className="w-full h-full overflow-hidden relative shadow-sm rounded-[1px]">
                           {product && product.images?.[0] ? (
-                            <img
+                            <OptimizedImage
                               src={product.images[0]}
                               alt={product.name || "Product"}
-                              loading="lazy"
-                              decoding="async"
-                              className="w-full h-full object-cover filter contrast-[1.05] brightness-105"
-                              style={{ contentVisibility: "auto", willChange: "transform, opacity" }}
-                              onLoad={(e) => {
-                                setLoadedImages(
-                                  (prev) => new Set([...prev, product._id]),
-                                );
-                                e.currentTarget.style.display = "block";
-                                const fallback =
-                                  e.currentTarget.nextElementSibling;
-                                if (fallback) fallback.classList.add("hidden");
-                              }}
-                              onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                                const fallback =
-                                  e.currentTarget.nextElementSibling;
-                                if (fallback) fallback.classList.remove("hidden");
+                              priority={index < 3}
+                              containerClassName="w-full h-full"
+                              className="filter contrast-[1.05] brightness-105"
+                              onLoad={() => {
+                                setLoadedImages((prev) => new Set(prev).add(product._id));
                               }}
                             />
                           ) : null}
@@ -426,28 +384,14 @@ export default function Home() {
                       >
                         <div className="w-full h-full overflow-hidden relative cursor-pointer shadow-sm rounded-[1px]">
                           {product && product.images?.[0] ? (
-                            <img
+                            <OptimizedImage
                               src={product.images[0]}
                               alt={product.name || "Product"}
-                              loading="lazy"
-                              decoding="async"
-                              className="w-full h-full object-cover filter contrast-[1.05] brightness-105"
-                              style={{ contentVisibility: "auto", willChange: "transform, opacity" }}
-                              onLoad={(e) => {
-                                setLoadedImages(
-                                  (prev) => new Set([...prev, product._id]),
-                                );
-                                e.currentTarget.style.display = "block";
-                                const fallback =
-                                  e.currentTarget.nextElementSibling;
-                                if (fallback) fallback.classList.add("hidden");
-                              }}
-                              onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                                const fallback =
-                                  e.currentTarget.nextElementSibling;
-                                if (fallback)
-                                  fallback.classList.remove("hidden");
+                              priority={index < 3}
+                              containerClassName="w-full h-full"
+                              className="filter contrast-[1.05] brightness-105"
+                              onLoad={() => {
+                                setLoadedImages((prev) => new Set(prev).add(product._id));
                               }}
                             />
                           ) : null}

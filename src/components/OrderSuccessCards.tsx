@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import Link from "next/link";
+import OptimizedImage from "@/components/OptimizedImage";
 
 interface OrderSuccessCardsProps {
   customerEmail: string;
@@ -83,10 +84,11 @@ export default function OrderSuccessCards({
                 transition={{ duration: 0.5 }}
                 className="w-full flex items-center justify-center"
               >
-                <img
+                <OptimizedImage
                   src="/thank-you-simple.jpeg"
                   alt="Thank You"
-                  className="max-w-full max-h-[50vh] sm:max-h-[60vh] object-contain rounded-xl shadow-lg"
+                  containerClassName="max-w-full max-h-[50vh] sm:max-h-[60vh]"
+                  className="object-contain rounded-xl shadow-lg"
                 />
               </motion.div>
             </div>

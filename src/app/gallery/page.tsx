@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Play, X, ChevronLeft, ChevronRight, Grid } from "lucide-react";
+import OptimizedImage from "@/components/OptimizedImage";
 
 interface Album {
   _id: string;
@@ -59,7 +60,11 @@ export default function GalleryPage() {
   const fetchAlbums = async () => {
     try {
       const res = await fetch("/api/albums");
-      const data = await res.json();
+      if (!res.ok) {
+        console.warn("Failed to fetch albums (non-200 status)");
+        return;
+      }
+      const data = await res.json().catch(() => ({}));
       if (data.albums && data.albums.length > 0) {
         setAlbums(data.albums);
         setSelectedAlbum(data.albums[0]);
@@ -75,7 +80,11 @@ export default function GalleryPage() {
     try {
       setLoading(true);
       const res = await fetch(`/api/gallery?album=${albumId}`);
-      const data = await res.json();
+      if (!res.ok) {
+        console.warn("Failed to fetch gallery (non-200 status)");
+        return;
+      }
+      const data = await res.json().catch(() => ({}));
       const allItems: GalleryItem[] = data.gallery || [];
       setGalleryItems(allItems);
       setImages(allItems.filter(item => item.type === 'image' || !item.type));
@@ -234,7 +243,12 @@ export default function GalleryPage() {
 
                   <div className="relative w-full aspect-square bg-gray-100 overflow-hidden mb-4 border border-gray-100">
                     {album.coverImage ? (
-                  <img src={album.coverImage} alt={album.name} loading="lazy" decoding="async" className="w-full h-full object-cover" style={{ contentVisibility: "auto" }} />
+                      <OptimizedImage
+                        src={album.coverImage}
+                        alt={album.name}
+                        containerClassName="w-full h-full"
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gray-100">
                         <span className="text-4xl text-soil/20 font-serif">🎨</span>
@@ -296,7 +310,12 @@ export default function GalleryPage() {
                       className="flex-shrink-0 w-80 md:w-96 aspect-video relative rounded-2xl overflow-hidden shadow-xl cursor-pointer group bg-black"
                       onClick={() => setSelectedItem(video)}
                     >
-                      <img src={video.image} alt={video.title} loading="lazy" decoding="async" className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity" style={{ contentVisibility: "auto" }} />
+                      <OptimizedImage
+                        src={video.image}
+                        alt={video.title}
+                        containerClassName="w-full h-full"
+                        className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity"
+                      />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                           <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
@@ -340,7 +359,12 @@ export default function GalleryPage() {
                     className="relative group rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 bg-white cursor-pointer"
                     onClick={() => setSelectedItem(item)}
                   >
-                    <img src={item.image} alt={item.title} loading="lazy" decoding="async" className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" style={{ contentVisibility: "auto" }} />
+                    <OptimizedImage
+                      src={item.image}
+                      alt={item.title}
+                      containerClassName="w-full h-auto"
+                      className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
                       <h3 className="text-white font-bold text-lg font-serif truncate">{item.title}</h3>
                     </div>
@@ -413,9 +437,10 @@ export default function GalleryPage() {
                   </div>
                 ) : (
                   <div className="relative max-h-[85%] w-auto bg-white rounded-xl shadow-2xl p-2 overflow-hidden flex flex-col items-center justify-center">
-                    <img
+                    <OptimizedImage
                       src={selectedItem.image}
                       alt={selectedItem.title}
+                      containerClassName="max-h-[70vh] w-auto"
                       className="max-h-[70vh] w-auto object-contain rounded-lg"
                     />
                     <div className="mt-4 text-center shrink-0">

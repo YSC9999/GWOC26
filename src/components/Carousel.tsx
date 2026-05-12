@@ -1,7 +1,7 @@
-"use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import OptimizedImage from "@/components/OptimizedImage";
 
 export interface SlideData {
   image: string;
@@ -56,26 +56,24 @@ export function Carousel({ items }: { items: SlideData[] }) {
       <AnimatePresence mode="wait">
         <motion.div
           key={currentIndex}
-          initial={{ opacity: 0, x: 100 }}
+          initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -100 }}
+          exit={{ opacity: 0, x: -20 }}
           transition={{ duration: 0.5 }}
           className="absolute inset-0 flex"
         >
           {/* Image Side - Full Width */}
           <div className="w-full h-full bg-gray-100 relative">
-            <img
+            <OptimizedImage
               src={items[currentIndex].image}
-              alt="Showcase"
-              loading="eager"
-              decoding="sync"
-              fetchPriority="high"
+              alt={items[currentIndex].title || "Showcase"}
+              priority
+              containerClassName="w-full h-full"
               className="w-full h-full object-cover"
-              style={{ contentVisibility: "auto" }}
             />
             {/* Optional Title Overlay */}
             {items[currentIndex].title && (
-              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent text-white">
+              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent text-white z-20">
                 <h3 className="text-xl font-bold font-serif">
                   {items[currentIndex].title}
                 </h3>
@@ -93,19 +91,19 @@ export function Carousel({ items }: { items: SlideData[] }) {
       {/* Controls */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur rounded-full flex items-center justify-center text-soil hover:bg-white transition-colors opacity-0 group-hover:opacity-100 z-10"
+        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur rounded-full flex items-center justify-center text-soil hover:bg-white transition-colors opacity-0 group-hover:opacity-100 z-30"
       >
         <ChevronLeft size={20} />
       </button>
       <button
         onClick={manualNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur rounded-full flex items-center justify-center text-soil hover:bg-white transition-colors opacity-0 group-hover:opacity-100 z-10"
+        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur rounded-full flex items-center justify-center text-soil hover:bg-white transition-colors opacity-0 group-hover:opacity-100 z-30"
       >
         <ChevronRight size={20} />
       </button>
 
       {/* Indicators */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-30">
         {items.map((_, idx) => (
           <div
             key={idx}

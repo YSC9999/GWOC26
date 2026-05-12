@@ -129,10 +129,15 @@ export default function Products() {
 
     // Fetch Categories
     fetch("/api/admin/categories")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Non-200 status");
+        return res.json();
+      })
       .then((data) => {
-        const formatted = data.map((c: any) => ({ id: c.slug, label: c.name }));
-        setCategories([{ id: "all", label: "All Products" }, ...formatted]);
+        if (Array.isArray(data)) {
+          const formatted = data.map((c: any) => ({ id: c.slug, label: c.name }));
+          setCategories([{ id: "all", label: "All Products" }, ...formatted]);
+        }
       })
       .catch((err) => console.error("Failed to fetch categories:", err));
   }, []);
@@ -146,7 +151,10 @@ export default function Products() {
     fetchProducts();
     // Fetch previous custom orders for carousel
     fetch("/api/previous-custom-orders")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Non-200 status");
+        return res.json();
+      })
       .then((data) => {
         if (data.success) {
           setPreviousOrders(data.data);
@@ -168,7 +176,11 @@ export default function Products() {
       if (searchQuery) params.append("search", searchQuery);
 
       const res = await fetch(`/api/products?${params}`);
-      const data = await res.json();
+      if (!res.ok) {
+        console.warn("Failed to fetch products (non-200 status)");
+        return;
+      }
+      const data = await res.json().catch(() => ({}));
       setProducts(data.products || []);
     } catch (error) {
       console.error("Failed to fetch products:", error);

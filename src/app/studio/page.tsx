@@ -71,9 +71,9 @@ export default function Studio() {
           fetch("/api/studio"),
         ]);
 
-        const galleryData = await galleryRes.json();
-        const eventsData = await eventsRes.json();
-        const studioData = await studioRes.json();
+        const galleryData = galleryRes.ok ? await galleryRes.json().catch(() => ({})) : {};
+        const eventsData = eventsRes.ok ? await eventsRes.json().catch(() => ({})) : {};
+        const studioData = studioRes.ok ? await studioRes.json().catch(() => ({})) : {};
 
         setStudioImages(galleryData.gallery || []);
         setEvents(eventsData.events || []);

@@ -10,6 +10,7 @@ import AuthModal from "@/components/AuthModal";
 
 import { motion, AnimatePresence } from "framer-motion";
 import { hoverScale, clickTap } from "@/lib/animations";
+import OptimizedImage from "@/components/OptimizedImage";
 
 interface ProductCardProps {
   product: any;
@@ -154,13 +155,11 @@ export default function ProductCard({ product, userTier, onProductClick }: Produ
           </motion.button>
 
           <div className="relative overflow-hidden rounded-lg mb-3 h-40 bg-gray-100">
-            <img
+            <OptimizedImage
               src={product.images?.[0] || product.image}
               alt={product.name}
-              loading="lazy"
-              decoding="async"
-              className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
-              style={{ contentVisibility: "auto" }}
+              containerClassName="w-full h-full"
+              className="transform group-hover:scale-105 transition-transform duration-500"
             />
             {!allowed && (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px]">

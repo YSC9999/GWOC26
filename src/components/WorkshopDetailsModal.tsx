@@ -1,6 +1,6 @@
-"use client";
 import React from "react";
 import { X, MapPin, Calendar, Clock, User, Download, CheckCircle, AlertCircle } from "lucide-react";
+import OptimizedImage from "@/components/OptimizedImage";
 
 interface WorkshopDetailsModalProps {
     registration: any;
@@ -33,7 +33,7 @@ export default function WorkshopDetailsModal({ registration, onClose }: Workshop
                     <div className="flex gap-4">
                         <div className="w-24 h-24 bg-slate-200 rounded-xl overflow-hidden flex-shrink-0">
                             {workshop.image ? (
-                                <img src={workshop.image} alt={workshop.title} className="w-full h-full object-cover" />
+                                <OptimizedImage src={workshop.image} alt={workshop.title} containerClassName="w-full h-full" className="w-full h-full object-cover" />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">No Image</div>
                             )}

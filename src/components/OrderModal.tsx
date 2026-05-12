@@ -2,6 +2,7 @@
 import React from "react";
 import { X, MapPin, CreditCard, Package, User, Mail, Phone, Calendar, Star, CheckCircle } from "lucide-react";
 import Link from "next/link";
+import OptimizedImage from "@/components/OptimizedImage";
 
 interface OrderModalProps {
     order: any;
@@ -97,7 +98,12 @@ export default function OrderModal({ order, onClose }: OrderModalProps) {
                                         <div key={i} className={`flex gap-4 p-4 rounded-xl border border-slate-100 shadow-sm ${item.status === 'cancelled' ? 'bg-red-50/50 opacity-70' : 'bg-white'}`}>
                                             <div className="h-20 w-20 bg-slate-100 rounded-lg flex-shrink-0 overflow-hidden">
                                                 {item.image ? (
-                                                    <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                                                    <OptimizedImage 
+                                                        src={item.image} 
+                                                        alt={item.name} 
+                                                        containerClassName="h-full w-full"
+                                                        className="h-full w-full object-cover" 
+                                                    />
                                                 ) : (
                                                     <div className="h-full w-full flex items-center justify-center text-slate-300">No img</div>
                                                 )}

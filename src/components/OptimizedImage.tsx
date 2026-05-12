@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
+import Image from "next/image";
+import { getOptimizedCloudinaryUrl } from "@/lib/image-utils";
 
 interface OptimizedImageProps {
   src: string;
@@ -10,7 +12,12 @@ interface OptimizedImageProps {
   priority?: boolean;
   aspectRatio?: string;
   containerClassName?: string;
-  onError?: (e: React.SyntheticEvent<HTMLImageElement>) => void;
+  width?: number;
+  height?: number;
+  fill?: boolean;
+  sizes?: string;
+  onError?: (e: any) => void;
+  onLoad?: () => void;
 }
 
 export default function OptimizedImage({
@@ -21,84 +28,61 @@ export default function OptimizedImage({
   priority = false,
   aspectRatio,
   containerClassName = "",
+  width,
+  height,
+  fill = true,
+  sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw",
   onError,
+  onLoad,
 }: OptimizedImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [currentSrc, setCurrentSrc] = useState(src);
-  const imgRef = useRef<HTMLImageElement>(null);
 
-  // Reset state when src changes
-  useEffect(() => {
-    setIsLoaded(false);
-    setHasError(false);
-    setCurrentSrc(src);
-  }, [src]);
+  const validSrc = src || fallbackSrc;
+  
+  // Optimize Cloudinary URL if applicable
+  const optimizedSrc = !hasError && validSrc.includes("res.cloudinary.com") 
+    ? getOptimizedCloudinaryUrl(validSrc, { 
+        width: width || (fill ? undefined : 800), 
+        height: height || (fill ? undefined : 800),
+        quality: "auto",
+        format: "auto"
+      }) 
+    : hasError ? fallbackSrc : validSrc;
 
-  // Check if image is already cached
-  useEffect(() => {
-    if (imgRef.current?.complete && imgRef.current?.naturalWidth > 0) {
-      setIsLoaded(true);
-    }
-  }, [currentSrc]);
-
-  const handleLoad = () => {
-    setIsLoaded(true);
-  };
-
-  const handleError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    if (!hasError) {
-      setHasError(true);
-      setCurrentSrc(fallbackSrc);
-      onError?.(e);
-    }
-  };
+  // We set unoptimized to true to bypass Next.js local image optimization proxy.
+  // Cloudinary already handles optimization via the URL transformations above.
+  const isUnoptimized = true;
 
   return (
     <div 
       className={`relative overflow-hidden ${containerClassName}`}
-      style={aspectRatio ? { aspectRatio, contain: "size layout" } : { contain: "layout" }}
+      style={aspectRatio ? { aspectRatio } : {}}
     >
-      {/* Skeleton placeholder */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 transition-opacity duration-300 ${
-          isLoaded ? "opacity-0" : "opacity-100"
-        }`}
-        style={{
-          backgroundSize: "200% 100%",
-          animation: isLoaded ? "none" : "shimmer 1.5s infinite linear",
-          willChange: "opacity, background-position",
-        }}
-      />
-
-      {/* Actual image */}
-      <img
-        ref={imgRef}
-        src={currentSrc}
+      <Image
+        src={optimizedSrc}
         alt={alt}
-        loading={priority ? "eager" : "lazy"}
-        decoding={priority ? "sync" : "async"}
-        fetchPriority={priority ? "high" : "auto"}
-        onLoad={handleLoad}
-        onError={handleError}
-        className={`transition-opacity duration-300 ${
-          isLoaded ? "opacity-100" : "opacity-0"
-        } ${className}`}
-        style={{
-          willChange: "opacity",
+        width={fill ? undefined : width || 800}
+        height={fill ? undefined : height || 800}
+        fill={fill}
+        priority={priority}
+        sizes={sizes}
+        unoptimized={isUnoptimized}
+        className={`object-cover ${className}`}
+        onLoad={() => {
+          setIsLoaded(true);
+          onLoad?.();
+        }}
+        onError={() => {
+          setHasError(true);
+          onError?.(new Error("Failed to load image"));
         }}
       />
-
-      <style jsx>{`
-        @keyframes shimmer {
-          0% {
-            background-position: -200% 0;
-          }
-          100% {
-            background-position: 200% 0;
-          }
-        }
-      `}</style>
+      
+      {/* Loading Shimmer Overlay */}
+      {!isLoaded && !hasError && (
+        <div className="absolute inset-0 bg-gray-200/50 animate-pulse z-10" />
+      )}
     </div>
   );
 }
