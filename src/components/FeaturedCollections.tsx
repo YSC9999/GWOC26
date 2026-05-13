@@ -204,6 +204,7 @@ export default function FeaturedCollections({
                           src={thumbnailImage}
                           alt={collection.title || "Collection"}
                           priority={colIndex < 2}
+                          width={600}
                           fallbackSrc="/Logo.png"
                           containerClassName="absolute inset-0 w-full h-full z-0"
                           className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${colIndex === 2 ? "mix-blend-multiply" : ""}`}
