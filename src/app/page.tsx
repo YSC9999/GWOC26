@@ -81,9 +81,9 @@ export default function Home() {
     try {
       setError(null);
       const [collectionsRes, testimonialsRes, framesRes] = await Promise.all([
-        fetch("/api/featured-collections?active=true"),
-        fetch("/api/testimonials?featured=true&limit=3"),
-        fetch("/api/admin/frames"),
+        fetch("/api/featured-collections?active=true", { cache: "no-store" }),
+        fetch("/api/testimonials?featured=true&limit=3", { cache: "no-store" }),
+        fetch("/api/admin/frames", { cache: "no-store" }),
       ]);
 
       const collectionsData = collectionsRes.ok ? await collectionsRes.json().catch(() => ({})) : {};

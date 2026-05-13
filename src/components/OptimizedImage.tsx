@@ -43,7 +43,7 @@ export default function OptimizedImage({
   // Optimize Cloudinary URL if applicable
   const optimizedSrc = !hasError && validSrc.includes("res.cloudinary.com") 
     ? getOptimizedCloudinaryUrl(validSrc, { 
-        width: width || (fill ? undefined : 800), 
+        width: width || (fill ? 1000 : 800), 
         height: height || (fill ? undefined : 800),
         quality: "auto",
         format: "auto"

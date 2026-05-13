@@ -12,7 +12,9 @@ function initializeDNS() {
   }
 }
 
-initializeDNS();
+if (process.env.NODE_ENV === "development") {
+  initializeDNS();
+}
 
 const MONGODB_URL = process.env.MONGODB_URL!;
 

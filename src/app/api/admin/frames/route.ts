@@ -4,6 +4,8 @@ import Frame from "@/models/Frame";
 import Product from "@/models/Product"; // Ensure Product is registered
 import { requireAdmin } from "@/lib/admin-guard";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
     try {
         // Public endpoint - no admin check required for viewing

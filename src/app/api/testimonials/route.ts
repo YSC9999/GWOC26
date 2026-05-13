@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Testimonial from "@/models/Testimonial";
 
+export const dynamic = 'force-dynamic';
+
 // GET approved testimonials
 export async function GET(req: Request) {
     try {

@@ -3,6 +3,8 @@ import { connectDB } from "@/lib/mongodb";
 import FeaturedCollection from "@/models/FeaturedCollection";
 import Product from "@/models/Product"; // Ensure Product model is registered
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
     try {
         await connectDB();
