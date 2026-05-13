@@ -150,9 +150,3 @@ graph LR
         F7["/api/chat"]
     end
 ```
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please fork the repository, make your changes, and submit a pull request. Ensure that all new images utilize the `OptimizedImage` component to maintain performance standards.
